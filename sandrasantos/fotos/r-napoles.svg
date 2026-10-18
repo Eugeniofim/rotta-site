@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="ceu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B4A63"/><stop offset="1" stop-color="#5E97A8"/></linearGradient>
+    <linearGradient id="mar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E5A78"/><stop offset="1" stop-color="#06283A"/></linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#ceu)"/>
+  <circle cx="860" cy="300" r="120" fill="#A9471F" fill-opacity=".92"/>
+  <rect x="0" y="560" width="1200" height="240" fill="url(#mar)"/>
+  <path d="M0 610 Q 150 590 300 610 T 600 610 T 900 610 T 1200 610" fill="none" stroke="#FBF8F3" stroke-opacity=".35" stroke-width="5"/>
+  <path d="M0 660 Q 150 640 300 660 T 600 660 T 900 660 T 1200 660" fill="none" stroke="#FBF8F3" stroke-opacity=".25" stroke-width="5"/>
+  <path d="M0 520 L300 520 L470 330 L540 300 L610 330 L780 520 L1200 520 L1200 800 L0 800Z" fill="#083A4E" fill-opacity=".92"/>
+  <title>Nápoles · itália (arte provisória)</title>
+</svg>

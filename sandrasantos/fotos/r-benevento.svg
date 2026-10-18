@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="ceu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A4A2A"/><stop offset="1" stop-color="#D9A77E"/></linearGradient>
+    <linearGradient id="mar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E5A78"/><stop offset="1" stop-color="#06283A"/></linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#ceu)"/>
+  <circle cx="860" cy="300" r="120" fill="#A9471F" fill-opacity=".92"/>
+  
+  <path d="M0 520 C200 440 420 460 600 520 C780 580 980 470 1200 500 L1200 800 L0 800Z" fill="#4C5A2E" fill-opacity=".92"/>
+  <title>Benevento · itália (arte provisória)</title>
+</svg>
