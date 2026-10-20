@@ -5,4 +5,4 @@ Cópia das páginas de `app-guia/rotta/` com os links do app de exemplo apontand
 Publicado pelo GitHub Pages (CNAME rottaguide.com).
 
 `ailton/` = o app do Ailton Guia Viena (rottaguide.com/ailton), cópia de `app-guia/ailton/`.
-`mariodalpra/` = o app do Mario Dal Pra (rottaguide.com/mariodalpra), cópia de `~/Desktop/app-mario` (rsync com as exclusões de sempre). Banco = sala `mario`.
+`mariodalpra/` = só redireciona para https://guiabrasileiroemmunique.app (domínio do Mario, repo guiabrasileiroemmunique-app) desde 20/10/2026.
