@@ -13,7 +13,14 @@
 
    As 4 peças: SOMBRA (o que este aparelho sabe que já está no banco), FILA
    (o que ainda não subiu — sobrevive a fechar o app), MARCA (até que hora
-   já leu) e EM_DIA (só depois da primeira leitura o app manda coisas).
+   já leu) e EM DIA (só depois da primeira leitura o app manda coisas).
+
+   TRAVA CONTRA PERDA TOTAL (20/10/2026, igual à base): o "em dia" mora DENTRO
+   do DB (DB._itensEmDia), não numa chave separada. Antes ele morava ao lado:
+   o botão "Sincronizar de novo" apagava o DB e deixava a sombra cheia, e o
+   primeiro envio depois marcava TUDO como apagado no banco. Agora, DB apagado
+   ou trocado = "em dia" some junto = o aparelho relê o banco inteiro antes de
+   mandar qualquer coisa, e o que só ele tinha sobe (junta, não troca).
 
    Duas portas para quem NÃO é a dona:
    - avaliação do QR do fim do passeio: o visitante CRIA uma linha
@@ -26,9 +33,12 @@
 
 const ITENS_COLS = ['orcamentos', 'tarefas', 'recados', 'roteiros', 'fichas', 'pontos', 'avaliacoes'];
 const IT_NS = (typeof DB_KEY !== 'undefined' ? String(DB_KEY).replace(/_db_v\d+$/, '') : 'ss') + '_';
-const IT_SOMBRA = IT_NS + 'sombra_v1', IT_FILA = IT_NS + 'fila_v1', IT_MARCA = IT_NS + 'marca_v1', IT_EMDIA = IT_NS + 'emdia_v1';
+const IT_SOMBRA = IT_NS + 'sombra_v1', IT_FILA = IT_NS + 'fila_v1', IT_MARCA = IT_NS + 'marca_v1';
+/* a chave antiga do "em dia" (até 18/10): não vale mais nada, só é apagada */
+const IT_EMDIA_VELHO = IT_NS + 'emdia_v1';
 const itLe = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
 const itGrava = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const itEmDia = () => typeof DB !== 'undefined' && !!DB && DB._itensEmDia === true;
 
 function itensDe(col) {
   const v = typeof DB !== 'undefined' && DB && DB[col];
@@ -39,7 +49,7 @@ const itPronto = () => typeof temNuvem === 'function' && temNuvem() && typeof is
 
 /* compara com a SOMBRA e põe na FILA só o que mudou (e o que sumiu vira apagado) */
 function itEnfileirar() {
-  if (!itPronto() || !itLe(IT_EMDIA, false)) return 0;
+  if (!itPronto() || !itEmDia()) return 0;
   const sombra = itLe(IT_SOMBRA, {}), fila = itLe(IT_FILA, {});
   let n = 0;
   for (const col of ITENS_COLS) {
@@ -72,10 +82,12 @@ async function itEnviarFila() {
 }
 /* aplica no DB o que veio do banco; grava só no aparelho (nunca re-enfileira) */
 function itAplicar(linhas) {
-  const sombra = itLe(IT_SOMBRA, {});
+  const sombra = itLe(IT_SOMBRA, {}), fila = itLe(IT_FILA, {});
   let mudou = 0;
   for (const l of linhas) {
     const col = l.colecao; if (!ITENS_COLS.includes(col)) continue;
+    /* o que este aparelho mexeu e ainda não subiu vale mais que a cópia do banco */
+    if (fila[col + '\u0001' + l.id]) continue;
     const s = sombra[col] = sombra[col] || {};
     DB[col] = Array.isArray(DB[col]) ? DB[col] : [];
     const i = DB[col].findIndex(x => x && x.id === l.id);
@@ -100,14 +112,32 @@ async function itPuxar() {
   if (linhas.length) itGrava(IT_MARCA, linhas[linhas.length - 1].atualizado_em);
   return { ok: true, n };
 }
+/* DB sem a marca = aparelho novo, navegador limpo, "Sincronizar de novo" ou
+   a primeira abertura com esta versão (a chave antiga não vale: o DB pode ter
+   sido trocado com ela "em dia"). A sombra e a marca de leitura que sobraram
+   não valem mais nada: zera e relê o banco inteiro. Sem isto, a sombra cheia
+   + DB vazio virava "ela apagou tudo" no primeiro envio. Da fila só fica o
+   que ainda é igual no DB de agora (o que ela mexeu sem rede e não subiu);
+   apagado e coisa de um DB que não existe mais vão embora. */
+function itRecomecar() {
+  const fila = itLe(IT_FILA, {}), atual = {}, resto = {};
+  for (const col of ITENS_COLS) for (const [id, x] of itensDe(col)) atual[col + '\u0001' + id] = JSON.stringify(x);
+  for (const [k, l] of Object.entries(fila)) if (l && !l.apagado && atual[k] === JSON.stringify(l.dados)) resto[k] = l;
+  itGrava(IT_SOMBRA, {}); itGrava(IT_MARCA, ''); itGrava(IT_FILA, resto);
+  try { localStorage.removeItem(IT_EMDIA_VELHO); } catch (e) {}
+}
 /* O RITUAL DE ABRIR: lê o banco (insistindo), junta o que este aparelho
    tinha e o banco não, e só então passa a mandar. */
 async function itSincronizarAoAbrir() {
   if (!itPronto()) return { ok: false };
+  if (!itEmDia()) itRecomecar();
   let r = { ok: false };
   for (let k = 0; k < 3 && !r.ok; k++) { r = await itPuxar(); if (!r.ok) await new Promise(ok => setTimeout(ok, 1500 * (k + 1))); }
   if (!r.ok) return r;
-  if (!itLe(IT_EMDIA, false)) itGrava(IT_EMDIA, true);   /* primeira vez: o que só este aparelho tinha sobe (junta, não troca) */
+  if (!itEmDia()) {   /* primeira leitura: o que só este aparelho tinha sobe (junta, não troca) */
+    DB._itensEmDia = true;
+    try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (e) {}
+  }
   itEnfileirar();
   await itEnviarFila();
   return { ok: true, n: r.n };
@@ -115,16 +145,23 @@ async function itSincronizarAoAbrir() {
 /* depois de qualquer gravação: enfileira e manda em ~1 s */
 let itT = null;
 function itAgendar() {
-  if (!itPronto() || !itLe(IT_EMDIA, false)) return;
+  if (!itPronto() || !itEmDia()) return;
   clearTimeout(itT);
   itT = setTimeout(() => { itEnfileirar(); itEnviarFila(); }, 900);
 }
-/* de 25 em 25 s, e quando a internet volta (nunca depender só do aviso na hora) */
+/* de 25 em 25 s, e quando a internet volta (nunca depender só do aviso na hora).
+   O relógio também pega o que foi gravado sem passar pelo save(), e refaz o
+   ritual de abrir se o DB perdeu a marca no meio do caminho. */
 let itRelogio = null;
 function itLigar(onChange) {
   if (itRelogio || !itPronto()) return;
   itSincronizarAoAbrir().then(r => { if (r.ok && r.n && onChange) onChange(r); });
-  itRelogio = setInterval(async () => { if (!itPronto()) return; itEnfileirar(); await itEnviarFila(); const r = await itPuxar(); if (r.ok && r.n && onChange) onChange(r); }, 25000);
+  itRelogio = setInterval(async () => {
+    if (!itPronto()) return;
+    if (!itEmDia()) { const r0 = await itSincronizarAoAbrir(); if (r0.ok && r0.n && onChange) onChange(r0); return; }
+    itEnfileirar(); await itEnviarFila();
+    const r = await itPuxar(); if (r.ok && r.n && onChange) onChange(r);
+  }, 25000);
   if (typeof addEventListener === 'function') addEventListener('online', () => { itEnfileirar(); itEnviarFila(); });
 }
 
@@ -164,7 +201,7 @@ if (typeof statePayload === 'function') {
   statePayload = function () {
     /* com banco, só depois da primeira leitura dos itens: antes disso a lista do
        aparelho está vazia e apagaria do público o que já estava publicado */
-    const pode = !(typeof temNuvem === 'function' && temNuvem()) || itLe(IT_EMDIA, false);
+    const pode = !(typeof temNuvem === 'function' && temNuvem()) || itEmDia();
     if (pode && DB && DB.settings) DB.settings.avaliacoesPub = avaliacoesParaPublico();
     return _statePayloadBase();
   };
