@@ -88,7 +88,7 @@ function extrasDoTour(x) {
    ===================================================== */
 function viewHub() {
   const st = DB.settings;
-  const aval = (DB.avaliacoes || []).filter(a => a.publicar);
+  const aval = typeof avaliacoesPublicadas === 'function' ? avaliacoesPublicadas(true) : (DB.avaliacoes || []).filter(a => a.publicar);
   const redes = [
     st.insta ? { u: 'https://instagram.com/' + String(st.insta).replace(/^@/, ''), ic: ICONE_IG, n: 'Instagram', c: 'ig' } : null,
     st.whats ? { u: waLink('Olá, Bia! Vim pelo app e queria saber mais sobre os tours em Londres.'), ic: ICONE_WA, n: 'WhatsApp', c: 'wa' } : null,
@@ -448,9 +448,12 @@ function viewAvaliar(tourId) {
   $('#avEnviar').onclick = () => {
     guarda();
     if (!S.estrelas) return toast('Toque nas estrelas');
-    DB.avaliacoes.push({ id: uid(), nome: (S.nome || 'Cliente').trim().split(' ')[0], estrelas: S.estrelas, texto: (S.texto || '').trim().slice(0, 600),
-      tourId: S.tourId, data: isoToday(), autorizou: $('#avPub').checked, publicar: false });
+    const av = { id: uid() + uid(), nome: (S.nome || 'Cliente').trim().split(' ')[0], estrelas: S.estrelas, texto: (S.texto || '').trim().slice(0, 600),
+      tourId: S.tourId, data: isoToday(), autorizou: $('#avPub').checked, publicar: false };
+    DB.avaliacoes.push(av);
     localStorage.setItem(DB_KEY, JSON.stringify(DB));
+    /* com o banco ligado, a avaliação chega no painel dela (entra sempre não publicada) */
+    if (typeof itAvaliacaoPublica === 'function') itAvaliacaoPublica(av);
     viewAvaliar._s = null;
     app.innerHTML = `${topoCarol()}<main class="wrap roteiro fim avaliar">
       <div class="okc">✓</div><h2 class="okh">Obrigada! ❤️</h2>
@@ -461,7 +464,7 @@ function viewAvaliar(tourId) {
   };
 }
 function viewAvaliacoes() {
-  const lista = (DB.avaliacoes || []).filter(a => a.publicar);
+  const lista = typeof avaliacoesPublicadas === 'function' ? avaliacoesPublicadas(true) : (DB.avaliacoes || []).filter(a => a.publicar);
   const media = lista.length ? (lista.reduce((s, a) => s + a.estrelas, 0) / lista.length).toFixed(1).replace('.', ',') : '';
   app.innerHTML = `${topoCarol()}
   <main class="wrap avaliacoes">

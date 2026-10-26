@@ -56,7 +56,7 @@ rotaExtra = function (p) {
 };
 
 const dtBR = (iso) => iso ? String(iso).slice(0, 10).split('-').reverse().join('/') : '';
-const grava = () => { localStorage.setItem(DB_KEY, JSON.stringify(DB)); };
+const grava = () => { save(); };
 const agenciaDe = (id) => (DB.agencias || []).find(a => a.id === id) || { nome: '?' };
 const primeiroNome = (n) => String(n || '').trim().split(' ')[0];
 const linkApp = (h) => location.origin + location.pathname + '#/' + h;
@@ -679,6 +679,8 @@ const NAV_GRUPOS = [
 ];
 const _admShellBase = admShell;
 admShell = function (tab, inner) {
+  /* a sincronia por linha (nuvem-itens.js) liga na primeira tela do painel com ela logada */
+  if (typeof itLigar === 'function') itLigar(() => { if (typeof isBusyEditing === 'function' && isBusyEditing()) pendingSync = true; else route(); });
   _admShellBase(tab, inner);
   const nav = document.querySelector('.rail nav'); if (!nav || nav.dataset.agrupado) return;
   const botoes = {};

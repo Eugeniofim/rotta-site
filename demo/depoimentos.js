@@ -12,7 +12,9 @@
 function depoimentos() {
   const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
   /* avaliação do QR só vira cartão se o cliente autorizou E ela marcou "publicar" */
-  const doQr = (DB.avaliacoes || []).filter(a => a && a.publicar && a.autorizou !== false && !a.exemplo && String(a.texto || '').trim())
+  const publicadas = typeof avaliacoesPublicadas === 'function' ? avaliacoesPublicadas()
+    : (DB.avaliacoes || []).filter(a => a && a.publicar && a.autorizou !== false && !a.exemplo && String(a.texto || '').trim());
+  const doQr = publicadas
     .map(a => ({ texto: a.texto, nome: a.nome, quando: /^\d{4}-\d{2}/.test(a.data || '') ? MES[+a.data.slice(5, 7) - 1] + '/' + a.data.slice(0, 4) : '' }));
   return (DB.settings.depoimentos || []).filter(d => d && String(d.texto || '').trim()).concat(doQr);
 }

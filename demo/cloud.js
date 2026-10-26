@@ -3,6 +3,7 @@
    O que sincroniza:
    - appstate  → passeios, regras, datas, cupons, ajustes (1 doc)
    - bookings  → reservas (linha a linha, à prova de corrida)
+   - itens     → o que é privado dela (tarefas, despesas, fichas…): nuvem-itens.js
    Offline: tudo continua funcionando; fila local reenvia.
    ===================================================== */
 'use strict';
