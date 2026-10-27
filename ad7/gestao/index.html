@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AD7 Gestão · demonstração</title>
+<meta name="description" content="O app de gestão da AD7 Imóveis por dentro: negócios, carteiras, imóveis, equipe e assistente. Demonstração com dados fictícios e os imóveis reais do catálogo.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#05212D">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://imagens.tecimob.com.br">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="estilo.css?v=0.1.0">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="lado" id="lado" aria-label="Menu"></aside>
+  <main class="meio" id="meio" tabindex="-1"><div class="sm" style="padding:24px">Carregando a gestão…</div></main>
+  <section class="ia" id="ia" aria-label="Assistente da AD7"></section>
+</div>
+<nav class="barra-cel" id="barra-cel" aria-label="Menu"></nav>
+<button type="button" class="ia-flut" id="ia-flut" aria-label="Abrir o assistente">IA</button>
+<div class="modal" id="modal" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="../catalogo.js?v=0.3.0"></script>
+<script src="dados.js?v=0.1.0"></script>
+<script src="app.js?v=0.1.0"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AD7 Imóveis · Assessoria imobiliária em Pontal do Paraná</title>
+<meta name="description" content="Compra, venda, aluguel e temporada em Pontal do Paraná, com a assessoria da AD7 Imóveis do primeiro contato à entrega das chaves.">
+<meta name="theme-color" content="#05212D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://imagens.tecimob.com.br">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="estilo.css?v=0.3.0">
+</head>
+<body>
+<div id="raiz" style="display:flex;flex-direction:column;min-height:100vh">
+<a class="pular" href="#app" data-act="pular">Ir para o conteúdo</a>
+
+<header class="cab" id="cab">
+  <span class="creci" id="topo-creci"></span>
+  <div class="wrap cab-row">
+    <a href="#/" class="logo" aria-label="AD7 Imóveis, início"><img src="arte/logo-claro.png" srcset="arte/logo-claro@2x.png 2x, arte/logo-claro@3x.png 3x" width="164" height="115" alt="AD7 Imóveis, assessoria imobiliária"></a>
+    <div class="cab-dir">
+      <div class="cab-links" id="topo-links"></div>
+      <button type="button" class="hamb" id="hamb" aria-label="Abrir o menu" aria-expanded="false"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+  <nav class="menu-cel" id="menu-cel" aria-label="Menu"><div class="wrap" id="menu"></div></nav>
+</header>
+
+<main id="app" tabindex="-1" aria-live="polite"><div class="carregando">Carregando os imóveis…</div></main>
+
+<footer class="rod">
+  <div class="wrap cols" id="rodape"></div>
+  <div class="fim"><div class="wrap" id="rodape-fim"></div></div>
+</footer>
+
+<div class="cookies" id="cookies" role="region" aria-label="Aviso de cookies" hidden>
+  <span>Usamos só os cookies necessários para o site funcionar. Nada de rastreio sem o seu aceite. <a href="privacidade.html">Política de privacidade</a></span>
+  <button type="button" class="btn btn-line btn-p" data-act="cookies-nao">Recusar</button>
+  <button type="button" class="btn btn-navy btn-p" data-act="cookies-sim">Aceitar</button>
+</div>
+<div class="wa-flut" id="wa-flut"></div>
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Fotos do imóvel">
+  <button type="button" class="fechar" id="lb-fechar" data-act="lb-fechar" aria-label="Fechar as fotos">✕</button>
+  <img id="lb-img" alt="">
+  <div class="barra"><button type="button" data-act="lb-ant" aria-label="Foto anterior">‹</button><span id="lb-n"></span><button type="button" data-act="lb-prox" aria-label="Próxima foto">›</button></div>
+</div>
+</div>
+
+<script src="config.js?v=0.3.0"></script>
+<script src="nuvem.js?v=0.3.0"></script>
+<script src="auth.js?v=0.3.0"></script>
+<script src="catalogo.js?v=0.3.0"></script>
+<script src="pedidos.js?v=0.3.0"></script>
+<script src="app.js?v=0.3.0"></script>
+</body>
+</html>
