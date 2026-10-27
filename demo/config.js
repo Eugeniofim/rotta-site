@@ -44,6 +44,35 @@ var APP_CONFIG = {
   emailClientes: false,
   vapidPublica: '',
 
+  /* KIT DA VIAGEM (27/10/2026, kit-viagem.js): o link com tudo o que o cliente
+     precisa. No demo, nas cores de fabrica do produto (roxo + laranja) e com as
+     dicas padrao de Londres — so fatos certos; a guia edita no painel. Sem
+     banco, o demo usa so o link comprido (#/kt/). */
+  kit: {
+    artigo: 'a', servico: 'tour', servicos: 'tours',
+    dicasTitulo: 'Dicas para Londres',
+    mapaCidade: 'London',
+    dicas: [
+      'Emergência: 999 (o 112 também funciona).',
+      'A moeda é a libra esterlina (£). Cartão e celular por aproximação são aceitos em quase todo lugar.',
+      'Tomada: tipo G, de três pinos retangulares. Leve um adaptador.',
+      'No metrô e no ônibus, dá para pagar encostando o cartão ou o celular na catraca. Use sempre o mesmo cartão: o gasto do dia tem um teto.',
+      'Os carros andam pela esquerda: ao atravessar, olhe primeiro para a direita (está escrito no chão das faixas).',
+      'A água da torneira é potável.',
+    ],
+    levar: {
+      padrao: ['Sapato confortável', 'Guarda-chuva pequeno ou capa de chuva', 'Celular carregado e este kit'],
+      walk: ['Sapato confortável: o tour é a pé', 'Guarda-chuva pequeno ou capa de chuva', 'Uma garrafinha de água', 'Celular carregado e este kit'],
+      exclusivo: ['Sapato confortável', 'Guarda-chuva pequeno ou capa de chuva', 'Uma garrafinha de água', 'Celular carregado e este kit'],
+      museum: ['Os ingressos, quando não estão incluídos (veja "Não incluso")', 'Sapato confortável', 'Celular carregado e este kit'],
+      day: ['Documento com foto', 'Um casaco a mais e capa de chuva', 'Água e um lanche para a estrada', 'Celular carregado e este kit'],
+      consult: [],
+    },
+    cores: { faixa: '#4A1D6E', destaque: '#FF7A2F', sobreFaixa: '#FF7A2F', ctaTinta: '#111111', papel: '#FBF8F3', tinta: '#111111', tinta2: '#4F4A57',
+      linha: '#E6E0D4', rotulo: '#B3470C', pago: '#E6F0E9', resta: '#FFEBDD' },
+    sql: 'LIGAR-KIT.sql',
+  },
+
   guia: {
     nome: 'Bia',
     nomeCompleto: 'Beatriz Moreira',

@@ -35,8 +35,9 @@
 
 /* pedidos NÃO: têm tabela própria (cloud.js). cliquesIngressos NÃO: é um
    contador do aparelho do visitante, nunca chegou à dona. */
+/* kits (27/10/2026): o código do link curto do kit de cada cliente (kit-viagem.js) — privado */
 const ITENS_COLS = ['tarefas', 'recados', 'despesas', 'agencias', 'trabalhosAgencia', 'roteiros',
-                    'avaliacoes', 'fichas', 'emails', 'motoristas', 'pontos', 'giftcards'];
+                    'avaliacoes', 'fichas', 'emails', 'motoristas', 'pontos', 'giftcards', 'kits'];
 const IT_NS = (typeof DB_KEY !== 'undefined' ? String(DB_KEY).replace(/_db_v\d+$/, '') : 'vi') + '_';
 const IT_SOMBRA = IT_NS + 'sombra_v1', IT_FILA = IT_NS + 'fila_v1', IT_MARCA = IT_NS + 'marca_v1';
 const itLe = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
