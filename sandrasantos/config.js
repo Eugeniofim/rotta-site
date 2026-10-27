@@ -40,6 +40,29 @@ var APP_CONFIG = {
   emailClientes: false,
   vapidPublica: '',
 
+  /* KIT DA VIAGEM (27/10/2026, kit-viagem.js): o link com tudo o que o cliente
+     precisa. Aqui mora o que e DELA: as cores (azul Tirreno + terracota), as
+     palavras e as dicas padrao da viagem (Italia e Portugal) — so fatos certos;
+     ela edita no painel. O "o que levar" vem do modelo do Voucher dela. */
+  kit: {
+    artigo: 'a', servico: 'passeio', servicos: 'passeios',
+    dicasTitulo: 'Dicas para a viagem',
+    dicas: [
+      'Emergência: 112, em Portugal e na Itália.',
+      'A moeda é o euro (€).',
+      'Tomada: a europeia, de dois pinos redondos. Na Itália também há a de três pinos em linha: um adaptador universal resolve.',
+      'Portugal continental tem 1 hora a menos que a Itália.',
+      'Em muitas igrejas da Itália, ombros e joelhos precisam estar cobertos.',
+    ],
+    levar: { padrao: ['Sapato confortável', 'Documento com foto', 'Protetor solar, chapéu e garrafinha de água', 'Celular carregado e este kit'] },
+    /* o mapa e a agenda de cada passeio no lugar certo (Napoles e Sicilia tem a hora da Italia) */
+    mapaPorRegiao: { napoles: 'Nápoles, Itália', amalfi: 'Costa Amalfitana, Itália', cilento: 'Cilento, Itália', benevento: 'Benevento, Itália', sicilia: 'Sicília, Itália', algarve: 'Algarve, Portugal' },
+    fusoPorRegiao: { napoles: 'Europe/Rome', amalfi: 'Europe/Rome', cilento: 'Europe/Rome', benevento: 'Europe/Rome', sicilia: 'Europe/Rome', algarve: 'Europe/Lisbon' },
+    cores: { faixa: '#0E5A78', destaque: '#A9471F', sobreFaixa: '#F6CDB8', ctaTinta: '#FFFFFF', papel: '#FBF8F3', tinta: '#111111', tinta2: '#4A4F4C',
+      linha: '#E6E0D4', rotulo: '#953E1B', pago: '#E6F0E9', resta: '#F3E2DA' },
+    sql: 'LIGAR-KIT-SANDRA.sql',
+  },
+
   guia: {
     nome: 'Sandra',
     nomeCompleto: 'Sandra Santos',

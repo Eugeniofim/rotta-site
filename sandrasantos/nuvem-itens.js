@@ -31,7 +31,8 @@
    ===================================================== */
 'use strict';
 
-const ITENS_COLS = ['orcamentos', 'tarefas', 'recados', 'roteiros', 'fichas', 'pontos', 'avaliacoes'];
+/* kits (27/10/2026): o código do link curto do kit de cada cliente (kit-viagem.js) — privado */
+const ITENS_COLS = ['orcamentos', 'tarefas', 'recados', 'roteiros', 'fichas', 'pontos', 'avaliacoes', 'kits'];
 const IT_NS = (typeof DB_KEY !== 'undefined' ? String(DB_KEY).replace(/_db_v\d+$/, '') : 'ss') + '_';
 const IT_SOMBRA = IT_NS + 'sombra_v1', IT_FILA = IT_NS + 'fila_v1', IT_MARCA = IT_NS + 'marca_v1';
 /* a chave antiga do "em dia" (até 18/10): não vale mais nada, só é apagada */
