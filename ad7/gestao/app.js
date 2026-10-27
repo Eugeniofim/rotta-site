@@ -210,6 +210,7 @@ function renderLado() {
     <div class="rot">Ver o app como</div>
     <div class="vc-row"><button type="button" class="vc ${dona() ? 'on' : ''}" data-act="ver-como" data-v="dona">Adriana · dona</button><button type="button" class="vc ${dona() ? '' : 'on'}" data-act="ver-como" data-v="corretor">Rafael · corretor</button></div>
     ${itens.map(([id, label]) => `<a class="mi ${ativa === id ? 'on' : ''}" href="#/${id}">${svg(ICO[id])}<span>${label}</span>${id === 'negocios' && esf ? `<span class="n alerta" title="esfriando">${esf}</span>` : (n[id] ? `<span class="n">${n[id]}</span>` : '')}</a>`).join('')}
+    <button type="button" class="mi so-gaveta" data-act="ia-abrir">${svg('M8 10h8M8 14h5M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-4.6A8 8 0 1 1 21 12z')}<span>Assistente</span></button>
     <div class="rodape">${dona() ? 'Equipe: Adriana (dona) e Rafael (corretor). O captador externo não entra: recebe a parte dele por e-mail.' : 'Você vê o catálogo inteiro, os seus contatos e a sua parte da comissão. Dados do dono: só dos imóveis seus.'}</div>
     <a class="mi site" href="../">${svg('M4 12h16M12 4a16 16 0 0 1 0 16M12 4a16 16 0 0 0 0 16M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0')}<span>Ver o site</span></a>
     <button type="button" class="zerar" data-act="dica-todas">Mostrar as dicas de novo</button>
@@ -336,10 +337,12 @@ function filtroDeals() {
 }
 function cardDeal(d, cel) {
   const im = d.im;
-  const foto = im ? `<img class="foto" src="${esc(capa(im))}" alt="" loading="lazy">` : `<span class="sem">${svg(ICO.imoveis)}sem imóvel ainda · ${esc(d.extra)}</span>`;
-  return `<button type="button" class="kc ${d.dias > 5 ? 'esfria' : ''}" draggable="${cel ? 'false' : 'true'}" data-id="${d.id}" data-act="ir" data-h="#/pessoa/${d.pessoa}" aria-label="${esc(d.p.nome)}, ${ET_VENDA[d.etapa]}">
-    ${foto}<span class="kb"><span class="nome">${esc(d.p.nome)}</span><span class="val num">${valorNeg(d)}${im ? ` <small>· Ref. ${esc(im.ref)}</small>` : ''}</span>
-    <span class="meta">${calor(d.p.temp)}<span class="dias ${d.dias > 5 ? 'tarde' : ''}">${d.dias === 0 ? 'hoje' : d.dias + ' dia' + (d.dias === 1 ? '' : 's')}</span>${av(d.resp)}</span>
+  const foto = im ? `<img class="foto" src="${esc(capa(im))}" alt="" loading="lazy">` : `<span class="foto sem">${svg(ICO.imoveis)}</span>`;
+  const sub = im ? `Ref. ${esc(im.ref)} · ${esc(tituloCurto(im))}` : `sem imóvel ainda · ${esc(d.extra)}`;
+  const dias = d.dias === 0 ? 'hoje' : d.dias + ' d';
+  return `<button type="button" class="kc ${d.dias > 5 ? 'esfria' : ''}" draggable="${cel ? 'false' : 'true'}" data-id="${d.id}" data-act="ir" data-h="#/pessoa/${d.pessoa}" aria-label="${esc(d.p.nome)}, ${ET_VENDA[d.etapa]}, ${d.dias} dias nesta etapa">
+    ${foto}<span class="kb"><span class="nome">${esc(d.p.nome)}</span><span class="sub">${sub}</span><span class="val num">${valorNeg(d)}</span>
+    <span class="meta">${calor(d.p.temp)}<span class="dias ${d.dias > 5 ? 'tarde' : ''}" title="${d.dias} dias nesta etapa">${dias}</span>${av(d.resp)}</span>
     ${proxHtml(d.p.prox)}
     ${cel ? `<span class="ac">${d.etapa < 4 ? `<span class="btn btn-line btn-p" data-act="avancar" data-id="${d.id}">Avançar →</span>` : ''}${d.etapa >= 3 ? `<span class="btn btn-gold btn-p" data-act="ganhar" data-id="${d.id}">Ganho ✓</span>` : ''}</span>` : ''}
     </span></button>`;
@@ -362,7 +365,7 @@ function vFunilVenda() {
 function vCaptacao() {
   const lista = capts().filter(c => minha(c.resp));
   const cols = ET_CAPT.map((t, e) => ({ t, e, cs: lista.filter(c => c.etapa === e) }));
-  const card = (c, cel) => `<button type="button" class="kc capt" draggable="${cel ? 'false' : 'true'}" data-id="${c.id}" data-act="ir" data-h="${c.dono ? '#/dono/' + c.dono : '#/negocios'}"><span class="kb"><span class="nome">${esc(c.nome)}</span><span>${esc(c.o)}</span><span class="val num">${fmtMil(c.valor)} <small>· estimado</small></span><span class="meta"><span class="sm">${esc(c.origem)}</span><span class="dias ${c.alerta ? 'tarde' : ''}">${c.dias === 0 ? 'hoje' : c.dias + ' dias'}</span>${av(c.resp)}</span><span class="prox ${c.alerta ? 'atraso' : ''}">${svg(SETA)}<span>${esc(c.prox)}</span></span>${cel && c.etapa < 3 ? `<span class="ac"><span class="btn btn-line btn-p" data-act="avancar-capt" data-id="${c.id}">Avançar →</span></span>` : ''}</span></button>`;
+  const card = (c, cel) => `<button type="button" class="kc capt" draggable="${cel ? 'false' : 'true'}" data-id="${c.id}" data-act="ir" data-h="${c.dono ? '#/dono/' + c.dono : '#/negocios'}">${c.ref ? `<img class="foto" src="${esc(capa(imv(c.ref)))}" alt="" loading="lazy">` : `<span class="foto sem">${svg(ICO.imoveis)}</span>`}<span class="kb"><span class="nome">${esc(c.nome)}</span><span class="sub">${esc(c.o)}</span><span class="val num">${fmtMil(c.valor)} <small>· estimado</small></span><span class="meta"><span class="sub" style="flex:1 1 auto">${esc(c.origem)}</span><span class="dias ${c.alerta ? 'tarde' : ''}">${c.dias === 0 ? 'hoje' : c.dias + ' d'}</span>${av(c.resp)}</span><span class="prox ${c.alerta ? 'atraso' : ''}">${svg(SETA)}<span>${esc(c.prox)}</span></span>${cel && c.etapa < 3 ? `<span class="ac"><span class="btn btn-line btn-p" data-act="avancar-capt" data-id="${c.id}">Avançar →</span></span>` : ''}</span></button>`;
   return `<div class="dica">Quem tem imóvel para vender ou alugar com a AD7. A autorização assinada é o que libera o anúncio no site e nos portais.</div>
     <div class="kan c4">${cols.map(c => `<div class="col" data-etapa="${c.e}" data-capt="1"><div class="col-h"><b>${c.t}<span class="n num">${c.cs.length}</span></b><span class="num">${c.cs.length ? fmtMil(c.cs.reduce((s, x) => s + x.valor, 0)) : '—'}</span></div>${c.cs.map(x => card(x)).join('')}</div>`).join('')}</div>
     <div class="kan-cel"><div class="etapas">${ET_CAPT.map((t, e) => `<button type="button" class="chip ${S.etapaCel === e ? 'on' : ''}" data-act="etapa-cel" data-v="${e}">${t} <span class="n">${cols[e].cs.length}</span></button>`).join('')}</div>${(cols[Math.min(S.etapaCel, 3)].cs).map(x => card(x, true)).join('') || '<div class="sm">Nada nesta etapa.</div>'}</div>
