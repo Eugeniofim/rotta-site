@@ -307,3 +307,11 @@ tr.link { cursor: pointer; } tr.link:hover td { background: var(--fundo); }
   .modal .caixa { padding: 16px; border-radius: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- entrada ---------- */
+body.entrar .app { grid-template-columns: minmax(0, 1fr); }
+body.entrar .lado, body.entrar .ia, body.entrar .ia-flut, body.entrar .barra-cel { display: none; }
+body.entrar .meio { padding: 0; }
+.entrar-fundo { min-height: 100vh; min-height: 100dvh; background: var(--marinho); display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.entrar-caixa { background: #fff; border-radius: 12px; padding: 28px 26px; width: min(400px, 100%); display: flex; flex-direction: column; gap: 10px; box-shadow: var(--sombra); }
+.entrar-caixa .inp { min-height: 44px; margin-bottom: 4px; }

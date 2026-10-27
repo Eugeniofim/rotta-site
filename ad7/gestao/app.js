@@ -34,7 +34,7 @@ const SO_CORRETOR = ['hoje', 'imoveis', 'negocios', 'carteiras', 'entradas', 'ag
 const S = { funil: 'venda', so: 'todos', tipo: 'todos', carteira: 'procura', temp: 'todas', q: '', neg: '', aba: '', etapaCel: 0, ia: false, rotaAnterior: '' };
 let P = carregarP();
 function carregarP() {
-  const base = { como: 'dona', moves: {}, ganhos: [], perdidos: {}, chamado214: false, enviados: {}, visitas: {}, chat: [], cartao: 'nao' };
+  const base = { logado: false, como: 'dona', moves: {}, ganhos: [], perdidos: {}, chamado214: false, enviados: {}, visitas: {}, chat: [], cartao: 'nao' };
   try { return Object.assign(base, JSON.parse(localStorage.getItem(PKEY)) || {}); } catch (e) { return base; }
 }
 function salvarP() { try { localStorage.setItem(PKEY, JSON.stringify(P)); } catch (e) {} }
@@ -159,6 +159,21 @@ function rota() {
 }
 const ir = h => { location.hash = h; };
 
+/* ---------- entrada (na demonstração qualquer senha entra; no app de verdade é a conta dela) ---------- */
+function vEntrar() {
+  return `<div class="entrar-fundo"><form class="entrar-caixa" id="entrar-form" aria-label="Entrar na gestão">
+    <img src="../arte/logo.png" srcset="../arte/logo@2x.png 2x" alt="AD7 Imóveis" style="height:64px;width:auto;align-self:center">
+    <div style="text-align:center"><h1 style="font-size:22px">Equipe AD7</h1><div class="sm" style="margin-top:4px">O site, por dentro. Só quem tem login entra.</div></div>
+    <label for="e-mail" class="sm b">E-mail</label><input id="e-mail" class="inp" type="email" autocomplete="username" value="adriana@ad7imoveis.com.br" required>
+    <label for="e-senha" class="sm b">Senha</label><input id="e-senha" class="inp" type="password" autocomplete="current-password" placeholder="na demonstração, qualquer senha" required>
+    <button type="submit" class="btn btn-navy" style="min-height:46px">Entrar</button>
+    <a href="#" class="sm" style="text-align:center" data-act="toast" data-t="No app de verdade chega um link por e-mail para criar uma senha nova.">Esqueci a senha</a>
+    <div style="border-top:1px solid var(--linha);padding-top:12px;display:flex;flex-direction:column;gap:8px"><div class="sm">Demonstração: veja o app como cada pessoa da equipe.</div><div class="chips"><button type="button" class="chip" data-act="entrar-como" data-v="dona">Adriana · dona</button><button type="button" class="chip" data-act="entrar-como" data-v="corretor">Rafael · corretor</button></div></div>
+    <div class="sm" style="text-align:center">O captador externo não tem login: recebe a parte dele por e-mail.</div>
+    <a href="../" class="sm" style="text-align:center">← Voltar ao site</a>
+  </form></div>`;
+}
+
 /* ---------- menu lateral e barra do celular ---------- */
 function renderLado() {
   const r = rota();
@@ -173,6 +188,7 @@ function renderLado() {
     ${itens.map(([id, label]) => `<a class="mi ${ativa === id ? 'on' : ''}" href="#/${id}">${svg(ICO[id])}<span>${label}</span>${id === 'negocios' && esf ? `<span class="n alerta" title="esfriando">${esf}</span>` : (n[id] ? `<span class="n">${n[id]}</span>` : '')}</a>`).join('')}
     <div class="rodape">${dona() ? 'Equipe: Adriana (dona) e Rafael (corretor). O captador externo não entra: recebe a parte dele por e-mail.' : 'Você vê o catálogo inteiro, os seus contatos e a sua parte da comissão. Dados do dono: só dos imóveis seus.'}</div>
     <a class="mi site" href="../">${svg('M4 12h16M12 4a16 16 0 0 1 0 16M12 4a16 16 0 0 0 0 16M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0')}<span>Ver o site</span></a>
+    <button type="button" class="zerar" data-act="sair">Sair</button>
     <button type="button" class="zerar" data-act="zerar">Demonstração · dados fictícios · recomeçar</button>`;
   const cel = [['hoje', 'Hoje'], ['imoveis', 'Imóveis'], ['negocios', 'Negócios'], ['carteiras', 'Carteiras'], ['mais', 'Mais']];
   $('barra-cel').innerHTML = cel.map(([id, l]) => `<a href="#/${id}" class="${ativa === id || (id === 'mais' && !['hoje', 'imoveis', 'negocios', 'carteiras'].includes(ativa)) ? 'on' : ''}">${svg(ICO[id])}${l}</a>`).join('');
@@ -497,7 +513,7 @@ function vPrivacidade() {
 }
 function vMais() {
   const itens = (dona() ? MENU : MENU.filter(([id]) => SO_CORRETOR.includes(id))).filter(([id]) => !['hoje', 'imoveis', 'negocios', 'carteiras'].includes(id));
-  return `${faixaCel()}<div class="topo"><h1>Mais</h1></div><div class="box" style="padding:6px 0">${itens.map(([id, l]) => `<a class="row link" href="#/${id}" style="padding:12px 16px;text-decoration:none;color:inherit"><span style="display:flex;gap:10px;align-items:center"><svg viewBox="0 0 24 24" width="18" height="18" style="stroke:currentColor;fill:none;stroke-width:1.8" aria-hidden="true"><path d="${ICO[id]}"/></svg>${l}</span><span class="sm">›</span></a>`).join('')}<a class="row link" href="../" style="padding:12px 16px;text-decoration:none;color:var(--teal)">Ver o site</a><button type="button" class="row link" data-act="zerar" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Recomeçar a demonstração</button></div>`;
+  return `${faixaCel()}<div class="topo"><h1>Mais</h1></div><div class="box" style="padding:6px 0">${itens.map(([id, l]) => `<a class="row link" href="#/${id}" style="padding:12px 16px;text-decoration:none;color:inherit"><span style="display:flex;gap:10px;align-items:center"><svg viewBox="0 0 24 24" width="18" height="18" style="stroke:currentColor;fill:none;stroke-width:1.8" aria-hidden="true"><path d="${ICO[id]}"/></svg>${l}</span><span class="sm">›</span></a>`).join('')}<a class="row link" href="../" style="padding:12px 16px;text-decoration:none;color:var(--teal)">Ver o site</a><button type="button" class="row link" data-act="sair" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Sair</button><button type="button" class="row link" data-act="zerar" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Recomeçar a demonstração</button></div>`;
 }
 
 /* ---------- ASSISTENTE ---------- */
@@ -602,6 +618,9 @@ function bindDnd() {
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act, v = el.dataset.v;
+  if (a === 'entrar-como') { P.logado = true; P.como = v; salvarP(); render(); return; }
+  if (a === 'sair') { P.logado = false; salvarP(); location.hash = '#/hoje'; render(); return; }
+  if (a === 'toast') { e.preventDefault(); toast(el.dataset.t); return; }
   if (a === 'ver-como') { P.como = v; salvarP(); S.so = 'todos'; render(); return; }
   if (a === 'ir') { e.preventDefault(); ir(el.dataset.h); return; }
   if (a === 'ir-aba') { S.aba = v; return; }
@@ -630,6 +649,7 @@ document.addEventListener('click', e => {
   if (a === 'zerar') { localStorage.removeItem(PKEY); P = carregarP(); S.aba = ''; location.hash = '#/hoje'; render(); toast('Demonstração recomeçada.'); return; }
 });
 document.addEventListener('submit', e => {
+  if (e.target.id === 'entrar-form') { e.preventDefault(); P.logado = true; P.como = 'dona'; salvarP(); render(); toast('Bom dia, Adriana. Na demonstração qualquer senha entra; no app de verdade é a senha da sua conta.'); return; }
   if (e.target.id !== 'ia-form') return;
   e.preventDefault(); const i = $('chat'); const t = i.value.trim(); if (!t) return; i.value = ''; responder(t);
 });
@@ -642,6 +662,8 @@ $('ia-flut').addEventListener('click', () => $('app').classList.add('ia-aberta')
 
 /* ---------- render ---------- */
 function render() {
+  document.body.classList.toggle('entrar', !P.logado);
+  if (!P.logado) { $('meio').innerHTML = vEntrar(); $('lado').innerHTML = ''; $('ia').innerHTML = ''; $('barra-cel').innerHTML = ''; document.title = 'AD7 Gestão · entrar'; return; }
   const r = rota();
   const chave = r.tela + '/' + r.param;
   if (chave !== S.rotaAnterior) { S.aba = ''; S.rotaAnterior = chave; window.scrollTo(0, 0); }
