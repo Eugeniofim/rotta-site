@@ -315,3 +315,16 @@ body.entrar .meio { padding: 0; }
 .entrar-fundo { min-height: 100vh; min-height: 100dvh; background: var(--marinho); display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
 .entrar-caixa { background: #fff; border-radius: 12px; padding: 28px 26px; width: min(400px, 100%); display: flex; flex-direction: column; gap: 10px; box-shadow: var(--sombra); }
 .entrar-caixa .inp { min-height: 44px; margin-bottom: 4px; }
+
+/* ---------- balão de dica: cara própria, de propósito diferente do resto ---------- */
+.balao { position: relative; margin-top: 4px; background: #FFF8E3; border: 1.5px dashed var(--dourado2); border-radius: 12px; padding: 11px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5; color: #4A3B0E; }
+.balao::before { content: ""; position: absolute; top: -8px; left: 26px; width: 12px; height: 12px; background: #FFF8E3; border-left: 1.5px dashed var(--dourado2); border-top: 1.5px dashed var(--dourado2); transform: rotate(45deg); }
+.balao .bl-ico { width: 26px; height: 26px; border-radius: 50%; background: var(--dourado); color: var(--marinho); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.balao .bl-ico svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.balao .bl-tx { flex: 1 1 auto; min-width: 0; }
+.balao .bl-tx b { color: var(--marinho); }
+.balao .bl-ac { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; flex: 0 0 auto; }
+.bl-btn { min-height: 30px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--dourado2); background: #fff; color: var(--marinho); font-weight: 700; font-size: 12px; }
+.bl-btn:hover { background: var(--dourado); }
+.bl-btn.bl-todas { border: 0; background: transparent; font-weight: 600; color: #7A6530; text-decoration: underline; min-height: 22px; }
+@media (max-width: 760px) { .balao { flex-wrap: wrap; } .balao .bl-ac { flex-direction: row; width: 100%; justify-content: flex-end; } }

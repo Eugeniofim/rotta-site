@@ -34,7 +34,7 @@ const SO_CORRETOR = ['hoje', 'imoveis', 'negocios', 'carteiras', 'entradas', 'ag
 const S = { funil: 'venda', so: 'todos', tipo: 'todos', carteira: 'procura', temp: 'todas', q: '', neg: '', aba: '', etapaCel: 0, ia: false, rotaAnterior: '' };
 let P = carregarP();
 function carregarP() {
-  const base = { logado: false, como: 'dona', moves: {}, ganhos: [], perdidos: {}, chamado214: false, enviados: {}, visitas: {}, chat: [], cartao: 'nao' };
+  const base = { logado: false, vistos: {}, como: 'dona', moves: {}, ganhos: [], perdidos: {}, chamado214: false, enviados: {}, visitas: {}, chat: [], cartao: 'nao' };
   try { return Object.assign(base, JSON.parse(localStorage.getItem(PKEY)) || {}); } catch (e) { return base; }
 }
 function salvarP() { try { localStorage.setItem(PKEY, JSON.stringify(P)); } catch (e) {} }
@@ -174,6 +174,30 @@ function vEntrar() {
   </form></div>`;
 }
 
+/* ---------- balões de dica: um por tela, some no "Entendi", volta pelo menu ---------- */
+const TUT = {
+  hoje: ['O dia num olhar só.', 'Os quatro números em cima são o que precisa de você hoje. Toque em qualquer linha para abrir a pessoa ou o imóvel. "Esfriando" é negócio parado há mais de 5 dias; a assistente sugere o que fazer primeiro.'],
+  imoveis: ['Os mesmos imóveis do site.', 'Busque por referência, bairro ou tipo e filtre por venda, temporada ou aluguel. Toque no imóvel para abrir a ficha. O que você mudar aqui muda no site e nos portais na hora.'],
+  imovel: ['A ficha tem duas metades.', 'O que é público vai para o site. "Dados privativos" e "Documentos" só a dona e o responsável veem. Em "Quem combina" o app mostra quem da carteira procura um imóvel assim, pronto para mandar pelo WhatsApp.'],
+  negocios: ['Seu funil de vendas.', 'Cada cartão é um negócio: foto do imóvel, temperatura (barrinhas), dias parados e o próximo passo. No computador, arraste o cartão para a etapa seguinte; no celular, toque em Avançar. Solte em "Ganhos" e o app calcula a comissão. O botão "Captação" mostra o funil de quem quer vender ou alugar com você.'],
+  carteiras: ['Quem procura e quem tem imóvel.', 'Filtre por temperatura: quente primeiro. A fileira de fotos no fim de cada cartão são os imóveis do seu catálogo que combinam com a pessoa. Em "Proprietários" estão os donos, com a autorização de cada imóvel.'],
+  pessoa: ['A ficha de quem procura.', 'O perfil de busca é o que o app cruza com o catálogo. A temperatura vem dos sinais (respondeu, abriu, visitou). O próximo passo já vem com a mensagem escrita: toque em "Mandar pelo WhatsApp" ou mude o texto.'],
+  dono: ['A ficha do proprietário.', 'Os imóveis dele, a autorização com validade, a prestação de contas e o que a assistente sugere. Só a dona e o responsável pelo imóvel veem o telefone.'],
+  entradas: ['Tudo que chegou, e onde foi parar.', 'Site, portais, WhatsApp e Instagram caem aqui. Cada linha mostra o que o app fez sozinho: virou negócio, captação ou chamado, e para quem foi pelo rodízio. Toque na linha para abrir a pessoa.'],
+  agenda: ['Visitas, vistorias e plantão.', 'Cada um vê a própria agenda; a dona vê a de todos. O cliente recebe o lembrete por WhatsApp um dia antes e confirma com um toque.'],
+  chamados: ['Manutenção e pedidos da Área do Cliente.', '2ª via, reembolso, chamado, desocupação, extrato, informe e vistoria chegam pelo site identificados pelo CPF. Marque como atendido ou mande para o prestador.'],
+  locacoes: ['Fase seguinte, orçada à parte.', 'Boletos, repasses ao proprietário, reajuste e vistoria com fotos. Está aqui para você ver como fica.'],
+  equipe: ['Quem entra e o que cada um vê.', 'Convide pelo e-mail. A regra de comissão você define uma vez e o app usa em todo fechamento. O rodízio decide para quem vai cada lead novo.'],
+  portais: ['Os canais ligados ao app.', 'Portais, WhatsApp, Instagram, Google e assinatura digital. Verde é tudo certo; amarelo pede uma ação sua.'],
+  privacidade: ['A LGPD no dia a dia.', 'Quem da equipe viu o quê, pedidos de titulares, o que o app apaga sozinho e os consentimentos. É o que te protege se alguém perguntar.'],
+  mais: ['As outras abas.', 'No celular, o que não cabe na barra de baixo fica aqui.']
+};
+function balao(tela) {
+  const t = TUT[tela]; if (!t || P.vistos[tela]) return;
+  const topo = $('meio').querySelector('.topo'); if (!topo) return;
+  topo.insertAdjacentHTML('afterend', `<div class="balao" role="note"><span class="bl-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.6 1 1.3 1 2.5h6c0-1.2.3-1.9 1-2.5A6 6 0 0 0 12 3z"/></svg></span><span class="bl-tx"><b>${esc(t[0])}</b> ${esc(t[1])}</span><span class="bl-ac"><button type="button" class="bl-btn" data-act="dica-ok" data-v="${tela}">Entendi</button><button type="button" class="bl-btn bl-todas" data-act="dica-nenhuma">Esconder todas</button></span></div>`);
+}
+
 /* ---------- menu lateral e barra do celular ---------- */
 function renderLado() {
   const r = rota();
@@ -188,6 +212,7 @@ function renderLado() {
     ${itens.map(([id, label]) => `<a class="mi ${ativa === id ? 'on' : ''}" href="#/${id}">${svg(ICO[id])}<span>${label}</span>${id === 'negocios' && esf ? `<span class="n alerta" title="esfriando">${esf}</span>` : (n[id] ? `<span class="n">${n[id]}</span>` : '')}</a>`).join('')}
     <div class="rodape">${dona() ? 'Equipe: Adriana (dona) e Rafael (corretor). O captador externo não entra: recebe a parte dele por e-mail.' : 'Você vê o catálogo inteiro, os seus contatos e a sua parte da comissão. Dados do dono: só dos imóveis seus.'}</div>
     <a class="mi site" href="../">${svg('M4 12h16M12 4a16 16 0 0 1 0 16M12 4a16 16 0 0 0 0 16M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0')}<span>Ver o site</span></a>
+    <button type="button" class="zerar" data-act="dica-todas">Mostrar as dicas de novo</button>
     <button type="button" class="zerar" data-act="sair">Sair</button>
     <button type="button" class="zerar" data-act="zerar">Demonstração · dados fictícios · recomeçar</button>`;
   const cel = [['hoje', 'Hoje'], ['imoveis', 'Imóveis'], ['negocios', 'Negócios'], ['carteiras', 'Carteiras'], ['mais', 'Mais']];
@@ -513,7 +538,7 @@ function vPrivacidade() {
 }
 function vMais() {
   const itens = (dona() ? MENU : MENU.filter(([id]) => SO_CORRETOR.includes(id))).filter(([id]) => !['hoje', 'imoveis', 'negocios', 'carteiras'].includes(id));
-  return `${faixaCel()}<div class="topo"><h1>Mais</h1></div><div class="box" style="padding:6px 0">${itens.map(([id, l]) => `<a class="row link" href="#/${id}" style="padding:12px 16px;text-decoration:none;color:inherit"><span style="display:flex;gap:10px;align-items:center"><svg viewBox="0 0 24 24" width="18" height="18" style="stroke:currentColor;fill:none;stroke-width:1.8" aria-hidden="true"><path d="${ICO[id]}"/></svg>${l}</span><span class="sm">›</span></a>`).join('')}<a class="row link" href="../" style="padding:12px 16px;text-decoration:none;color:var(--teal)">Ver o site</a><button type="button" class="row link" data-act="sair" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Sair</button><button type="button" class="row link" data-act="zerar" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Recomeçar a demonstração</button></div>`;
+  return `${faixaCel()}<div class="topo"><h1>Mais</h1></div><div class="box" style="padding:6px 0">${itens.map(([id, l]) => `<a class="row link" href="#/${id}" style="padding:12px 16px;text-decoration:none;color:inherit"><span style="display:flex;gap:10px;align-items:center"><svg viewBox="0 0 24 24" width="18" height="18" style="stroke:currentColor;fill:none;stroke-width:1.8" aria-hidden="true"><path d="${ICO[id]}"/></svg>${l}</span><span class="sm">›</span></a>`).join('')}<a class="row link" href="../" style="padding:12px 16px;text-decoration:none;color:var(--teal)">Ver o site</a><button type="button" class="row link" data-act="dica-todas" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Mostrar as dicas de novo</button><button type="button" class="row link" data-act="sair" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Sair</button><button type="button" class="row link" data-act="zerar" style="width:100%;border:0;background:none;padding:12px 16px;font:inherit;color:var(--suave)">Recomeçar a demonstração</button></div>`;
 }
 
 /* ---------- ASSISTENTE ---------- */
@@ -618,6 +643,9 @@ function bindDnd() {
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act, v = el.dataset.v;
+  if (a === 'dica-ok') { P.vistos[v] = true; salvarP(); const b = el.closest('.balao'); if (b) b.remove(); return; }
+  if (a === 'dica-nenhuma') { Object.keys(TUT).forEach(k => { P.vistos[k] = true; }); salvarP(); const b = el.closest('.balao'); if (b) b.remove(); toast('Dicas escondidas. Voltam pelo menu, em "Mostrar as dicas de novo".'); return; }
+  if (a === 'dica-todas') { P.vistos = {}; salvarP(); render(); toast('As dicas voltaram em todas as telas.'); return; }
   if (a === 'entrar-como') { P.logado = true; P.como = v; salvarP(); render(); return; }
   if (a === 'sair') { P.logado = false; salvarP(); location.hash = '#/hoje'; render(); return; }
   if (a === 'toast') { e.preventDefault(); toast(el.dataset.t); return; }
@@ -675,6 +703,7 @@ function render() {
   else html = (V[r.tela] || vHoje)();
   $('meio').innerHTML = html;
   const bq = $('bq'); if (bq && S.q && document.activeElement !== bq) { /* mantém a busca */ }
+  balao(r.tela);
   renderLado(); renderIA(); bindDnd();
   document.title = 'AD7 Gestão · ' + ({ hoje: 'Hoje', imoveis: 'Imóveis', imovel: 'Ref. ' + r.param, negocios: 'Negócios', carteiras: 'Carteiras', pessoa: 'Contato', dono: 'Proprietário', agenda: 'Agenda', entradas: 'Caixa de entrada', chamados: 'Chamados', locacoes: 'Locações', equipe: 'Equipe', portais: 'Portais e canais', privacidade: 'Privacidade', mais: 'Mais' }[r.tela] || r.tela);
 }
