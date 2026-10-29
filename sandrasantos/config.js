@@ -137,3 +137,7 @@ var APP_NUVEM_PRODUCAO = {
   sala: 'sandra',
   endereco: 'https://rottaguide.com/sandrasantos/',
 };
+
+/* o orçamento premium (orcamento-premium.js): o imposto nasce DESLIGADO (pct 0 — ela liga
+   num orçamento se precisar); o logo vai na capa da proposta, numa caixa branca */
+APP_CONFIG.orc = { imposto: { nome: 'IVA', pct: 0 }, logo: 'arte/logo-claro.png', logoTopo: 'arte/logo-claro.png', capa: [] };

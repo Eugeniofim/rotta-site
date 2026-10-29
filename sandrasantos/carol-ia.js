@@ -12,7 +12,7 @@
    - ver_dados {o_que, busca}  — LER qualquer coleção;
    - mexer {onde, acao, quem, campos} — CRIAR / MUDAR / APAGAR, sempre com
      o cartão "vou fazer isso — confirma?";
-   - orcamento_do_pedido, orcamento_servico, orcamento_aceito, mudar_voucher;
+   - mudar_voucher (o orçamento mora em orcamento-premium-ia.js);
    - anotar_tarefa — o atalho do "anota aí";
    - abrir_aba — quando a coisa se faz tocando, leva até a tela.
    Nome que serve para dois registros → devolve as opções e o assistente
@@ -42,14 +42,6 @@ const IA_COLECOES = {
     campos: { respondido: MX.bool, arquivado: MX.bool }, semCriar: true,
     ver: (p) => ({ id: p.id, tipo: typeof pedidoRotulo === 'function' ? pedidoRotulo(p) : p.tipo, cliente: p.nome, whats: p.whats, chegou: p.criado, resumo: p.resumo,
       respondido: !!p.respondido, orcamento: p.orcamentoId ? ((typeof Orc !== 'undefined' && Orc.get(p.orcamentoId)) || {}).num || p.orcamentoId : 'ainda não montado', ficha: p.ficha || undefined }) },
-  orcamentos: { rotulo: 'orçamento', aba: 'orcamentos', achar: ['num', 'titulo', 'destino'], nomear: (o) => `${o.num} · ${(o.cliente || {}).nome || 'sem nome'} · ${o.titulo || ''}`,
-    campos: { titulo: MX.txtOuNada, destino: MX.txtOuNada, ini: MX.dataOuNada, fim: MX.dataOuNada, adultos: MX.num, criancas: MX.num, validade: MX.dataOuNada,
-      condicoes: MX.txtOuNada, obs: MX.txtOuNada, status: MX.um(['rascunho', 'enviado', 'recusado']), cliente_nome: MX.txtOuNada, cliente_whats: MX.txtOuNada, cliente_email: MX.txtOuNada },
-    obrigatorios: ['cliente_nome'],
-    ver: (o) => { const t = typeof Orc !== 'undefined' ? Orc.totais(o) : { total: 0, aCombinar: [] };
-      return { id: o.id, numero: o.num, situacao: o.status, cliente: o.cliente, titulo: o.titulo, destino: o.destino, de: o.ini, ate: o.fim, adultos: o.adultos, criancas: o.criancas,
-        validade: o.validade, servicos: (o.itens || []).map(i => ({ id: i.id, data: i.data, hora: i.hora, servico: i.titulo, detalhe: i.texto, valor: vOrc(i.valor), opcional: !!i.opcional })),
-        total: t.total, a_combinar: t.aCombinar, reserva: o.reservaId ? ((typeof Bookings !== 'undefined' && Bookings.get(o.reservaId)) || {}).code : undefined }; } },
   voucher: { rotulo: 'bloco do voucher', aba: 'voucher', achar: ['titulo', 'k'], nomear: (b) => b.titulo,
     campos: { titulo: MX.txt, texto: MX.txtOuNada, ativo: MX.bool }, obrigatorios: ['titulo'],
     ver: (b) => ({ id: b.k, titulo: b.titulo, texto: b.k === 'termos' ? '(os termos de Ajustes)' : b.texto, aparece: b.ativo !== false }) },
@@ -117,13 +109,6 @@ function iaConverte(C, campos, parcial) {
 }
 const iaMostra = (k, v) => Array.isArray(v) ? (v.join(', ') || '—') : typeof v === 'boolean' ? (v ? 'sim' : 'não')
   : (/^(data|validade|ini|fim)$/.test(k) && v ? dtIa(v) : k === 'valor' ? vOrc(v) : String(v === '' || v === null || v === undefined ? '—' : v));
-/* orçamento: os campos cliente_* moram dentro de o.cliente */
-function iaAplicaOrc(o, out) {
-  for (const [k, v] of Object.entries(out)) {
-    if (k.startsWith('cliente_')) { o.cliente = o.cliente || {}; o.cliente[k.slice(8)] = v; } else o[k] = v;
-  }
-  o.mudado = new Date().toISOString();
-}
 
 /* ---------- fora do pacote dela: cupons e marketing saem do assistente ---------- */
 const IA_FORA = ['ver_cupons', 'criar_cupom', 'apagar_cupom', 'ver_marketing', 'salvar_posts', 'mudar_post', 'apagar_post',
@@ -133,18 +118,11 @@ for (const n of IA_FORA) IA_LEITURA.delete(n);
 
 /* ---------- as ferramentas ---------- */
 IA_FERRAMENTAS.push(
-  { name: 'ver_dados', description: 'Lê as abas do painel que não têm ferramenta própria: pedidos (o que chegou da vitrine: transfer, viagem sob medida, valor de passeio), orcamentos (com os serviços e o total), voucher (os blocos do voucher padronizado), roteiros, avaliacoes, tarefas, recados, fichas (cliente: tudo de uma pessoa), pontos (pontos turísticos; use busca). Devolve os ids.',
+  { name: 'ver_dados', description: 'Lê as abas do painel que não têm ferramenta própria: pedidos (o que chegou da vitrine: transfer, viagem sob medida, valor de passeio), voucher (os blocos do voucher padronizado), roteiros, avaliacoes, tarefas, recados, fichas (cliente: tudo de uma pessoa), pontos (pontos turísticos; use busca). Devolve os ids.',
     input_schema: obj({ o_que: { type: 'string', enum: Object.keys(IA_COLECOES) }, busca: S_('texto para filtrar (opcional)') }, ['o_que']) },
-  { name: 'mexer', description: 'Cria, muda ou apaga um registro dessas abas. quem = id (de ver_dados), número do orçamento (ORC-0001) ou nome; se servir para dois, a ferramenta devolve as opções — pergunte qual. Campos aceitos por aba: ' + IA_CAMPOS_TXT + '. Datas AAAA-MM-DD; "sem" tira o dia de uma tarefa. Os SERVIÇOS de um orçamento mudam com orcamento_servico; aceitar é orcamento_aceito.',
+  { name: 'mexer', description: 'Cria, muda ou apaga um registro dessas abas. quem = id (de ver_dados) ou nome; se servir para dois, a ferramenta devolve as opções — pergunte qual. Campos aceitos por aba: ' + IA_CAMPOS_TXT + '. Datas AAAA-MM-DD; "sem" tira o dia de uma tarefa.',
     input_schema: obj({ onde: { type: 'string', enum: Object.keys(IA_COLECOES) }, acao: { type: 'string', enum: ['criar', 'mudar', 'apagar'] }, quem: S_('id, número ou nome (mudar/apagar)'),
       campos: { type: 'object', description: 'campo: valor', additionalProperties: true } }, ['onde', 'acao']) },
-  { name: 'orcamento_do_pedido', description: 'Monta o orçamento (rascunho) a partir de um pedido da vitrine: já vem com cliente, datas, pessoas e os serviços pedidos, com valor a combinar. pedido = id ou nome do cliente (ver_dados pedidos).',
-    input_schema: obj({ pedido: S_() }, ['pedido']) },
-  { name: 'orcamento_servico', description: 'Põe, muda ou tira um SERVIÇO de um orçamento. valor = número em euro ou "a combinar". Nunca invente valor: use o que a guia disse. servico = id do serviço (de ver_dados orcamentos) para mudar/tirar.',
-    input_schema: obj({ orcamento: S_('id ou número ORC-…'), acao: { type: 'string', enum: ['por', 'mudar', 'tirar'] }, servico: S_('id do serviço (mudar/tirar)'),
-      titulo: S_(), detalhe: S_(), data: S_('AAAA-MM-DD'), hora: S_('HH:MM'), valor: S_('número ou "a combinar"'), opcional: { type: 'boolean' } }, ['orcamento', 'acao']) },
-  { name: 'orcamento_aceito', description: 'O cliente aceitou: o orçamento vira RESERVA (e, se for viagem sob medida, abre um roteiro). recebido = quanto já entrou (0 se nada); metodo = pix, wise, card, cash, transfer ou other.',
-    input_schema: obj({ orcamento: S_('id ou número ORC-…'), recebido: N_(), metodo: { type: 'string', enum: ['pix', 'wise', 'card', 'cash', 'transfer', 'other'] } }, ['orcamento']) },
   { name: 'mudar_voucher', description: 'Muda o cabeçalho do voucher padronizado: faixa (texto ao lado do logo; \\n quebra a linha), frase_faixa, titulo, subtitulo, despedida (antes do nome dela) e presente (pôr os guias de Portugal e da Itália no voucher). Os blocos (o que levar, pagamento…) mudam com mexer onde=voucher.',
     input_schema: obj({ faixa: S_(), frase_faixa: S_(), titulo: S_(), subtitulo: S_(), despedida: S_(), presente: { type: 'boolean' } }) },
   { name: 'anotar_tarefa', description: 'Anota uma tarefa (fazer ou PENSAR depois, ideia, brainstorm). texto = título curto; nota = a ideia inteira. Com data entra na agenda de tarefas.',
@@ -175,48 +153,6 @@ const _iaPlanoBase = iaPlano;
 iaPlano = function (nome, i) {
   if (nome === 'anotar_tarefa') return iaPlano('mexer', { onde: 'tarefas', acao: 'criar', campos: Object.fromEntries(Object.entries(i).filter(([, v]) => v !== undefined && v !== '')) });
   try {
-    if (nome === 'orcamento_do_pedido') {
-      const r = iaAcha('pedidos', i.pedido); if (r.erro) return r;
-      const p = r.item;
-      if (p.orcamentoId && Orc.get(p.orcamentoId)) return E_('este pedido já tem orçamento: ' + Orc.get(p.orcamentoId).num);
-      return { titulo: 'Montar orçamento', linhas: [['pedido', IA_COLECOES.pedidos.nomear(p)], ['resumo', p.resumo || '—']], assumiu: ['valores a combinar até você dizer'],
-        fazer: () => { const o = Orc.doPedido(p); return { ok: true, orcamento: o.num, id: o.id, servicos: o.itens.length }; } };
-    }
-    if (nome === 'orcamento_servico') {
-      const r = iaAcha('orcamentos', i.orcamento); if (r.erro) return r;
-      const o = r.item;
-      if (o.status === 'aceito') return E_('orçamento já aceito (virou reserva): mude a reserva, ou duplique o orçamento');
-      const campos = {};
-      if (i.titulo !== undefined) campos.titulo = MX.txtOuNada(i.titulo);
-      if (i.detalhe !== undefined) campos.texto = MX.txtOuNada(i.detalhe);
-      if (i.data !== undefined) campos.data = MX.dataOuNada(i.data);
-      if (i.hora !== undefined) campos.hora = MX.horaOuNada(i.hora);
-      if (i.valor !== undefined) campos.valor = MX.valor(i.valor);
-      if (i.opcional !== undefined) campos.opcional = MX.bool(i.opcional);
-      const linhas = Object.entries(campos).map(([k, v]) => [k === 'texto' ? 'detalhe' : k, iaMostra(k, v)]);
-      if (i.acao === 'por') {
-        if (!campos.titulo) return E_('diga o serviço (titulo)');
-        return { titulo: 'Pôr serviço em ' + o.num, linhas, assumiu: campos.valor === undefined ? ['valor a combinar'] : [],
-          fazer: () => { o.itens.push(Orc.item(campos)); o.mudado = new Date().toISOString(); Orc.grava(); return { ok: true, total: Orc.totais(o).total }; } };
-      }
-      const it = (o.itens || []).find(x => x.id === i.servico) || (o.itens || []).find(x => String(x.titulo).toLowerCase().includes(String(i.servico || '').toLowerCase()) && i.servico);
-      if (!it) return E_('serviço não encontrado — use ver_dados orcamentos para ver os ids');
-      if (i.acao === 'tirar') return { titulo: 'Tirar serviço de ' + o.num, linhas: [['serviço', it.titulo]], assumiu: [],
-        fazer: () => { o.itens = o.itens.filter(x => x.id !== it.id); Orc.grava(); return { ok: true, total: Orc.totais(o).total }; } };
-      if (!Object.keys(campos).length) return E_('nada muda — diga o que mudar');
-      return { titulo: 'Mudar serviço de ' + o.num, linhas: [['serviço', it.titulo]].concat(Object.entries(campos).map(([k, v]) => [k, `${iaMostra(k, it[k])} → ${iaMostra(k, v)}`])), assumiu: [],
-        fazer: () => { Object.assign(it, campos); o.mudado = new Date().toISOString(); Orc.grava(); return { ok: true, total: Orc.totais(o).total }; } };
-    }
-    if (nome === 'orcamento_aceito') {
-      const r = iaAcha('orcamentos', i.orcamento); if (r.erro) return r;
-      const o = r.item, t = Orc.totais(o);
-      if (o.status === 'aceito') return E_('já foi aceito');
-      if (!(o.cliente && o.cliente.nome)) return E_('falta o nome do cliente no orçamento');
-      const rec = i.recebido === undefined ? 0 : MX.num(i.recebido);
-      return { titulo: 'Orçamento aceito → reserva', linhas: [['orçamento', IA_COLECOES.orcamentos.nomear(o)], ['total', eur(t.total)], ['já recebido', eur(rec)]],
-        assumiu: [t.aCombinar.length ? '⚠️ ' + t.aCombinar.length + ' serviço(s) a combinar ficam fora do total' : '', o.tipo === 'sobmedida' ? 'abre um roteiro para montar os dias' : ''].filter(Boolean),
-        fazer: () => Orc.aceita(o.id, rec, i.metodo || 'pix') };
-    }
     if (nome === 'mudar_voucher') {
       const M = voucherModelo(), mapa = { faixa: 'faixa', frase_faixa: 'faixaSub', titulo: 'titulo', subtitulo: 'sub', despedida: 'assinatura', presente: 'presente' };
       const out = {};
@@ -234,9 +170,8 @@ iaPlano = function (nome, i) {
       if (C.semCriar) return E_(`${C.rotulo} não se cria por aqui — nasce do cliente, pelo app. Use mudar, ou abrir_aba ${C.aba}.`);
       const { out } = iaConverte(C, i.campos, false);
       const linhas = Object.entries(out).map(([k, v]) => [k, iaMostra(k, v)]);
-      return { titulo: tit, linhas, assumiu: i.onde === 'orcamentos' ? ['serviços: põe com orcamento_servico'] : [],
+      return { titulo: tit, linhas, assumiu: [],
         fazer: () => {
-          if (i.onde === 'orcamentos') { const o = Orc.novo({}); iaAplicaOrc(o, out); Orc.grava(); return { ok: true, id: o.id, numero: o.num }; }
           if (i.onde === 'roteiros') { const r = novoRoteiro(out); return { ok: true, id: r.id, codigo: r.codigo }; }
           if (i.onde === 'voucher') { voucherModelo().blocos.push({ k: 'b' + uid().slice(0, 5), titulo: out.titulo, texto: out.texto || '', ativo: out.ativo !== false }); save(); return { ok: true }; }
           if (i.onde === 'pontos') { const id = 'pt-' + String(out.n).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + uid().slice(0, 3);
@@ -248,13 +183,11 @@ iaPlano = function (nome, i) {
     const x = r.item;
     if (i.acao === 'apagar') {
       if (i.onde === 'voucher' && VOUCHER_PADRAO.blocos.some(b => b.k === x.k)) return E_('este bloco é do modelo: desligue com mexer mudar ativo=não');
-      if (i.onde === 'orcamentos' && x.status === 'aceito') return E_('orçamento aceito já virou reserva: não se apaga por aqui');
       return { titulo: tit, linhas: [[C.rotulo, C.nomear(x)]], assumiu: [],
         fazer: () => {
           if (i.onde === 'pontos') DB.pontos = (DB.pontos || []).filter(z => z.id !== x.id);
           else if (i.onde === 'fichas') DB.fichas = (DB.fichas || []).filter(z => z.id !== x.id);   /* só as anotações: as compras continuam */
           else if (i.onde === 'voucher') { const M = voucherModelo(); M.blocos = M.blocos.filter(b => b !== x); save(); return { ok: true }; }
-          else if (i.onde === 'orcamentos') { Orc.remove(x.id); return { ok: true }; }
           else DB[i.onde] = DB[i.onde].filter(z => z.id !== x.id);
           grava(); return { ok: true };
         } };
@@ -263,7 +196,7 @@ iaPlano = function (nome, i) {
       const { out } = iaConverte(C, i.campos, true);
       if (!Object.keys(out).length) return E_('nada muda — diga os campos');
       if (i.onde === 'avaliacoes' && out.publicar && x.autorizou === false) return E_('o cliente NÃO autorizou publicar esta avaliação');
-      const antes = i.onde === 'fichas' ? (x.notas || {}) : i.onde === 'orcamentos' ? { ...x, ...Object.fromEntries(Object.entries(x.cliente || {}).map(([k, v]) => ['cliente_' + k, v])) } : x;
+      const antes = i.onde === 'fichas' ? (x.notas || {}) : x;
       const linhas = [[C.rotulo, C.nomear(x)]].concat(Object.entries(out).map(([k, v]) => [k, `${iaMostra(k, antes[k] === undefined ? '' : antes[k])} → ${iaMostra(k, v)}`]));
       return { titulo: tit, linhas, assumiu: [],
         fazer: () => {
@@ -272,7 +205,6 @@ iaPlano = function (nome, i) {
           if (i.onde === 'tarefas' && out.data === '') extra.hora = '';          /* tirou o dia: tira a hora junto */
           if (i.onde === 'pontos') { DB.pontos = (DB.pontos || []).filter(z => z.id !== x.id).concat([{ ...x, ...out, fonte: 'carol' }]); }
           else if (i.onde === 'fichas') { DB.fichas = DB.fichas || []; let f = DB.fichas.find(z => z.id === x.id); if (!f) { f = { id: x.id }; DB.fichas.push(f); } Object.assign(f, out); }
-          else if (i.onde === 'orcamentos') { iaAplicaOrc(x, out); Orc.grava(); return { ok: true }; }
           else if (i.onde === 'voucher') { Object.assign(x, out); save(); return { ok: true }; }
           else if (i.onde === 'pedidos' && 'respondido' in out && typeof Pedidos !== 'undefined') { Pedidos.marca(x.id, out.respondido); if ('arquivado' in out) x.arquivado = out.arquivado; }
           else Object.assign(x, out, extra);
@@ -295,7 +227,7 @@ ${guiaNome()} (Sandra Santos), da ${guiaNegocio()}: tour leader registrada no Tu
 
 ## Você alcança TODAS as abas do painel
 - Hoje, Agenda, Meus passeios, Reservas: ver_passeios, ver_agenda, ver_reservas, ver_bloqueios e as ferramentas de passeio, horário e bloqueio.
-- Orçamentos: ver_dados pedidos (o que chegou da vitrine) e orcamentos. Montar a partir de um pedido: orcamento_do_pedido. Orçamento avulso: mexer onde=orcamentos criar (cliente_nome, titulo, datas…). Serviços e valores: orcamento_servico. Cliente aceitou: orcamento_aceito (vira reserva). Ver o documento, o PDF e mandar no WhatsApp: abrir_aba orcamentos (ela toca).
+- Orçamentos: ver_orcamentos; criar_orcamento e editar_orcamento; a partir de um pedido da vitrine (ver_dados pedidos): orcamento_do_pedido; a proposta para o cliente (PDF e link): proposta_orcamento; o cliente fechou: orcamento_fechou (vira reserva e abre o kit da viagem).
 - Voucher: ver_dados voucher; mexer onde=voucher (blocos: título, texto, ativo; criar bloco novo); mudar_voucher para o cabeçalho e o presente.
 - Roteiros (os dias de uma viagem sob medida): ver_dados roteiros; mexer criar/mudar. Pôr pontos em cada dia: abrir_aba roteiros.
 - Avaliações: ver_dados avaliacoes; mexer publicar — só se o cliente autorizou.
@@ -307,7 +239,7 @@ ${guiaNome()} (Sandra Santos), da ${guiaNegocio()}: tour leader registrada no Tu
 
 ## Onde guardar cada coisa
 - Coisa para fazer ou pensar depois → anotar_tarefa: título curto em texto, a ideia inteira em nota.
-- Pedido de valor que chegou pelo WhatsApp ou Instagram → mexer orcamentos criar + orcamento_servico.
+- Pedido de valor que chegou pelo WhatsApp ou Instagram → criar_orcamento, só com o que ela disse.
 - Coisa sobre um cliente (idade, alergia, mobilidade, gosto, aniversário) → mexer fichas mudar, nunca guardar_memoria.
 - Regra ou preferência que vale para sempre → guardar_memoria.
 - Se você escrever "anotei", "registrei" ou "marquei", você TEM que ter chamado a ferramenta neste mesmo turno.
