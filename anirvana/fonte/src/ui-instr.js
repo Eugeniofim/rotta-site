@@ -33,7 +33,7 @@ function vInstrHoje(){
     {lab:'Seus alunos em dia com a frequência', val:`${emDia} de ${vis.length}`, pct: vis.length ? emDia/vis.length : 0},
   ];
   const hoje = aulasDeHoje(pid);
-  const pedidos = S.subs.filter(s => s.status === 'aberto' && s.de !== pid && p.atvs.includes(TURMA[s.turma].atv));
+  const pedidos = pedidosPara(pid);
   const atencao = fs.filter(x => x.f.st !== 'ok').sort((a,b) => (b.f.dias||99) - (a.f.dias||99));
   const prox = (() => { for (let i=1;i<8;i++){ const d = addD(HOJE,i); const ts = TURMAS.filter(t => t.dia === d.getDay() && t.instr === pid).sort((a,b)=>a.h.localeCompare(b.h)); if (ts.length) return {d, t:ts[0]}; } })();
   return `
@@ -56,7 +56,7 @@ function vInstrHoje(){
     </div>
   </div>
   <div class="card"><div class="card-h"><div><h3>Alunos que pedem atenção</h3><span class="sub">Amarelo: mais de uma semana sem vir · Vermelho: mais de uma semana e meia</span></div><button class="btn ghost sm" data-act="tab" data-v="alunos">Ver todos${ic('chevron-right','sm')}</button></div>
-    <div class="list">${atencao.map(({a,f}) => `<div class="li tap" data-act="verAlunoI" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}<div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${a.mats.filter(m => vis.includes(a)).map(nomePlano).join(' + ')}</span></div><div class="end">${pillFreq(f)}${pontosSemanas(a.id,6)}</div></div>`).join('') || '<p class="muted">Todos vindo direitinho.</p>'}</div>
+    <div class="list">${atencao.map(({a,f}) => `<div class="li tap" data-act="verAlunoI" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}<div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${matsVisiveis(a, pid).map(nomePlano).join(' + ')}</span></div><div class="end">${pillFreq(f)}${pontosSemanas(a.id,6)}</div></div>`).join('') || '<p class="muted">Todos vindo direitinho.</p>'}</div>
   </div>`;
 }
 function vInstrAlunos(){
@@ -66,7 +66,7 @@ function vInstrAlunos(){
   return `<div class="pagehead"><div><h1>Alunos</h1><p>Quem você vê aqui: alunos das turmas de ${PESSOA[pid].atvs.filter(a=>ATIV[a].vis==='todos').map(a=>ATIV[a].curto).join(', ') || '—'} e os particulares que escolheram você.</p></div></div>
   <div class="card">
     <div class="chips" style="margin-bottom:8px">${[['todos','Todos'],['ok','Em dia'],['warn','Atenção'],['bad','Faltando']].map(([k,l]) => `<button class="chip ${UI.instrFiltro===k?'on':''}" data-act="instrFiltro" data-v="${k}">${k!=='todos'?`<i class="fdot ${k}"></i>`:''}${l} <span class="n">${cnt(k)}</span></button>`).join('')}</div>
-    <div class="list">${lista.map(({a,f}) => `<div class="li tap" data-act="verAlunoI" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}<div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${a.mats.map(m => `${nomePlano(m)} · ${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ')}`).join(' + ')}</span></div><div class="end">${pillFreq(f)}${pontosSemanas(a.id)}</div></div>`).join('')}</div>
+    <div class="list">${lista.map(({a,f}) => `<div class="li tap" data-act="verAlunoI" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}<div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${matsVisiveis(a, pid).map(m => `${nomePlano(m)} · ${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ')}`).join(' + ')}</span></div><div class="end">${pillFreq(f)}${pontosSemanas(a.id)}</div></div>`).join('')}</div>
   </div>`;
 }
 function vMinhasSubs(){
@@ -98,9 +98,9 @@ function vMeuMes(){
     <div class="grid" style="align-content:start">
       <div class="card"><div class="card-h"><h3>Como o valor é calculado</h3></div>
         <ol class="small" style="margin:0;padding-left:18px;display:grid;gap:8px;color:var(--ink-2)">
-          <li>Cada aluno presente vale 70% do plano dele dividido pelas aulas do mês. Aluno 2x: ${brl(fy.taxas['2x'])} por presença.</li>
+          <li>Cada aluno presente vale ${Math.round(fy.pctYoga*100)}% do plano dele dividido pelas aulas do mês. Aluno 2x: ${brl(fy.taxas['2x'])} por presença.</li>
           <li>Se ninguém vem, a aula vale ${brl(fy.aulaVazia)}.</li>
-          <li>No fim do mês, o app compara com 70% das mensalidades de yoga. A sobra (ou a falta) é dividida igualmente por aula dada.</li>
+          <li>No fim do mês, o app compara com ${Math.round(fy.pctYoga*100)}% das mensalidades de yoga. A sobra (ou a falta) é dividida igualmente por aula dada.</li>
           <li>Particulares, gestantes, meditação e outras atividades entram com a sua porcentagem.</li>
         </ol></div>
       <div class="card"><div class="card-h"><h3>Seus meses</h3></div>
@@ -131,7 +131,7 @@ function desenharChamada(){
   <div class="stack">
     <div class="rollgrid">${lista.map(a => `<button class="roll ${CHAMADA.presentes.has(a.id)?'on':''}" data-act="marcar" data-v="${a.id}" aria-pressed="${CHAMADA.presentes.has(a.id)}">${av(a.nome)}<span class="col" style="gap:0"><span class="nm">${escapeH(a.nome.split(' ').slice(0,2).join(' '))}</span><span class="pl">${plano(a)}</span></span><span class="ck">${ic('check')}</span></button>`).join('')}</div>
     ${outros.length ? `<details><summary class="small strong" style="cursor:pointer;color:var(--pri)">Veio alguém de outra turma? (${outros.length})</summary><div class="chips" style="flex-wrap:wrap;margin-top:10px">${outros.map(a => `<button class="chip" data-act="addExtra" data-v="${a.id}">${ic('plus','sm')}${escapeH(a.nome)}</button>`).join('')}</div></details>` : ''}
-    ${t.atv === 'yoga' ? `<div class="row" style="justify-content:space-between;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><div><b class="small">Visitantes / aula avulsa</b><div class="tiny muted">cada um vale ${brl(taxasYoga(S.regras.planos).avulsa)}</div></div><div class="row"><button class="iconbtn" data-act="visit" data-v="-1" aria-label="Menos um visitante">${ic('minus')}</button><b class="num" style="min-width:20px;text-align:center">${CHAMADA.visit}</b><button class="iconbtn" data-act="visit" data-v="1" aria-label="Mais um visitante">${ic('plus')}</button></div></div>` : ''}
+    ${t.atv === 'yoga' ? `<div class="row" style="justify-content:space-between;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><div><b class="small">Visitantes / aula avulsa</b><div class="tiny muted">cada um vale ${brl(taxasYoga(S.regras.planos, S.regras.pct.yoga).avulsa)}</div></div><div class="row"><button class="iconbtn" data-act="visit" data-v="-1" aria-label="Menos um visitante">${ic('minus')}</button><b class="num" style="min-width:20px;text-align:center">${CHAMADA.visit}</b><button class="iconbtn" data-act="visit" data-v="1" aria-label="Mais um visitante">${ic('plus')}</button></div></div>` : ''}
     <div class="sheet-foot">${n === 0 ? `<button class="btn sec" data-act="salvarChamada" data-v="vazia">Ninguém veio · aula vazia</button>` : `<button class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" data-act="salvarChamada" ${n===0?'disabled':''}>${ic('check')}Salvar chamada${n?` (${n})`:''}</button></div>
   </div>`, {wide:true});
 }

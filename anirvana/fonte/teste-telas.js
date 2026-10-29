@@ -61,6 +61,11 @@ const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
     await p.click('[data-act=pagar] >> nth=0'); await shot(p, '24-pagar-pix', false); await p.click('#sheet [data-act=fechar]');
     await p.click('.rail [data-act=tab][data-v=historico]'); await shot(p, '25-historico');
     await p.click('.rail [data-act=tab][data-v=aulas]'); await shot(p, '26-aulas');
+    await p.click('.rail [data-act=tab][data-v=plano]'); await p.click('[data-act=consent][data-v=imagem]'); await shot(p, '27-meus-dados');
+    await p.click('[data-act=maisFin] >> nth=0'); await p.click('#sheet [data-x=cancelar]'); await shot(p, '28-cancelar', false); await p.click('#sheet [data-act=cancelarPlano]'); await p.waitForTimeout(300);
+    await p.click('[data-act=maisFin] >> nth=0'); await p.click('#sheet [data-x=metodo]'); await shot(p, '29-pix-automatico', false); await p.click('#sheet .opt[data-v=pixauto]'); await p.click('#sheet [data-act=salvarMetodo]');
+    await p.click('.rail [data-act=role][data-v=admin]'); await p.click('.rail [data-act=tab][data-v=mensalidades]'); await p.click('[data-act=mensVis][data-v=fechamento]'); await p.click('[data-act=fechMes][data-v="2026-09"]'); await shot(p, '30-fechar-mes'); await p.click('[data-act=fecharMes]'); await shot(p, '31-mes-fechado');
+    await p.click('.rail [data-act=tab][data-v=escola]'); await p.click('[data-act=escolaVis][data-v=alunos]'); await p.click('.li.tap[data-v=a09]'); await shot(p, '32-saudade', false);
     await overflow(p, 'desk');
   });
 

@@ -35,12 +35,24 @@ function quemNome(){
 function saudacao(){ return 'Namaskar'; }   /* a saudação do site: "Saúdo o Deus que há em você" */
 const av = (nome, cls='') => `<span class="av ${cls}" style="--c:${corDe(nome)}">${escapeH(ini(nome))}</span>`;
 
+/* pedidos de troca que esta pessoa pode aceitar */
+function pedidosPara(pid){
+  const p = PESSOA[pid];
+  return S.subs.filter(s => s.status === 'aberto' && s.de !== pid && p.atvs.includes(TURMA[s.turma].atv)
+    && (!s.pedidoPara || s.pedidoPara === pid) && !(s.recusas || []).includes(pid));
+}
+/* matrículas que o instrutor pode ver: turma da atividade dele, ou particular que o escolheu */
+function matsVisiveis(a, pid){
+  const p = PESSOA[pid];
+  return a.mats.filter(m => m.instr ? m.instr === pid : p.atvs.includes(m.atv) && ATIV[m.atv].vis === 'todos');
+}
+
 /* ---------- casca ---------- */
 function casca(conteudo){
   const nav = NAV[UI.role], cur = UI.tab[UI.role];
   const badge = id => {
     if (UI.role === 'admin' && id === 'inicio'){ const n = alertasAdmin(S).length; return n ? n : ''; }
-    if (UI.role === 'instrutor' && id === 'hoje'){ const n = Object.values(S.aulas).filter(a => !a.feita && a.instr === UI.who.instrutor).length + S.subs.filter(s => s.status==='aberto' && s.de !== UI.who.instrutor && PESSOA[UI.who.instrutor].atvs.includes(TURMA[s.turma].atv)).length; return n || ''; }
+    if (UI.role === 'instrutor' && id === 'hoje'){ const n = Object.values(S.aulas).filter(a => !a.feita && a.instr === UI.who.instrutor).length + pedidosPara(UI.who.instrutor).length; return n || ''; }
     return '';
   };
   const marca = `<img src="${LOGO_MARK}" alt=""><div><b>Espaço Anirvana</b><small>${ROLE_NOME[UI.role]}</small></div>`;
@@ -89,7 +101,7 @@ function pintarIcones(){ /* ícones já vêm como SVG inline */ }
 /* ---------- aviso ---------- */
 let _toastT;
 function avisar(txt, icone='check'){
-  const t = $('#toast'); t.innerHTML = `${ic(icone)}<span>${txt}</span>`; t.classList.add('on');
+  const t = $('#toast'); t.innerHTML = `${ic(icone)}<span>${escapeH(txt)}</span>`;   /* texto sempre escapado: nomes vêm de quem digita */ t.classList.add('on');
   clearTimeout(_toastT); _toastT = setTimeout(() => t.classList.remove('on'), 2800);
 }
 
@@ -190,6 +202,7 @@ const pillPag = st => ({
   avencer:`<span class="pill warn">${ic('clock')}A vencer</span>`,
   atrasado:`<span class="pill bad">${ic('circle-alert')}Atrasado</span>`,
   pausado:`<span class="pill neu">${ic('pause')}Pausado</span>`,
+  cancelado:`<span class="pill neu">${ic('x')}Cancelado</span>`,
 }[st]);
 const pillFreq = f => `<span class="row" style="gap:6px"><i class="fdot ${f.st}"></i><span class="small ${f.st==='ok'?'muted':''}" style="${f.st==='bad'?'color:var(--bad)':f.st==='warn'?'color:var(--warn)':''};font-weight:${f.st==='ok'?500:700}">${f.txt}</span></span>`;
 const nomePlano = m => m.plano ? `${ATIV[m.atv].curto} ${m.plano}` : ATIV[m.atv].curto;

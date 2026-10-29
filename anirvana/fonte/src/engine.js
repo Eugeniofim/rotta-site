@@ -187,9 +187,9 @@ function partesVenda(v){
   const forn = r2(v.valor * f.pct);
   return {forn, ea: r2(v.valor - forn)};
 }
-function taxasYoga(planos){
+function taxasYoga(planos, pct = .7){
   const t = {};
-  Object.entries(PLANOS_YOGA).forEach(([k,p]) => { t[k] = p.sem ? .7 * planos[k] / (p.sem*4) : .7 * planos[k]; });
+  Object.entries(PLANOS_YOGA).forEach(([k,p]) => { t[k] = p.sem ? pct * planos[k] / (p.sem*4) : pct * planos[k]; });
   return t;
 }
 
@@ -211,15 +211,20 @@ function statusPagamento(S, a, m, mes = MES_ATUAL){
   const pg = S.pagamentos.find(p => p.mat === m.id && p.mes === mes);
   const venc = `${mes}-${pad(Math.min(m.venc,28))}`;
   if (pg) return {st:'pago', pg, venc, txt:`Pago em ${dataBR(pg.d)}`};
+  if (m.status === 'cancelado') return {st:'cancelado', venc, txt:`Cancelado em ${dataBR(m.fim || HOJE_ISO)}`};
   if (m.status === 'pausado') return {st:'pausado', venc, txt:'Plano pausado'};
+  if (a && a.desde > venc){ const d0 = pd(venc); const prox = iso(new Date(d0.getFullYear(), d0.getMonth()+1, Math.min(m.venc,28))); return {st:'avencer', venc:prox, dias:diasEntre(HOJE, pd(prox)), txt:`Primeira cobrança ${dataBR(prox)}`}; }
   const d = diasEntre(pd(venc), HOJE);
   if (d > 0) return {st:'atrasado', venc, dias:d, txt:`Venceu ${dataBR(venc)} · ${d} ${d===1?'dia':'dias'}`};
   return {st:'avencer', venc, dias:-d, txt: d === 0 ? 'Vence hoje' : `Vence ${dataBR(venc)}`};
 }
 function proximaCobranca(S, m){
-  const st = statusPagamento(S, null, m);
+  const st = statusPagamento(S, S.alunos.find(a => a.mats.includes(m)), m);
   if (st.st !== 'pago') return st.venc;
-  const d = pd(st.venc); return iso(new Date(d.getFullYear(), d.getMonth()+1, Math.min(m.venc,28)));
+  /* o primeiro mês ainda sem pagamento (quem adiantou não paga duas vezes o mesmo mês) */
+  let d = pd(st.venc);
+  for (let i = 0; i < 24; i++){ d = new Date(d.getFullYear(), d.getMonth()+1, Math.min(m.venc,28)); const mes = `${d.getFullYear()}-${pad(d.getMonth()+1)}`; if (!S.pagamentos.some(p => p.mat === m.id && p.mes === mes)) break; }
+  return iso(d);
 }
 function alunosVisiveis(S, instrId){
   const p = PESSOA[instrId];
@@ -274,13 +279,14 @@ function balancoMes(S, mes){
 function fechamentoYoga(S, mes){
   const F = FECH_PLANILHA[mes];
   let bruto, aulaVazia, instrs = {}, extras = {}, fonte, taxas;
+  const P = F ? Object.fromEntries(Object.entries(ATIV).map(([k,a]) => [k, a.repasse])) : S.regras.pct;   /* % da equipe */
   if (F){
     fonte = 'planilha'; bruto = F.yogaBruto; aulaVazia = F.aulaVazia;
     taxas = taxasYoga(Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p]) => [k,p.preco])));
     Object.entries(F.instr).forEach(([id,v]) => instrs[id] = {aulas:v.aulas, c:{...v.c}});
     Object.entries(F.extras).forEach(([id,v]) => extras[id] = {...v});
   } else {
-    fonte = 'app'; aulaVazia = S.regras.aulaVazia; taxas = taxasYoga(S.regras.planos);
+    fonte = 'app'; aulaVazia = S.regras.aulaVazia; taxas = taxasYoga(S.regras.planos, P.yoga);
     bruto = 0;
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m && m.atv === 'yoga') bruto += p.valor; });
     Object.values(S.aulas).filter(au => mesDe(au.d) === mes && au.feita && TURMA[au.turma].atv === 'yoga').forEach(au => {
@@ -291,11 +297,12 @@ function fechamentoYoga(S, mes){
     });
     S.pagamentos.filter(p => p.mes === mes).forEach(p => {
       const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (!m) return;
-      if (m.atv === 'particular'){ (extras[m.instr] = extras[m.instr] || {}).particular = ((extras[m.instr]||{}).particular||0) + p.valor; }
-      if (m.atv === 'gestantes' || m.atv === 'meditacao'){ const who = TURMA[m.turmas[0]].instr; (extras[who] = extras[who] || {})[m.atv] = ((extras[who]||{})[m.atv]||0) + p.valor; }
+      if (!['particular','gestantes','meditacao'].includes(m.atv)) return;
+      const who = responsavelMat(m); if (!who) return;            /* sem instrutor definido: fica fora até a administração escolher */
+      (extras[who] = extras[who] || {})[m.atv] = (extras[who][m.atv] || 0) + p.valor;
     });
   }
-  const pool = r2(bruto * .7);
+  const pool = r2(bruto * P.yoga);
   const linhas = Object.entries(instrs).map(([id,I]) => {
     const aReceber = I.c.vazia*aulaVazia + ['4x','3x','2x','1x','avulsa'].reduce((s,k) => s + I.c[k]*taxas[k], 0);
     return {id, nome:PESSOA[id].nome, aulas:I.aulas, c:I.c, aReceber};
@@ -310,23 +317,32 @@ function fechamentoYoga(S, mes){
     l.piso = l.aulas * aulaVazia;
     l.yogaFinal = S.regras.piso ? Math.max(l.yoga, l.piso) : l.yoga;
     const ex = extras[l.id] || {};
-    l.extras = {particular:(ex.particular||0)*.7, gestantes:(ex.gestantes||0)*.7, meditacao:(ex.meditacao||0)*.7};
+    l.extras = {particular:(ex.particular||0)*P.particular, gestantes:(ex.gestantes||0)*P.gestantes, meditacao:(ex.meditacao||0)*P.meditacao};
     l.total = l.yogaFinal + l.extras.particular + l.extras.gestantes + l.extras.meditacao;
     if (F && F.conferido) l.conferido = F.conferido[l.id];
   });
-  Object.entries(extras).forEach(([id,ex]) => { if (!linhas.find(l => l.id === id)){ const e = {particular:(ex.particular||0)*.7, gestantes:(ex.gestantes||0)*.7, meditacao:(ex.meditacao||0)*.7}; linhas.push({id, nome:PESSOA[id].nome, aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0}, aReceber:0, ajuste:0, yoga:0, yogaFinal:0, piso:0, extras:e, total:e.particular+e.gestantes+e.meditacao}); }});
+  Object.entries(extras).forEach(([id,ex]) => { if (PESSOA[id] && !linhas.find(l => l.id === id)){ const e = {particular:(ex.particular||0)*P.particular, gestantes:(ex.gestantes||0)*P.gestantes, meditacao:(ex.meditacao||0)*P.meditacao}; linhas.push({id, nome:PESSOA[id].nome, aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0}, aReceber:0, ajuste:0, yoga:0, yogaFinal:0, piso:0, extras:e, total:e.particular+e.gestantes+e.meditacao}); }});
   linhas.sort((a,b) => b.total - a.total);
-  return {mes, fonte, bruto, pool, aulaVazia, obsVazia: F && F.obsVazia, taxas, linhas, somaAR, totalAulas, excedente, porAula};
+  return {mes, fonte, bruto, pool, pctYoga:P.yoga, aulaVazia, obsVazia: F && F.obsVazia, taxas, linhas, somaAR, totalAulas, excedente, porAula};
+}
+/* quem dá a aula desta matrícula: o escolhido, o da turma ou o único da atividade */
+function responsavelMat(m){
+  if (m.instr) return m.instr;
+  const t = (m.turmas || []).map(id => TURMA[id]).find(Boolean);
+  if (t) return t.instr;
+  const quem = EQUIPE.filter(p => p.atvs.includes(m.atv));
+  return quem.length === 1 ? quem[0].id : null;
 }
 
 /* ---------- repasses da equipe no mês (yoga + demais atividades) ---------- */
 function repassesEquipe(S, mes){
   const fy = fechamentoYoga(S, mes), rec = receitaMes(S, mes);
   const out = {};
-  const add = (id, lab, v) => { if (Math.abs(v) < .005) return; (out[id] = out[id] || {id, nome:PESSOA[id].nome, itens:[], total:0}).itens.push({lab, v}); out[id].total += v; };
+  const add = (id, lab, v) => { if (Math.abs(v) < .005 || !PESSOA[id]) return; (out[id] = out[id] || {id, nome:PESSOA[id].nome, itens:[], total:0}).itens.push({lab, v}); out[id].total += v; };
   fy.linhas.forEach(l => { add(l.id, 'Yoga (turmas)', l.yogaFinal); add(l.id, 'Particular', l.extras.particular); add(l.id, 'Gestantes', l.extras.gestantes); add(l.id, 'Meditação', l.extras.meditacao); });
   const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', ingles:'marina', massagem:'aurelice', terapias:'kamala'};
   rec.linhas.filter(l => dono[l.atv]).forEach(l => add(dono[l.atv], ATIV[l.atv].curto, l.instr));
+  (S.descontos || []).filter(d => d.mes === mes && out[d.p]).forEach(d => add(d.p, `Lojinha: ${d.desc}`, -d.valor));
   return Object.values(out).map(o => ({...o, pago: S.repEquipe.find(r => r.p === o.id && r.mes === mes)})).sort((a,b) => b.total - a.total);
 }
 

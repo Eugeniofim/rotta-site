@@ -167,7 +167,7 @@ function vMensAlunos(){
   <div class="card">
     <div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['atrasado','Atrasados'],['avencer','A vencer'],['pago','Pagos']].map(([k,l]) => `<button class="chip ${UI.mensSt===k?'on':''}" data-act="mensSt" data-v="${k}">${l} <span class="n">${cont(k)}</span></button>`).join('')}</div>
     <div class="chips" style="margin-bottom:6px">${['todas',...atvs].map(k => `<button class="chip ${UI.mensAtv===k?'on':''}" data-act="mensAtv" data-v="${k}">${k==='todas'?'Todas as atividades':ATIV[k].curto}</button>`).join('')}</div>
-    <div class="list">${vis.map(({a,m,st}) => `<div class="li"><span class="tap" data-act="verAluno" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}</span><div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${nomePlano(m)} · ${brl(valorMat(S,m))} · ${m.metodo==='cartao'?'cartão automático':'Pix'} · ${st.txt}</span></div><div class="end">${pillPag(st.st)}${st.st!=='pago'&&st.st!=='pausado'?`<button class="btn sec sm" data-act="receber" data-v="${m.id}">Receber</button>`:''}</div></div>`).join('') || '<p class="muted">Ninguém nesse filtro.</p>'}</div>
+    <div class="list">${vis.map(({a,m,st}) => `<div class="li"><span class="tap" data-act="verAluno" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}</span><div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${nomePlano(m)} · ${brl(valorMat(S,m))} · ${{cartao:'cartão automático', pixauto:'Pix Automático'}[m.metodo] || 'Pix'} · ${st.txt}</span></div><div class="end">${pillPag(st.st)}${st.st!=='pago'&&st.st!=='pausado'?`<button class="btn sec sm" data-act="receber" data-v="${m.id}">Receber</button>`:''}</div></div>`).join('') || '<p class="muted">Ninguém nesse filtro.</p>'}</div>
   </div>`;
 }
 function folhaReceber(matId){
@@ -196,7 +196,7 @@ function vFechamento(){
       ${confere ? `<span class="pill ok">${ic('check')}Confere com a planilha, centavo por centavo</span>` : fy.fonte==='app' ? `<span class="pill pri">${ic('refresh-cw')}Calculado da chamada${mes===MES_ATUAL?' · parcial':''}</span>` : ''}</div>
     <div class="grid g4" style="margin-bottom:14px">
       <div class="stat"><span class="k">Mensalidades de yoga</span><span class="v">${brl0(fy.bruto)}</span><span class="d">recebidas no mês</span></div>
-      <div class="stat"><span class="k">70% para as instrutoras</span><span class="v">${brl0(fy.pool)}</span><span class="d">30% fica no Espaço</span></div>
+      <div class="stat"><span class="k">${Math.round(fy.pctYoga*100)}% para as instrutoras</span><span class="v">${brl0(fy.pool)}</span><span class="d">${100-Math.round(fy.pctYoga*100)}% fica no Espaço</span></div>
       <div class="stat"><span class="k">Soma por presença</span><span class="v">${brl0(fy.somaAR)}</span><span class="d">${fy.totalAulas} aulas dadas</span></div>
       <div class="stat"><span class="k">${fy.excedente>=0?'Sobra':'Falta'} por aula</span><span class="v" style="color:${fy.excedente>=0?'var(--ok)':'var(--bad)'}">${brl(fy.porAula)}</span><span class="d">excedente ${brl(fy.excedente)}</span></div>
     </div>
@@ -206,6 +206,9 @@ function vFechamento(){
     </tbody></table></div>
     <div class="row wrap small muted" style="margin-top:12px;gap:14px"><b style="color:var(--ink-2)">Cada presença vale:</b>${['4x','3x','2x','1x','avulsa'].map(k => `<span class="num">${k} = ${brl(t[k])}</span>`).join('')}<span class="num">aula vazia = ${brl(fy.aulaVazia)}${fy.obsVazia?` (${fy.obsVazia})`:''}</span><span>Extras = 70% de particular, gestantes e meditação</span></div>
   </div>
+  ${fy.fonte === 'app' && mes < MES_ATUAL ? ((S.fechados || {})[mes]
+      ? `<div class="alert ok"><span class="ib">${ic('check')}</span><div><div class="t">${nomeMes(mes)} está fechado desde ${dataBR(S.fechados[mes])}</div><div class="s">Chamadas e pagamentos deste mês não mudam mais. Tudo o que foi feito fica registrado.</div></div></div>`
+      : `<div class="alert pri"><span class="ib">${ic('list-checks')}</span><div style="flex:1"><div class="t">Conferiu tudo? Feche ${nomeMes(mes).toLowerCase()}.</div><div class="s">Depois de fechado, ninguém altera chamada nem pagamento do mês sem reabrir. É o que garante que o repasse pago bate com o registrado.</div><button class="btn pri sm" style="margin-top:10px" data-act="fecharMes" data-v="${mes}">${ic('check','sm')}Fechar ${nomeMes(mes).toLowerCase()}</button></div></div>`) : ''}
   ${negativos.length ? `<div class="alert bad"><span class="ib">${ic('triangle-alert')}</span><div style="flex:1"><div class="t">Pela regra atual, ${negativos.map(l => `${l.nome} ficaria com ${brl(l.yoga)} na yoga`).join(' e ')}.</div><div class="s">Quando o mês tem pouca receita e muita presença, o ajuste negativo é dividido por aula e pode zerar quem deu poucas aulas. Uma saída: garantir o valor da aula vazia como mínimo por aula dada (o Espaço cobre a diferença).</div>
     <button class="btn ${S.regras.piso?'pri':'sec'} sm" style="margin-top:10px" data-act="piso">${ic(S.regras.piso?'check':'plus')}${S.regras.piso?'Piso ligado':'Simular piso por aula'}</button></div></div>` : ''}
   <div class="card"><div class="card-h"><div><h3>Demais atividades</h3><span class="sub">Divisão fixa: instrutor leva a parte dele, o resto fica no Espaço</span></div></div>
@@ -217,17 +220,18 @@ function vFechamento(){
     <div class="list">${reps.map(r => `<div class="li">${av(r.nome)}<div class="main-c"><span class="t">${r.nome}</span><span class="s">${r.itens.map(i => `${i.lab} ${brl(i.v)}`).join(' · ')}</span><span class="s">Pix ${PESSOA[r.id].pix}</span></div><div class="end"><b class="num" style="font-size:16px">${brl(r.total)}</b>${r.pago ? `<span class="pill ok">${ic('check')}Pago ${dataBR(r.pago.d)}</span>` : fy.fonte==='planilha' ? '<span class="pill neu">fechado na planilha</span>' : `<button class="btn ok sm" data-act="pagarEquipe" data-v="${r.id}" data-mes="${mes}">Marcar pago</button>`}</div></div>`).join('')}</div></div>`;
 }
 function vRegras(){
-  const t = taxasYoga(S.regras.planos);
+  const t = taxasYoga(S.regras.planos, S.regras.pct.yoga);
   return `
   <div class="grid g2">
     <div class="card"><div class="card-h"><div><h3>Planos de yoga</h3><span class="sub">Mudou o preço, o valor de cada presença se ajusta sozinho</span></div></div>
-      <div class="list">${Object.entries(PLANOS_YOGA).map(([k,p]) => `<div class="li"><div class="main-c"><span class="t">${p.nome}</span><span class="s">Cada presença vale <b class="num">${brl(t[k])}</b> para a instrutora${p.sem?` · 70% ÷ ${p.sem*4} aulas`:''}</span></div><div style="width:130px"><input class="inp num" style="height:42px;text-align:right" inputmode="decimal" id="pl-${k}" data-act-in="preco" data-v="${k}" value="${S.regras.planos[k].toFixed(2).replace('.',',')}" aria-label="Preço ${p.nome}"></div></div>`).join('')}</div></div>
+      <div class="list">${Object.entries(PLANOS_YOGA).map(([k,p]) => `<div class="li"><div class="main-c"><span class="t">${p.nome}</span><span class="s">Cada presença vale <b class="num">${brl(t[k])}</b> para a instrutora${p.sem?` · ${Math.round(S.regras.pct.yoga*100)}% ÷ ${p.sem*4} aulas`:''}</span></div><div style="width:130px"><input class="inp num" style="height:42px;text-align:right" inputmode="decimal" id="pl-${k}" data-act-in="preco" data-v="${k}" value="${S.regras.planos[k].toFixed(2).replace('.',',')}" aria-label="Preço ${p.nome}"></div></div>`).join('')}</div></div>
     <div class="card"><div class="card-h"><div><h3>Parte da equipe por atividade</h3><span class="sub">O resto fica com o Espaço</span></div></div>
       <div class="list">${Object.entries(ATIV).map(([k,a]) => `<div class="li"><span class="ico-b" style="color:${a.hex}">${ic(a.icon)}</span><div class="main-c"><span class="t">${a.nome}</span><span class="s">Espaço fica com ${Math.round((1-S.regras.pct[k])*100)}%</span></div><div style="width:96px" class="row"><input class="inp num" style="height:42px;text-align:right" inputmode="numeric" id="pct-${k}" data-act-in="pct" data-v="${k}" value="${Math.round(S.regras.pct[k]*100)}" aria-label="Porcentagem da equipe em ${a.nome}"><span class="muted">%</span></div></div>`).join('')}</div></div>
     <div class="card"><div class="card-h"><div><h3>Aula vazia</h3><span class="sub">Quanto a instrutora recebe quando ninguém vem</span></div></div>
       <div class="grid g2"><div class="field"><label for="rgVazia">Mês normal</label><input class="inp num" id="rgVazia" data-act-in="vazia" data-v="aulaVazia" value="${S.regras.aulaVazia.toFixed(2).replace('.',',')}"></div>
       <div class="field"><label for="rgVaziaF">Férias e feriadões</label><input class="inp num" id="rgVaziaF" data-act-in="vazia" data-v="aulaVaziaFerias" value="${S.regras.aulaVaziaFerias.toFixed(2).replace('.',',')}"></div></div>
-      <p class="small muted" style="margin-top:10px">Os meses que vieram da planilha (jan–mar) continuam com as regras da época. As novas regras valem do mês aberto em diante.</p></div>
+      <p class="small muted" style="margin-top:10px">Mensalidade atrasada: multa de 2% e juros de 1% ao mês, no máximo. O banco de dados recusa valores acima disso.</p>
+      <p class="small muted" style="margin-top:6px">Os meses que vieram da planilha (jan–mar) continuam com as regras da época. As novas regras valem do mês aberto em diante.</p></div>
   </div>`;
 }
 
@@ -305,8 +309,8 @@ function folhaAluno(aid, modo='admin'){
   <div class="stack">
     <div class="row wrap">${pillFreq(f)}<span class="sp"></span><span class="small muted">${pres.length} aulas desde agosto</span></div>
     <div><div class="eyebrow" style="margin-bottom:6px">Presença nas últimas 12 semanas</div>${pontosSemanas(aid, 12)}</div>
-    <div class="list">${a.mats.map(m => { const st = statusPagamento(S,a,m); return `<div class="li"><span class="ico-b" style="color:${ATIV[m.atv].hex}">${ic(ATIV[m.atv].icon)}</span><div class="main-c"><span class="t">${nomePlano(m)}${m.instr?` com ${PESSOA[m.instr].nome}`:''}</span><span class="s">${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ')}${modo==='admin'?` · ${brl(valorMat(S,m))} · vence dia ${m.venc}`:''}</span></div>${modo==='admin'?pillPag(st.st):''}</div>`; }).join('')}</div>
-    <div class="row wrap"><span class="small muted">Telefone</span><b class="num">${a.tel}</b><button class="btn ghost sm" data-act="copiar" data-v="${a.tel}">${ic('copy','sm')}Copiar</button></div>
+    <div class="list">${(modo === 'admin' ? a.mats : matsVisiveis(a, UI.who.instrutor)).map(m => { const st = statusPagamento(S,a,m); return `<div class="li"><span class="ico-b" style="color:${ATIV[m.atv].hex}">${ic(ATIV[m.atv].icon)}</span><div class="main-c"><span class="t">${nomePlano(m)}${m.instr?` com ${PESSOA[m.instr].nome}`:''}</span><span class="s">${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ')}${modo==='admin'?` · ${brl(valorMat(S,m))} · vence dia ${m.venc}`:''}</span></div>${modo==='admin'?pillPag(st.st):''}</div>`; }).join('')}</div>
+    <div class="row wrap"><span class="small muted">Telefone</span><b class="num">${a.tel}</b><button class="btn ghost sm" data-act="copiar" data-v="${a.tel}">${ic('copy','sm')}Copiar</button>${f.st !== 'ok' ? `<button class="btn sec sm" data-act="saudade" data-v="${a.id}">${ic('heart','sm')}Mensagem de saudade</button>` : ''}</div>
     ${modo==='admin' ? `<div><div class="eyebrow" style="margin-bottom:6px">Pagamentos</div><div class="list">${pags.map(p => `<div class="li"><div class="main-c"><span class="t">${nomeMes(p.mes)}</span><span class="s">${dataBR(p.d)} · ${p.metodo==='cartao'?'cartão':p.metodo}</span></div><b class="num">${brl(p.valor)}</b></div>`).join('') || '<p class="muted small">Nenhum pagamento registrado.</p>'}</div></div>` : ''}
   </div>`);
 }
@@ -318,6 +322,7 @@ function folhaNovoAluno(){
     <div class="field"><label for="nTel">WhatsApp</label><input class="inp" id="nTel" inputmode="tel" placeholder="(41) 9 0000-0000"></div>
     <div class="field"><label>Atividade</label><div class="optgrid">${atvs.map(([k,a],i) => `<button type="button" class="opt ${i===0?'on':''}" data-act="opt" data-grp="nAtv" data-v="${k}">${ic(a.icon)}${a.curto}</button>`).join('')}</div><input type="hidden" id="nAtv" value="yoga"></div>
     <div class="field" id="nPlanoF"><label>Plano de yoga</label><div class="optgrid">${Object.entries(PLANOS_YOGA).filter(([k])=>k!=='avulsa').map(([k,p],i) => `<button type="button" class="opt ${k==='2x'?'on':''}" data-act="opt" data-grp="nPlano" data-v="${k}"><span>${p.nome}<br><b class="num">${brl(S.regras.planos[k])}</b></span></button>`).join('')}</div><input type="hidden" id="nPlano" value="2x"></div>
+    <div class="field" id="nInstrF" hidden><label>Com quem</label><div class="optgrid"></div><input type="hidden" id="nInstr" value=""><span class="help">O aluno só aparece para quem você escolher.</span></div>
     <div class="field"><label>Turmas</label><div class="optgrid" id="nTurmas">${TURMAS.filter(t=>t.atv==='yoga').map(t => `<button type="button" class="opt" data-act="optMulti" data-grp="nTur" data-v="${t.id}">${DIAS[t.dia]} ${t.h}<br><span class="tiny muted">${PESSOA[t.instr].nome}</span></button>`).join('')}</div><input type="hidden" id="nTur" value=""></div>
     <div class="grid g2"><div class="field"><label for="nVenc">Dia do vencimento</label><input class="inp num" id="nVenc" inputmode="numeric" value="${HOJE.getDate()}"></div>
     <div class="field"><label>Pagamento</label><div class="optgrid">${[['pix','Pix'],['cartao','Cartão automático']].map(([k,l],i)=>`<button type="button" class="opt ${i===0?'on':''}" data-act="opt" data-grp="nMet" data-v="${k}">${l}</button>`).join('')}</div><input type="hidden" id="nMet" value="pix"></div></div>

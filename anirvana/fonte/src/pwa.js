@@ -46,8 +46,10 @@ function ligarAtualizacao(){
     aoVoltar(checar, 60);
     setInterval(checar, 30*60*1000);
   }).catch(() => {});
+  const tinhaVersao = !!navigator.serviceWorker.controller;
   let jaTrocou = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!tinhaVersao && !_recarregando) return;     /* primeira instalação: não mexe na tela */
     if (jaTrocou) return; jaTrocou = true;
     try{ location.reload(); }catch(e){}
   });

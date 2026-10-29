@@ -54,7 +54,13 @@ function lerHash(){
   const [r, t] = location.hash.slice(1).split('-');
   if (NAV[r]){ UI.role = r; if (t && NAV[r].some(n => n[0] === t)) UI.tab[r] = t; }
 }
-const num = s => parseFloat(String(s).replace(/\./g,'').replace(',','.')) || 0;
+const num = s => {
+  s = String(s ?? '').replace(/[R$\s]/g, '');
+  if (!s) return NaN;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');          /* 1.500,00 → 1500.00 */
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');      /* 1.500 → 1500 */
+  return parseFloat(s);                                                      /* 49.90 → 49.9 */
+};
 function reRender(){ const y = scrollY; render(); scrollTo({top:y}); }
 
 /* ---------- ações ---------- */
@@ -76,7 +82,7 @@ const ACT = {
     const h = $('#'+d.grp); if (h) h.value = d.v;
     if (d.grp === 'lCat'){ const dica = CAT_SAIDA[d.v]?.dica; const el2 = $('#lDica'); if (el2) el2.textContent = dica || ''; }
     if (d.grp === 'vForma'){ const f = $('#vClienteF'); if (f) f.hidden = !['fiado','descontado'].includes(d.v); }
-    if (d.grp === 'nAtv'){ $('#nPlanoF').hidden = d.v !== 'yoga'; $('#nTurmas').innerHTML = TURMAS.filter(t => t.atv === d.v && !t.aluno).map(t => `<button type="button" class="opt" data-act="optMulti" data-grp="nTur" data-v="${t.id}">${DIAS[t.dia]} ${t.h}<br><span class="tiny muted">${PESSOA[t.instr].nome}</span></button>`).join('') || '<p class="small muted">Com hora marcada: a terapeuta combina o horário.</p>'; $('#nTur').value = ''; }
+    if (d.grp === 'nAtv'){ $('#nPlanoF').hidden = d.v !== 'yoga'; const fi = $('#nInstrF'); if (fi){ const q = EQUIPE.filter(p => p.atvs.includes(d.v)); fi.hidden = ATIV[d.v].vis !== 'escolhido'; fi.querySelector('.optgrid').innerHTML = q.map(p => `<button type="button" class="opt" data-act="opt" data-grp="nInstr" data-v="${p.id}">${p.nome}</button>`).join(''); $('#nInstr').value = ''; } $('#nTurmas').innerHTML = TURMAS.filter(t => t.atv === d.v && !t.aluno).map(t => `<button type="button" class="opt" data-act="optMulti" data-grp="nTur" data-v="${t.id}">${DIAS[t.dia]} ${t.h}<br><span class="tiny muted">${PESSOA[t.instr].nome}</span></button>`).join('') || '<p class="small muted">Com hora marcada: a terapeuta combina o horário.</p>'; $('#nTur').value = ''; }
   },
   optMulti:(d, el) => { el.classList.toggle('on'); $('#'+d.grp).value = $$(`.opt.on[data-grp="${d.grp}"]`).map(o => o.dataset.v).join(','); },
 
@@ -92,6 +98,7 @@ const ACT = {
   fechMes:(d) => { UI.fechMes = d.v; reRender(); },
   receber:(d) => folhaReceber(d.v),
   piso:() => { S.regras.piso = !S.regras.piso; salvar(); reRender(); avisar(S.regras.piso ? 'Piso ligado: ninguém recebe menos que o valor da aula vazia por aula dada' : 'Piso desligado: vale a regra da planilha'); },
+  fecharMes:(d) => { (S.fechados = S.fechados || {})[d.v] = HOJE_ISO; salvar(); reRender(); avisar(`${nomeMes(d.v)} fechado`); },
   pagarEquipe:(d) => { S.repEquipe.push({id:'re'+(S.seq++), p:d.v, mes:d.mes, d:HOJE_ISO}); salvar(); reRender(); avisar(`Repasse de ${PESSOA[d.v].nome} marcado como pago`); },
   escolaVis:(d) => { UI.escolaVis = d.v; reRender(); },
   escAtv:(d) => { UI.escAtv = d.v; reRender(); },
@@ -119,7 +126,10 @@ const ACT = {
     if (['fiado','descontado'].includes(forma) && !cliente){ $('#vCliente').focus(); avisar('Diga quem levou, para cobrar depois','circle-alert'); return; }
     const it = itensCarrinho(), total = r2(it.reduce((s,i) => s + i.total, 0));
     it.forEach(i => S.vendas.push({id:'v'+(S.seq++), d:HOJE_ISO, desc:`${i.q} ${i.nome.toLowerCase()}`, valor:i.total, forma, forn:i.forn, evento:'', fonte:'app', itens:[{p:i.id, q:i.q}]}));
-    if (forma === 'fiado') S.fiado.push({id:'fi'+(S.seq++), cliente, desc:it.map(i => `${i.q} ${i.nome.toLowerCase()}`).join(', '), valor:total, d:HOJE_ISO, pago:false});
+    const descItens = it.map(i => `${i.q} ${i.nome.toLowerCase()}`).join(', ');
+    const daEquipe = forma === 'descontado' && EQUIPE.find(p => p.nome.toLowerCase() === cliente.toLowerCase() || p.nome.split(' ')[0].toLowerCase() === cliente.split(' ')[0].toLowerCase());
+    if (daEquipe) (S.descontos = S.descontos || []).push({id:'de'+(S.seq++), p:daEquipe.id, mes:MES_ATUAL, valor:total, desc:descItens, d:HOJE_ISO});
+    else if (forma === 'fiado' || forma === 'descontado') S.fiado.push({id:'fi'+(S.seq++), cliente, desc:descItens + (forma === 'descontado' ? ' (descontar)' : ''), valor:total, d:HOJE_ISO, pago:false});
     salvar();
     const venda = {d:HOJE_ISO, total, forma, cliente, itens:it.map(i => ({nome:i.nome, q:i.q, total:i.total, forn:i.forn}))};
     UI.cart = {};
@@ -141,6 +151,7 @@ const ACT = {
   visit:(d) => { CHAMADA.visit = Math.max(0, CHAMADA.visit + +d.v); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   salvarChamada:(d) => {
     const {sid} = CHAMADA, [dia, tid] = sid.split('_'), t = TURMA[tid];
+    if ((S.fechados || {})[mesDe(dia)]){ avisar(`${nomeMes(mesDe(dia))} já foi fechado. Peça para a administração reabrir.`, 'circle-alert'); return; }
     S.presencas = S.presencas.filter(p => p.s !== sid);
     CHAMADA.presentes.forEach(aid => { const a = alunoPor(S,aid); const m = a.mats.find(x => x.atv === t.atv) || a.mats[0]; S.presencas.push({s:sid, a:aid, t: m.plano || 'mensal'}); });
     for (let i=0;i<CHAMADA.visit;i++) S.presencas.push({s:sid, a:null, nome:'Visitante', t:'avulsa'});
@@ -153,7 +164,7 @@ const ACT = {
   minhaTurma:(d) => folhaMinhaTurma(d.v),
   pedirSub:(d) => folhaPedirSub(d.v, d.d),
   aceitarSub:(d) => { const s = S.subs.find(x => x.id === d.v); s.status = 'aceito'; s.para = UI.who.instrutor; salvar(); reRender(); avisar(`Combinado: você cobre ${PESSOA[s.de].nome} em ${dataBR(s.d)}. Ela e a administração já sabem.`); },
-  recusarSub:(d) => { const s = S.subs.find(x => x.id === d.v); (s.recusas = s.recusas || []).push(UI.who.instrutor); salvar(); avisar('Ok, o pedido segue aberto para as outras'); },
+  recusarSub:(d) => { const s = S.subs.find(x => x.id === d.v); (s.recusas = s.recusas || []).push(UI.who.instrutor); salvar(); reRender(); avisar('Ok, o pedido segue aberto para as outras'); },
 
   /* aluno */
   alunoAtv:(d) => { UI.alunoAtv = d.v; reRender(); },
@@ -174,9 +185,13 @@ const ACT = {
     salvar(); fecharFolha(); reRender(); avisar(`Pagamento de ${brl(valorMat(S,m))} confirmado. Obrigado!`);
   },
   maisFin:(d) => folhaMaisFin(d.v, d.x || 'menu'),
-  salvarMetodo:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); m.metodo = $('#fMet').value; if (m.metodo === 'cartao' && !m.cartaoFim) m.cartaoFim = '4242'; salvar(); fecharFolha(); reRender(); avisar(m.metodo === 'cartao' ? 'Pronto: cobrança automática no cartão' : 'Pronto: você vai receber o Pix todo mês'); },
+  salvarMetodo:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); m.metodo = $('#fMet').value; if (m.metodo === 'cartao' && !m.cartaoFim) m.cartaoFim = '4242'; salvar(); fecharFolha(); reRender(); avisar({cartao:'Pronto: cobrança automática no cartão', pixauto:'Pronto: autorize o Pix Automático no app do seu banco', pix:'Pronto: você vai receber o Pix todo mês'}[m.metodo]); },
   pausar:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v), dias = +$('#fPausa').value; m.status = 'pausado'; m.pausaAte = iso(addD(HOJE, dias)); salvar(); fecharFolha(); reRender(); avisar(`Plano pausado até ${dataBR(m.pausaAte)}. Sem cobrança nesse período.`, 'pause'); },
   retomar:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); m.status = 'ativo'; delete m.pausaAte; salvar(); fecharFolha(); reRender(); avisar('Plano retomado. Bom te ver de volta!'); },
+  cancelarPlano:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); const dias = diasEntre(pd(m.inicio || a.desde), HOJE); m.status = 'cancelado'; m.fim = HOJE_ISO; salvar(); fecharFolha(); reRender(); avisar(dias <= 7 ? 'Plano cancelado. Como foi nos 7 primeiros dias, o valor pago volta inteiro.' : 'Plano cancelado. Nenhuma cobrança nova.', 'check'); },
+  consent:(d) => { const a = alunoPor(S, UI.who.aluno); const c = (S.consent = S.consent || {})[a.id] = S.consent[a.id] || {}; c[d.v] = !c[d.v]; c[d.v + 'Em'] = HOJE_ISO; salvar(); reRender(); avisar(c[d.v] ? 'Autorização registrada com data' : 'Autorização retirada'); },
+  lgpd:(d) => avisar(d.v === 'copia' ? 'Pedido registrado. A cópia chega no seu e-mail dentro do prazo da LGPD.' : 'Pedido registrado. A administração confirma com você antes de apagar.', 'check'),
+  saudade:(d) => { const a = alunoPor(S, d.v), nome = a.nome.split(' ')[0]; const txt = `Oi, ${nome}! Sentimos sua falta no Espaço Anirvana 🙏 Está tudo bem? Se quiser, a gente te ajuda a encaixar um horário esta semana.`; try{ navigator.clipboard.writeText(txt).then(() => avisar('Mensagem copiada. É só colar no WhatsApp.'), () => avisar(txt)); }catch(e){ avisar(txt); } },
   alterarPlano:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v), novo = $('#fPlano').value; if (novo === m.plano){ fecharFolha(); return; } m.plano = novo; salvar(); fecharFolha(); reRender(); avisar(`Plano alterado para ${PLANOS_YOGA[novo].nome} · ${brl(S.regras.planos[novo])} a partir da próxima cobrança`); },
 };
 
@@ -200,7 +215,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target, k = el.dataset.actIn; if (!k) return;
-  if (k === 'preco'){ const v = num(el.value); if (v > 0){ S.regras.planos[el.dataset.v] = v; salvar(); reRender(); avisar(`${PLANOS_YOGA[el.dataset.v].nome}: ${brl(v)} · presença agora vale ${brl(taxasYoga(S.regras.planos)[el.dataset.v])}`); } }
+  if (k === 'preco'){ const v = num(el.value); if (v > 0){ S.regras.planos[el.dataset.v] = v; salvar(); reRender(); avisar(`${PLANOS_YOGA[el.dataset.v].nome}: ${brl(v)} · presença agora vale ${brl(taxasYoga(S.regras.planos, S.regras.pct.yoga)[el.dataset.v])}`); } }
   if (k === 'pct'){ const v = num(el.value); if (v >= 0 && v <= 100){ S.regras.pct[el.dataset.v] = v/100; salvar(); reRender(); avisar(`${ATIV[el.dataset.v].curto}: equipe ${v}% · Espaço ${100-v}%`); } }
   if (k === 'vazia'){ const v = num(el.value); if (v >= 0){ S.regras[el.dataset.v] = v; salvar(); reRender(); avisar(`Aula vazia: ${brl(v)}`); } }
 });
@@ -226,7 +241,9 @@ document.addEventListener('submit', e => {
     const nome = $('#nNome').value.trim(); if (!nome) return;
     const atv = $('#nAtv').value, plano = atv === 'yoga' ? $('#nPlano').value : null, turmas = $('#nTur').value.split(',').filter(Boolean);
     const id = 'a' + (S.seq++);
-    S.alunos.push({id, nome, desde:HOJE_ISO, obs:'', status:'ativo', tel:$('#nTel').value || '(41) 9 0000-0000', mats:[{id:id+'-0', atv, plano, valor: plano ? null : 150, turmas, venc: Math.min(28, +$('#nVenc').value || HOJE.getDate()), metodo:$('#nMet').value, cartaoFim: $('#nMet').value==='cartao' ? '4242' : null, instr:null, status:'ativo'}]});
+    const instrEsc = $('#nInstr')?.value || null;
+    if (ATIV[atv].vis === 'escolhido' && !instrEsc){ avisar('Escolha com quem a pessoa vai fazer', 'circle-alert'); return; }
+    S.alunos.push({id, nome, desde:HOJE_ISO, obs:'', status:'ativo', tel:$('#nTel').value || '(41) 9 0000-0000', mats:[{id:id+'-0', atv, plano, valor: plano ? null : 150, turmas, venc: Math.min(28, +$('#nVenc').value || HOJE.getDate()), metodo:$('#nMet').value, cartaoFim: $('#nMet').value==='cartao' ? '4242' : null, instr:instrEsc, status:'ativo'}]});
     salvar(); fecharFolha(); reRender();
     const quem = EQUIPE.filter(p => p.atvs.includes(atv)).map(p => p.nome);
     avisar(`${nome.split(' ')[0]} cadastrado. Já aparece para ${quem.join(', ')}.`, 'user-plus');

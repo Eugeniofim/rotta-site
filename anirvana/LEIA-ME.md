@@ -5,6 +5,7 @@ Administração (Dessa e Vitor), Instrutores e Alunos.
 
 - `index.html`, `sw.js`, `manifest.webmanifest`, ícones: o app publicado (GERADO — não editar à mão).
 - `fonte/`: o código de verdade. Edite lá e gere de novo.
+- `fonte/backend/`: banco (Supabase), webhook do Asaas e o que a lei pede. Ver `fonte/backend/LEIA-ME.md`.
 
 ## Gerar de novo
 ```
