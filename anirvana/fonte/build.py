@@ -10,7 +10,7 @@ RAIZ = Path(__file__).parent
 SRC = RAIZ / 'src'
 LUCIDE = Path(sys.argv[1]) if len(sys.argv) > 1 else None
 SCRIPTS = ['data.js', 'engine.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'main.js', 'pwa.js']
-CACHE = 'anirvana-v1'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
+CACHE = 'anirvana-v2'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
 
 js = '\n'.join((SRC / f).read_text() for f in SCRIPTS)
 css = (SRC / 'style.css').read_text()
@@ -69,8 +69,7 @@ pagina = f'''<!doctype html>
 <title>Espaço Anirvana</title>
 <meta name="description" content="App do Espaço Anirvana: administração, instrutores e alunos">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#F5E3B8" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1B1712" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F5E3B8">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="icone-180.png">

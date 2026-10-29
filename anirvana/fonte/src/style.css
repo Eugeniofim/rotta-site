@@ -16,30 +16,8 @@
   --f-saudacao:'Anton','Montserrat',Impact,sans-serif;
   --rail:240px; --nav-h:64px;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1B1712; --surface:#241F18; --surface-2:#2B251D; --sunk:#14110C;
-  --ink:#F7EBD0; --ink-2:#DCCDB0; --muted:#ACA08A; --line:#3A3227; --line-2:#4A4033;
-  --pri:#5CC5B2; --pri-ink:#0F1F1C; --pri-soft:#1D3A35;
-  --sol:#F68A43; --acafrao:#FFCB3D; --folha:#A6D04D; --raio:#4B3221; --areia:#2B241B;
-  --sol-ink:#FFA36A; --folha-ink:#B5DC73; --acafrao-ink:#FFD666;
-  --ok:#7FD38B; --ok-bg:#183522; --warn:#F2CB55; --warn-bg:#3A2E10; --bad:#FF8C80; --bad-bg:#3F1D1B;
-  --chart-in:#3FA894; --chart-out:#E07133;
-  --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.65);
-  --shadow-lg:0 2px 6px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.75);
-  color-scheme:dark;
-}}
-:root[data-theme="dark"]{
-  --bg:#1B1712; --surface:#241F18; --surface-2:#2B251D; --sunk:#14110C;
-  --ink:#F7EBD0; --ink-2:#DCCDB0; --muted:#ACA08A; --line:#3A3227; --line-2:#4A4033;
-  --pri:#5CC5B2; --pri-ink:#0F1F1C; --pri-soft:#1D3A35;
-  --sol:#F68A43; --acafrao:#FFCB3D; --folha:#A6D04D; --raio:#4B3221; --areia:#2B241B;
-  --sol-ink:#FFA36A; --folha-ink:#B5DC73; --acafrao-ink:#FFD666;
-  --ok:#7FD38B; --ok-bg:#183522; --warn:#F2CB55; --warn-bg:#3A2E10; --bad:#FF8C80; --bad-bg:#3F1D1B;
-  --chart-in:#3FA894; --chart-out:#E07133;
-  --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.65);
-  --shadow-lg:0 2px 6px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.75);
-  color-scheme:dark;
-}
+/* tema único: as cores do site valem com o celular no modo claro ou escuro */
+:root{color-scheme:light}
 
 /* raios de sol, como no topo do site */
 .raios{position:absolute;pointer-events:none;z-index:-1;background:repeating-conic-gradient(from 3deg,var(--raio) 0deg 7deg,transparent 7deg 16deg);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 100%);mask-image:radial-gradient(closest-side,#000 20%,transparent 100%);opacity:.55;animation:girar 160s linear infinite}

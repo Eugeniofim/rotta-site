@@ -31,9 +31,9 @@ function proximasAulas(a, n=6){
 function vAlunoInicio(){
   const a = alunoPor(S, UI.who.aluno);
   const tabs = `<div class="chips" role="tablist">${[['pratica','Minha prática','sprout'], ['eventos','Eventos','ticket'], ['formacao','Formação','graduation-cap'], ...Object.entries(ATIV).filter(([k]) => k!=='particular').map(([k,x]) => [k, x.curto, x.icon])].map(([k,l,i]) => `<button class="chip ${UI.alunoAtv===k?'on':''}" role="tab" aria-selected="${UI.alunoAtv===k}" data-act="alunoAtv" data-v="${k}">${ic(i,'sm')}${l}</button>`).join('')}</div>`;
-  if (UI.alunoAtv === 'formacao') return `<div class="pagehead"><div><h1>Olá, ${escapeH(a.nome.split(' ')[0])}</h1><p>Formação de instrutores no Espaço.</p></div></div>${tabs}${vFormacaoAluno(a)}`;
-  if (UI.alunoAtv === 'eventos') return `<div class="pagehead"><div><h1>Olá, ${escapeH(a.nome.split(' ')[0])}</h1><p>Encontros abertos no Espaço.</p></div></div>${tabs}${vEventos()}`;
-  if (UI.alunoAtv !== 'pratica') return `<div class="pagehead"><div><h1>Olá, ${escapeH(a.nome.split(' ')[0])}</h1><p>Conheça tudo o que acontece no Espaço.</p></div></div>${tabs}${vAtividadeInfo(a, UI.alunoAtv)}`;
+  if (UI.alunoAtv === 'formacao') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Formação de instrutores no Espaço.</p></div></div>${tabs}${vFormacaoAluno(a)}`;
+  if (UI.alunoAtv === 'eventos') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Encontros abertos no Espaço.</p></div></div>${tabs}${vEventos()}`;
+  if (UI.alunoAtv !== 'pratica') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Conheça tudo o que acontece no Espaço.</p></div></div>${tabs}${vAtividadeInfo(a, UI.alunoAtv)}`;
   const pres = presencasDoAluno(S, a.id), doMes = pres.filter(p => mesDe(p.aula.d) === MES_ATUAL).length;
   const mPrin = a.mats[0];
   let previstas = 0; for (let d = pd(MES_ATUAL+'-01'); iso(d) <= HOJE_ISO; d = addD(d,1)) if (!FERIADOS.includes(iso(d))) previstas += a.mats.flatMap(m => m.turmas).filter(t => TURMA[t].dia === d.getDay()).length;
@@ -47,7 +47,7 @@ function vAlunoInicio(){
   const lista = proximasAulas(a, 5);
   const semanas = (() => { let s = 0; for (let w = 0; w < 30; w++){ const fim = addD(HOJE, -w*7), ini_ = addD(fim, -6); if (pres.some(p => p.aula.d >= iso(ini_) && p.aula.d <= iso(fim))) s++; else if (w>0) break; } return s; })();
   return `
-  <div class="pagehead anim-in"><div><h1>Olá, ${escapeH(a.nome.split(' ')[0])}</h1><p>${a.mats.map(m => ATIV[m.atv].nome).join(' e ')} no Espaço Anirvana</p></div></div>
+  <div class="pagehead anim-in"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>${a.mats.map(m => ATIV[m.atv].nome).join(' e ')} no Espaço Anirvana</p></div></div>
   ${tabs}
   <section class="hero anim-in">
     ${(() => { const [c1, c2] = tempoPratica(a.desde).split(' e '); return solArcos(arcos, c1, (c2 ? `e ${c2} ` : '') + 'de prática'); })()}
