@@ -25,6 +25,16 @@ var APP_CONFIG = {
   instagram: 'https://www.instagram.com/ad7imoveis',
   facebook: 'https://www.facebook.com/profile.php?id=100094268002270',
   horario: 'Segunda a sábado, das 9h às 18h',
+  horarioSchema: 'Mo-Sa 09:00-18:00',
+  rua: 'Av. Beira Mar, 210',
+  bairro: 'Pontal do Sul',
+  municipio: 'Pontal do Paraná',
+  uf: 'PR',
+  cep: '83255-000',
+  maps: 'https://maps.google.com/?cid=785296183325086214',   /* ficha "AD7 Imóveis| Pontal do Sul" no Google Maps (4,1 · 13 avaliações em 31/10/2026) */
+  lat: -25.5819498,
+  lng: -48.3625362,
+  siteOficial: 'https://ad7.eugeniofim.com',   /* usado nos dados para o Google (og:image, canonical de reserva) */
 
   supabaseUrl: '',   /* vazio = sem banco ainda. Com sala: o projeto Pro do estúdio */
   supabaseKey: '',   /* a chave "publishable" do projeto; nunca a secreta */

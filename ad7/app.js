@@ -9,7 +9,7 @@
    ===================================================== */
 'use strict';
 
-const APP_VERSAO = '0.4.0';
+const APP_VERSAO = '0.5.0';
 const FAV_KEY = 'ad7_fav_v1', COOKIE_KEY = 'ad7_cookies_v1';
 const C = APP_CONFIG;
 const $ = (s, el) => (el || document).querySelector(s);
@@ -19,7 +19,10 @@ const fone = n => { const d = String(n).replace(/\D/g, '').replace(/^55/, ''); r
 
 /* ---------- rota ---------- */
 function rota() {
-  const h = location.hash.replace(/^#\/?/, '');
+  let h = location.hash.replace(/^#\/?/, '');
+  /* páginas por imóvel geradas para o Google (imovel/<ref>/): sem hash, a rota vem do caminho */
+  const pm = !location.hash && location.pathname.match(/\/imovel\/([^/]+)\/?$/);
+  if (pm) h = 'imovel/' + decodeURIComponent(pm[1]);
   const [caminho, qs] = h.split('?');
   const partes = caminho.split('/').filter(Boolean);
   const query = {};
@@ -131,6 +134,7 @@ function vInicio() {
     + '<a class="card-linha" href="#/cliente"><span class="ico">' + ICO.casa + '</span><span><b>Sou proprietário</b><span>Extrato de contas, repasses, informe de rendimentos, vistorias.</span></span></a>'
     + '<a class="card-linha" href="#/cliente"><span class="ico">' + ICO.pessoa + '</span><span><b>Sou inquilino</b><span>2ª via do boleto, contrato, chamado de manutenção, aviso de desocupação.</span></span></a>'
     + '</div></div></section>'
+    + faixaParceiros()
     + '<section class="buscas"><div class="wrap"><div><h3>Buscas por Tipos de Imóveis</h3>' + porTipo + '</div><div><h3>Buscas por Bairros</h3>' + porBairro + '</div><div><h3>Buscas por Temporada</h3>' + porTemporada + '</div></div></section>';
 }
 
@@ -200,7 +204,7 @@ function vImovel(ref) {
     + '<div><h2 class="end">Endereço</h2><p style="margin:0 0 12px">' + esc(endereco) + '</p>' + mapa + '</div>'
     + '</div><aside class="im-lado">'
     + '<div class="caixa-preco"><h2>' + TRANS[im.transacao] + '</h2><div class="valor">' + esc(rotuloPreco(im)) + (im.transacao === 'temporada' ? ' <small style="font-weight:400;color:#C9D1D6">a partir de</small>' : '') + '</div>'
-    + (custos.length ? '<div class="custos"><div><span>Custos Adicionais</span></div>' + custos.map(([k, v]) => '<div><span>' + esc(k) + '</span><span>' + esc(v) + '</span></div>').join('') + (total ? '<div class="tot"><span>Valor Total Estimado*</span><span>' + esc(fmtPreco(total)) + '</span></div>' : '') + '</div><div class="nota">*Valores aproximados, sujeitos a confirmação.</div>' : (im.transacao === 'temporada' ? '<div class="nota">Valor por período; fim de ano e feriados sob consulta.</div>' : ''))
+    + (custos.length ? '<div class="custos"><div><span>Custos Adicionais</span></div>' + custos.map(([k, v]) => '<div><span>' + esc(k) + '</span><span>' + esc(v) + '</span></div>').join('') + (total ? '<div class="tot"><span>Valor Total Estimado*</span><span>' + esc(fmtPreco(total)) + '</span></div>' : '') + '</div><div class="nota">*Valores aproximados, sujeitos a confirmação.</div>' : (im.transacao === 'temporada' ? '<div class="nota">Valor por período; fim de ano e feriados sob consulta.</div>' : im.transacao === 'aluguel' ? '<div class="nota">Garantia: só seguro fiança (Fiança Aluguel Loft), sem fiador e sem caução.</div>' : ''))
     + '<a class="btn btn-gold btn-quad" target="_blank" rel="noopener" href="' + wa(msgWa, C.whatsappAdriana) + '">' + ICO.wa.replace('viewBox', 'width="20" height="20" style="stroke:currentColor;fill:none;stroke-width:1.8" viewBox') + 'Fale pelo WhatsApp</a>'
     + '<div style="display:flex;gap:8px"><button type="button" class="btn btn-ghost btn-p" data-act="fav" data-ref="' + esc(im.ref) + '" aria-pressed="' + fav + '" style="flex:1">' + (fav ? '♥ Salvo' : '♡ Favoritar') + '</button><a class="btn btn-ghost btn-p" style="flex:1" target="_blank" rel="noopener" href="' + wa('Olha este imóvel da AD7: ' + tituloGenerico(im) + ' (Ref. ' + im.ref + ') ' + location.href, '') + '">Compartilhar</a></div></div>'
     + '<form class="caixa f" data-form="pedido" data-tipo="interesse" data-ref="' + esc(im.ref) + '" id="form-interesse"><h3>Entre em contato</h3>'
@@ -302,14 +306,16 @@ function vSobre() {
     + '<p>Somos especializados na compra, venda e aluguel de imóveis e prestamos toda a assessoria necessária à realização de uma transação segura e tranquila, com acompanhamento jurídico e operacional de qualidade.</p>'
     + '<p>Reconhecidos pela ética profissional e transparência no mercado imobiliário, oferecemos a nossos clientes um atendimento personalizado, resultando em segurança e satisfação em todos os negócios realizados.</p></div></div></div>'
     + '<div class="resumo"><div><span>Imóveis</span><b>' + r.total + '</b></div><div><span>À venda</span><b>' + (r.porTransacao.venda || 0) + '</b></div><div><span>Temporada</span><b>' + (r.porTransacao.temporada || 0) + '</b></div><div><span>Cidades</span><b>' + r.cidades.length + '</b></div></div>'
-    + '<div class="bloco soft"><h3>Onde estamos</h3><p>' + esc(C.endereco) + '<br>' + esc(C.cidade) + '</p><div class="acoes"><a class="btn btn-navy" href="#/contato">FALE COM A GENTE</a><a class="btn btn-line" href="#/negocie">ANUNCIE SEU IMÓVEL</a></div></div></div>';
+    + '<div class="bloco soft"><h3>Onde estamos</h3><p>' + esc(C.endereco) + '<br>' + esc(C.cidade) + ' · <a href="' + esc(C.maps) + '" target="_blank" rel="noopener">ver no Google Maps</a></p><div class="acoes"><a class="btn btn-navy" href="#/contato">FALE COM A GENTE</a><a class="btn btn-line" href="#/negocie">ANUNCIE SEU IMÓVEL</a></div></div></div>' + faixaParceiros();
 }
 function vContato() {
   return '<section class="faixa-cliente"><img src="arte/emblema.png" srcset="arte/emblema@2x.png 2x" alt=""><h1>Contato</h1><p>' + esc(C.endereco) + ' · ' + esc(C.cidade) + '</p></section><div class="wrap pagina"><div class="grid grid-2" style="align-items:start">'
     + '<form class="caixa f" data-form="pedido" data-tipo="contato"><h3>Entre em contato</h3>' + campo('nome', 'Nome', 'autocomplete="name" required') + '<div class="duas">' + campo('telefone', 'Telefone ou WhatsApp', 'type="tel" autocomplete="tel" required') + campo('email', 'Email', 'type="email" autocomplete="email"') + '</div>'
     + '<label>Sua mensagem <textarea name="mensagem" required></textarea></label><label class="aceite"><input type="checkbox" name="aceite"> Concordo com a <a href="privacidade.html">Política de privacidade</a>.</label><div class="aviso erro" hidden data-aviso></div><button type="submit" class="btn btn-navy btn-quad" style="text-transform:uppercase;font-size:14px">ENVIAR</button></form>'
-    + '<div class="caixa"><h3>' + esc(C.nome) + '</h3><p style="margin:0">' + esc(C.endereco) + '<br>' + esc(C.cidade) + '</p><a href="https://www.google.com/maps/search/' + encodeURIComponent(C.endereco + ', ' + C.cidade) + '" target="_blank" rel="noopener">Veja como chegar</a>'
-    + '<p style="margin:0"><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a><br><a href="' + wa('', C.whatsappAdriana) + '" target="_blank" rel="noopener">' + fone(C.whatsappAdriana) + '</a><br>' + esc(C.fixo) + '</p><a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><p style="margin:0;color:var(--suave);font-size:14px">' + esc(C.horario) + '</p></div></div></div>';
+    + '<div class="caixa"><h3>' + esc(C.nome) + '</h3><p style="margin:0">' + esc(C.endereco) + '<br>' + esc(C.cidade) + '</p><a href="' + esc(C.maps) + '" target="_blank" rel="noopener">Veja como chegar</a>'
+    + '<p style="margin:0"><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a><br><a href="' + wa('', C.whatsappAdriana) + '" target="_blank" rel="noopener">' + fone(C.whatsappAdriana) + '</a><br>' + esc(C.fixo) + '</p><a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><p style="margin:0;color:var(--suave);font-size:14px">' + esc(C.horario) + '</p>'
+    + '<div class="mapa-bloco" id="mapa-bloco"><button type="button" class="btn btn-line btn-p" data-act="mapa">Mostrar o mapa</button><span class="nota">O mapa é do Google e só carrega quando você pede.</span></div>'
+    + '<a class="avaliar" href="' + esc(C.maps) + '" target="_blank" rel="noopener">★ Já foi atendido pela AD7? Deixe sua avaliação no Google</a></div></div></div>';
 }
 function vFavoritos() {
   const lista = favs().map(porRef).filter(Boolean);
@@ -350,6 +356,44 @@ function vEsqueci() {
   return '<div class="wrap pagina estreita"><h1>Esqueci a senha</h1><p class="intro">Informe o e-mail da conta: chega um link para criar uma senha nova.</p><form class="caixa f" data-form="esqueci">' + campo('email', 'E-mail', 'type="email" required') + '<div class="aviso" hidden data-aviso></div><button type="submit" class="btn btn-navy btn-quad">Mandar o link</button></form></div>';
 }
 
+/* ---------- para o Google: descrição, canonical e dados estruturados por tela ---------- */
+function baseSite() { const b = document.querySelector('base'); return b ? b.href : location.origin + location.pathname.replace(/[^/]*$/, ''); }
+function descricaoSeo(im) {
+  const p = [tituloGenerico(im)];
+  if (im.dorm) p.push(im.dorm + ' dorm'); if (im.vagas) p.push(im.vagas + ' vaga' + (im.vagas > 1 ? 's' : '')); if (im.areaConstruida) p.push(fmtArea(im.areaConstruida));
+  p.push(rotuloPreco(im));
+  const t = p.join(' · ') + '. ' + (im.descricao || []).join(' ');
+  return t.length > 158 ? t.slice(0, 157).trimEnd() + '…' : t;
+}
+function ldAgente() {
+  return { '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: C.nome, url: baseSite(), telephone: '+' + C.whatsapp, email: C.email, image: baseSite() + 'arte/logo.png',
+    address: { '@type': 'PostalAddress', streetAddress: C.rua + ', ' + C.bairro, addressLocality: C.municipio, addressRegion: C.uf, postalCode: C.cep, addressCountry: 'BR' },
+    geo: { '@type': 'GeoCoordinates', latitude: C.lat, longitude: C.lng }, hasMap: C.maps, openingHours: C.horarioSchema,
+    sameAs: [C.instagram, C.facebook, C.maps].filter(Boolean), areaServed: ['Pontal do Paraná', 'Matinhos', 'Paranaguá', 'Curitiba'], priceRange: '$$' };
+}
+function ldImovel(im) {
+  return { '@context': 'https://schema.org', '@type': 'RealEstateListing', url: baseSite() + 'imovel/' + im.ref + '/', name: tituloGenerico(im), description: descricaoSeo(im), image: (im.fotos || []).slice(0, 5),
+    about: { '@type': im.tipo === 'Apartamento' ? 'Apartment' : 'House', name: tituloGenerico(im), numberOfRooms: im.dorm || undefined, address: { '@type': 'PostalAddress', addressLocality: im.cidade, addressRegion: im.uf, addressCountry: 'BR', streetAddress: im.bairro } },
+    offers: { '@type': 'Offer', price: im.preco, priceCurrency: 'BRL', availability: 'https://schema.org/InStock', seller: { '@type': 'RealEstateAgent', name: C.nome, url: baseSite() } } };
+}
+function seoTela(r, im) {
+  const desc = im ? descricaoSeo(im) : r.nome === 'imoveis' ? 'Casas, apartamentos, sobrados e terrenos à venda, para alugar e para temporada em Pontal do Paraná e litoral, com a assessoria da AD7 Imóveis.' : 'Compra, venda, aluguel e temporada em Pontal do Paraná, com a assessoria da AD7 Imóveis do primeiro contato à entrega das chaves.';
+  const canon = im ? baseSite() + 'imovel/' + im.ref + '/' : baseSite();
+  const m = $('meta[name=description]'); if (m) m.setAttribute('content', desc);
+  let c = $('link[rel=canonical]'); if (!c) { c = document.createElement('link'); c.rel = 'canonical'; document.head.appendChild(c); } c.href = canon;
+  let ld = $('#ld-tela'); if (!ld) { ld = document.createElement('script'); ld.id = 'ld-tela'; ld.type = 'application/ld+json'; document.head.appendChild(ld); }
+  ld.textContent = JSON.stringify(im ? ldImovel(im) : ldAgente());
+}
+
+/* ---------- parceiros: só seguro fiança (Loft) e cobrança pela Imobia ---------- */
+function faixaParceiros() {
+  return '<section class="sec parceiros" id="parceiros"><div class="wrap">' + EMBLEMA + '<h2>Alugar com a AD7 é simples e seguro</h2><p class="sub">Trabalhamos só com seguro fiança: sem fiador, sem caução e com aprovação em poucas horas. A cobrança do aluguel chega todo mês pela Imobia, com Pix, boleto e 2ª via na Área do Cliente.</p>'
+    + '<div class="parceiros-grid">'
+    + '<a class="parceiro" href="https://loft.com.br/para-imobiliarias/fianca-aluguel/" target="_blank" rel="noopener"><img src="arte/loft-fianca.svg" alt="Loft Fiança Aluguel" width="276" height="95" loading="lazy"><span><b>Garantia: Fiança Aluguel Loft</b><span>A única garantia que aceitamos. Análise digital, sem fiador e sem caução.</span></span></a>'
+    + '<a class="parceiro" href="https://imobia.app/" target="_blank" rel="noopener"><img src="arte/imobia.png" alt="Imobia" width="640" height="114" loading="lazy"><span><b>Cobrança e boletos pela Imobia</b><span>Boleto ou Pix todo mês, lembrete de vencimento e repasse ao proprietário em dia.</span></span></a>'
+    + '</div></div></section>';
+}
+
 /* ---------- moldura: cabeçalho, menu, rodapé ---------- */
 function moldura() {
   const links = [['#/', 'Home'], ['#/imoveis?neg=venda', 'Comprar'], ['#/imoveis?neg=aluguel', 'Alugar'], ['#/imoveis?neg=temporada', 'Temporada'], ['#/negocie', 'Anuncie seu Imóvel'], ['#/financie', 'Financie'], ['#/sobre', 'Empresa'], ['#/favoritos', 'Favoritos'], ['#/contato', 'Contato'], ['#/cliente', 'Área do Cliente']];
@@ -363,7 +407,7 @@ function moldura() {
   $('#rodape').innerHTML = '<div><a class="marca" href="#/"><img src="arte/logo-claro.png" srcset="arte/logo-claro@2x.png 2x, arte/logo-claro@3x.png 3x" alt="' + esc(C.nome) + '"></a><div class="social"><a href="' + esc(C.instagram) + '" target="_blank" rel="noopener" aria-label="Instagram">' + ICO.insta + '</a><a href="' + esc(C.facebook) + '" target="_blank" rel="noopener" aria-label="Facebook">' + ICO.face + '</a></div><span style="font-size:13px;font-weight:300;display:block;margin-top:6px">' + esc(C.slogan) + ' em Pontal do Paraná, do primeiro contato até a entrega das chaves.</span></div>'
     + '<div><b>Para você</b><a href="#/negocie">Anuncie seu imóvel</a><br><a href="#/financie">Financie seu imóvel</a><br><a href="privacidade.html">Política de privacidade</a><br><a href="mailto:' + esc(C.emailPrivacidade) + '">Seus dados (LGPD)</a></div>'
     + '<div><b>Acesso Rápido</b><a href="#/">Home</a><br><a href="#/imoveis?neg=aluguel">Alugar</a><br><a href="#/imoveis?neg=venda">Comprar</a><br><a href="#/imoveis?neg=temporada">Temporada</a><br><a href="#/sobre">Empresa</a><br><a href="#/favoritos">Favoritos</a><br><a href="#/contato">Contato</a><br><a href="#/cliente">Área do Cliente</a><br><a href="gestao/" style="color:var(--dourado)">Equipe AD7</a></div>'
-    + '<div style="font-size:15px;font-weight:300;line-height:1.7"><b>Contatos</b>' + esc(C.nome) + '<br>' + esc(C.endereco) + '<br>' + esc(C.cidade) + '<br><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a><br><a href="' + wa('', C.whatsappAdriana) + '" target="_blank" rel="noopener">' + fone(C.whatsappAdriana) + '</a><br>' + esc(C.fixo) + '<br><a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a></div>';
+    + '<div style="font-size:15px;font-weight:300;line-height:1.7"><b>Contatos</b>' + esc(C.nome) + '<br>' + esc(C.endereco) + '<br>' + esc(C.cidade) + '<br><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a><br><a href="' + wa('', C.whatsappAdriana) + '" target="_blank" rel="noopener">' + fone(C.whatsappAdriana) + '</a><br>' + esc(C.fixo) + '<br><a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a><br><a href="' + esc(C.maps) + '" target="_blank" rel="noopener">Como chegar · Google Maps</a></div>';
   $('#rodape-fim').innerHTML = '<span>' + esc(C.nome) + ' · CNPJ ' + esc(C.cnpj) + ' · ' + esc(C.creci) + '</span><span>© ' + new Date().getFullYear() + ' ' + esc(C.nome) + ' · v' + APP_VERSAO + '</span>';
   $('#cookies').hidden = cookiesDecidido();
 }
@@ -398,6 +442,7 @@ async function render() {
   document.body.classList.toggle('inicio', r.nome === 'inicio');
   app.innerHTML = html;
   document.title = titulo;
+  if (CAT.pronto) seoTela(r, r.nome === 'imovel' && !r.sub ? porRef(r.param) : null);
   moldura();
   const chave = r.nome + '/' + r.param + '/' + r.sub;
   if (chave !== ROTA_ANTES) window.scrollTo(0, 0);
@@ -458,6 +503,7 @@ document.addEventListener('click', async e => {
   }
   if (act === 'fav') { e.preventDefault(); const on = favToggle(el.dataset.ref); el.classList.toggle('on', on); el.setAttribute('aria-pressed', on); if (el.classList.contains('fav')) el.innerHTML = on ? ICO.coracaoCheio : ICO.coracao; else el.textContent = on ? '♥ Salvo' : '♡ Favoritar'; return; }
   if (act === 'cookies-sim' || act === 'cookies-nao') { try { localStorage.setItem(COOKIE_KEY, act === 'cookies-sim' ? 'sim' : 'nao'); } catch (x) {} $('#cookies').hidden = true; return; }
+  if (act === 'mapa') { const b = $('#mapa-bloco'); if (b) b.innerHTML = '<iframe title="Mapa: ' + esc(C.nome) + '" src="https://www.google.com/maps?q=' + esc(C.lat) + ',' + esc(C.lng) + '&z=16&hl=pt-BR&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>'; return; }
   if (act === 'filtros') { $('#filtros').classList.toggle('fechado'); return; }
   if (act === 'seta') { const c = document.getElementById(el.dataset.alvo); if (c) c.scrollBy({ left: (+el.dataset.dir || 1) * c.clientWidth, behavior: movimentoReduzido() ? 'auto' : 'smooth' }); return; }
   if (act === 'rolar') { e.preventDefault(); const alvo = document.getElementById(el.dataset.alvo); if (alvo) alvo.scrollIntoView({ behavior: movimentoReduzido() ? 'auto' : 'smooth', block: 'start' }); return; }

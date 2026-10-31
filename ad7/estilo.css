@@ -407,3 +407,21 @@ footer.rod .social { display: flex; gap: 14px; margin: 12px 0 6px; } footer.rod 
 .dispo-resumo { font-size: 13px; color: var(--suave); }
 @media (max-width: 720px) { .cal-meses { grid-template-columns: minmax(0, 1fr); } .dispo-conta { font-size: 14px; } }
 
+
+/* ---------- parceiros (seguro fiança Loft · cobrança Imobia) ---------- */
+.parceiros { padding-bottom: 40px; }
+.parceiros-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 980px; margin: 0 auto; text-align: left; }
+.parceiro { display: flex; flex-direction: column; gap: 18px; padding: 28px 30px; background: var(--soft); text-decoration: none; color: var(--tinta); border-radius: 0 0 40px 0; transition: background-color .2s; }
+.parceiro:hover { background: #E8E8E2; color: var(--tinta); }
+.parceiro img { height: 48px; width: auto; max-width: 240px; object-fit: contain; object-position: left; }
+.parceiro > span { display: flex; flex-direction: column; gap: 4px; }
+.parceiro b { font-size: 19px; font-weight: 600; color: var(--preto); }
+.parceiro span span { font-size: 15px; font-weight: 300; color: var(--suave); line-height: 1.5; }
+.mapa-bloco { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 8px; }
+.mapa-bloco .nota { font-size: 13px; color: var(--suave); }
+.mapa-bloco iframe { width: 100%; aspect-ratio: 4 / 3; border: 0; border-radius: 0 0 40px 0; }
+.avaliar { display: inline-block; margin-top: 12px; font-size: 14px; }
+.seo-imovel h2 { font-size: 22px; margin: 18px 0 6px; }
+.fotos-seo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0; }
+.fotos-seo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+@media (max-width: 720px) { .parceiros-grid, .fotos-seo { grid-template-columns: minmax(0, 1fr); } }
