@@ -277,13 +277,14 @@ function vImovel(ref) {
   const h = hist(ref), pode = podeVer(h), d = h.dono ? donoDe(h.dono) : null;
   const fotos = (im.fotos || []).slice(0, 5);
   const aba = S.aba || 'publico';
-  const abas = [['publico', 'Público'], ['combina', 'Quem combina', quemCombina(im).length], ['priv', 'Dados privativos'], ['aut', 'Autorização e comissão'], ['docs', 'Documentos'], ['hist', 'Histórico']];
+  const abas = [['publico', 'Público']].concat(im.transacao === 'temporada' ? [['temporada', 'Calendário']] : []).concat([['combina', 'Quem combina', quemCombina(im).length], ['priv', 'Dados privativos'], ['aut', 'Autorização e comissão'], ['docs', 'Documentos'], ['hist', 'Histórico']]);
   const r = rateio(im.transacao, im.preco || 0, h.resp, h.cap, /externo/.test(h.cap));
   let corpo = '';
   if (aba === 'publico') corpo = `<div class="grid2">
       <div class="box"><h3>O que vai para o site e os portais</h3><div style="font-size:14px;line-height:1.6">${esc((im.descricao || '').slice(0, 600))}${(im.descricao || '').length > 600 ? '…' : ''}</div><div class="carac">${(im.comodos || []).concat(im.caracteristicas || []).slice(0, 12).map(c => tag('neu', c)).join('')}</div>${(im.proximidades || []).length ? `<div class="sm">Perto de: ${esc(im.proximidades.join(', '))}</div>` : ''}</div>
-      <div class="box"><h3>Como está anunciado</h3><div class="row"><span>Site ad7imoveis.com.br</span>${h.aut === 'falta' ? tag('bad', 'segurado') : tag('ok', 'publicado')}</div><div class="row"><span>ZAP · VivaReal · OLX</span>${h.aut === 'falta' ? tag('bad', 'sem autorização') : (im.transacao === 'temporada' ? tag('neu', 'só site e OLX') : tag('ok', 'sincronizado 08:10'))}</div><div class="row"><span>Instagram</span>${tag('neu', 'card pronto para postar')}</div><div class="row"><span>Fotos</span><span class="sm">${(im.fotos || []).length} no anúncio</span></div><div class="row"><span>Favoritado no site</span><span class="sm">${(parseInt(ref, 10) % 7)} vezes nos últimos 30 dias</span></div></div>
+      <div class="box"><h3>Como está anunciado</h3><div class="row"><span>Site ad7imoveis.com.br</span>${h.aut === 'falta' ? tag('bad', 'segurado') : tag('ok', 'publicado')}</div><div class="row"><span>ZAP · VivaReal · OLX</span>${h.aut === 'falta' ? tag('bad', 'sem autorização') : (im.transacao === 'temporada' ? tag('neu', 'só site e OLX') : tag('ok', 'sincronizado 08:10'))}</div>${im.transacao === 'temporada' ? (() => { const r = dispoResumo(im.ref); return `<div class="row link" data-act="aba" data-v="temporada"><span>Calendário de temporada</span>${r.proxima ? tag('gold', 'próxima: ' + dispoFmtPeriodo(r.proxima.ini, r.proxima.fim)) : tag('neu', 'sem reservas marcadas')}</div>`; })() : ''}<div class="row"><span>Instagram</span>${tag('neu', 'card pronto para postar')}</div><div class="row"><span>Fotos</span><span class="sm">${(im.fotos || []).length} no anúncio</span></div><div class="row"><span>Favoritado no site</span><span class="sm">${(parseInt(ref, 10) % 7)} vezes nos últimos 30 dias</span></div></div>
     </div>`;
+  else if (aba === 'temporada') corpo = `<div class="box"><h3>Calendário de temporada <span class="nota">· o que você marca aqui aparece no site na hora</span></h3>${dispoEditorHtml(im.ref, im)}<div class="sm">No site, o visitante toca na entrada e na saída e já vê o pacote: noites × diária, sinal de reserva e restante. O pedido chega pelo WhatsApp com tudo escrito. É a mesma conta que o robô de atendimento vai fazer.</div></div>`;
   else if (aba === 'combina') corpo = vQuemCombina(im);
   else if (aba === 'priv') corpo = pode ? `<div class="grid2">
       <div class="box"><h3>Proprietário <span class="nota">· só a dona e o responsável veem</span></h3><dl class="dl"><dt>Nome</dt><dd>${d ? `<a href="#/dono/${d.id}">${esc(d.nome)}</a>` : '—'}</dd><dt>Telefone</dt><dd>${esc(d ? d.tel : '—')}</dd><dt>E-mail</dt><dd>${esc(d ? d.mail : '—')}</dd><dt>Combinado</dt><dd>${esc(h.obs)}</dd></dl></div>
@@ -646,6 +647,7 @@ function bindDnd() {
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act, v = el.dataset.v;
+  if (a.startsWith('dispo-')) { e.preventDefault(); dispoClique(el, { aoMudar: () => render(), avisar: toast }); return; }
   if (a === 'dica-ok') { P.vistos[v] = true; salvarP(); const b = el.closest('.balao'); if (b) b.remove(); return; }
   if (a === 'dica-nenhuma') { Object.keys(TUT).forEach(k => { P.vistos[k] = true; }); salvarP(); const b = el.closest('.balao'); if (b) b.remove(); toast('Dicas escondidas. Voltam pelo menu, em "Mostrar as dicas de novo".'); return; }
   if (a === 'dica-todas') { P.vistos = {}; salvarP(); render(); toast('As dicas voltaram em todas as telas.'); return; }
@@ -684,6 +686,9 @@ document.addEventListener('submit', e => {
   if (e.target.id !== 'ia-form') return;
   e.preventDefault(); const i = $('chat'); const t = i.value.trim(); if (!t) return; i.value = ''; responder(t);
 });
+document.addEventListener('change', e => {
+  if (e.target.dataset.act === 'dispo-regra') dispoCampo(e.target, { avisar: t => { toast(t); render(); } });
+});
 document.addEventListener('input', e => {
   if (e.target.id !== 'bq') return;
   S.q = e.target.value; const l = $('lista-imoveis'); if (l) l.innerHTML = cardsImoveis();
@@ -719,6 +724,7 @@ window.addEventListener('hashchange', render);
     IMOVEIS = (await r.json()).filter(im => im && im.publicado !== false);
   } catch (e) { IMOVEIS = []; }
   CAT.pronto = true;
+  try { await dispoCarregarTudo(); } catch (e) {}
   if (!location.hash) location.hash = '#/hoje';
   render();
 })();

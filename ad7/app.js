@@ -9,7 +9,7 @@
    ===================================================== */
 'use strict';
 
-const APP_VERSAO = '0.3.0';
+const APP_VERSAO = '0.4.0';
 const FAV_KEY = 'ad7_fav_v1', COOKIE_KEY = 'ad7_cookies_v1';
 const C = APP_CONFIG;
 const $ = (s, el) => (el || document).querySelector(s);
@@ -162,22 +162,7 @@ function vBusca(q) {
 /* ---------- IMÓVEL ---------- */
 let LB = { fotos: [], i: 0 };
 function calendario(im) {
-  const hoje = new Date(); const meses = []; const reservados = new Set();
-  for (const r of im.reservas || []) {
-    const ini = new Date(r.start_date || r.start || r.date || r.checkin || ''), fim = new Date(r.end_date || r.end || r.date || r.checkout || '');
-    if (isNaN(ini)) continue;
-    for (let d = new Date(ini); d <= (isNaN(fim) ? ini : fim); d.setDate(d.getDate() + 1)) reservados.add(d.toISOString().slice(0, 10));
-  }
-  for (let m = 0; m < 2; m++) {
-    const d0 = new Date(hoje.getFullYear(), hoje.getMonth() + m, 1);
-    const nome = d0.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-    const dias = new Date(d0.getFullYear(), d0.getMonth() + 1, 0).getDate();
-    let h = '<div><div style="font-weight:500;margin-bottom:8px;text-transform:capitalize">' + esc(nome) + '</div><div class="cal" role="grid">' + ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map(x => '<span class="cabd">' + x + '</span>').join('');
-    for (let i = 0; i < d0.getDay(); i++) h += '<span></span>';
-    for (let d = 1; d <= dias; d++) { const iso = new Date(d0.getFullYear(), d0.getMonth(), d).toISOString().slice(0, 10); h += '<span class="dia' + (reservados.has(iso) ? ' res' : '') + '">' + d + '</span>'; }
-    meses.push(h + '</div></div>');
-  }
-  return '<section><div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px"><h2 style="margin:0">Datas disponíveis</h2><div class="legenda"><span><i style="background:var(--teal-claro)"></i>Livre</span><span><i style="background:var(--linha)"></i>Reservado</span></div></div><div class="cal-meses">' + meses.join('') + '</div><p style="color:var(--suave);font-size:13px;margin:10px 0 0">A reserva é confirmada pela AD7 no WhatsApp. Fim de ano e feriados: consulte o valor.</p></section>';
+  return '<section id="cal-dispo">' + dispoVisitanteHtml(im, { wa: t => wa(t, C.whatsappAdriana) }) + '<p style="color:var(--suave);font-size:13px;margin:14px 0 0">A reserva é confirmada pela AD7 no WhatsApp. Fim de ano e feriados: consulte o valor.</p></section>';
 }
 function vImovel(ref) {
   const im = porRef(ref);
@@ -342,9 +327,19 @@ async function vPainel() {
   const r = await listarPedidos();
   const tag = s => s === 'atendido' ? 'tag-ok' : s === 'novo' ? 'tag-novo' : 'tag-neu';
   const linhas = r.lista.map(p => '<tr><td>' + esc(new Date(p.criadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) + '</td><td><b>' + esc(p.rotulo) + '</b>' + (p.imovelRef ? '<br><small>' + (/^\d+$/.test(p.imovelRef) ? 'Ref. ' : 'Imóvel: ') + esc(p.imovelRef) + '</small>' : '') + '</td><td>' + esc(p.nome) + '<br><a href="' + wa('Olá ' + p.nome.split(' ')[0] + '! Aqui é da AD7, sobre o seu pedido: ' + p.rotulo + '.', p.telefone) + '" target="_blank" rel="noopener">' + fone(p.telefone) + '</a>' + (p.email ? '<br><small>' + esc(p.email) + '</small>' : '') + '</td><td>' + esc(p.mensagem || '') + (Object.entries(p.extra || {}).filter(([, v]) => v).map(([k, v]) => '<br><small>' + esc(k) + ': ' + esc(v) + '</small>').join('')) + '</td><td><span class="tag ' + tag(p.status) + '">' + esc(p.status) + '</span></td><td>' + (p.status === 'atendido' ? '<button type="button" class="btn btn-line btn-p" data-act="pedido" data-id="' + esc(p.id) + '" data-status="novo">Reabrir</button>' : '<button type="button" class="btn btn-navy btn-p" data-act="pedido" data-id="' + esc(p.id) + '" data-status="atendido">Atendido</button>') + '</td></tr>').join('');
-  return '<div class="wrap painel"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px"><h1 style="margin:0;font-size:28px;font-weight:400">Pedidos recebidos <small style="color:var(--suave);font-size:15px">· ' + r.lista.length + '</small></h1><div style="display:flex;gap:8px">' + (isLoggedIn() ? '<span style="font-size:13px;color:var(--suave);align-self:center">' + esc(authEmail() || '') + '</span><button type="button" class="btn btn-line btn-p" data-act="sair">Sair</button>' : '') + '</div></div>'
+  return '<div class="wrap painel"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px"><h1 style="margin:0;font-size:28px;font-weight:400">Pedidos recebidos <small style="color:var(--suave);font-size:15px">· ' + r.lista.length + '</small></h1><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-navy btn-p" href="#/painel/temporada">Calendário de temporada</a>' + (isLoggedIn() ? '<span style="font-size:13px;color:var(--suave);align-self:center">' + esc(authEmail() || '') + '</span><button type="button" class="btn btn-line btn-p" data-act="sair">Sair</button>' : '') + '</div></div>'
     + (r.nuvem ? '' : '<div class="aviso neutro">Sem banco ainda: estes são os pedidos feitos neste aparelho. Os que vieram pelo WhatsApp estão lá.</div>')
     + (r.lista.length ? '<div class="rolar"><table><thead><tr><th>Quando</th><th>Pedido</th><th>Quem</th><th>Detalhes</th><th>Situação</th><th></th></tr></thead><tbody>' + linhas + '</tbody></table></div>' : '<div class="vazio">Nenhum pedido ainda.</div>') + '</div>';
+}
+async function vPainelTemporada(refPedida) {
+  if (temNuvem() && !isLoggedIn()) return vEntrar();
+  const lista = filtrar({ neg: 'temporada', ordem: 'menor' });
+  const im = porRef(refPedida) || lista[0];
+  if (!im) return '<div class="wrap painel"><h1>Calendário de temporada</h1><p class="intro">Nenhum imóvel de temporada no catálogo.</p></div>';
+  const sel = '<label class="dispo-sel">Imóvel <select data-act="dispo-ref">' + lista.map(x => '<option value="' + esc(x.ref) + '"' + (x.ref === im.ref ? ' selected' : '') + '>Ref. ' + esc(x.ref) + ' · ' + esc(x.tipo) + ' · ' + esc(x.bairro) + ' · ' + esc(rotuloPreco(x)) + '/diária</option>').join('') + '</select></label>';
+  return '<div class="wrap painel"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px"><h1 style="margin:0;font-size:28px;font-weight:400">Calendário de temporada</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-line btn-p" href="#/painel">← Pedidos</a>' + (isLoggedIn() ? '<button type="button" class="btn btn-line btn-p" data-act="sair">Sair</button>' : '') + '</div></div>'
+    + (DISPO.nuvem ? '' : (temNuvem() ? '<div class="aviso neutro">O banco não respondeu: o que você marcar fica só neste aparelho até entrar de novo.</div>' : '<div class="aviso neutro">Sem banco ainda: o calendário fica neste aparelho (e o site deste aparelho já mostra).</div>'))
+    + '<div class="caixa" style="margin-top:16px;display:flex;flex-direction:column;gap:16px">' + sel + '<div><a href="#/imovel/' + esc(im.ref) + '" style="font-size:14px">Ver como fica no site →</a></div>' + dispoEditorHtml(im.ref, im) + '</div></div>';
 }
 function vServicoVisita(im) {
   return '<section class="faixa-cliente"><img src="arte/emblema.png" srcset="arte/emblema@2x.png 2x" alt=""><h1>Agendar visita</h1><p>Código ' + esc(im.ref) + ' · ' + esc(im.bairro) + '. Diga quando é bom para você; a ' + esc(C.dona) + ' confirma no WhatsApp.</p></section><div class="wrap pagina estreita"><nav class="caminho"><a href="#/imovel/' + esc(im.ref) + '">' + esc(tituloGenerico(im)) + '</a> › Agendar visita</nav>'
@@ -396,7 +391,7 @@ async function render() {
     case 'contato': html = vContato(); titulo = 'Contato · ' + C.nome; break;
     case 'favoritos': html = vFavoritos(); titulo = 'Favoritos · ' + C.nome; break;
     case 'entrar': html = r.param === 'esqueci' ? vEsqueci() : vEntrar(); titulo = 'Entrar · ' + C.nome; break;
-    case 'painel': html = await vPainel(); titulo = 'Pedidos · ' + C.nome; break;
+    case 'painel': html = r.param === 'temporada' ? await vPainelTemporada(r.query.ref) : await vPainel(); titulo = (r.param === 'temporada' ? 'Calendário de temporada' : 'Pedidos') + ' · ' + C.nome; break;
     default: html = '<div class="wrap pagina"><h1>Página não encontrada</h1><p class="intro"><a href="#/">Voltar ao início</a></p></div>';
   }
   document.body.classList.toggle('sem-heroi', !heroi);
@@ -456,6 +451,11 @@ document.addEventListener('submit', async e => {
 document.addEventListener('click', async e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const act = el.dataset.act;
+  if (act.startsWith('dispo-')) {
+    e.preventDefault();
+    await dispoClique(el, { aoMudar: ref => { const s = $('#cal-dispo'), im = porRef(ref); if (s && im && rota().nome === 'imovel') s.outerHTML = calendario(im); else render(); } });
+    return;
+  }
   if (act === 'fav') { e.preventDefault(); const on = favToggle(el.dataset.ref); el.classList.toggle('on', on); el.setAttribute('aria-pressed', on); if (el.classList.contains('fav')) el.innerHTML = on ? ICO.coracaoCheio : ICO.coracao; else el.textContent = on ? '♥ Salvo' : '♡ Favoritar'; return; }
   if (act === 'cookies-sim' || act === 'cookies-nao') { try { localStorage.setItem(COOKIE_KEY, act === 'cookies-sim' ? 'sim' : 'nao'); } catch (x) {} $('#cookies').hidden = true; return; }
   if (act === 'filtros') { $('#filtros').classList.toggle('fechado'); return; }
@@ -470,6 +470,8 @@ document.addEventListener('click', async e => {
   if (act === 'sair') { await authSignOut(); navegar('#/'); return; }
 });
 document.addEventListener('change', e => {
+  if (e.target.dataset.act === 'dispo-ref') { navegar('#/painel/temporada?ref=' + encodeURIComponent(e.target.value)); return; }
+  if (e.target.dataset.act === 'dispo-regra') { dispoCampo(e.target, { avisar: () => render() }); return; }
   if (e.target.dataset.act === 'ordem') { const q = rota().query; q.ordem = e.target.value; navegar('#/imoveis' + qs(q)); return; }
   const form = e.target.closest('form[data-form=filtros]');
   if (form && (e.target.name === 'neg' || e.target.name === 'dorm' || e.target.name === 'vagas')) form.requestSubmit();
@@ -490,6 +492,7 @@ window.addEventListener('hashchange', render);
   if (typeof authLoad === 'function') authLoad();
   if (typeof authFromHash === 'function') try { await authFromHash(); } catch (e) {}
   await carregarCatalogo(APP_VERSAO);
+  try { await dispoCarregarTudo(); } catch (e) {}
   render();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
