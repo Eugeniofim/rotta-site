@@ -45,14 +45,18 @@ function dispoDe(ref) { return DISPO.porRef[String(ref)] || { dias: {} }; }
 function dispoDias(ref) { return dispoDe(ref).dias || {}; }
 function dispoRegras(ref) { const r = dispoDe(ref); return { sinalPct: r.sinalPct != null ? r.sinalPct : DISPO_PADRAO.sinalPct, minNoites: r.minNoites != null ? r.minNoites : DISPO_PADRAO.minNoites }; }
 
-/* dados de demonstração: reservas perto de hoje para o calendário não nascer vazio */
+/* o que a AD7 já tinha marcado no site antigo (campo `reservas` do catálogo, datas ocupadas do Tecimob):
+   vale como ponto de partida para todo imóvel que ela ainda não marcou aqui. Não é gravado: some quando ela marca. */
 function dispoSemente() {
-  const h = dispoIso(dispoHoje()); const m = {};
-  const marca = (ref, ini, n, est) => { m[ref] = m[ref] || { dias: {} }; for (let i = 0; i < n; i++) m[ref].dias[dispoSoma(ini, i)] = est; };
-  marca('406', dispoSoma(h, 5), 3, 'res'); marca('406', '2026-12-28', 6, 'res'); marca('406', '2027-02-13', 5, 'res');
-  marca('221', dispoSoma(h, 12), 5, 'res'); marca('221', dispoSoma(h, 20), 2, 'blq'); marca('221', '2026-12-28', 6, 'res');
-  marca('303', dispoSoma(h, 3), 3, 'blq'); marca('303', dispoSoma(h, 33), 7, 'res');
-  marca('301', dispoSoma(h, 1), 2, 'res');
+  const m = {};
+  const lista = typeof IMOVEIS !== 'undefined' ? IMOVEIS : [];
+  for (const im of lista) {
+    const r = Array.isArray(im.reservas) ? im.reservas : [];
+    if (!r.length) continue;
+    const dias = {};
+    for (const x of r) { const iso = String(x).slice(0, 10); if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) dias[iso] = 'res'; }
+    if (Object.keys(dias).length) m[String(im.ref)] = { dias, origem: 'tecimob' };
+  }
   return m;
 }
 
@@ -64,10 +68,9 @@ async function dispoCarregarTudo() {
       if (r.ok) { mapa = {}; for (const x of await r.json()) mapa[x.id] = Object.assign({ dias: {} }, x.dados || {}); DISPO.nuvem = true; }
     } catch (e) {}
   }
-  if (!mapa) {
-    mapa = dispoLocal(); DISPO.nuvem = false;
-    if (!Object.keys(mapa).length && DISPO.semear) { mapa = dispoSemente(); dispoGravarLocal(mapa); }
-  }
+  if (!mapa) { mapa = dispoLocal(); DISPO.nuvem = false; }
+  /* imóvel ainda sem marcação aqui: mostra as datas que já estavam ocupadas no site antigo */
+  if (DISPO.semear) { const sem = dispoSemente(); for (const ref of Object.keys(sem)) if (!mapa[ref]) mapa[ref] = sem[ref]; }
   DISPO.porRef = mapa; DISPO.pronto = true;
   return mapa;
 }

@@ -425,3 +425,32 @@ footer.rod .social { display: flex; gap: 14px; margin: 12px 0 6px; } footer.rod 
 .fotos-seo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0; }
 .fotos-seo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 @media (max-width: 720px) { .parceiros-grid, .fotos-seo { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- 0.6.0: preço anterior, vídeos, mapa do imóvel, ações, impressão ---- */
+.preco-antes { display: block; font-size: 15px; font-weight: 400; color: #8A98A2; text-decoration: line-through; margin-bottom: 2px; }
+.acoes-im { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mapa iframe { width: 100%; height: 320px; border: 0; display: block; margin-top: 12px; }
+.videos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.video { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0; background: var(--marinho2) center / cover no-repeat; cursor: pointer; overflow: hidden; }
+.video::after { content: ""; position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(5,33,45,.85) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M9 6l9 6-9 6z'/%3E%3C/svg%3E") center / 32px no-repeat; }
+.video:focus-visible { outline: 3px solid var(--dourado); outline-offset: 3px; }
+.video iframe { width: 100%; height: 100%; border: 0; display: block; }
+.video-im { aspect-ratio: 16 / 9; }
+.vistos h2 { font-size: 28px; }
+@media (max-width: 760px) { .videos { grid-template-columns: 1fr; } }
+@media print {
+  .cab, .rod, .wa-flut, .cookies, .lightbox, .chame, .im-lado form, .acoes-im, .mosaico, .sec, .caminho, .im-heroi .fotos, .pular { display: none !important; }
+  body { background: #fff; color: #000; }
+  .im-heroi { background: none !important; color: #000; min-height: 0; padding: 0; }
+  .im-heroi h1, .im-heroi .end { color: #000 !important; text-shadow: none; }
+  .im-corpo { display: block; }
+  .im-lado { position: static; max-width: none; }
+  .caixa-preco { background: none; color: #000; border: 1px solid #999; }
+  .caixa-preco .valor, .caixa-preco h2 { color: #000; }
+  details { break-inside: avoid; }
+  details:not([open]) summary ~ * { display: block; }
+  .fotos-imprimir { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .fotos-imprimir img { width: 100%; height: auto; }
+  a[href]::after { content: ""; }
+}
+.fotos-imprimir { display: none; }

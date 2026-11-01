@@ -37,9 +37,9 @@ var DEMO = {
       hist: [['24/10', 'Proposta de Patrícia Mendes · R$ 720 mil · enviada à dona', 'aguarda', 'warn'], ['19/10', 'Visita de Patrícia Mendes (2ª vez) · feita por Rafael', 'feita', 'ok'], ['02/10', 'Preço de R$ 790 mil para R$ 750 mil · dona aprovou por WhatsApp', 'preço', 'neu'], ['12/08', 'Autorização assinada no celular · captação de Paulo Henrique', 'captado', 'ok']] },
     '309': { resp: 'Adriana', cap: 'Adriana', aut: 'vence', autDe: '02/05/2026', autAte: '02/11/2026', excl: 'Sem exclusividade', dono: 'd-jose', chaves: 'Com o dono', obs: 'Quer vender até o verão', visitas: '2 visitas',
       hist: [['hoje', 'Visita de Carlos e Ana Beatriz · 09:30 · Adriana', 'hoje', 'warn'], ['14/10', 'Visita de Família Ramos · acharam pequena', 'feita', 'ok'], ['02/05', 'Autorização assinada · 180 dias', 'captado', 'ok']] },
-    '406': { resp: 'Adriana', cap: 'Adriana', aut: 'loc', autDe: '10/01/2025', autAte: 'renovação anual', excl: 'Administração', dono: 'd-helena', chaves: 'Com o caseiro', obs: 'Caseiro abre de manhã', visitas: '12 reservas no ano',
+    '408': { resp: 'Adriana', cap: 'Adriana', aut: 'loc', autDe: '10/01/2025', autAte: 'renovação anual', excl: 'Administração', dono: 'd-helena', chaves: 'Com o caseiro', obs: 'Caseiro abre de manhã', visitas: '12 reservas no ano',
       hist: [['ontem', 'Juliana Prado pediu réveillon · 28/12 a 02/01 · 8 pessoas', 'novo', 'ok'], ['05/10', 'Prestação de contas de setembro enviada à dona', 'enviada', 'neu']] },
-    '407': { resp: 'Adriana', cap: 'Adriana', aut: 'loc', autDe: '05/03/2025', autAte: 'renovação anual', excl: 'Administração', dono: 'd-ricardo', chaves: 'Na loja · gancho 5', obs: 'Reajuste pelo IPCA', visitas: '3 visitas',
+    '235': { resp: 'Adriana', cap: 'Adriana', aut: 'loc', autDe: '05/03/2025', autAte: 'renovação anual', excl: 'Administração', dono: 'd-ricardo', chaves: 'Na loja · gancho 5', obs: 'Reajuste pelo IPCA', visitas: '3 visitas',
       hist: [['24/10', 'Cadastro de Débora Antunes aprovado · contrato quinta 16:00', 'fechamento', 'ok'], ['17/10', 'Visita de Débora Antunes', 'feita', 'ok']] },
     '402': { resp: 'Rafael', cap: 'Rafael Costa', aut: 'ok', autDe: '20/09/2026', autAte: '20/03/2027', excl: 'Com exclusividade', dono: 'd-marcos', chaves: 'Na loja · gancho 7', obs: 'Aceita financiamento', visitas: '1 visita',
       hist: [['hoje', 'Visita de Família Ramos · 15:00 · sem confirmação', 'hoje', 'warn'], ['20/09', 'Anunciado no site e nos portais', 'anunciado', 'ok'], ['20/09', 'Autorização assinada no celular · captação de Rafael', 'captado', 'ok']] },
@@ -64,16 +64,16 @@ var DEMO = {
 
   /* proprietários (carteira de quem tem imóvel com a AD7) */
   donos: [
-    { id: 'd-helena', nome: 'Helena Bastos', ini: 'HB', tel: '(41) 9 ____-____', mail: 'helena@____.com', resp: 'Adriana', desde: 'jan/2025', refs: ['382', '406', '221'],
+    { id: 'd-helena', nome: 'Helena Bastos', ini: 'HB', tel: '(41) 9 ____-____', mail: 'helena@____.com', resp: 'Adriana', desde: 'jan/2025', refs: ['382', '408', '221'],
       contas: 'Prestação de contas de setembro enviada 05/10 · R$ 3.420 repassados', sugere: 'A casa 382 está há 60 dias sem proposta acima de R$ 700 mil. Vale propor R$ 739 mil: entra na faixa de busca de 3 contatos.',
-      hist: [['24/10', 'Recebeu a proposta de R$ 720 mil pela 382 · responde até 28/10', 'warn'], ['05/10', 'Prestação de contas de setembro (406 e 221) · R$ 3.420', 'neu'], ['02/10', 'Aprovou por WhatsApp o preço novo da 382', 'ok']] },
+      hist: [['24/10', 'Recebeu a proposta de R$ 720 mil pela 382 · responde até 28/10', 'warn'], ['05/10', 'Prestação de contas de setembro (408 e 221) · R$ 3.420', 'neu'], ['02/10', 'Aprovou por WhatsApp o preço novo da 382', 'ok']] },
     { id: 'd-jose', nome: 'José Almeida', ini: 'JA', tel: '(41) 9 ____-____', mail: 'jose@____.com', resp: 'Adriana', desde: 'mai/2026', refs: ['309'],
       contas: '—', sugere: 'Autorização vence 02/11. Mandar a renovação para assinar no celular hoje, junto com o relatório das 2 visitas.',
       hist: [['hoje', 'Visita de Carlos e Ana Beatriz · 09:30', 'warn'], ['02/05', 'Autorização assinada · 180 dias', 'ok']] },
     { id: 'd-marcos', nome: 'Marcos Vieira', ini: 'MV', tel: '(41) 9 ____-____', mail: 'marcos@____.com', resp: 'Rafael', desde: 'set/2026', refs: ['402'],
       contas: '—', sugere: 'Sobrado com 1 visita em 5 semanas e 2 contatos que combinam. Sugerir fotos novas da área externa antes de mexer no preço.',
       hist: [['hoje', 'Visita de Família Ramos · 15:00', 'warn'], ['20/09', 'Autorização assinada · anunciado nos portais', 'ok']] },
-    { id: 'd-ricardo', nome: 'Ricardo Teles', ini: 'RT', tel: '(41) 9 ____-____', mail: 'ricardo@____.com', resp: 'Adriana', desde: 'mar/2025', refs: ['407'],
+    { id: 'd-ricardo', nome: 'Ricardo Teles', ini: 'RT', tel: '(41) 9 ____-____', mail: 'ricardo@____.com', resp: 'Adriana', desde: 'mar/2025', refs: ['235'],
       contas: 'Casa vazia desde 30/09 · contrato novo assina quinta', sugere: 'Avisar que o contrato com Débora Antunes assina quinta 16:00 e que o 1º aluguel (R$ 2.200) é a comissão da AD7.',
       hist: [['24/10', 'Cadastro da inquilina aprovado', 'ok'], ['30/09', 'Inquilino anterior entregou as chaves · vistoria ok', 'neu']] },
     { id: 'd-claudia', nome: 'Cláudia Moreira', ini: 'CM', tel: '(41) 9 ____-____', mail: 'claudia@____.com', resp: 'Rafael', desde: 'out/2026', refs: ['391'],
@@ -123,9 +123,9 @@ var DEMO = {
     { id: 'p-juliana', nome: 'Juliana Prado', ini: 'JP', tel: '(41) 9 ____-____', origem: 'WhatsApp', entrou: 'ontem', resp: 'Adriana', temp: 'quente',
       perfil: { neg: 'temporada', tipos: ['Casa'], bairros: ['Pontal do Sul'], max: 1800, dorm: 3, extra: 'Piscina', paga: '50% na reserva', prazo: 'réveillon · 28/12 a 02/01 · 8 pessoas' },
       sinais: ['mandou 3 áudios em 1 hora', 'perguntou o valor total', 'pediu fotos da piscina'], ultimo: 'ontem 21:40 · WhatsApp',
-      prox: { o: 'Responder com a casa 406 e o total do réveillon', quando: 'agora', atraso: true }, visitou: [],
+      prox: { o: 'Responder com a casa 408 e o total do réveillon', quando: 'agora', atraso: true }, visitou: [],
       hist: [['ontem', 'Chegou pelo WhatsApp da loja · rodízio: Adriana', 'novo', 'ok']],
-      resumo: 'Reserva de réveillon para 8 pessoas, quer piscina. A 406 fecha com tudo; responder hoje porque réveillon vai rápido.', dados: 'nome, telefone' },
+      resumo: 'Reserva de réveillon para 8 pessoas, quer piscina. A 408 fecha com tudo; responder hoje porque réveillon vai rápido.', dados: 'nome, telefone' },
     { id: 'p-tiago', nome: 'Tiago Moraes', ini: 'TM', tel: '(41) 9 ____-____', origem: 'OLX', entrou: '24/10', resp: 'Rafael', temp: 'frio',
       perfil: { neg: 'venda', tipos: ['Terreno'], bairros: ['Pontal do Sul', 'Ipanema'], max: 400000, dorm: 0, extra: '', paga: 'À vista', prazo: 'sem pressa' },
       sinais: ['chegou pelo OLX', 'não abriu o terreno enviado', 'sem resposta há 2 dias'], ultimo: '25/10 · WhatsApp',
@@ -162,7 +162,7 @@ var DEMO = {
       perfil: { neg: 'aluguel', tipos: ['Casa'], bairros: ['Pontal do Sul'], max: 2500, dorm: 3, extra: 'Piscina', paga: 'Seguro-fiança', prazo: 'entrar em novembro' },
       sinais: ['cadastro aprovado', 'contrato marcado'], ultimo: 'ontem · WhatsApp',
       prox: { o: 'Assinatura do contrato da 407 quinta às 16:00', quando: 'quinta', atraso: false },
-      visitou: [['407', '17/10', 'Adorou a piscina']],
+      visitou: [['235', '17/10', 'Adorou a piscina']],
       hist: [['24/10', 'Cadastro aprovado · seguro-fiança', 'fechamento', 'ok'], ['17/10', 'Visita à 407', 'visita', 'ok'], ['12/10', 'Chegou pelo WhatsApp', 'novo', 'neu']],
       resumo: 'Locação da 407 fechando quinta. Depois da assinatura o app gera o contrato, o boleto e o portal dela.', dados: 'nome, telefone, CPF, renda (contrato)' },
     { id: 'p-teixeira', nome: 'Marcos e Fernanda Teixeira', ini: 'MT', tel: '(41) 9 ____-____', origem: 'VivaReal', entrou: 'hoje', resp: 'Rafael', temp: 'frio',
@@ -181,7 +181,7 @@ var DEMO = {
 
   /* funil de quem compra, aluga ou hospeda — etapas: 0 Novo · 1 Em contato · 2 Visita · 3 Proposta · 4 Fechamento */
   negocios: [
-    { id: 'n-juliana', pessoa: 'p-juliana', ref: '406', tipo: 'temporada', valor: 11200, extra: '7 diárias', etapa: 0, dias: 0 },
+    { id: 'n-juliana', pessoa: 'p-juliana', ref: '408', tipo: 'temporada', valor: 11200, extra: '7 diárias', etapa: 0, dias: 0 },
     { id: 'n-roberto', pessoa: 'p-roberto', ref: '', tipo: 'venda', valor: 400000, extra: 'apto no Centro', etapa: 0, dias: 1 },
     { id: 'n-teixeira', pessoa: 'p-teixeira', ref: '375', tipo: 'venda', valor: 450000, extra: '', etapa: 0, dias: 0 },
     { id: 'n-bruno', pessoa: 'p-bruno', ref: '383', tipo: 'venda', valor: 690000, extra: '', etapa: 0, dias: 0 },
@@ -193,7 +193,7 @@ var DEMO = {
     { id: 'n-patricia', pessoa: 'p-patricia', ref: '382', tipo: 'venda', valor: 720000, extra: 'proposta', etapa: 3, dias: 2 },
     { id: 'n-henrique', pessoa: 'p-henrique', ref: '350', tipo: 'venda', valor: 780000, extra: 'proposta', etapa: 3, dias: 4 },
     { id: 'n-eduardo', pessoa: 'p-eduardo', ref: '389', tipo: 'venda', valor: 365000, extra: 'escritura 10/11', etapa: 4, dias: 12 },
-    { id: 'n-debora', pessoa: 'p-debora', ref: '407', tipo: 'aluguel', valor: 2200, extra: 'contrato quinta', etapa: 4, dias: 3 }
+    { id: 'n-debora', pessoa: 'p-debora', ref: '235', tipo: 'aluguel', valor: 2200, extra: 'contrato quinta', etapa: 4, dias: 3 }
   ],
 
   /* ganhos e perdidos do mês */

@@ -35,10 +35,12 @@ function fmtArea(v) { return v == null ? '' : (Number.isInteger(v) ? v : String(
 function porRef(ref) { ref = String(ref || '').trim(); return IMOVEIS.find(im => im.ref === ref) || null; }
 
 function textoBusca(im) {
-  return [im.ref, im.titulo, im.tipo, im.bairro, im.cidade, im.perfil, im.situacao].join(' ').toLowerCase();
+  return [im.ref, im.titulo, im.tipo, im.bairro, im.cidade, im.perfil, im.situacao, im.condominioNome || '', im.selo || '']
+    .concat(im.caracteristicas || [], im.comodos || [], im.proximidades || []).join(' ').toLowerCase();
 }
+function areaDe(im) { return im.areaConstruida || im.areaTotal || 0; }
 
-/* f: { neg, tipo, cidade, bairro, q, min, max, dorm, vagas, mar, piscina, ordem } */
+/* f: { neg, tipo, cidade, bairro, q, min, max, dorm, suites, banheiros, vagas, areaMin, areaMax, mar, piscina, mobiliado, financiavel, perfil, ordem } */
 function filtrar(f) {
   f = f || {};
   const q = String(f.q || '').trim().toLowerCase();
@@ -52,6 +54,11 @@ function filtrar(f) {
     if (f.max && (im.preco == null || im.preco > +f.max)) return false;
     if (f.dorm && im.dorm < +f.dorm) return false;
     if (f.vagas && im.vagas < +f.vagas) return false;
+    if (f.suites && im.suites < +f.suites) return false;
+    if (f.banheiros && im.banheiros < +f.banheiros) return false;
+    if (f.areaMin && areaDe(im) < +f.areaMin) return false;
+    if (f.areaMax && (!areaDe(im) || areaDe(im) > +f.areaMax)) return false;
+    if (f.financiavel && !im.financiavel) return false;
     if (f.mar && im.proximoMar < 3) return false;
     if (f.piscina && !(im.caracteristicas || []).some(c => /piscina/i.test(c))) return false;
     if (f.mobiliado && !/mobiliado/i.test(im.mobiliado || '')) return false;
@@ -76,6 +83,11 @@ function opcoes(f) {
 
 function destaques(f, n) { return filtrar(f).slice(0, n || 4); }
 
+/* vitrine da home: as listas que a AD7 escolhe à mão (como no site antigo: "Ótima oportunidade" e o slide do topo) */
+var VITRINE = { oportunidade: [], slide: [] };
+function vitrineLista(chave) { return (VITRINE[chave] || []).map(porRef).filter(Boolean); }
+function vitrineSet(v) { VITRINE = Object.assign({ oportunidade: [], slide: [] }, v || {}); return VITRINE; }
+
 function parecidos(im, n) {
   const mesmo = IMOVEIS.filter(x => x.ref !== im.ref && x.transacao === im.transacao);
   const pontua = x => (x.tipo === im.tipo ? 2 : 0) + (x.bairro === im.bairro ? 2 : 0) + (x.cidade === im.cidade ? 1 : 0)
@@ -89,4 +101,4 @@ function resumoCatalogo() {
   return { total: IMOVEIS.length, porTransacao: c, cidades: unicos(IMOVEIS, 'cidade'), bairros: unicos(IMOVEIS, 'bairro') };
 }
 
-if (typeof module !== 'undefined') module.exports = { carregarCatalogo, filtrar, opcoes, destaques, parecidos, porRef, fmtPreco, rotuloPreco, fmtArea, resumoCatalogo, TRANS, TRANS_VERBO, _set: l => { IMOVEIS = l; CAT.pronto = true; } };
+if (typeof module !== 'undefined') module.exports = { carregarCatalogo, filtrar, vitrineLista, vitrineSet, areaDe, opcoes, destaques, parecidos, porRef, fmtPreco, rotuloPreco, fmtArea, resumoCatalogo, TRANS, TRANS_VERBO, _set: l => { IMOVEIS = l; CAT.pronto = true; } };

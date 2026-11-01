@@ -231,7 +231,7 @@ function vHoje() {
   const vencendo = Object.keys(DEMO.imoveis).filter(ref => DEMO.imoveis[ref].aut === 'vence' && minha(DEMO.imoveis[ref].resp));
   const ent = DEMO.entradas.filter(e => dona() || (e.pessoa && pessoa(e.pessoa).resp === 'Rafael')).slice(0, 5);
   const sug = dona()
-    ? [['p-juliana', 'Juliana Prado espera desde ontem 21:40 pela casa 406 para o réveillon. Mandar o total e as fotos da piscina agora.'], ['p-henrique', 'Henrique Sales e a Família Nogueira estão a R$ 15 mil de distância na 350. Uma ligação hoje fecha.'], ['d-jose', 'A autorização da 309 vence 02/11: mandar a renovação para o José assinar no celular, com o relatório das visitas.']]
+    ? [['p-juliana', 'Juliana Prado espera desde ontem 21:40 pela casa 408 para o réveillon. Mandar o total e as fotos da piscina agora.'], ['p-henrique', 'Henrique Sales e a Família Nogueira estão a R$ 15 mil de distância na 350. Uma ligação hoje fecha.'], ['d-jose', 'A autorização da 309 vence 02/11: mandar a renovação para o José assinar no celular, com o relatório das visitas.']]
     : [['p-ramos', 'A Família Ramos não confirmou a visita de hoje às 15:00 no 402. Mensagem pronta para confirmar.'], ['p-tiago', 'Tiago Moraes quer terreno até R$ 400 mil: o 120 (R$ 350 mil) cabe e nunca foi enviado.'], ['p-roberto', 'Roberto Nunes favoritou 3 aptos no site. Ligar hoje com os aptos do Centro até R$ 400 mil.']];
   return `${faixaCel()}
     <div class="topo"><div><h1>Hoje, ${esc(DEMO.hoje.texto)}</h1><div class="sm" style="margin-top:4px">${dona() ? 'Bom dia, Adriana. ' : 'Bom dia, Rafael. '}${ag.length} visita${ag.length === 1 ? '' : 's'}, ${novos.length} lead${novos.length === 1 ? '' : 's'} novo${novos.length === 1 ? '' : 's'}, ${esf.length} negócio${esf.length === 1 ? '' : 's'} esfriando.</div></div>
@@ -448,7 +448,7 @@ function vPessoa(id) {
 function textoZap(p, im) {
   const nome = p.nome.split(' ')[0];
   const quem = EU();
-  if (p.id === 'p-juliana') return `Oi, ${nome}! Aqui é ${quem}, da AD7. Para o réveillon (28/12 a 02/01, 8 pessoas) tenho a casa mobiliada com piscina em Pontal do Sul, Ref. 406: 7 diárias saem R$ 11.200, 50% na reserva. Mando as fotos da piscina?`;
+  if (p.id === 'p-juliana') return `Oi, ${nome}! Aqui é ${quem}, da AD7. Para o réveillon (28/12 a 02/01, 8 pessoas) tenho a casa mobiliada com piscina em Pontal do Sul, Ref. 408: 7 diárias saem R$ 11.200, 50% na reserva. Mando as fotos da piscina?`;
   if (p.id === 'p-ramos') return `Oi! Aqui é ${quem}, da AD7. Confirmando a visita de hoje às 15:00 no sobrado de 4 quartos em Pontal do Sul (Ref. 402). Posso contar com vocês? Se preferirem outro horário, me diz.`;
   if (p.id === 'p-henrique') return `Oi, ${nome}! Aqui é ${quem}, da AD7. A família Nogueira respondeu à sua proposta pela casa Ref. 350: pediram R$ 795 mil. Estão a R$ 15 mil de você. Se eu levar R$ 788 mil, fechamos esta semana?`;
   if (p.id === 'p-patricia') return `Oi, ${nome}! Aqui é ${quem}, da AD7. Sua proposta de R$ 720 mil pela casa Ref. 382 está com a dona; ela responde até quarta (28/10). Assim que ela falar, te aviso na hora.`;
