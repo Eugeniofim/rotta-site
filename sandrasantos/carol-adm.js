@@ -424,7 +424,7 @@ const NAV_GRUPOS = [
 const _admShellBase = admShell;
 admShell = function (tab, inner) {
   /* a sincronia por linha (nuvem-itens.js) liga na primeira tela do painel com ela logada */
-  if (typeof itLigar === 'function') itLigar(() => { if (typeof isBusyEditing === 'function' && isBusyEditing()) pendingSync = true; else route(); });
+  if (typeof itLigar === 'function') itLigar(() => { if (typeof redesenhaSuave === 'function') redesenhaSuave(); else if (!(typeof isBusyEditing === 'function' && isBusyEditing())) route(); });
   _admShellBase(tab, inner);
   const nav = document.querySelector('.rail nav'); if (!nav || nav.dataset.agrupado) return;
   const botoes = {};
