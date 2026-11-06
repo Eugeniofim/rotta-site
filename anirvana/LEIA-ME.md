@@ -49,3 +49,8 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - **Lojinha:** "Outro item" no topo, resumo do dia e busca de produto. Cadastro de fornecedores.
 - **Escola** sem a aba Formação.
 - CPF e endereço ficam numa tabela que só a administração e o próprio aluno veem (banco: 103 testes).
+
+## v7
+- **Backup no Google Drive:** todo dia 1º o servidor sobe o Excel do mês na pasta "Backups Anirvana" do Drive do Espaço (conta de serviço do Google; ver `fonte/backend/LEIA-ME.md`). No app, Mensalidades → Regras → "Salvar no Google Drive" (no celular abre o Compartilhar).
+- Backups ficam em três lugares: Drive do Espaço, e-mail do Espaço e o cofre do Supabase (só a administração abre).
+- `como-usar.pdf`: tutorial com as telas e a revisão de todos os pedidos. `tutorial.mp4`: vídeo narrado (2 min 38 s).

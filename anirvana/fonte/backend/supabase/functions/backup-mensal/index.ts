@@ -3,12 +3,40 @@
 // Mensalidades com o fechamento da yoga, Lojinha), mais alunos e fichas, presenças, equipe, eventos e pontos.
 // Guarda no Storage (bucket privado "backups", só a administração lê) e manda para o e-mail do Espaço.
 // O arquivo é montado pelo MESMO código do app (_compartilhado/motor.js, gerado pelo build.py).
-// Segredos: CRON_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, EMAIL_REMETENTE
+// Também põe o arquivo na pasta "Backups Anirvana" do Google Drive do Espaço (a pasta é compartilhada uma vez com a conta de serviço).
+// Segredos: CRON_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, EMAIL_REMETENTE, GOOGLE_SERVICE_ACCOUNT (JSON), DRIVE_PASTA_ID
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
 import { criarMotor } from '../_compartilhado/motor.js';
 
 const mesDe = (d: string) => d.slice(0, 7);
+
+/* Google Drive: token da conta de serviço (JWT RS256) e envio do arquivo para a pasta do Espaço */
+const b64url = (b: ArrayBuffer | Uint8Array | string) => encodeBase64(typeof b === 'string' ? new TextEncoder().encode(b) : b instanceof Uint8Array ? b : new Uint8Array(b)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+async function tokenGoogle(conta: { client_email: string; private_key: string }): Promise<string> {
+  const agora = Math.floor(Date.now() / 1000);
+  const cab = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const corpo = b64url(JSON.stringify({ iss: conta.client_email, scope: 'https://www.googleapis.com/auth/drive.file', aud: 'https://oauth2.googleapis.com/token', iat: agora, exp: agora + 3600 }));
+  const pem = conta.private_key.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
+  const chave = await crypto.subtle.importKey('pkcs8', Uint8Array.from(atob(pem), c => c.charCodeAt(0)), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const assinatura = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', chave, new TextEncoder().encode(`${cab}.${corpo}`));
+  const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: `${cab}.${corpo}.${b64url(assinatura)}` }) });
+  if (!r.ok) throw new Error('Google token ' + r.status);
+  return (await r.json()).access_token;
+}
+async function mandarProDrive(bytes: Uint8Array, nome: string): Promise<string | null> {
+  const json = Deno.env.get('GOOGLE_SERVICE_ACCOUNT'), pasta = Deno.env.get('DRIVE_PASTA_ID');
+  if (!json || !pasta) return null;                                   // Drive ainda não ligado: segue com Storage + e-mail
+  const token = await tokenGoogle(JSON.parse(json)), limite = 'anirvana' + crypto.randomUUID();
+  const meta = JSON.stringify({ name: nome, parents: [pasta], mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const ini = new TextEncoder().encode(`--${limite}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${limite}\r\nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n`);
+  const fim = new TextEncoder().encode(`\r\n--${limite}--`);
+  const corpo = new Uint8Array(ini.length + bytes.length + fim.length); corpo.set(ini); corpo.set(bytes, ini.length); corpo.set(fim, ini.length + bytes.length);
+  const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary=${limite}` }, body: corpo });
+  if (!r.ok) throw new Error('Drive ' + r.status + ': ' + (await r.text()).slice(0, 200));
+  return (await r.json()).id;
+}
 const anterior = (hoje: Date) => { const d = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth() - 1, 1)); return d.toISOString().slice(0, 7); };
 
 Deno.serve(async (req: Request) => {
@@ -68,7 +96,9 @@ Deno.serve(async (req: Request) => {
     body: JSON.stringify({ from: `App Espaço Anirvana <${Deno.env.get('EMAIL_REMETENTE')}>`, to: [para], subject: `Backup do app em Excel · ${competencia}`,
       text: `Segue o backup do app em Excel, no formato das planilhas do Espaço.\nGuarde com cuidado: tem dados de saúde dos alunos.\n\nTambém fica guardado no app, em Mensalidades → Regras → Backup mensal.`,
       attachments: [{ filename: nome, content: encodeBase64(bytes) }] }) });
-  await db.from('backups').insert({ competencia, arquivo: `backups/${caminho}`, bytes: bytes.length, enviado_para: r.ok ? para : null, motivo: corpo.motivo ?? 'mensal' });
+  let drive: string | null = null;
+  try { drive = await mandarProDrive(bytes, nome); } catch (e) { console.error('drive', e); }
+  await db.from('backups').insert({ competencia, arquivo: `backups/${caminho}`, bytes: bytes.length, enviado_para: [r.ok ? para : null, drive ? 'Google Drive' : null].filter(Boolean).join(' + ') || null, motivo: corpo.motivo ?? 'mensal' });
   await db.from('fila_avisos').update({ enviado_em: new Date().toISOString() }).eq('regra', 'backup').is('enviado_em', null);
-  return Response.json({ competencia, arquivo: caminho, bytes: bytes.length, email: r.ok });
+  return Response.json({ competencia, arquivo: caminho, bytes: bytes.length, email: r.ok, drive: !!drive });
 });

@@ -101,7 +101,8 @@ Confirmar com o contador e um advogado antes de lançar. Os pontos abaixo são o
   - *Lojinha:* vendas por mês com fornecedor e partes, "A RECEBER!" no topo, saldo de cada fornecedor e produtos cadastrados.
   - *Cadastro:* alunos e fichas, pagamentos, presenças, equipe, eventos, pontos e inscrições.
   - Uma aba escondida com a cópia completa do app, para restaurar se precisar.
-- **Onde fica:** bucket privado `backups` no Storage (só a administração lê) e no e-mail do Espaço.
+- **Onde fica (três cópias):** (1) pasta **Backups Anirvana** no Google Drive do Espaço, enviada sozinha pela função; (2) e-mail do Espaço, com o arquivo anexo; (3) bucket privado `backups` no Supabase (São Paulo), que só a administração lê. No app, "Salvar no Google Drive" faz o mesmo na hora (no celular abre o Compartilhar → Drive).
+- **Ligar o Drive (uma vez):** criar uma conta de serviço no Google Cloud, compartilhar a pasta Backups Anirvana com o e-mail dela (como Editor) e guardar `GOOGLE_SERVICE_ACCOUNT` e `DRIVE_PASTA_ID` em Edge Functions → Secrets.
 - **Conferido:** o arquivo abre sem nenhum erro de fórmula e janeiro bate com a planilha original (Kamala R$ 1.346,63 · Ana Julia R$ 623,00 · Sara R$ 35,88).
 - **Cuidado:** tem dados de saúde. Não mandar por WhatsApp.
 

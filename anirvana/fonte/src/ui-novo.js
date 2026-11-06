@@ -285,11 +285,11 @@ function cardBackup(){
   const bk = (S.backups || []).slice().reverse(), prox = iso(new Date(HOJE.getFullYear(), HOJE.getMonth() + 1, 1));
   return `<div class="card" style="border-top:4px solid var(--pri)"><div class="card-h"><div><h3>Backup mensal em Excel</h3><span class="sub">Regra do app: todo dia 1º sai uma cópia de tudo, no formato das planilhas de vocês</span></div><span class="pill ok">${ic('check')}Ligado</span></div>
     <div class="list">
-      <div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">Próximo: ${dataBR(prox)} às 03:00</span><span class="s">Vai para ${ESPACO.email} e fica guardado na pasta de backups. Ao fechar um mês, sai outro.</span></div></div>
+      <div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">Próximo: ${dataBR(prox)} às 03:00</span><span class="s">Sai sozinho e vai para três lugares: a pasta <b>Backups Anirvana</b> no Google Drive de vocês, o e-mail ${ESPACO.email} e o cofre do app (Supabase, São Paulo). Ao fechar um mês, sai outro.</span></div></div>
       <div class="li"><span class="ico-b">${ic('layers')}</span><div class="main-c"><span class="t">O que vai no arquivo</span><span class="s">Controle financeiro (uma aba por mês e o ANO), Mensalidades com o fechamento da yoga, Lojinha com fiado e fornecedores, alunos e fichas, presenças, equipe, eventos e pontos</span></div></div>
       ${bk.slice(0, 3).map(b => `<div class="li"><span class="ico-b" style="background:var(--ok-bg);color:var(--ok)">${ic('check')}</span><div class="main-c"><span class="t">Backup de ${nomeMes(b.mes).toLowerCase()}</span><span class="s">${dataBR(b.d)} às ${b.h} · ${b.por === 'automático' ? `automático, enviado para ${ESPACO.email}` : `baixado por ${escapeH(b.por)}`}</span></div></div>`).join('')}
     </div>
-    <div class="row wrap" style="margin-top:12px"><button class="btn pri" data-act="baixarBackup">${ic('download')}Baixar backup agora (.xlsx)</button></div>
+    <div class="row wrap" style="margin-top:12px"><button class="btn pri" data-act="baixarBackup">${ic('download')}Baixar backup agora (.xlsx)</button><button class="btn sec" data-act="backupDrive">${ic('share-2')}Salvar no Google Drive</button></div>
     <p class="tiny muted" style="margin-top:8px">Abre no Excel, no Google Planilhas e no Numbers. Tem dados de saúde dos alunos: guarde com cuidado e não mande por WhatsApp.</p>
   </div>`;
 }
@@ -619,4 +619,19 @@ function enviarAvisoLivre(){
   salvar(); reRender();
   if (!agendar) mostrarPush(titulo || 'Espaço Anirvana', texto);
   setTimeout(() => avisar(agendar ? `Aviso agendado para ${dataBR(quando.slice(0, 10))} às ${quando.slice(11, 16)}` : `Aviso enviado para ${R.unicos.size} pessoas`, agendar ? 'clock' : 'send'), agendar ? 0 : 1100);
+}
+
+/* backup no Google Drive com um toque: no celular abre o "Compartilhar" (escolha Drive); no computador baixa e abre o Drive */
+async function backupNoDrive(){
+  const bytes = montarBackup(S, {quem:quemNome()}), nome = nomeBackup(), tipo = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const arq = new File([bytes], nome, {type:tipo});
+  (S.backups = S.backups || []).push({mes:MES_ATUAL, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, por:quemNome()}); salvar();
+  try{
+    if (navigator.canShare && navigator.canShare({files:[arq]})){ await navigator.share({files:[arq], title:nome, text:'Backup do app do Espaço Anirvana'}); avisar('Escolha "Drive" e a pasta Backups Anirvana', 'share-2'); return; }
+  }catch(e){ if (e && e.name === 'AbortError') return; }
+  baixarArquivo(bytes, nome, tipo);
+  abrirFolha(`${folhaCab('Salvar no Google Drive', 'O arquivo já foi baixado')}
+  <div class="stack"><ol class="small" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Abra o Google Drive do Espaço (botão abaixo).</li><li>Entre na pasta <b>Backups Anirvana</b>.</li><li>Arraste o arquivo <b>${nome}</b> para dentro dela (ou toque em <b>Novo → Upload de arquivo</b>).</li></ol>
+    <p class="tiny muted">Com o app ligado de verdade, isso acontece sozinho todo dia 1º: o servidor põe o arquivo direto nessa pasta.</p>
+    <a class="btn sol" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">${ic('share-2')}Abrir o Google Drive</a></div>`);
 }
