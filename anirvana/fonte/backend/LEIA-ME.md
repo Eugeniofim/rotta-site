@@ -16,8 +16,11 @@ Supabase (Postgres + regras de acesso por linha)  ◄── webhook ── Asaas
 | Arquivo | O que é |
 |---|---|
 | `banco.sql` | O banco inteiro: tabelas, regras de acesso, auditoria, trava de mês fechado, funções da LGPD. Pode rodar de novo sem estragar nada. |
-| `supabase/functions/asaas-webhook/index.ts` | Recebe a confirmação de pagamento do Asaas e dá baixa na cobrança. Aplica cada aviso uma vez só. |
-| `testes/testar-banco.py` | 46 testes que entram como administração, instrutora e aluna e conferem o que cada uma pode ver e fazer. |
+| `supabase/functions/asaas-webhook/index.ts` | Recebe do Asaas o aviso de que o dinheiro caiu e põe o pagamento em "Para confirmar". Quem dá baixa é a administração. Aplica cada aviso uma vez só. |
+| `supabase/functions/enviar-avisos/index.ts` | A cada 5 minutos: põe na fila os avisos do momento (aula, vencimento, atraso, saudade, véspera de evento) e manda por push, WhatsApp oficial e e-mail. |
+| `supabase/functions/backup-mensal/index.ts` | Todo dia 1º às 3h, e ao fechar um mês: gera o backup em Excel no formato das planilhas do Espaço, guarda e manda por e-mail. |
+| `supabase/functions/_compartilhado/motor.js` | As mesmas regras do app (repasse, lojinha, balanço, pontos, backup), geradas pelo `build.py`. O servidor e o celular fazem a mesma conta. |
+| `testes/testar-banco.py` | 86 testes que entram como administração, instrutora, aluna e sem login, e conferem o que cada uma pode ver e fazer. |
 
 Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-do-socket> <porta>`.
 
@@ -33,6 +36,13 @@ Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-
 | Repasse | todos | só o dele | nada |
 | Pix da equipe e dos fornecedores | tudo | só o próprio | nada |
 | Auditoria | lê, não apaga | nada | nada |
+| Ficha de inscrição | todas | dos alunos dela | a dele (completa e edita) |
+| Saúde da ficha | todas | só se o aluno autorizou | a dele |
+| Baixa de pagamento | dá baixa ou recusa | nada | só avisa "já paguei" |
+| Inscrições novas | confirma | nada | sem login: só envia a dele |
+| Eventos | cria e divulga, confirma pagamento | vê | se inscreve e avisa que pagou |
+| Pontos | vê todos, entrega presentes | nada | vê os dele e troca |
+| Fila de avisos e backups | tudo | nada | nada |
 
 ## Regras que o banco impõe
 
@@ -42,6 +52,13 @@ Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-
 - **Lojinha:** o % do fornecedor fica congelado na hora da venda. Mudar o % depois não altera vendas antigas.
 - **Particular, massagem e terapias** exigem o profissional escolhido.
 - **Criança** só entra com nome do responsável.
+- **Baixa de pagamento é da administração.** O aluno só avisa "já paguei". O Asaas também só avisa que o dinheiro caiu: o pagamento vai para "Para confirmar" e a Dessa ou o Vitor dão baixa com um toque. A baixa automática pelo banco existe, mas começa desligada (`configuracoes.baixa_automatica_banco`).
+- **Inscrição pelo link (no lugar do Google Forms):** quem não tem login só consegue mandar a própria inscrição, bem preenchida, com termos aceitos e responsável quando é menor. No máximo 3 por WhatsApp por dia. Ao confirmar, o banco cria de uma vez o aluno, a ficha, os consentimentos e a matrícula, e dá os pontos de quem indicou.
+- **Saúde fica separada** (`fichas_saude`) e só aparece para as instrutoras com o consentimento específico do aluno. Sem ele, o banco recusa até a administração de abrir para a equipe.
+- **Pontos não se fabricam:** o aluno só ganha sozinho os de instalar o app e ligar os avisos. Os outros vêm da chamada, dos pagamentos em dia e das indicações. Duas trocas ao mesmo tempo não furam o saldo.
+- **Evento lotado não aceita ninguém**, e só a administração marca o pagamento do evento.
+- **WhatsApp e e-mail só para quem aceitou:** a própria fila descarta o aviso de quem não deu o sim.
+- **Lojinha:** fornecedores são cadastrados pela administração; o % fica congelado em cada venda, então mudar o % de um fornecedor vale só para as vendas novas.
 
 ## O que a lei pede e como o app atende
 
@@ -72,6 +89,29 @@ Confirmar com o contador e um advogado antes de lançar. Os pontos abaixo são o
 - A yoga em turma não dá para dividir na hora, porque o repasse depende da chamada do mês inteiro. Ela segue com o fechamento mensal e uma transferência só.
 - Na lojinha a lógica é a mesma: no consignado, a parte do fornecedor não é receita do Espaço. Como registrar isso é com o contador.
 
+## Backup mensal em Excel (regra do app)
+
+- **Quando:** todo dia 1º às 3h (horário de Brasília) sai o backup do mês que acabou. Ao fechar um mês, sai outro. A administração também baixa quando quiser (Mensalidades → Regras).
+- **Formato:** um `.xlsx` que abre no Excel, Google Planilhas e Numbers, no **mesmo desenho das planilhas do Espaço**:
+  - *Controle financeiro:* uma aba por mês (Saídas à esquerda, Entradas à direita, TOTAL, saldo e totais por categoria com fórmula) e a aba ANO.
+  - *Mensalidades:* uma aba por mês, com cada atividade, a parte da equipe e do Espaço e o fechamento da yoga (ALUNOS / INSTRUTORAS, A RECEBER, EXCEDENTE).
+  - *Lojinha:* vendas por mês com fornecedor e partes, "A RECEBER!" no topo, saldo de cada fornecedor e produtos cadastrados.
+  - *Cadastro:* alunos e fichas, pagamentos, presenças, equipe, eventos, pontos e inscrições.
+  - Uma aba escondida com a cópia completa do app, para restaurar se precisar.
+- **Onde fica:** bucket privado `backups` no Storage (só a administração lê) e no e-mail do Espaço.
+- **Conferido:** o arquivo abre sem nenhum erro de fórmula e janeiro bate com a planilha original (Kamala R$ 1.346,63 · Ana Julia R$ 623,00 · Sara R$ 35,88).
+- **Cuidado:** tem dados de saúde. Não mandar por WhatsApp.
+
+## Avisos automáticos
+
+| Canal | Como funciona | O que precisa |
+|---|---|---|
+| Push no celular | o app instalado pede permissão uma vez; o celular fica em `push_inscricoes` | chaves VAPID (gratuitas) |
+| WhatsApp | API oficial da Meta (WhatsApp Cloud API). Mensagem que o Espaço inicia precisa de **modelo aprovado** uma vez pela Meta (`anirvana_lembrete`, `anirvana_vence`...) | número do Espaço verificado no Meta Business, token |
+| E-mail | Resend, com link para parar de receber | conta Resend e domínio ou remetente verificado |
+
+Os textos de cada aviso estão em `regras_aviso` e a administração liga e desliga cada um no app (Divulgar → Avisos automáticos).
+
 ## Ligar de verdade
 
 1. Criar o projeto no Supabase na região São Paulo e rodar `banco.sql` no SQL Editor.
@@ -80,3 +120,5 @@ Confirmar com o contador e um advogado antes de lançar. Os pontos abaixo são o
 4. Contador valida: MEI × split, nota fiscal (NFS-e), consignação.
 5. Publicar os textos de Termos de uso e Política de privacidade e pedir o aceite no primeiro login.
 6. Ligar o app ao banco (modelo das skills app-sempre-junto e pwa-atualiza: sombra, fila offline, carimbo do servidor).
+7. Criar o bucket privado `backups`, ligar `pg_cron` e `pg_net`, e guardar `app.funcoes_url` e `app.cron_token` (backup do dia 1º e avisos a cada 5 minutos).
+8. Avisos: gerar as chaves VAPID, aprovar os modelos de WhatsApp na Meta e criar a conta no Resend. Guardar tudo em Edge Functions → Secrets.

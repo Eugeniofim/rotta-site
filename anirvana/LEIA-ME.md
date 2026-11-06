@@ -22,3 +22,15 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - Categorias do balanço: planilha "Controle financeiro 2026".
 - Nomes de alunos, horários, lançamentos de ago–out: EXEMPLO.
 - Curso de Instrutores, mentores, endereço, contato: site anirvana.com.br.
+
+## O que mudou na v4 (pedidos da reunião)
+- Entrada: **Alunos primeiro**, com "Quero me inscrever"; depois Instrutores e Administração.
+- **Inscrição no lugar do Google Forms:** 4 passos (você, atividade, ficha, combinados). Vira uma ficha que a administração confirma e que as instrutoras veem. Saúde só aparece para a equipe com a autorização do aluno. Dá para importar o CSV do Google Forms.
+- **Pontos** para incentivar instalar o app (instalar, ligar avisos, ficha, aula, pagamento em dia, indicação) e presentes para trocar.
+- **Avisos automáticos** por push, WhatsApp e e-mail (lembrete de aula, vencimento, atraso, saudade, evento), com sino no topo.
+- **Eventos:** aba Divulgar → criar evento, mandar para o público certo e baixar a arte do Instagram (story e post).
+- **Baixa de pagamento só pela administração:** o aluno avisa "já paguei"; a Dessa ou o Vitor dão baixa.
+- **Balanço por categoria:** um gráfico para mensalidades, lojinha, Airbnb, eventos, cantina, coworking, despesas fixas, social mídia, limpeza, manutenção, melhorias e extra.
+- **Lojinha:** produtos zerados para cadastrar; cadastro de fornecedores na aba Fornecedores; mudar o % não mexe nas vendas antigas.
+- **Backup mensal em Excel** (regra): todo dia 1º e ao fechar o mês, no formato das planilhas do Espaço.
+- Painel do aluno sem a aba Formação; tocar na logo volta para a tela inicial.

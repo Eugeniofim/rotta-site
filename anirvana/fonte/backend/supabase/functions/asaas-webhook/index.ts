@@ -1,4 +1,4 @@
-// Recebe os avisos do Asaas (pagamento confirmado, estornado, vencido) e atualiza a cobrança.
+// Recebe os avisos do Asaas (pagamento confirmado, estornado) e põe o pagamento na fila "Para confirmar" da administração.
 // Segurança:
 //   - só aceita o token configurado no painel do Asaas (cabeçalho asaas-access-token)
 //   - cada evento é aplicado UMA vez (tabela eventos_gateway, chave = id do evento)
@@ -38,20 +38,35 @@ Deno.serve(async (req: Request) => {
   }
 
   const metodo = ev.payment.billingType === 'CREDIT_CARD' ? 'cartao' : ev.payment.billingType === 'PIX' ? 'pix' : null;
-  let mudanca: Record<string, unknown> | null = null;
+  const desfaz = async (onde: string, error: unknown) => {
+    console.error(onde, error);
+    await db.from('eventos_gateway').delete().eq('id', ev.id);            // deixa o reenvio tentar de novo
+    return new Response('erro ao atualizar', { status: 500 });
+  };
+
   if (PAGO.has(ev.event)) {
-    const quando = ev.payment.clientPaymentDate ?? ev.payment.paymentDate ?? new Date().toISOString();
-    mudanca = { estado: 'paga', pago_em: quando, ...(metodo ? { metodo } : {}) };
-  } else if (ESTORNO.has(ev.event)) {
-    mudanca = { estado: 'estornada' };
-  }
-  if (mudanca) {
-    const { error } = await db.from('cobrancas').update(mudanca).eq('gateway_id', ev.payment.id);
-    if (error) {
-      console.error('cobrancas', error);
-      await db.from('eventos_gateway').delete().eq('id', ev.id);       // deixa o reenvio tentar de novo
-      return new Response('erro ao atualizar', { status: 500 });
+    // REGRA DO ESPAÇO: quem dá baixa é a administração. O banco só avisa que o dinheiro caiu;
+    // o pagamento aparece em "Para confirmar" já marcado como "o banco confirmou", e a Dessa ou o Vitor dão baixa com um toque.
+    // (Se um dia quiserem baixa automática, ligar configuracoes.baixa_automatica_banco = true.)
+    const { data: cob } = await db.from('cobrancas').select('id, estado, matricula_id, matriculas(aluno_id)').eq('gateway_id', ev.payment.id).maybeSingle();
+    if (!cob) return new Response('ok (cobrança não encontrada)');
+    if (cob.estado !== 'aberta') return new Response('ok (já resolvida)');
+    const { data: cfg } = await db.from('configuracoes').select('valor').eq('chave', 'baixa_automatica_banco').maybeSingle();
+    if (cfg?.valor === true) {
+      const quando = ev.payment.clientPaymentDate ?? ev.payment.paymentDate ?? new Date().toISOString();
+      const { error } = await db.from('cobrancas').update({ estado: 'paga', pago_em: quando, ...(metodo ? { metodo } : {}) }).eq('id', cob.id);
+      if (error) return desfaz('cobrancas', error);
+    } else {
+      // @ts-ignore: relação de um para um
+      const aluno = cob.matriculas?.aluno_id;
+      const { error } = await db.from('avisos_pagamento').upsert(
+        { cobranca_id: cob.id, aluno_id: aluno, metodo: metodo ?? 'pix', origem: 'banco' },
+        { onConflict: 'cobranca_id', ignoreDuplicates: true });
+      if (error && error.code !== '23505') return desfaz('avisos_pagamento', error);
     }
+  } else if (ESTORNO.has(ev.event)) {
+    const { error } = await db.from('cobrancas').update({ estado: 'estornada' }).eq('gateway_id', ev.payment.id);
+    if (error) return desfaz('cobrancas', error);
   }
   return new Response('ok');
 });

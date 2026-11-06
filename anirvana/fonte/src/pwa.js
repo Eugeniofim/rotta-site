@@ -59,3 +59,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('#btnNovaX')) document.querySelector('#novaBar').classList.remove('on');
 });
 ligarAtualizacao();
+
+/* o Chrome oferece instalar: guardamos o pedido para o botão "Instalar agora" dos pontos */
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__pedidoInstalar = e; });
+addEventListener('appinstalled', () => { try{ if (UI.role === 'aluno'){ ganhar('instalar'); reRender(); } }catch(_){} });

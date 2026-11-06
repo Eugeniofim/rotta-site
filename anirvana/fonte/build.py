@@ -9,8 +9,8 @@ from pathlib import Path
 RAIZ = Path(__file__).parent
 SRC = RAIZ / 'src'
 LUCIDE = Path(sys.argv[1]) if len(sys.argv) > 1 else None
-SCRIPTS = ['data.js', 'engine.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'main.js', 'pwa.js']
-CACHE = 'anirvana-v3'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
+SCRIPTS = ['data.js', 'engine.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'pontos.js', 'backup.js', 'ui-novo.js', 'main.js', 'pwa.js']
+CACHE = 'anirvana-v4'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
 
 js = '\n'.join((SRC / f).read_text() for f in SCRIPTS)
 css = (SRC / 'style.css').read_text()
@@ -132,6 +132,28 @@ self.addEventListener('fetch', e => {{
     .catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));
 }});
 ''')
+
+# 3) motor do servidor (função backup-mensal): mesmas regras do app, sem tela
+motor = '\n'.join((SRC / f).read_text() for f in ['data.js', 'engine.js', 'pontos.js', 'backup.js'])
+for antes, depois in [
+    ("const HOJE = new Date(2026, 9, 29, 10, 50);", "const HOJE = cfg.HOJE || new Date(2026, 9, 29, 10, 50);"),
+    ("const MES_ATUAL = '2026-10';", "const MES_ATUAL = cfg.MES_ATUAL || '2026-10';"),
+    ("const EQUIPE = [", "const EQUIPE = cfg.EQUIPE || ["),
+    ("const TURMAS = [", "const TURMAS = cfg.TURMAS || ["),
+    ("const FORNECEDORES = [", "const FORNECEDORES = cfg.FORNECEDORES || ["),
+]:
+    assert antes in motor, antes
+    motor = motor.replace(antes, depois, 1)
+MOTOR = RAIZ / 'backend' / 'supabase' / 'functions' / '_compartilhado' / 'motor.js'
+MOTOR.parent.mkdir(parents=True, exist_ok=True)
+MOTOR.write_text(f"""// GERADO por build.py a partir de src/ (data, engine, pontos, backup). Não editar à mão.
+// O servidor usa exatamente as mesmas contas do app: repasse da yoga, lojinha, balanço, pontos e o backup em Excel.
+export function criarMotor(cfg = {{}}) {{
+const nomePlano = m => m.plano ? `${{ATIV[m.atv].curto}} ${{m.plano}}` : ATIV[m.atv].curto;
+{motor}
+return {{ montarBackup, nomeBackup, balancoMes, repassesEquipe, pontosAluno, statusPagamento, ATIV, PLANOS_YOGA, REGRAS_PADRAO, HOJE, MES_ATUAL }};
+}}
+""")
 
 print(f'{RAIZ / "anirvana.html"} · {len(artifact)/1024:.0f} KB · {len(icones)} ícones')
 print(f'{DIST} · index {len(pagina)/1024:.0f} KB · cache {CACHE}')

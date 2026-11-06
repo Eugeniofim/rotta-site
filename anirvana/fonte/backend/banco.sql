@@ -700,3 +700,388 @@ insert into public.planos (id, atividade, nome, preco, aulas_semana) values
   ('yoga-3x','yoga','3x por semana',220,3), ('yoga-4x','yoga','4x por semana',290,4),
   ('yoga-avulsa','yoga','Aula avulsa',45,0)
 on conflict (id) do nothing;
+
+-- =====================================================================
+-- 9. INSCRIÇÃO PELO LINK (no lugar do Google Forms), FICHA, PONTOS,
+--    EVENTOS, AVISOS AUTOMÁTICOS, BAIXA DE PAGAMENTO E BACKUP MENSAL
+-- =====================================================================
+
+-- ficha de inscrição (sem saúde: saúde fica na tabela separada abaixo)
+create table if not exists public.fichas (
+  aluno_id            uuid primary key references public.alunos(id),
+  experiencia         text check (experiencia in ('nunca','ja','pratico')),
+  objetivos           text[] not null default '{}',
+  emergencia_nome     text,
+  emergencia_telefone text,
+  como_conheceu       text,
+  indicado_por        uuid references public.alunos(id),
+  completa            boolean not null default false,
+  atualizado_em       timestamptz not null default now()
+);
+-- saúde é dado sensível (LGPD art. 11): tabela própria, e a instrutora só vê com consentimento específico
+create table if not exists public.fichas_saude (
+  aluno_id                 uuid primary key references public.alunos(id),
+  descricao                text not null check (length(descricao) <= 1000),
+  mostrar_para_instrutores boolean not null default false,
+  atualizado_em            timestamptz not null default now()
+);
+create or replace function public.saude_exige_consentimento() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.mostrar_para_instrutores and not exists (
+       select 1 from public.consentimentos where aluno_id = new.aluno_id and tipo = 'saude' and revogado_em is null) then
+    raise exception 'Para mostrar a saúde às instrutoras, precisa do consentimento específico do aluno.';
+  end if;
+  return new;
+end $$;
+drop trigger if exists fichas_saude_consent on public.fichas_saude;
+create trigger fichas_saude_consent before insert or update on public.fichas_saude
+  for each row execute function public.saude_exige_consentimento();
+
+-- inscrições que chegam pelo link público
+create table if not exists public.inscricoes (
+  id             uuid primary key default gen_random_uuid(),
+  criada_em      timestamptz not null default now(),
+  origem         text not null default 'app' check (origem in ('app','google_forms','balcao')),
+  estado         text not null default 'nova' check (estado in ('nova','confirmada','recusada')),
+  dados          jsonb not null,
+  aluno_id       uuid references public.alunos(id),
+  confirmada_por uuid,
+  confirmada_em  timestamptz
+);
+
+-- quem não tem login só consegue isto: mandar uma inscrição bem preenchida
+create or replace function public.inscrever(p jsonb) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare novo uuid; nasc date := nullif(p->>'nasc','')::date; tel text := regexp_replace(coalesce(p->>'tel',''), '\D', '', 'g');
+begin
+  if length(trim(coalesce(p->>'nome',''))) not between 3 and 120 then raise exception 'Escreva o nome completo.'; end if;
+  if length(tel) not between 10 and 13 then raise exception 'WhatsApp inválido.'; end if;
+  if not exists (select 1 from public.atividades where id = p->>'atv') then raise exception 'Atividade inválida.'; end if;
+  if coalesce((p->>'termos')::boolean, false) is false or coalesce((p->>'priv')::boolean, false) is false then
+    raise exception 'É preciso aceitar os termos e a política de privacidade.'; end if;
+  if nasc is not null and nasc > current_date - interval '18 years' and length(trim(coalesce(p->>'resp',''))) < 3 then
+    raise exception 'Menor de idade: informe o responsável (LGPD art. 14).'; end if;
+  if length(coalesce(p->>'saude','')) > 1000 or length(p::text) > 8000 then raise exception 'Texto longo demais.'; end if;
+  if (select count(*) from public.inscricoes where regexp_replace(coalesce(dados->>'tel',''), '\D', '', 'g') = tel
+        and criada_em > now() - interval '1 day') >= 3 then
+    raise exception 'Já recebemos sua inscrição. A equipe vai falar com você pelo WhatsApp.'; end if;
+  insert into public.inscricoes (dados) values (p - 'origem') returning id into novo;
+  insert into public.fila_avisos (regra, para_admin, canal, mensagem, chave)
+    values ('inscricao', true, 'push', 'Nova inscrição: ' || (p->>'nome'), novo::text) on conflict do nothing;
+  return novo;
+end $$;
+
+-- a administração confirma: vira aluno, ficha, saúde, consentimentos e matrícula de uma vez
+create or replace function public.confirmar_inscricao(p_id uuid, p_valor numeric default null, p_vencimento int default null) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare i record; d jsonb; aid uuid; plano text; v numeric; quem uuid;
+begin
+  if not public.eh_admin() then raise exception 'Só a administração confirma matrícula.'; end if;
+  select * into i from public.inscricoes where id = p_id for update;
+  if i is null or i.estado <> 'nova' then raise exception 'Esta inscrição não está esperando confirmação.'; end if;
+  d := i.dados;
+  insert into public.alunos (nome, telefone, email, nascimento, responsavel_nome, responsavel_telefone)
+    values (trim(d->>'nome'), d->>'tel', nullif(d->>'email',''), nullif(d->>'nasc','')::date, nullif(d->>'resp',''), nullif(d->>'respTel',''))
+    returning id into aid;
+  select id into quem from public.alunos where id <> aid and length(coalesce(d->>'indicou','')) >= 3
+    and lower(nome) like lower(trim(d->>'indicou')) || '%' limit 1;
+  insert into public.fichas (aluno_id, experiencia, objetivos, emergencia_nome, emergencia_telefone, como_conheceu, indicado_por, completa)
+    values (aid, nullif(d->>'exp',''), coalesce(string_to_array(nullif(d->>'obj',''), ','), '{}'), d->>'emerg', d->>'emergTel', d->>'como', quem,
+            (d->>'exp') is not null and (d->>'emerg') is not null);
+  insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'termos', 'v1'), (aid, 'privacidade', 'v1');
+  if coalesce((d->>'whats')::boolean, true) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'whatsapp', 'v1'); end if;
+  if coalesce((d->>'imagem')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'imagem', 'v1'); end if;
+  if nullif(d->>'resp','') is not null then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'responsavel_menor', 'v1'); end if;
+  if d->>'temSaude' = 'sim' and length(coalesce(d->>'saude','')) > 0 then
+    if coalesce((d->>'saudeOk')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'saude', 'v1'); end if;
+    insert into public.fichas_saude (aluno_id, descricao, mostrar_para_instrutores) values (aid, d->>'saude', coalesce((d->>'saudeOk')::boolean, false));
+  end if;
+  plano := case when d->>'atv' = 'yoga' then 'yoga-' || coalesce(nullif(d->>'plano',''), '2x') end;
+  v := coalesce(p_valor, (select preco from public.planos where id = plano));
+  if v is null then raise exception 'Informe o valor da mensalidade desta atividade.'; end if;
+  insert into public.matriculas (aluno_id, atividade, plano_id, valor, instrutor_id, turmas, vencimento_dia, metodo)
+    values (aid, d->>'atv', plano, v, nullif(d->>'instr','')::uuid, coalesce(string_to_array(nullif(d->>'turmas',''), ','), '{}'),
+            coalesce(p_vencimento, least(28, extract(day from current_date)::int)), 'pix');
+  if quem is not null then insert into public.pontos_acoes (aluno_id, tipo, ref) values (quem, 'indicar', aid::text) on conflict do nothing; end if;
+  update public.inscricoes set estado = 'confirmada', aluno_id = aid, confirmada_por = auth.uid(), confirmada_em = now() where id = p_id;
+  return aid;
+end $$;
+
+-- ---------- baixa de pagamento: o aluno AVISA, só a administração dá baixa ----------
+create table if not exists public.avisos_pagamento (
+  id            uuid primary key default gen_random_uuid(),
+  cobranca_id   uuid not null references public.cobrancas(id),
+  aluno_id      uuid not null references public.alunos(id),
+  metodo        text not null check (metodo in ('pix','cartao','dinheiro')),
+  origem        text not null default 'aluno' check (origem in ('aluno','banco')),   -- 'banco' = o Asaas avisou que caiu
+  avisado_em    timestamptz not null default now(),
+  estado        text not null default 'aguardando' check (estado in ('aguardando','confirmado','recusado')),
+  decidido_por  uuid,
+  decidido_em   timestamptz
+);
+create unique index if not exists aviso_pagamento_aberto on public.avisos_pagamento (cobranca_id) where estado = 'aguardando';
+create or replace function public.avisar_que_paguei(p_cobranca uuid, p_metodo text default 'pix') returns uuid
+language plpgsql security definer set search_path = public as $$
+declare cb record; novo uuid;
+begin
+  select co.estado, m.aluno_id into cb from public.cobrancas co join public.matriculas m on m.id = co.matricula_id where co.id = p_cobranca;
+  if not found or cb.aluno_id is distinct from public.meu_aluno() then raise exception 'Cobrança não encontrada.'; end if;
+  if cb.estado <> 'aberta' then raise exception 'Esta cobrança não está em aberto.'; end if;
+  if p_metodo not in ('pix','cartao','dinheiro') then raise exception 'Forma de pagamento inválida.'; end if;
+  insert into public.avisos_pagamento (cobranca_id, aluno_id, metodo) values (p_cobranca, cb.aluno_id, p_metodo)
+    on conflict (cobranca_id) where estado = 'aguardando' do nothing returning id into novo;
+  return novo;
+end $$;
+create or replace function public.dar_baixa(p_aviso uuid, p_confirmar boolean default true) returns void
+language plpgsql security definer set search_path = public as $$
+declare a record;
+begin
+  if not public.eh_admin() then raise exception 'Só a administração dá baixa em pagamento.'; end if;
+  select * into a from public.avisos_pagamento where id = p_aviso and estado = 'aguardando' for update;
+  if a is null then raise exception 'Aviso não encontrado ou já decidido.'; end if;
+  if p_confirmar then
+    update public.cobrancas set estado = 'paga', pago_em = a.avisado_em, metodo = a.metodo where id = a.cobranca_id and estado = 'aberta';
+  end if;
+  update public.avisos_pagamento set estado = case when p_confirmar then 'confirmado' else 'recusado' end, decidido_por = auth.uid(), decidido_em = now() where id = p_aviso;
+end $$;
+
+-- configurações do Espaço (a baixa automática pelo banco começa DESLIGADA: quem dá baixa é a administração)
+create table if not exists public.configuracoes (chave text primary key, valor jsonb not null, atualizado_em timestamptz not null default now());
+insert into public.configuracoes (chave, valor) values ('baixa_automatica_banco', 'false'::jsonb), ('backup_email', '"espacoanirvana@gmail.com"'::jsonb)
+on conflict (chave) do nothing;
+
+-- ---------- pontos ----------
+create table if not exists public.pontos_acoes (                 -- ações de uma vez (as recorrentes vêm da chamada e das cobranças)
+  aluno_id  uuid not null references public.alunos(id),
+  tipo      text not null check (tipo in ('instalar','notif','ficha','indicar')),
+  ref       text not null default '',
+  criado_em timestamptz not null default now(),
+  primary key (aluno_id, tipo, ref)
+);
+create table if not exists public.premios (
+  id    text primary key,
+  nome  text not null,
+  custo int not null check (custo > 0),
+  ativo boolean not null default true
+);
+create table if not exists public.trocas_pontos (
+  id           uuid primary key default gen_random_uuid(),
+  aluno_id     uuid not null references public.alunos(id),
+  premio_id    text not null references public.premios(id),
+  custo        int not null,
+  estado       text not null default 'pendente' check (estado in ('pendente','entregue','recusada')),
+  criada_em    timestamptz not null default now(),
+  entregue_por uuid
+);
+create or replace view public.saldo_pontos with (security_invoker = true) as
+  select a.id as aluno_id,
+    (select count(*) * 10 from public.presencas p where p.aluno_id = a.id)
+    + (select count(*) * 20 from public.cobrancas c join public.matriculas m on m.id = c.matricula_id
+        where m.aluno_id = a.id and c.estado = 'paga' and c.pago_em::date <= c.vencimento)
+    + (select coalesce(sum(case tipo when 'instalar' then 50 when 'notif' then 20 when 'ficha' then 30 when 'indicar' then 100 end), 0)
+        from public.pontos_acoes x where x.aluno_id = a.id) as ganhos,
+    (select coalesce(sum(custo), 0) from public.trocas_pontos t where t.aluno_id = a.id and t.estado <> 'recusada') as gastos
+  from public.alunos a;
+create or replace function public.ganhar_pontos(p_tipo text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if p_tipo not in ('instalar','notif') then raise exception 'Estes pontos vêm sozinhos, da chamada e dos pagamentos.'; end if;
+  if public.meu_aluno() is null then raise exception 'Só aluno ganha pontos.'; end if;
+  insert into public.pontos_acoes (aluno_id, tipo) values (public.meu_aluno(), p_tipo) on conflict do nothing;
+end $$;
+create or replace function public.trocar_pontos(p_premio text) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare eu uuid := public.meu_aluno(); pr record; saldo int; novo uuid;
+begin
+  if eu is null then raise exception 'Só aluno troca pontos.'; end if;
+  perform pg_advisory_xact_lock(hashtext(eu::text));               -- duas trocas ao mesmo tempo não furam o saldo
+  select * into pr from public.premios where id = p_premio and ativo;
+  if pr is null then raise exception 'Presente não encontrado.'; end if;
+  select ganhos - gastos into saldo from public.saldo_pontos where aluno_id = eu;
+  if saldo < pr.custo then raise exception 'Faltam % pontos.', pr.custo - saldo; end if;
+  insert into public.trocas_pontos (aluno_id, premio_id, custo) values (eu, p_premio, pr.custo) returning id into novo;
+  return novo;
+end $$;
+
+-- ---------- eventos ----------
+create table if not exists public.eventos_espaco (
+  id            uuid primary key default gen_random_uuid(),
+  nome          text not null,
+  data          date not null,
+  hora          time not null,
+  valor         numeric(10,2) not null check (valor >= 0),
+  vagas         int not null check (vagas > 0),
+  descricao     text,
+  icone         text,
+  publico       text not null default 'todos',
+  canais        text[] not null default '{push,whatsapp}',
+  divulgado_em  timestamptz,
+  apagado       boolean not null default false,
+  atualizado_em timestamptz not null default now()
+);
+create table if not exists public.inscricoes_evento (
+  evento_id     uuid not null references public.eventos_espaco(id),
+  aluno_id      uuid not null references public.alunos(id),
+  criada_em     timestamptz not null default now(),
+  avisou_pago_em timestamptz,
+  pago_em       timestamptz,
+  confirmado_por uuid,
+  primary key (evento_id, aluno_id)
+);
+create or replace function public.evento_regras() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' and (select count(*) from public.inscricoes_evento where evento_id = new.evento_id)
+       >= (select vagas from public.eventos_espaco where id = new.evento_id) then
+    raise exception 'Evento lotado.'; end if;
+  if not public.eh_admin() and (new.pago_em is not null or new.confirmado_por is not null)
+     and (tg_op = 'INSERT' or new.pago_em is distinct from old.pago_em) then
+    raise exception 'Só a administração confirma pagamento.'; end if;
+  return new;
+end $$;
+drop trigger if exists inscricoes_evento_regras on public.inscricoes_evento;
+create trigger inscricoes_evento_regras before insert or update on public.inscricoes_evento
+  for each row execute function public.evento_regras();
+
+-- ---------- avisos automáticos (push, WhatsApp, e-mail) ----------
+create table if not exists public.regras_aviso (
+  id     text primary key,
+  nome   text not null,
+  ativo  boolean not null default true,
+  canais text[] not null default '{push}',
+  modelo text not null
+);
+create table if not exists public.push_inscricoes (               -- o celular que aceitou receber push
+  id        uuid primary key default gen_random_uuid(),
+  aluno_id  uuid references public.alunos(id),
+  equipe_id uuid references public.equipe(id),
+  user_id   uuid not null default auth.uid(),
+  endpoint  text not null unique,
+  p256dh    text not null,
+  auth      text not null,
+  criado_em timestamptz not null default now()
+);
+create table if not exists public.fila_avisos (
+  id            bigserial primary key,
+  regra         text not null,
+  aluno_id      uuid references public.alunos(id),
+  para_admin    boolean not null default false,
+  canal         text not null check (canal in ('push','whatsapp','email')),
+  mensagem      text not null,
+  chave         text not null default '',                       -- evita mandar o mesmo aviso duas vezes
+  agendado_para timestamptz not null default now(),
+  enviado_em    timestamptz,
+  erro          text,
+  unique (regra, aluno_id, canal, chave)
+);
+-- WhatsApp e e-mail só para quem aceitou; a fila recusa o resto (LGPD)
+create or replace function public.fila_respeita_consentimento() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.aluno_id is not null and new.canal in ('whatsapp','email') and new.regra not in ('recibo') and not exists (
+       select 1 from public.consentimentos where aluno_id = new.aluno_id and tipo = 'whatsapp' and revogado_em is null) then
+    return null;                                                   -- não entra na fila, sem erro
+  end if;
+  return new;
+end $$;
+drop trigger if exists fila_consent on public.fila_avisos;
+create trigger fila_consent before insert on public.fila_avisos for each row execute function public.fila_respeita_consentimento();
+
+-- ---------- backup mensal em Excel ----------
+-- todo dia 1º às 3h a função "backup-mensal" gera o .xlsx no formato das planilhas do Espaço,
+-- guarda no Storage (pasta privada "backups") e manda para o e-mail do Espaço. Ao fechar um mês, gera de novo.
+create table if not exists public.backups (
+  id           uuid primary key default gen_random_uuid(),
+  competencia  text not null check (competencia ~ '^\d{4}-\d{2}$'),
+  gerado_em    timestamptz not null default now(),
+  arquivo      text not null,                                    -- caminho no Storage, ex.: backups/2026/Anirvana-backup-2026-10.xlsx
+  bytes        int,
+  enviado_para text,
+  motivo       text not null default 'mensal' check (motivo in ('mensal','fechamento','manual'))
+);
+create or replace function public.backup_ao_fechar() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.fila_avisos (regra, para_admin, canal, mensagem, chave)
+    values ('backup', true, 'email', 'Backup em Excel de ' || new.competencia, new.competencia || '-fechamento') on conflict do nothing;
+  return new;
+end $$;
+drop trigger if exists fechamentos_backup on public.fechamentos;
+create trigger fechamentos_backup after insert on public.fechamentos for each row execute function public.backup_ao_fechar();
+do $$ begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    perform cron.schedule('backup-mensal', '0 6 1 * *',             -- 6h UTC = 3h em Brasília
+      $c$ select net.http_post(url := current_setting('app.funcoes_url') || '/backup-mensal', headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_token'))) $c$);
+    perform cron.schedule('enviar-avisos', '*/5 * * * *',
+      $c$ select net.http_post(url := current_setting('app.funcoes_url') || '/enviar-avisos', headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_token'))) $c$);
+  end if;
+end $$;
+
+-- ---------- acesso ----------
+do $$
+declare t text;
+begin
+  foreach t in array array['fichas','fichas_saude','inscricoes','avisos_pagamento','pontos_acoes','premios','trocas_pontos','configuracoes',
+                           'eventos_espaco','inscricoes_evento','regras_aviso','push_inscricoes','fila_avisos','backups'] loop
+    execute format('alter table public.%I enable row level security', t);
+    execute format('alter table public.%I force row level security', t);
+    execute format('drop policy if exists admin_tudo on public.%I', t);
+    execute format('create policy admin_tudo on public.%I for all to authenticated using (public.eh_admin()) with check (public.eh_admin())', t);
+  end loop;
+  foreach t in array array['fichas','fichas_saude','inscricoes','avisos_pagamento','trocas_pontos','eventos_espaco','inscricoes_evento','fila_avisos','backups'] loop
+    execute format('drop trigger if exists %I_auditoria on public.%I', t, t);
+    execute format('create trigger %I_auditoria after insert or update or delete on public.%I for each row execute function public.auditar()', t, t);
+  end loop;
+end $$;
+-- ficha: o aluno vê e completa a dele; a instrutora vê a dos alunos dela
+drop policy if exists eu_aluno on public.fichas;
+create policy eu_aluno on public.fichas for all to authenticated using (aluno_id = public.meu_aluno()) with check (aluno_id = public.meu_aluno());
+drop policy if exists instrutor_ve on public.fichas;
+create policy instrutor_ve on public.fichas for select to authenticated using (public.aluno_visivel(aluno_id));
+-- saúde: o aluno vê a dele; a instrutora só se ele autorizou
+drop policy if exists eu_aluno on public.fichas_saude;
+create policy eu_aluno on public.fichas_saude for all to authenticated using (aluno_id = public.meu_aluno()) with check (aluno_id = public.meu_aluno());
+drop policy if exists instrutor_ve on public.fichas_saude;
+create policy instrutor_ve on public.fichas_saude for select to authenticated using (mostrar_para_instrutores and public.aluno_visivel(aluno_id));
+-- baixa: o aluno vê os avisos dele (cria só pela função); ninguém além da administração muda o estado
+drop policy if exists eu_aluno on public.avisos_pagamento;
+create policy eu_aluno on public.avisos_pagamento for select to authenticated using (aluno_id = public.meu_aluno());
+-- pontos
+drop policy if exists eu_aluno on public.pontos_acoes;
+create policy eu_aluno on public.pontos_acoes for select to authenticated using (aluno_id = public.meu_aluno());
+drop policy if exists todos_leem on public.premios;
+create policy todos_leem on public.premios for select to authenticated using (ativo);
+drop policy if exists eu_aluno on public.trocas_pontos;
+create policy eu_aluno on public.trocas_pontos for select to authenticated using (aluno_id = public.meu_aluno());
+-- eventos: todo mundo logado vê; o aluno se inscreve e avisa que pagou
+drop policy if exists todos_leem on public.eventos_espaco;
+create policy todos_leem on public.eventos_espaco for select to authenticated using (not apagado);
+drop policy if exists eu_aluno on public.inscricoes_evento;
+create policy eu_aluno on public.inscricoes_evento for all to authenticated using (aluno_id = public.meu_aluno()) with check (aluno_id = public.meu_aluno());
+-- push: cada um registra o próprio celular
+drop policy if exists eu_mesmo on public.push_inscricoes;
+create policy eu_mesmo on public.push_inscricoes for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+revoke all on public.inscricoes, public.fila_avisos, public.backups from anon;
+grant select on public.saldo_pontos to authenticated;
+grant execute on function public.inscrever(jsonb) to anon, authenticated;
+revoke execute on function public.confirmar_inscricao(uuid, numeric, int), public.dar_baixa(uuid, boolean) from public, anon;
+grant execute on function public.confirmar_inscricao(uuid, numeric, int), public.dar_baixa(uuid, boolean), public.avisar_que_paguei(uuid, text),
+  public.ganhar_pontos(text), public.trocar_pontos(text) to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+
+insert into public.premios (id, nome, custo) values
+  ('loja10','10% em uma compra da lojinha',300), ('avulsa','Uma aula avulsa de presente',500),
+  ('cha','Chá artesanal AzuLuaAr',800), ('camiseta','Camiseta Anirvana',1200)
+on conflict (id) do nothing;
+insert into public.regras_aviso (id, nome, canais, modelo) values
+  ('lembrete','Lembrete de aula','{push}','Namaskar, {nome}! Sua aula de {atividade} começa às {hora}.'),
+  ('vence','Mensalidade vai vencer','{whatsapp,email}','Oi, {nome}! Sua mensalidade ({valor}) vence dia {vencimento}.'),
+  ('atraso','Mensalidade em atraso','{whatsapp}','Oi, {nome}, a mensalidade de {mes} ainda está em aberto. Se já pagou, pode desconsiderar.'),
+  ('recibo','Pagamento confirmado','{email,push}','Recebemos seu pagamento de {valor}. Obrigado, {nome}!'),
+  ('saudade','Sentimos sua falta','{whatsapp}','Oi, {nome}! Sentimos sua falta na {atividade}.'),
+  ('evento','Lembrete de evento','{push,whatsapp}','Amanhã tem {evento} às {hora}, {nome}!'),
+  ('inscricao','Nova inscrição (administração)','{push,email}','Nova inscrição: {nome} quer {atividade}.'),
+  ('backup','Backup mensal em Excel (administração)','{email}','Segue o backup do app em Excel.')
+on conflict (id) do nothing;

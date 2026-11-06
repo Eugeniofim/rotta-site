@@ -1,7 +1,7 @@
 // Abre o protótipo, passa por todas as telas, executa os fluxos principais e tira prints.
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
-const SRC = path.join(__dirname, 'anirvana.html');   /* gerado pelo build.py */
+const SRC = '/home/user/anirvana-app/anirvana.html';
 const OUT = path.join(__dirname, 'shots'); fs.mkdirSync(OUT, {recursive:true});
 const wrap = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>${fs.readFileSync(SRC,'utf8')}</body></html>`;
 const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
@@ -34,7 +34,7 @@ const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
     await p.click('[data-act=fechMes][data-v="2026-03"]'); await p.click('.rail [data-act=tab][data-v=balanco]'); await p.click('[data-act=balVis][data-v=mes]'); await p.click('[data-act=balMes][data-v="2026-03"]'); await shot(p, '05b-balanco-marco');
     await p.click('.rail [data-act=tab][data-v=mensalidades]'); await p.click('[data-act=mensVis][data-v=regras]'); await shot(p, '06-regras');
     await p.click('.rail [data-act=tab][data-v=lojinha]'); await p.waitForTimeout(900); await shot(p, '07-loja-vender', false);
-    await p.click('.prod[data-v=p21]'); await p.click('.prod[data-v=p02]'); await p.click('.prod[data-v=p02]'); await p.waitForTimeout(800);
+    await p.evaluate(() => { S.produtos = PRODUTOS.filter(x => ['p21','p02','p27','p01','p05','p10'].includes(x[0])).map(([id,nome,preco,forn,cat,icon]) => ({id,nome,preco,forn,cat,icon})); salvar(); reRender(); }); await p.waitForTimeout(500); await p.click('.prod[data-v=p21]'); await p.click('.prod[data-v=p02]'); await p.click('.prod[data-v=p02]'); await p.waitForTimeout(800);
     await p.click('[data-act=checkout]'); await shot(p, '08-checkout', false);
     await p.click('[data-act=registrarVenda]'); await p.waitForTimeout(700); await shot(p, '09-recibo', false);
     await p.click('#sheet [data-act=fechar]');
@@ -54,7 +54,7 @@ const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
     await p.click('.rail [data-act=tab][data-v=mes]'); await shot(p, '19-meu-mes');
     await p.click('[data-act=meuMes][data-v="2026-01"]'); await shot(p, '19b-meu-mes-jan');
     await p.click('.rail [data-act=role][data-v=aluno]'); await shot(p, '20-aluno-inicio');
-    await p.click('[data-act=alunoAtv][data-v=aquarela]'); await shot(p, '21-aluno-aquarela'); await p.click('[data-act=alunoAtv][data-v=eventos]'); await shot(p, '21b-eventos'); await p.click('[data-act=evento]'); await p.click('[data-act=alunoAtv][data-v=formacao]'); await shot(p, '21c-formacao-aluno'); await p.click('[data-act=alunoAtv][data-v=pratica]');
+    await p.click('[data-act=alunoAtv][data-v=aquarela]'); await shot(p, '21-aluno-aquarela'); await p.click('[data-act=alunoAtv][data-v=eventos]'); await shot(p, '21b-eventos'); await p.click('[data-act=queroIr]'); await p.click('#sheet [data-act=reservaEv][data-x="1"]'); await shot(p, '21c-evento-reservado'); await p.click('[data-act=alunoAtv][data-v=pratica]');
     await p.click('.rail [data-act=tab][data-v=plano]'); await shot(p, '22-aluno-plano');
     await p.click('[data-act=maisFin] >> nth=0'); await shot(p, '23-mais-fin', false);
     await p.click('#sheet [data-x=pausar]'); await p.click('#sheet [data-act=pausar]'); await p.waitForTimeout(300);
@@ -76,13 +76,13 @@ const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
       await p.click('.bnav [data-v=balanco]'); await shot(p, `${tag}02-balanco`); await overflow(p, tag+'bal');
       await p.click('.bnav [data-v=mensalidades]'); await p.click('[data-act=mensVis][data-v=fechamento]'); await shot(p, `${tag}03-fech`); await overflow(p, tag+'fech');
       await p.click('.bnav [data-v=lojinha]'); await p.waitForTimeout(800); await shot(p, `${tag}04-loja`); await overflow(p, tag+'loja');
-      await p.click('.prod[data-v=p27]'); await p.waitForTimeout(800); await shot(p, `${tag}05-loja-cart`, false);
+      await p.evaluate(() => { S.produtos = PRODUTOS.filter(x => ['p21','p02','p27','p01','p05','p10'].includes(x[0])).map(([id,nome,preco,forn,cat,icon]) => ({id,nome,preco,forn,cat,icon})); salvar(); reRender(); }); await p.waitForTimeout(500); await p.click('.prod[data-v=p27]'); await p.waitForTimeout(800); await shot(p, `${tag}05-loja-cart`, false);
       await p.click('.rolebtn'); await p.click('#sheet [data-act=entrar][data-v=instrutor][data-who=kamala]'); await shot(p, `${tag}06-instr`); await overflow(p, tag+'instr');
       await p.click('.bnav [data-v=agenda]'); await shot(p, `${tag}07-agenda`); await overflow(p, tag+'agenda');
       await p.click('.rolebtn'); await p.click('#sheet [data-act=entrar][data-v=aluno][data-who=a01]'); await shot(p, `${tag}08-aluno`); await overflow(p, tag+'aluno');
       await p.click('.bnav [data-v=plano]'); await shot(p, `${tag}09-plano`);
       await p.click('.bnav [data-v=historico]'); await shot(p, `${tag}10-hist`); await overflow(p, tag+'hist');
-      await p.click('.bnav [data-v=inicio]'); await p.click('[data-act=alunoAtv][data-v=formacao]'); await shot(p, `${tag}11-formacao`); await overflow(p, tag+'formacao');
+      await p.click('.bnav [data-v=inicio]'); await p.click('[data-act=alunoAtv][data-v=eventos]'); await shot(p, `${tag}11-eventos`); await overflow(p, tag+'eventos');
       await p.click('.rolebtn'); await p.click('#sheet [data-act=entrar][data-v=admin][data-who=dessa]'); await p.click('.bnav [data-v=escola]'); await p.click('[data-act=escolaVis][data-v=formacao]'); await shot(p, `${tag}12-formacao-adm`); await overflow(p, tag+'formacao-adm');
     });
   }

@@ -7,6 +7,7 @@ function vAdmin(){
   if (t === 'mensalidades') return vMensalidades();
   if (t === 'lojinha') return vLojinha();
   if (t === 'escola') return vEscola();
+  if (t === 'divulgar') return vDivulgar();
   return vAdminInicio();
 }
 
@@ -29,6 +30,7 @@ function vAdminInicio(){
   <div class="pagehead anim-in"><div><h1>${saudacao()}, ${quemNome()}</h1><p>${dataLonga(HOJE_ISO).replace(/^./, c => c.toUpperCase())} · ${diasFalta} dias para fechar ${nomeMes(MES_ATUAL).toLowerCase()}</p></div>
     <button class="btn pri" data-act="lancar">${ic('plus')}Lançar</button></div>
   ${faixaProto('Protótipo. Mensalidades de jan–mar e vendas da lojinha de mar–jul são os números reais das planilhas. Nomes de alunos, horários e o resto são exemplo.')}
+  ${(S.inscricoes || []).some(i => i.estado === 'nova') ? cardInscricoes() : ''}
   <section class="hero anim-in">
     ${solArcos(arcos, diasFalta + (diasFalta===1?' dia':' dias'), `para fechar ${mesCurto(MES_ATUAL)}`)}
     <div class="legend"><h2>${nomeMes(MES_ATUAL)} em andamento</h2><p class="lead">Saldo do Espaço até agora: <b class="num" style="color:${b.saldo>=0?'var(--ok)':'var(--bad)'}">${brl(b.saldo)}</b></p>${legendaArcos(arcos)}</div>
@@ -63,8 +65,8 @@ function vBalanco(){
   const chipsMes = MESES.map((m,i) => { const k = `2026-${pad(i+1)}`; return `<button class="chip ${UI.balMes===k?'on':''}" data-act="balMes" data-v="${k}" ${k>MES_ATUAL?'disabled style="opacity:.4"':''}>${MESES_C[i]}</button>`; }).join('');
   return `
   <div class="pagehead"><div><h1>Balanço</h1><p>Entradas, saídas e o saldo do Espaço. Mensalidades e lojinha entram sozinhas.</p></div>
-    <div class="row wrap"><div class="seg">${[['mes','Mês'],['ano','Ano']].map(([k,l]) => `<button class="${UI.balVis===k?'on':''}" data-act="balVis" data-v="${k}">${l}</button>`).join('')}</div><button class="btn pri" data-act="lancar">${ic('plus')}Lançar</button></div></div>
-  ${UI.balVis === 'ano' ? vBalancoAno() : `<div class="chips">${chipsMes}</div>${vBalancoMes(UI.balMes)}`}`;
+    <div class="row wrap"><div class="seg">${[['mes','Mês'],['ano','Ano'],['cat','Categorias']].map(([k,l]) => `<button class="${UI.balVis===k?'on':''}" data-act="balVis" data-v="${k}">${l}</button>`).join('')}</div><button class="btn pri" data-act="lancar">${ic('plus')}Lançar</button></div></div>
+  ${UI.balVis === 'ano' ? vBalancoAno() : UI.balVis === 'cat' ? vBalancoCategorias() : `<div class="chips">${chipsMes}</div>${vBalancoMes(UI.balMes)}`}`;
 }
 function vBalancoMes(mes){
   const b = balancoMes(S, mes);
@@ -92,7 +94,7 @@ function vBalancoMes(mes){
       <div class="eyebrow" style="margin:14px 0 6px">Lançadas à mão <span class="tag">exemplo</span></div>
       <div class="list">${Object.entries(inCat).map(([c,v]) => `<div class="li"><span class="ico-b">${ic(CAT_ENTRADA[c]?.icon || 'banknote')}</span><div class="main-c"><span class="t">${c}</span><span class="s">${b.manualIn.filter(l=>l.cat===c).map(l=>escapeH(l.desc)).filter((x,i,a)=>a.indexOf(x)===i).join(', ')}</span></div><b class="num">${brl(v)}</b></div>`).join('') || '<p class="muted small">Nenhuma entrada manual.</p>'}</div>
     </div>
-    <div class="card"><div class="card-h"><h3>Saídas por categoria</h3><b class="num">${brl(b.saidasTot)}</b></div>
+    <div class="card"><div class="card-h"><h3>Saídas por categoria</h3><div class="row"><b class="num">${brl(b.saidasTot)}</b><button class="btn ghost sm" data-act="balVis" data-v="cat">${ic('chart-column','sm')}Gráficos</button></div></div>
       ${cats.length ? hbarras(cats) : '<p class="muted">Nenhuma saída lançada.</p>'}
       <div class="eyebrow" style="margin:10px 0 6px">Últimos lançamentos</div>
       <div class="list">${b.saidas.slice().sort((a,b)=>a.d<b.d?1:-1).slice(0,8).map(l => `<div class="li"><span class="ico-b">${ic(CAT_SAIDA[l.cat]?.icon || 'receipt')}</span><div class="main-c"><span class="t">${escapeH(l.desc)}</span><span class="s">${dataBR(l.d)} · ${l.cat}</span></div><b class="num">${brl(l.valor)}</b></div>`).join('')}</div>
@@ -117,7 +119,7 @@ function vBalancoAno(){
     ${graficoAno(dadosAno(), {alto:260})}
   </div>
   <div class="grid g2">
-    <div class="card"><div class="card-h"><h3>Para onde foi o dinheiro</h3><span class="sub">saídas de 2026 por categoria</span></div>${hbarras(Object.entries(porCat).sort((a,b)=>b[1]-a[1]).map(([lab,v])=>({lab,v})))}</div>
+    <div class="card"><div class="card-h"><div><h3>Para onde foi o dinheiro</h3><span class="sub">saídas de 2026 por categoria</span></div><button class="btn ghost sm" data-act="balVis" data-v="cat">${ic('chart-column','sm')}Cada categoria</button></div>${hbarras(Object.entries(porCat).sort((a,b)=>b[1]-a[1]).map(([lab,v])=>({lab,v})))}</div>
     <div class="card"><div class="card-h"><h3>De onde veio</h3><span class="sub">parte do Espaço em 2026</span></div>${(() => {
       const o = {Mensalidades:0, Lojinha:0}; d.forEach(x => { const b = balancoMes(S, x.mes); o.Mensalidades += b.rec.ea; o.Lojinha += b.loja.ea; b.manualIn.forEach(l => o[l.cat] = (o[l.cat]||0) + l.valor); });
       return hbarras(Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([lab,v])=>({lab,v})), 'var(--chart-in)'); })()}</div>
@@ -152,7 +154,7 @@ function vMensAlunos(){
   const linhas = [];
   S.alunos.forEach(a => a.mats.forEach(m => linhas.push({a, m, st:statusPagamento(S,a,m)})));
   const cont = st => linhas.filter(l => st==='todos' || l.st.st === st).length;
-  const ordem = {atrasado:0, avencer:1, pausado:2, pago:3};
+  const ordem = {analise:0, atrasado:1, avencer:2, pausado:3, pago:4, cancelado:5};
   const vis = linhas.filter(l => (UI.mensSt === 'todos' || l.st.st === UI.mensSt) && (UI.mensAtv === 'todas' || l.m.atv === UI.mensAtv)).sort((x,y) => ordem[x.st.st] - ordem[y.st.st] || x.a.nome.localeCompare(y.a.nome));
   const recebido = linhas.filter(l => l.st.st === 'pago').reduce((s,l) => s + l.st.pg.valor, 0);
   const aberto = linhas.filter(l => l.st.st === 'atrasado').reduce((s,l) => s + valorMat(S,l.m), 0);
@@ -165,9 +167,9 @@ function vMensAlunos(){
     <div class="stat"><span class="k" style="color:var(--bad)">${ic('circle-alert','sm')}Atrasado</span><span class="v" style="color:var(--bad)">${brl0(aberto)}</span><span class="d">${cont('atrasado')} mensalidades</span></div>
   </div>
   <div class="card">
-    <div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['atrasado','Atrasados'],['avencer','A vencer'],['pago','Pagos']].map(([k,l]) => `<button class="chip ${UI.mensSt===k?'on':''}" data-act="mensSt" data-v="${k}">${l} <span class="n">${cont(k)}</span></button>`).join('')}</div>
+    <div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['analise','Para confirmar'],['atrasado','Atrasados'],['avencer','A vencer'],['pago','Pagos']].map(([k,l]) => `<button class="chip ${UI.mensSt===k?'on':''}" data-act="mensSt" data-v="${k}">${l} <span class="n">${cont(k)}</span></button>`).join('')}</div>
     <div class="chips" style="margin-bottom:6px">${['todas',...atvs].map(k => `<button class="chip ${UI.mensAtv===k?'on':''}" data-act="mensAtv" data-v="${k}">${k==='todas'?'Todas as atividades':ATIV[k].curto}</button>`).join('')}</div>
-    <div class="list">${vis.map(({a,m,st}) => `<div class="li"><span class="tap" data-act="verAluno" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}</span><div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${nomePlano(m)} · ${brl(valorMat(S,m))} · ${{cartao:'cartão automático', pixauto:'Pix Automático'}[m.metodo] || 'Pix'} · ${st.txt}</span></div><div class="end">${pillPag(st.st)}${st.st!=='pago'&&st.st!=='pausado'?`<button class="btn sec sm" data-act="receber" data-v="${m.id}">Receber</button>`:''}</div></div>`).join('') || '<p class="muted">Ninguém nesse filtro.</p>'}</div>
+    <div class="list">${vis.map(({a,m,st}) => `<div class="li"><span class="tap" data-act="verAluno" data-v="${a.id}" role="button" tabindex="0">${av(a.nome)}</span><div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${nomePlano(m)} · ${brl(valorMat(S,m))} · ${{cartao:'cartão automático', pixauto:'Pix Automático'}[m.metodo] || 'Pix'} · ${st.txt}</span></div><div class="end">${pillPag(st.st)}${st.st==='analise'?`<button class="btn ghost sm" data-act="recusarAviso" data-v="${st.aviso.id}">Não caiu</button><button class="btn pri sm" data-act="darBaixa" data-v="${st.aviso.id}">${ic('check','sm')}Dar baixa</button>`:st.st!=='pago'&&st.st!=='pausado'&&st.st!=='cancelado'?`<button class="btn sec sm" data-act="receber" data-v="${m.id}">Receber</button>`:''}</div></div>`).join('') || '<p class="muted">Ninguém nesse filtro.</p>'}</div>
   </div>`;
 }
 function folhaReceber(matId){
@@ -232,6 +234,7 @@ function vRegras(){
       <div class="field"><label for="rgVaziaF">Férias e feriadões</label><input class="inp num" id="rgVaziaF" data-act-in="vazia" data-v="aulaVaziaFerias" value="${S.regras.aulaVaziaFerias.toFixed(2).replace('.',',')}"></div></div>
       <p class="small muted" style="margin-top:10px">Mensalidade atrasada: multa de 2% e juros de 1% ao mês, no máximo. O banco de dados recusa valores acima disso.</p>
       <p class="small muted" style="margin-top:6px">Os meses que vieram da planilha (jan–mar) continuam com as regras da época. As novas regras valem do mês aberto em diante.</p></div>
+    ${cardBackup()}
   </div>`;
 }
 
@@ -246,7 +249,7 @@ function vEscolaAlunos(){
   const q = UI.busca.trim().toLowerCase();
   const lista = S.alunos.filter(a => (!q || a.nome.toLowerCase().includes(q)) && (UI.escAtv === 'todas' || a.mats.some(m => m.atv === UI.escAtv)));
   const atvs = Object.keys(ATIV).filter(k => S.alunos.some(a => a.mats.some(m => m.atv === k)));
-  return `<div class="card">
+  return `${cardInscricoes()}<div class="card">
     <div class="row wrap" style="margin-bottom:10px"><input class="inp" style="max-width:360px" id="busca" placeholder="Buscar aluno" value="${escapeH(UI.busca)}" data-act-in="busca" aria-label="Buscar aluno"><span class="small muted">${lista.length} de ${S.alunos.length} alunos</span></div>
     <div class="chips" style="margin-bottom:6px">${['todas',...atvs].map(k => `<button class="chip ${UI.escAtv===k?'on':''}" data-act="escAtv" data-v="${k}">${k==='todas'?'Todas':ATIV[k].curto} <span class="n">${k==='todas'?S.alunos.length:S.alunos.filter(a=>a.mats.some(m=>m.atv===k)).length}</span></button>`).join('')}</div>
     <div class="list">${lista.map(a => { const f = freqStatus(S,a); const sts = a.mats.map(m => statusPagamento(S,a,m).st); const pior = sts.includes('atrasado') ? 'atrasado' : sts.includes('avencer') ? 'avencer' : sts.includes('pausado') ? 'pausado' : 'pago';
@@ -310,6 +313,7 @@ function folhaAluno(aid, modo='admin'){
     <div class="row wrap">${pillFreq(f)}<span class="sp"></span><span class="small muted">${pres.length} aulas desde agosto</span></div>
     <div><div class="eyebrow" style="margin-bottom:6px">Presença nas últimas 12 semanas</div>${pontosSemanas(aid, 12)}</div>
     <div class="list">${(modo === 'admin' ? a.mats : matsVisiveis(a, UI.who.instrutor)).map(m => { const st = statusPagamento(S,a,m); return `<div class="li"><span class="ico-b" style="color:${ATIV[m.atv].hex}">${ic(ATIV[m.atv].icon)}</span><div class="main-c"><span class="t">${nomePlano(m)}${m.instr?` com ${PESSOA[m.instr].nome}`:''}</span><span class="s">${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ')}${modo==='admin'?` · ${brl(valorMat(S,m))} · vence dia ${m.venc}`:''}</span></div>${modo==='admin'?pillPag(st.st):''}</div>`; }).join('')}</div>
+    ${blocoFicha(a, modo)}
     <div class="row wrap"><span class="small muted">Telefone</span><b class="num">${a.tel}</b><button class="btn ghost sm" data-act="copiar" data-v="${a.tel}">${ic('copy','sm')}Copiar</button>${f.st !== 'ok' ? `<button class="btn sec sm" data-act="saudade" data-v="${a.id}">${ic('heart','sm')}Mensagem de saudade</button>` : ''}</div>
     ${modo==='admin' ? `<div><div class="eyebrow" style="margin-bottom:6px">Pagamentos</div><div class="list">${pags.map(p => `<div class="li"><div class="main-c"><span class="t">${nomeMes(p.mes)}</span><span class="s">${dataBR(p.d)} · ${p.metodo==='cartao'?'cartão':p.metodo}</span></div><b class="num">${brl(p.valor)}</b></div>`).join('') || '<p class="muted small">Nenhum pagamento registrado.</p>'}</div></div>` : ''}
   </div>`);

@@ -1,7 +1,7 @@
 // Confere as 10 correções da revisão de código direto no motor do app.
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
-const html = fs.readFileSync(path.join(__dirname, 'anirvana.html'), 'utf8');
+const html = fs.readFileSync('/home/user/anirvana-app/anirvana.html', 'utf8');
 const PAGE = path.join(__dirname, 'rev.html');
 fs.writeFileSync(PAGE, `<!doctype html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`);
 (async () => {

@@ -12,6 +12,13 @@ function carregar(){
 }
 function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(S)); }catch(e){} }
 let S = carregar();
+/* fornecedores moram no estado (a Dessa cadastra e edita); as regras leem FORNECEDORES e FORN */
+function ligarFornecedores(){
+  if (!S.fornecedores) S.fornecedores = FORNECEDORES.map(f => ({...f, ativo:true}));
+  FORNECEDORES.splice(0, FORNECEDORES.length, ...S.fornecedores);
+  Object.keys(FORN).forEach(k => delete FORN[k]); S.fornecedores.forEach(f => { FORN[f.id] = f; });
+}
+ligarFornecedores();
 
 const UI = {
   role:null, who:{admin:'dessa', instrutor:'kamala', aluno:'a01'},
@@ -22,10 +29,11 @@ const UI = {
 };
 
 const NAV = {
-  admin:[['inicio','Início','house'],['balanco','Balanço','chart-column'],['mensalidades','Mensalidades','wallet'],['lojinha','Lojinha','store'],['escola','Escola','users']],
+  admin:[['inicio','Início','house'],['balanco','Balanço','chart-column'],['mensalidades','Mensalidades','wallet'],['lojinha','Lojinha','store'],['escola','Escola','users'],['divulgar','Divulgar','megaphone']],
   instrutor:[['hoje','Hoje','sun'],['agenda','Agenda','calendar-days'],['alunos','Alunos','users'],['mes','Meu mês','wallet']],
   aluno:[['inicio','Início','house'],['aulas','Aulas','calendar-days'],['plano','Plano','credit-card'],['historico','Histórico','chart-column']],
 };
+const CURTO = {mensalidades:'Mensal.'};   /* rótulo da barra de baixo, que tem pouco espaço */
 const ROLE_NOME = {admin:'Administração', instrutor:'Instrutores', aluno:'Alunos'};
 function quemNome(){
   if (UI.role === 'admin') return ADMINS.find(a => a.id === UI.who.admin).nome;
@@ -56,9 +64,10 @@ function casca(conteudo){
     return '';
   };
   const marca = `<img src="${LOGO_MARK}" alt=""><div><b>Espaço Anirvana</b><small>${ROLE_NOME[UI.role]}</small></div>`;
+  const nAvisos = caixaDe().length;
   return `<div class="app">
     <aside class="rail" aria-label="Menu">
-      <div class="brand">${marca}</div>
+      <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
       ${nav.map(([id,lab,ico]) => `<button class="navi ${cur===id?'on':''}" data-act="tab" data-v="${id}">${ic(ico)}<span>${lab}</span>${badge(id)?`<span class="cnt">${badge(id)}</span>`:''}</button>`).join('')}
       <div class="sec">Ver como</div>
       ${['admin','instrutor','aluno'].map(r => `<button class="navi ${UI.role===r?'on':''}" data-act="role" data-v="${r}">${ic({admin:'layout-dashboard',instrutor:'hand-heart',aluno:'sprout'}[r])}<span>${ROLE_NOME[r]}</span></button>`).join('')}
@@ -66,14 +75,15 @@ function casca(conteudo){
     </aside>
     <main class="main">
       <div class="topbar">
-        <div class="brand">${marca}</div>
+        <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
         <div class="grow"></div>
+        <button class="iconbtn sino" data-act="sino" aria-label="Avisos${nAvisos ? ': ' + nAvisos : ''}">${ic('bell')}${nAvisos ? `<span class="dot">${nAvisos}</span>` : ''}</button>
         <button class="rolebtn" data-act="trocar" aria-label="Trocar de painel">${av(quemNome())}<span>${escapeH(quemNome().split(' ')[0])}</span>${ic('chevron-right','sm')}</button>
       </div>
       <div class="wrap">${conteudo}</div>
     </main>
     <nav class="bnav" aria-label="Navegação">
-      ${nav.map(([id,lab,ico]) => `<button class="${cur===id?'on':''}" data-act="tab" data-v="${id}" aria-label="${lab}">${ic(ico,'lg')}<span>${lab}</span>${badge(id)?`<span class="dot">${badge(id)}</span>`:''}</button>`).join('')}
+      ${nav.map(([id,lab,ico]) => `<button class="${cur===id?'on':''}" data-act="tab" data-v="${id}" aria-label="${lab}">${ic(ico,'lg')}<span>${CURTO[id] || lab}</span>${badge(id)?`<span class="dot">${badge(id)}</span>`:''}</button>`).join('')}
     </nav>
   </div>`;
 }
@@ -199,6 +209,7 @@ function pontosSemanas(aid, n=8){
 }
 const pillPag = st => ({
   pago:`<span class="pill ok">${ic('check')}Pago</span>`,
+  analise:`<span class="pill pri">${ic('clock')}Em análise</span>`,
   avencer:`<span class="pill warn">${ic('clock')}A vencer</span>`,
   atrasado:`<span class="pill bad">${ic('circle-alert')}Atrasado</span>`,
   pausado:`<span class="pill neu">${ic('pause')}Pausado</span>`,

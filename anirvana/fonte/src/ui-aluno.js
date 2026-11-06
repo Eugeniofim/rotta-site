@@ -30,9 +30,8 @@ function proximasAulas(a, n=6){
 }
 function vAlunoInicio(){
   const a = alunoPor(S, UI.who.aluno);
-  const tabs = `<div class="chips" role="tablist">${[['pratica','Minha prática','sprout'], ['eventos','Eventos','ticket'], ['formacao','Formação','graduation-cap'], ...Object.entries(ATIV).filter(([k]) => k!=='particular').map(([k,x]) => [k, x.curto, x.icon])].map(([k,l,i]) => `<button class="chip ${UI.alunoAtv===k?'on':''}" role="tab" aria-selected="${UI.alunoAtv===k}" data-act="alunoAtv" data-v="${k}">${ic(i,'sm')}${l}</button>`).join('')}</div>`;
-  if (UI.alunoAtv === 'formacao') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Formação de instrutores no Espaço.</p></div></div>${tabs}${vFormacaoAluno(a)}`;
-  if (UI.alunoAtv === 'eventos') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Encontros abertos no Espaço.</p></div></div>${tabs}${vEventos()}`;
+  const tabs = `<div class="chips" role="tablist">${[['pratica','Minha prática','sprout'], ['eventos','Eventos','ticket'], ...Object.entries(ATIV).filter(([k]) => k!=='particular').map(([k,x]) => [k, x.curto, x.icon])].map(([k,l,i]) => `<button class="chip ${UI.alunoAtv===k?'on':''}" role="tab" aria-selected="${UI.alunoAtv===k}" data-act="alunoAtv" data-v="${k}">${ic(i,'sm')}${l}</button>`).join('')}</div>`;
+  if (UI.alunoAtv === 'eventos') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Encontros abertos no Espaço.</p></div></div>${tabs}${vEventos(a)}`;
   if (UI.alunoAtv !== 'pratica') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Conheça tudo o que acontece no Espaço.</p></div></div>${tabs}${vAtividadeInfo(a, UI.alunoAtv)}`;
   const pres = presencasDoAluno(S, a.id), doMes = pres.filter(p => mesDe(p.aula.d) === MES_ATUAL).length;
   const mPrin = a.mats[0];
@@ -58,6 +57,7 @@ function vAlunoInicio(){
     <div class="stat"><span class="k">${ic('calendar','sm')}Frequência do mês</span><span class="v">${previstas?Math.round(doMes/previstas*100):0}%</span><span class="d">${doMes} de ${previstas} aulas</span></div>
     <div class="stat"><span class="k">${ic('flame','sm')}Semanas seguidas</span><span class="v">${semanas}</span><span class="d">praticando sem falhar</span></div>
   </div>
+  ${cardPontos(a)}
   <div class="split">
     <div class="card"><div class="card-h"><h3>Próximas aulas</h3><span class="sub">Avise se vai: ajuda a instrutora a se preparar</span></div>
       <div class="list">${lista.map(x => { const v = S.vou[x.sid]; return `<div class="li"><span class="ico-b" style="color:${ATIV[x.t.atv].hex}">${ic(ATIV[x.t.atv].icon)}</span><div class="main-c"><span class="t">${nomeTurma(x.t)} · ${x.d===HOJE_ISO?'hoje':DIAS_L[pd(x.d).getDay()].toLowerCase()+' '+dataBR(x.d)} às ${x.t.h}</span><span class="s">${PESSOA[x.instr].nome}${x.instr!==x.t.instr?' (substituindo)':''} · ${x.t.sala}</span></div><div class="row">${v===true?`<span class="pill ok">${ic('check')}Vou</span><button class="btn ghost sm" data-act="vou" data-v="${x.sid}" data-x="0">Mudar</button>`:v===false?`<span class="pill neu">Não vou</span><button class="btn ghost sm" data-act="vou" data-v="${x.sid}" data-x="1">Mudar</button>`:`<button class="btn sec sm" data-act="vou" data-v="${x.sid}" data-x="1">Vou</button><button class="btn ghost sm" data-act="vou" data-v="${x.sid}" data-x="0">Não vou</button>`}</div></div>`; }).join('')}</div></div>
@@ -97,14 +97,16 @@ function vFormacaoAluno(a){
     ${f ? '' : `<div class="row wrap" style="margin-top:16px"><button class="btn sol" data-act="formacaoInteresse">${ic('graduation-cap')}Quero saber da próxima turma</button></div>`}
   </div>`;
 }
-function vEventos(){
-  return EVENTOS.map(e => `<div class="card pad-lg anim-in" style="border-top:4px solid var(--sol)">
-    <div class="row" style="gap:14px;margin-bottom:12px"><span class="ico-b" style="width:56px;height:56px;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--sol),var(--acafrao))">${ic(e.icon,'xl')}</span><div><h2 style="font-size:24px">${e.nome}</h2><p class="muted small">${e.idade}</p></div></div>
-    <p style="max-width:62ch;font-size:16px">${e.desc}</p>
-    <p class="small muted" style="max-width:62ch;margin-top:8px">${e.publico}</p>
-    <div class="list" style="margin-top:14px"><div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">Próximo: ${DIAS_L[pd(e.data).getDay()].toLowerCase()}, ${dataBR(e.data)} às ${e.h}</span><span class="s">${brl(e.valor)} por pessoa${e.exemplo?' · data e valor de exemplo':''}</span></div></div></div>
-    <div class="row wrap" style="margin-top:16px"><button class="btn sol" data-act="evento" data-v="${e.id}">${ic('ticket')}Quero participar</button><button class="btn ghost" data-act="copiar" data-v="Vamos no ${e.nome} do Espaço Anirvana? ${dataBR(e.data)} às ${e.h} · ${ESPACO.endereco}, ${ESPACO.cidade}">${ic('copy','sm')}Copiar convite</button></div>
-  </div>`).join('') + cardContato();
+function vEventos(a){
+  const evs = (S.eventos || []).filter(e => e.data >= HOJE_ISO).sort((x,y) => x.data < y.data ? -1 : 1);
+  return (evs.map(e => { const eu = e.inscritos.find(i => i.a === a.id), livres = e.vagas - e.inscritos.length - (e.externos||0);
+    return `<div class="card pad-lg anim-in" style="border-top:4px solid var(--sol)">
+    <div class="row" style="gap:14px;margin-bottom:12px"><span class="ico-b" style="width:56px;height:56px;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--sol),var(--acafrao))">${ic(e.icon || 'sparkles','xl')}</span><div><h2 style="font-size:24px">${escapeH(e.nome)}</h2><p class="muted small">${e.idade || 'Aberto a todos'}</p></div></div>
+    <p style="max-width:62ch;font-size:16px">${escapeH(e.desc)}</p>
+    ${e.publico && e.publico.length > 12 ? `<p class="small muted" style="max-width:62ch;margin-top:8px">${escapeH(e.publico)}</p>` : ''}
+    <div class="list" style="margin-top:14px"><div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">${DIAS_L[pd(e.data).getDay()]}, ${dataBR(e.data)} às ${e.h}</span><span class="s">${brl(e.valor)} por pessoa · ${livres > 0 ? `${livres} ${livres===1?'vaga':'vagas'}` : 'lotado'}${e.exemplo?' · data e valor de exemplo':''}</span></div></div></div>
+    <div class="row wrap" style="margin-top:16px">${eu ? `<span class="pill ok">${ic('check')}Você vai${eu.pago ? ' · pago' : ''}</span>${eu.pago ? '' : eu.aviso ? `<span class="pill pri">${ic('clock')}Pagamento em análise</span>` : `<button class="btn sec sm" data-act="queroIr" data-v="${e.id}">${ic('wallet','sm')}Pagar agora</button>`}` : livres > 0 ? `<button class="btn sol" data-act="queroIr" data-v="${e.id}">${ic('ticket')}Quero participar</button>` : ''}<button class="btn ghost" data-act="copiar" data-v="Vamos no ${escapeH(e.nome)} do Espaço Anirvana? ${dataBR(e.data)} às ${e.h} · https://${linkEvento(e)}">${ic('copy','sm')}Chamar alguém</button></div>
+  </div>`; }).join('') || '<div class="card"><p class="muted">Nenhum evento marcado agora. Quando tiver, você recebe o aviso aqui no app.</p></div>') + cardContato();
 }
 function cardPlanoResumo(a){
   return `<div class="card"><div class="card-h"><h3>${a.mats.length>1?'Seus planos':'Seu plano'}</h3><button class="btn ghost sm" data-act="tab" data-v="plano">Ver tudo${ic('chevron-right','sm')}</button></div>
@@ -147,7 +149,7 @@ function vAlunoPlano(){
         <div class="li"><span class="ico-b">${ic(m.metodo==='cartao'?'credit-card':m.metodo==='pixauto'?'repeat':'qr-code')}</span><div class="main-c"><span class="t">${m.metodo==='cartao'?`Cartão final ${m.cartaoFim}`:m.metodo==='pixauto'?'Pix Automático':'Pix'}</span><span class="s">${m.metodo==='cartao'?'Cobrança automática todo mês':m.metodo==='pixauto'?'Autorizado no seu banco: sai sozinho no vencimento':'Você recebe o Pix no dia do vencimento'}</span></div></div>
         <div class="li"><span class="ico-b">${ic('clock')}</span><div class="main-c"><span class="t">${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(' · ')}</span><span class="s">seus horários</span></div></div>
       </div>
-      <div class="row wrap">${m.status==='cancelado' ? '<span class="small muted">Plano cancelado. Para voltar, fale com o Espaço.</span>' : st.st!=='pago' && m.status!=='pausado' ? `<button class="btn sol" data-act="pagar" data-v="${m.id}">${ic('wallet')}Pagar ${brl(valorMat(S,m))}</button>` : `<button class="btn sec" data-act="pagar" data-v="${m.id}">${ic('wallet')}Adiantar pagamento</button>`}<button class="btn ghost" data-act="maisFin" data-v="${m.id}">Mais opções${ic('chevron-right','sm')}</button></div>
+      <div class="row wrap">${m.status==='cancelado' ? '<span class="small muted">Plano cancelado. Para voltar, fale com o Espaço.</span>' : st.st==='analise' ? `<span class="small muted" style="max-width:36ch">${ic('clock','sm')} Você avisou que pagou. Assim que a administração conferir, aparece como pago.</span>` : st.st!=='pago' && m.status!=='pausado' ? `<button class="btn sol" data-act="pagar" data-v="${m.id}">${ic('wallet')}Pagar ${brl(valorMat(S,m))}</button>` : `<button class="btn sec" data-act="pagar" data-v="${m.id}">${ic('wallet')}Adiantar pagamento</button>`}<button class="btn ghost" data-act="maisFin" data-v="${m.id}">Mais opções${ic('chevron-right','sm')}</button></div>
     </div>`; }).join('')}</div>
   ${cardMeusDados(a)}
   <div class="card"><div class="card-h"><h3>Pagamentos</h3></div><div class="list">${pags.map(p => { const m = a.mats.find(x => x.id === p.mat); return `<div class="li"><span class="ico-b" style="background:var(--ok-bg);color:var(--ok)">${ic('check')}</span><div class="main-c"><span class="t">${nomeMes(p.mes)} · ${ATIV[m.atv].curto}</span><span class="s">${dataBR(p.d)} · ${p.metodo==='cartao'?'cartão':'Pix'}</span></div><b class="num">${brl(p.valor)}</b></div>`; }).join('')}</div></div>`;
@@ -183,7 +185,8 @@ function folhaPagar(matId, modo='pix'){
     <div class="seg" style="width:100%">${[['pix','Pix'],['cartao','Cartão']].map(([k,l]) => `<button style="flex:1" class="${modo===k?'on':''}" data-act="pagarModo" data-v="${matId}" data-x="${k}">${l}</button>`).join('')}</div>
     ${modo === 'pix' ? `<div class="qr">${qrSVG(matId.length*991)}</div><p class="tiny muted" style="text-align:center">QR de exemplo — no app de verdade vem do banco</p>
       <div class="field"><label>Pix copia e cola</label><div class="row"><input class="inp num" readonly value="${codigo}" id="pixCod" style="font-size:13px"><button class="btn sec" data-act="copiar" data-v="${codigo}">${ic('copy','sm')}Copiar</button></div></div>
-      <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="pix">${ic('check')}Já paguei</button></div>`
+      <p class="tiny muted">${ic('check','sm')} Quem dá baixa é a administração: depois de conferir no banco, aparece como pago aqui.</p>
+      <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="pix">${ic('send')}Já paguei, avisar o Espaço</button></div>`
     : `<div class="field"><label for="cNum">Número do cartão</label><input class="inp num" id="cNum" inputmode="numeric" placeholder="0000 0000 0000 0000"></div>
       <div class="grid g2"><div class="field"><label for="cVal">Validade</label><input class="inp num" id="cVal" placeholder="MM/AA"></div><div class="field"><label for="cCvv">CVV</label><input class="inp num" id="cCvv" placeholder="123"></div></div>
       <p class="tiny muted">${ic('check','sm')} No app de verdade o cartão é digitado na página segura do Asaas. O Espaço nunca vê nem guarda o número.</p>

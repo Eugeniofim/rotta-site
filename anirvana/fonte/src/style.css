@@ -391,3 +391,57 @@ textarea.inp{height:84px;padding:12px 14px;resize:vertical}
 .nova-bar.on{transform:none;visibility:visible;transition:transform .35s cubic-bezier(.2,.9,.25,1),visibility 0s}
 .nova-bar .t{font-weight:700;font-size:13.5px}
 .nova-bar .s{font-size:12px;color:var(--muted)}
+
+/* ---------- logo que volta para a entrada, sino de avisos ---------- */
+button.brand{text-align:left;border-radius:14px;padding:2px 6px 2px 2px;margin-left:-2px;transition:background .2s}
+button.brand:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
+.sino{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow)}
+.sino .dot{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--sol);color:#2C2B2B;font-size:10.5px;font-weight:800;display:grid;place-items:center;border:2px solid var(--bg)}
+/* ---------- push e WhatsApp de mentira (prévia) ---------- */
+.push-mock,.push-banner{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:start;padding:12px 14px;border-radius:20px;background:rgba(255,255,255,.88);box-shadow:0 10px 30px -10px rgba(60,40,10,.35),0 0 0 1px rgba(60,40,10,.06);font-size:13.5px;line-height:1.35}
+.push-mock img,.push-banner img{width:38px;height:38px;border-radius:10px;background:#F5E3B8;padding:4px;object-fit:contain}
+.push-mock b,.push-banner b{display:block;font-size:13.5px;margin-bottom:2px}
+.push-mock small,.push-banner small{color:var(--muted);font-size:11.5px}
+.push-banner{position:fixed;z-index:90;top:calc(10px + env(safe-area-inset-top,0px));left:50%;width:min(420px,calc(100% - 24px));transform:translate(-50%,-160%);transition:transform .55s cubic-bezier(.2,.9,.25,1.15);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.push-banner.on{transform:translate(-50%,0)}
+.zap-mock{position:relative;max-width:88%;padding:10px 12px 18px;border-radius:14px 14px 14px 4px;background:#DCF8C6;color:#1F2C1A;font-size:14px;line-height:1.4;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.zap-mock small{position:absolute;right:10px;bottom:4px;font-size:11px;color:#5C7A55}
+/* ---------- inscrição em passos ---------- */
+.passos-insc{display:flex;gap:6px;margin:-4px 0 14px}
+.passos-insc span{flex:1;height:6px;border-radius:6px;background:var(--sunk);transition:background .3s}
+.passos-insc span.feito{background:var(--pri)}
+.passos-insc span.agora{background:var(--sol)}
+.dcard-aluno{border:2px solid color-mix(in srgb,var(--folha) 55%,var(--line));box-shadow:0 18px 40px -22px rgba(60,110,20,.45),var(--shadow)}
+/* ---------- eventos e arte ---------- */
+.como-ev{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.como-ev>div{display:grid;gap:4px;align-content:start}
+.como-ev b{font-size:14.5px}
+.ev-ico{width:64px;height:64px;border-radius:20px;color:#fff!important;background:linear-gradient(135deg,var(--sol),var(--acafrao))!important;flex:none}
+.arte-prev{display:grid;place-items:center;padding:14px;border-radius:20px;background:var(--sunk)}
+.arte-prev canvas{display:block;max-width:100%;width:auto;height:auto;max-height:62vh;border-radius:14px;box-shadow:0 14px 34px -16px rgba(60,40,10,.5)}
+.arte-prev.story canvas{aspect-ratio:9/16}
+.arte-prev.post canvas{aspect-ratio:4/5}
+.rank{width:22px;flex:none;text-align:center;font-family:var(--f-display);font-weight:800;color:var(--muted)}
+.pontos .hbar .track span{transition:width 1s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.push-banner{transition:none}}
+/* ---------- balanço por categoria ---------- */
+.cats{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+.cat-card{display:grid;gap:8px;text-align:left;padding:14px;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;min-width:0}
+.cat-card:hover{transform:translateY(-2px)}
+.cat-card.on{border-color:var(--pri);box-shadow:0 0 0 2px color-mix(in srgb,var(--pri) 35%,transparent),var(--shadow)}
+.cat-h{display:flex;gap:10px;align-items:center}
+.cat-h b{display:block;font-size:14px;line-height:1.2}
+.cat-h span{font-size:11.5px;color:var(--muted)}
+.cat-v{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.cat-v b{font-family:var(--f-display);font-size:22px;font-weight:800;letter-spacing:-.02em}
+.cat-v span,.cat-d{font-size:11.5px;color:var(--muted)}
+.chart-cat .bin,.chart-cat .bout{opacity:.55;transition:opacity .2s}
+.chart-cat .bin.sel,.chart-cat .bout.sel{opacity:1}
+.chart-cat:not(.mini) .bin,.chart-cat:not(.mini) .bout{opacity:.8}
+.chart-cat:not(.mini) .bin.sel,.chart-cat:not(.mini) .bout.sel{opacity:1}
+.chart.mini .tip{font-size:12px}
+.foco-stats .v{font-size:clamp(21px,5.4vw,30px)}
+@media (max-width:759px){.foco-stats{grid-template-columns:1fr 1fr;gap:8px}.foco-stats .stat{padding:12px}}
+@media (max-width:759px){.cats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cat-card{padding:12px;gap:6px}.cat-v b{font-size:18px}.cat-v span{display:block;width:100%}.cat-d{font-size:11px}.cat-h .ico-b{width:32px;height:32px}}
+.vazio-loja{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:2px dashed color-mix(in srgb,var(--sol) 45%,var(--line))}
+.vazio-loja h3{font-size:17px}

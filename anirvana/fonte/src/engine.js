@@ -2,7 +2,7 @@
    MOTOR — gera a demonstração e faz todas as contas
    (as mesmas regras da planilha, agora automáticas)
    ============================================================ */
-const VERSAO = 'proto-1.1';
+const VERSAO = 'proto-1.2';
 const CHAVE = 'anirvana_proto_v1';
 
 /* ---------- utilidades ---------- */
@@ -28,7 +28,6 @@ const corDe = nome => { let h = 0; for (const c of nome) h = (h*31 + c.charCodeA
 
 const TURMA = Object.fromEntries(TURMAS.map(t => [t.id, t]));
 const FORN = Object.fromEntries(FORNECEDORES.map(f => [f.id, f]));
-const PROD = Object.fromEntries(PRODUTOS.map(([id,nome,preco,forn,cat,icon]) => [id, {id,nome,preco,forn,cat,icon}]));
 const PESSOA = Object.fromEntries(EQUIPE.map(p => [p.id, p]));
 const FERIADOS = ['2026-09-07','2026-10-12'];
 const nomeTurma = t => t.nome || ATIV[t.atv].curto;
@@ -175,6 +174,54 @@ function semear(){
   /* formação de instrutores: presença por dia de módulo, estágio e monografia */
   S.formandos = FORMACAO.formandos.map(([nome, aluno, dias, estagio, mono], i) => ({id:'fo'+i, nome, aluno, dias, estagio, mono}));
 
+
+  /* ---------- fichas (no lugar do Google Forms), pontos, avisos e eventos ---------- */
+  const OBJ = ['Flexibilidade','Dor nas costas','Ansiedade e estresse','Condicionamento','Respiração','Espiritualidade','Dormir melhor'];
+  const COMO_ = ['Instagram','Indicação','Google','Passei na frente','Evento do Espaço'];
+  const SAUDE = {a05:'Hérnia de disco na lombar (L4-L5). Evitar flexão profunda.', a10:'Cirurgia no joelho direito em 2024.', a16:'Pressão alta, controlada com remédio.', a23:'Gestante de 24 semanas.', a24:'Gestante de 16 semanas.', a13:'Labirintite de vez em quando.'};
+  const EMERG = ['Carlos','Ana','Marcelo','Rita','Jorge','Sônia','Paulo','Lúcia'];
+  S.alunos.forEach((a, i) => {
+    const kid = /Responsável: ([^·]+)·\s*(\d+) anos/.exec(a.obs);
+    const anos = kid ? +kid[2] : 22 + Math.floor(R()*38);
+    a.nasc = `${2026 - anos - (HOJE.getMonth() < 6 ? 1 : 0)}-${pad(1 + Math.floor(R()*12))}-${pad(1 + Math.floor(R()*27))}`;
+    if (kid){ a.resp = kid[1].trim(); a.respTel = '(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)); }
+    const pn = a.nome.split(' ')[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    a.email = i % 4 === 3 ? '' : `${pn}.${a.nome.split(' ').slice(-1)[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}@gmail.com`;
+    const saude = SAUDE[a.id];
+    a.ficha = {exp:['nunca','ja','pratico'][Math.floor(R()*3)], obj:[OBJ[i%7], OBJ[(i*3+2)%7]].filter((x,j,arr) => arr.indexOf(x) === j).join(','),
+      temSaude: saude ? 'sim' : 'nao', saude: saude || '', saudeOk: !!saude && a.id !== 'a13', emerg: kid ? a.resp : `${EMERG[i%8]} (${['marido','mãe','irmã','pai','esposa','filho'][i%6]})`, emergTel:'(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)),
+      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a38'].includes(a.id)};
+    if (kid) a.ficha.obj = 'Musicalidade,Socialização';
+  });
+  S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.whats, imagem:a.ficha.imagem, whatsappEm:a.desde, imagemEm:a.desde}]));
+  /* quem já instalou o app e ligou os avisos (a Luana ainda não: é o exemplo da demonstração) */
+  S.pontosAcoes = {};
+  S.alunos.forEach((a, i) => { if (a.id !== 'a01' && i % 3 !== 2) S.pontosAcoes[a.id] = {instalar:'2026-10-0' + (1 + i%8), ...(i % 2 ? {notif:'2026-10-0' + (1 + i%8)} : {})}; });
+  S.pontosAcoes.a07 = {...S.pontosAcoes.a07, indicar:'2026-09-14'};
+  S.trocas = [{id:'tr1', a:'a07', premio:'pr2', custo:500, d:'2026-10-26', estado:'pendente'}, {id:'tr2', a:'a10', premio:'pr1', custo:300, d:'2026-10-12', estado:'entregue'}];
+  S.avisos = {}; S.caixa = {};
+  /* lojinha: os fornecedores ficam; os produtos a Dessa cadastra (o histórico de vendas continua) */
+  S.produtos = [];
+  /* alunos que avisaram que pagaram: só a administração dá baixa */
+  S.avisosPag = [{id:'ap1', a:'a29', mat:'a29-0', mes:'2026-10', valor:130, d:'2026-10-28', h:'19:42', metodo:'pix', estado:'aguardando'}];
+  S.backups = [{mes:'2026-08', d:'2026-09-01', h:'03:00', por:'automático'}, {mes:'2026-09', d:'2026-10-01', h:'03:00', por:'automático'}];
+  S.enviados = [
+    {para:'Débora Martins', canal:'whatsapp', regra:'atraso', quando:'27/10 09:00'},
+    {para:'Gabriel Lima', canal:'whatsapp', regra:'saudade', quando:'27/10 10:00'},
+    {para:'Turma seg 18:30 · 9 alunos', canal:'push', regra:'lembrete', quando:'26/10 16:30'},
+    {para:'Juliana Alves', canal:'email', regra:'recibo', quando:'28/10 08:12'},
+    {para:'Turma qua 18:30 · 9 alunos', canal:'push', regra:'lembrete', quando:'28/10 16:30'},
+    {para:'Turma qui 08:00 · 3 alunos', canal:'push', regra:'lembrete', quando:'29/10 06:00'},
+  ];
+  /* inscrições novas, como chegariam pelo link (no lugar do Google Forms) */
+  S.inscricoes = [
+    {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', email:'marina.souto@gmail.com', atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, exp:'nunca', obj:'Ansiedade e estresse,Flexibilidade', temSaude:'nao', emerg:'Rui (marido)', emergTel:'(41) 99771-2030', como:'Instagram', termos:true, priv:true, whats:true, imagem:true}},
+    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{nome:'Pedro Alves', nasc:'2011-09-03', tel:'(41) 99640-1187', resp:'Sandra Alves', respTel:'(41) 99640-1180', atv:'violao', turmas:'qui1700', exp:'ja', obj:'Musicalidade', temSaude:'nao', emerg:'Sandra Alves (mãe)', emergTel:'(41) 99640-1180', como:'Indicação', indicou:'Rodrigo Pacheco', termos:true, priv:true, whats:true, imagem:false}},
+    {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', email:'helena.rib@hotmail.com', atv:'gestantes', turmas:'sab1030', exp:'nunca', obj:'Gestação,Respiração', temSaude:'sim', saude:'Gestante de 20 semanas, gravidez sem intercorrências.', saudeOk:true, emerg:'Diego (marido)', emergTel:'(41) 99733-5500', como:'Google', termos:true, priv:true, whats:true, imagem:false}},
+  ];
+  /* eventos criados pela administração */
+  S.eventos = EVENTOS.map(e => ({...e, vagas:20, alvo:'todos', canais:['push','whatsapp'], criado:'2026-10-20', divulgado:'2026-10-21', inscritos:['a04','a07','a10','a16','a20','a25','a28'].map((a, i) => ({a, d:`2026-10-${21 + i}`, pago:a !== 'a20'})), externos:3}));
+
   /* pedido de substituição aberto (Sara pede; Kamala e Ana Julia veem) */
   S.subs.push({id:'sb1', turma:'ter1900', d:'2026-11-03', de:'sara', para:null, motivo:'Consulta médica no fim da tarde', status:'aberto', criado:'2026-10-27'});
   return S;
@@ -184,7 +231,7 @@ function semear(){
 function valorMat(S, m){ return m.plano ? S.regras.planos[m.plano] : m.valor; }
 function partesVenda(v){
   const f = FORN[v.forn] || {pct:0};
-  const forn = r2(v.valor * f.pct);
+  const forn = r2(v.valor * (v.pct ?? f.pct));
   return {forn, ea: r2(v.valor - forn)};
 }
 function taxasYoga(planos, pct = .7){
@@ -211,6 +258,8 @@ function statusPagamento(S, a, m, mes = MES_ATUAL){
   const pg = S.pagamentos.find(p => p.mat === m.id && p.mes === mes);
   const venc = `${mes}-${pad(Math.min(m.venc,28))}`;
   if (pg) return {st:'pago', pg, venc, txt:`Pago em ${dataBR(pg.d)}`};
+  const av_ = (S.avisosPag || []).find(x => x.mat === m.id && x.mes === mes && x.estado === 'aguardando');
+  if (av_) return {st:'analise', aviso:av_, venc, txt:`Avisou que pagou em ${dataBR(av_.d)} · ${av_.metodo === 'cartao' ? 'cartão' : 'Pix'} · falta a administração confirmar`};
   if (m.status === 'cancelado') return {st:'cancelado', venc, txt:`Cancelado em ${dataBR(m.fim || HOJE_ISO)}`};
   if (m.status === 'pausado') return {st:'pausado', venc, txt:'Plano pausado'};
   if (a && a.desde > venc){ const d0 = pd(venc); const prox = iso(new Date(d0.getFullYear(), d0.getMonth()+1, Math.min(m.venc,28))); return {st:'avencer', venc:prox, dias:diasEntre(HOJE, pd(prox)), txt:`Primeira cobrança ${dataBR(prox)}`}; }
@@ -368,6 +417,8 @@ function alertasAdmin(S){
       if (veio) semPagar.push(a);
     }
   }));
+  const conf = (S.avisosPag || []).filter(x => x.estado === 'aguardando');
+  if (conf.length) A.push({cls:'pri', icon:'badge-check', t:`${conf.length} ${conf.length === 1 ? 'pagamento para confirmar' : 'pagamentos para confirmar'}`, s:`Avisaram que pagaram: ${conf.slice(0,3).map(x => alunoPor(S,x.a).nome.split(' ')[0]).join(', ')}${conf.length>3?'…':''}. Confira no banco e dê baixa.`, go:'admin-confirmar'});
   if (atrasados.length) A.push({cls:'bad', icon:'circle-alert', t:`${atrasados.length} mensalidades atrasadas`, s:`${brl(atrasados.reduce((s,x) => s + valorMat(S,x.m), 0))} em aberto · ${atrasados.slice(0,3).map(x => x.a.nome.split(' ')[0]).join(', ')}${atrasados.length>3?'…':''}`, go:'admin-mensalidades'});
   if (semPagar.length) A.push({cls:'warn', icon:'user-round-check', t:`${semPagar.length} vieram às aulas sem mensalidade paga`, s:`O app cruzou a chamada com os pagamentos: ${[...new Set(semPagar.map(a => a.nome.split(' ')[0]))].join(', ')}`, go:'admin-mensalidades'});
   const sumidos = S.alunos.map(a => ({a, f:freqStatus(S,a)})).filter(x => x.f.st !== 'ok');

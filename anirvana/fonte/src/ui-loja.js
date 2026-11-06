@@ -2,19 +2,20 @@
    LOJINHA — lançamento de vendas (não é catálogo para alunos)
    separa por fornecedor e calcula o repasse de cada um
    ============================================================ */
+const prodPor = id => (S.produtos || []).find(p => p.id === id);
 function vLojinha(){
-  const abas = [['vender','Vender'],['vendas','Vendas'],['fornecedores','Fornecedores'],['receber','A receber']];
+  const abas = [['vender','Vender'],['produtos','Produtos'],['vendas','Vendas'],['fornecedores','Fornecedores'],['receber','A receber']];
   const forn = saldoFornecedores(S).reduce((s,f) => s + Math.max(0,f.saldo), 0), fi = S.fiado.filter(f => !f.pago).reduce((s,f) => s + f.valor, 0);
   return `
   <div class="pagehead"><div><h1>Lojinha</h1><p>Registre a venda e o app separa o que é de cada fornecedor e o que fica no Espaço.</p></div>
     <div class="seg">${abas.map(([k,l]) => `<button class="${UI.lojaVis===k?'on':''}" data-act="lojaVis" data-v="${k}">${l}${k==='fornecedores'&&forn>0?` · ${brl0(forn)}`:k==='receber'&&fi>0?` · ${brl0(fi)}`:''}</button>`).join('')}</div></div>
-  ${UI.lojaVis === 'vendas' ? vLojaVendas() : UI.lojaVis === 'fornecedores' ? vLojaForn() : UI.lojaVis === 'receber' ? vLojaReceber() : vLojaVender()}`;
+  ${UI.lojaVis === 'produtos' ? vLojaProdutos() : UI.lojaVis === 'vendas' ? vLojaVendas() : UI.lojaVis === 'fornecedores' ? vLojaForn() : UI.lojaVis === 'receber' ? vLojaReceber() : vLojaVender()}`;
 }
 function vLojaVender(){
-  const fs = FORNECEDORES.filter(f => PRODUTOS.some(p => p[3] === f.id));
+  const fs = FORNECEDORES.filter(f => f.ativo !== false), todos = (S.produtos || []).filter(p => FORN[p.forn] && FORN[p.forn].ativo !== false);
   const n = fs.length, raio = Math.round(70 / Math.tan(Math.PI / n));
-  const prods = PRODUTOS.map(p => PROD[p[0]]).filter(p => (!UI.lojaForn || p.forn === UI.lojaForn) && (!UI.lojaCat || p.cat === UI.lojaCat));
-  const cats = Object.entries(CATS_LOJA).filter(([k]) => PRODUTOS.some(p => p[4] === k && (!UI.lojaForn || p[3] === UI.lojaForn)));
+  const prods = todos.filter(p => (!UI.lojaForn || p.forn === UI.lojaForn) && (!UI.lojaCat || p.cat === UI.lojaCat));
+  const cats = Object.entries(CATS_LOJA).filter(([k]) => todos.some(p => p.cat === k && (!UI.lojaForn || p.forn === UI.lojaForn)));
   const hoje = lojaMes(S, MES_ATUAL);
   const modelo = f => f.modelo === 'proprio' ? 'estoque do Espaço' : f.modelo === 'integral' ? 'repasse de 100%' : `consignado ${Math.round(f.pct*100)}/${Math.round((1-f.pct)*100)}`;
   return `
@@ -26,13 +27,14 @@ function vLojaVender(){
     </div>
   </section>
   <div class="chips"><button class="chip ${!UI.lojaCat?'on':''}" data-act="lojaCat" data-v="">Tudo</button>${cats.map(([k,c]) => `<button class="chip ${UI.lojaCat===k?'on':''}" data-act="lojaCat" data-v="${k}">${ic(c.icon,'sm')}${c.nome}</button>`).join('')}</div>
+  ${!todos.length ? `<div class="card vazio-loja"><span class="ico-b">${ic('store','lg')}</span><div style="flex:1;min-width:0"><h3>A lojinha está pronta para os produtos de vocês</h3><p class="small muted" style="margin-top:4px">Os fornecedores já estão aqui, com o % de cada um. Cadastre cada produto uma vez (nome, preço e de quem é) e ele aparece para vender com um toque. Enquanto isso, use "Outro item" e marque para guardar.</p></div><button class="btn sol" data-act="novoProduto" data-forn="${UI.lojaForn || ''}">${ic('plus')}Cadastrar produto</button></div>` : UI.lojaForn && !prods.length ? `<div class="card vazio-loja"><div style="flex:1;min-width:0"><h3>${escapeH(FORN[UI.lojaForn].nome)} ainda não tem produto</h3></div><button class="btn sol" data-act="novoProduto" data-forn="${UI.lojaForn}">${ic('plus')}Cadastrar produto</button></div>` : ''}
   <div class="shopgrid" id="shopgrid">${prods.map(p => { const f = FORN[p.forn], q = UI.cart[p.id]||0;
     return `<button class="prod" style="--hue:${f.hue}" data-act="addCart" data-v="${p.id}" aria-label="Adicionar ${escapeH(p.nome)}">${q?`<span class="q">${q}</span>`:''}<span class="ped">${ic(p.icon)}</span><span class="nm">${escapeH(p.nome)}</span><span class="fo">${escapeH(f.curto)}</span><span class="pr"><b>${brl(p.preco)}</b><span class="add">${ic('plus','sm')}</span></span></button>`; }).join('')}
     <button class="prod" style="--hue:var(--line-2)" data-act="itemLivre"><span class="ped">${ic('pencil')}</span><span class="nm">Outro item</span><span class="fo">digitar nome, valor e fornecedor</span><span class="pr"><b>—</b><span class="add">${ic('plus','sm')}</span></span></button>
   </div>
   ${barraCarrinho()}`;
 }
-function itensCarrinho(){ return Object.entries(UI.cart).filter(([,q]) => q > 0).map(([id,q]) => { const p = PROD[id] || UI.livres[id]; return {...p, q, total:r2(p.preco*q)}; }); }
+function itensCarrinho(){ return Object.entries(UI.cart).filter(([,q]) => q > 0).map(([id,q]) => { const p = prodPor(id) || UI.livres[id]; return {...p, q, total:r2(p.preco*q)}; }); }
 function barraCarrinho(){
   const it = itensCarrinho(), n = it.reduce((s,i) => s + i.q, 0), tot = it.reduce((s,i) => s + i.total, 0);
   return `<div class="cartbar ${n?'on':''}" id="cartbar"><span class="ci">${ic('shopping-bag','lg')}<b>${n}</b></span><div style="flex:1;min-width:0"><div class="tiny" style="opacity:.7">${n} ${n===1?'item':'itens'} · ${[...new Set(it.map(i => FORN[i.forn].curto))].join(', ')}</div><div class="tt">${brl(tot)}</div></div><button class="btn" data-act="checkout">Fechar venda${ic('arrow-right','sm')}</button></div>`;
@@ -100,12 +102,15 @@ function vLojaVendas(){
 function vLojaForn(){
   const fs = saldoFornecedores(S);
   const tot = fs.reduce((s,f) => s + Math.max(0,f.saldo), 0);
-  return `<div class="alert pri"><span class="ib">${ic('store')}</span><div><div class="t">${brl(tot)} a pagar aos fornecedores</div><div class="s">Consignados ficam com 80% e o Espaço com 20%. Dada e Didi recebem 100%. Anandani e as peças do Espaço são estoque próprio. Tudo isso pode ser mudado por fornecedor.</div></div></div>
-  <div class="grid g3">${fs.map(f => `<div class="card" style="border-top:4px solid ${f.hue}">
-    <div class="row" style="margin-bottom:10px"><span class="ico-b" style="background:${f.hue};color:#fff;font-weight:800;font-family:var(--f-display)">${escapeH(f.curto[0])}</span><div class="main-c" style="min-width:0;flex:1"><b style="font-size:15px">${escapeH(f.nome)}</b><span class="tiny muted">${f.modelo==='integral'?'Repasse de 100%':`Consignado · ${Math.round(f.pct*100)}% fornecedor`}</span></div></div>
+  const proprios = FORNECEDORES.filter(f => f.pct === 0 && f.ativo !== false), inativos = FORNECEDORES.filter(f => f.ativo === false && !fs.some(x => x.id === f.id));
+  return `<div class="row wrap" style="justify-content:space-between;align-items:center"><div class="alert pri" style="flex:1;min-width:260px"><span class="ib">${ic('store')}</span><div><div class="t">${brl(tot)} a pagar aos fornecedores</div><div class="s">Cada fornecedor tem a sua regra: consignado (ele fica com uma parte), repasse de 100% ou estoque do Espaço. Mudar o % vale só para as vendas novas.</div></div></div><button class="btn sol" data-act="novoForn">${ic('user-plus')}Cadastrar fornecedor</button></div>
+  <div class="grid g3">${fs.map(f => `<div class="card" style="border-top:4px solid ${f.hue};${f.ativo === false ? 'opacity:.7' : ''}">
+    <div class="row" style="margin-bottom:10px"><span class="ico-b" style="background:${f.hue};color:#fff;font-weight:800;font-family:var(--f-display)">${escapeH(f.curto[0])}</span><div class="main-c" style="min-width:0;flex:1"><b style="font-size:15px">${escapeH(f.nome)}</b><span class="tiny muted">${f.modelo==='integral'?'Repasse de 100%':`Consignado · ${Math.round(f.pct*100)}% fornecedor`}${f.ativo === false ? ' · fora da lojinha' : ''}</span></div><button class="iconbtn" data-act="editarForn" data-v="${f.id}" aria-label="Editar ${escapeH(f.curto)}">${ic('pencil','sm')}</button></div>
     <div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="tiny muted">A pagar</div><div class="num" style="font-family:var(--f-display);font-size:26px;font-weight:750;color:${f.saldo>.01?'var(--ink)':'var(--muted)'}">${brl(Math.max(0,f.saldo))}</div></div><div class="tiny muted" style="text-align:right">vendido ${brl(f.devido + (f.pct<1? f.devido/f.pct*(1-f.pct):0))}<br>já pago ${brl(f.pago)}</div></div>
     <div class="row wrap" style="margin-top:12px">${f.pix?`<button class="btn ghost sm" data-act="copiar" data-v="${f.pix}">${ic('copy','sm')}Pix ${f.pix}</button>`:'<span class="tiny muted">Pix não cadastrado</span>'}<span class="sp"></span>${f.saldo > .01 ? `<button class="btn ok sm" data-act="pagarForn" data-v="${f.id}">Paguei</button>` : `<span class="pill ok">${ic('check')}Em dia</span>`}</div>
   </div>`).join('')}</div>
+  ${proprios.length ? `<div class="card"><div class="card-h"><div><h3>Estoque do Espaço</h3><span class="sub">Tudo o que vende fica com o Espaço</span></div></div><div class="list">${proprios.map(f => `<div class="li tap" data-act="editarForn" data-v="${f.id}" role="button" tabindex="0"><span class="ico-b" style="background:${f.hue};color:#fff;font-weight:800">${escapeH(f.curto[0])}</span><div class="main-c"><span class="t">${escapeH(f.nome)}</span><span class="s">${escapeH(f.obs || 'estoque próprio')}</span></div>${ic('pencil','sm')}</div>`).join('')}</div></div>` : ''}
+  ${inativos.length ? `<div class="card flat"><div class="eyebrow" style="margin-bottom:6px">Fora da lojinha</div><div class="list">${inativos.map(f => `<div class="li"><div class="main-c"><span class="t">${escapeH(f.nome)}</span></div><button class="btn ghost sm" data-act="reativarForn" data-v="${f.id}">Voltar para a lojinha</button></div>`).join('')}</div></div>` : ''}
   <p class="small muted">As chaves Pix aparecem mascaradas neste protótipo. No app de verdade ficam guardadas no banco, visíveis só para a administração.</p>`;
 }
 function vLojaReceber(){
@@ -120,8 +125,46 @@ function folhaItemLivre(){
   <form class="stack" id="fLivre">
     <div class="field"><label for="ilNome">O que foi vendido</label><input class="inp" id="ilNome" required placeholder="Ex.: 1 vela de massagem"></div>
     <div class="field"><label for="ilValor">Valor</label><input class="inp money num" id="ilValor" inputmode="decimal" required placeholder="0,00"></div>
-    <div class="field"><label>Fornecedor</label><div class="optgrid">${FORNECEDORES.map((f,i) => `<button type="button" class="opt ${i===0?'on':''}" data-act="opt" data-grp="ilForn" data-v="${f.id}"><i class="fdot" style="background:${f.hue}"></i>${escapeH(f.curto)}</button>`).join('')}</div><input type="hidden" id="ilForn" value="ea"></div>
+    <div class="field"><label>Fornecedor</label><div class="optgrid">${FORNECEDORES.filter(f => f.ativo !== false).map((f,i) => `<button type="button" class="opt ${i===0?'on':''}" data-act="opt" data-grp="ilForn" data-v="${f.id}"><i class="fdot" style="background:${f.hue}"></i>${escapeH(f.curto)}</button>`).join('')}</div><input type="hidden" id="ilForn" value="ea"></div>
+    <label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="ilGuardar" checked style="width:20px;height:20px;accent-color:var(--pri)"> Guardar como produto para as próximas vendas</label>
     <div class="sheet-foot"><button type="button" class="btn sec" data-act="fechar">Cancelar</button><button class="btn pri" type="submit">${ic('plus')}Pôr na venda</button></div>
+  </form>`);
+}
+
+/* ---------- fornecedores: cadastro e edição ---------- */
+function folhaFornecedor(id){
+  const f = id ? FORN[id] : {nome:'', curto:'', modelo:'consig', pct:.8, pix:'', tel:'', obs:''};
+  const vendas = id ? S.vendas.filter(v => v.forn === id).length : 0;
+  abrirFolha(`${folhaCab(id ? `Editar ${escapeH(f.curto)}` : 'Cadastrar fornecedor', id ? `${vendas} vendas no histórico` : 'Quem deixa produto para vender na lojinha')}
+  <form class="stack" id="fForn" data-id="${id || ''}">
+    <div class="field"><label for="fnNome">Nome</label><input class="inp" id="fnNome" required maxlength="60" value="${escapeH(f.nome)}" placeholder="Ex.: Ateliê Lua Nova (Joana)"></div>
+    <div class="grid g2"><div class="field"><label for="fnCurto">Nome curto</label><input class="inp" id="fnCurto" maxlength="18" value="${escapeH(f.curto)}" placeholder="Aparece nos botões"></div>
+      <div class="field"><label for="fnTel">WhatsApp</label><input class="inp" id="fnTel" inputmode="tel" value="${escapeH(f.tel || '')}" placeholder="(41) 9 0000-0000"></div></div>
+    <div class="field"><label>Como funciona com ele</label><div class="optgrid">${[['consig','Consignado','ele fica com uma parte'],['integral','Repasse de 100%','tudo vai para ele'],['proprio','Estoque do Espaço','tudo fica no Espaço']].map(([k,l,d]) => `<button type="button" class="opt ${f.modelo===k?'on':''}" data-act="opt" data-grp="fnModelo" data-v="${k}"><span>${l}<br><span class="tiny muted">${d}</span></span></button>`).join('')}</div><input type="hidden" id="fnModelo" value="${f.modelo}"></div>
+    <div class="field" id="fnPctF" ${f.modelo === 'consig' ? '' : 'hidden'}><label for="fnPct">% que fica com o fornecedor</label><input class="inp num" id="fnPct" inputmode="numeric" data-act-in="fnPct" value="${Math.round((f.pct || .8) * 100)}"><span class="help" id="fnPctAj">O Espaço fica com ${100 - Math.round((f.pct || .8) * 100)}%.${id ? ' Vendas antigas não mudam.' : ''}</span></div>
+    <div class="field"><label for="fnPix">Chave Pix (para pagar o repasse)</label><input class="inp" id="fnPix" value="${escapeH(f.pix || '')}" placeholder="CPF, telefone, e-mail ou chave aleatória"></div>
+    <div class="field"><label for="fnObs">Observação</label><input class="inp" id="fnObs" maxlength="120" value="${escapeH(f.obs || '')}" placeholder="Ex.: acerta todo dia 5"></div>
+    <div class="sheet-foot">${id && f.id !== 'ea' ? `<button type="button" class="btn ghost" data-act="desativarForn" data-v="${id}">${ic('x','sm')}${vendas ? 'Tirar da lojinha' : 'Apagar'}</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+
+/* ---------- produtos: a administração cadastra, edita e tira ---------- */
+function vLojaProdutos(){
+  const todos = S.produtos || [];
+  return `<div class="row wrap" style="justify-content:space-between;align-items:center"><p class="small muted" style="max-width:60ch">${todos.length ? `${todos.length} ${todos.length === 1 ? 'produto cadastrado' : 'produtos cadastrados'}. Toque num produto para mudar o preço ou tirar da lojinha.` : 'Nenhum produto ainda. Cadastre por fornecedor: o % de cada um já está certo.'}</p><button class="btn sol" data-act="novoProduto">${ic('plus')}Novo produto</button></div>
+  <div class="grid g2">${FORNECEDORES.filter(f => f.ativo !== false).map(f => { const ps = todos.filter(p => p.forn === f.id);
+    return `<div class="card" style="border-top:4px solid ${f.hue}"><div class="card-h"><div><h3>${escapeH(f.nome)}</h3><span class="sub">${f.modelo === 'proprio' ? 'estoque do Espaço' : f.modelo === 'integral' ? 'repasse de 100%' : `consignado ${Math.round(f.pct*100)}% fornecedor · ${Math.round((1-f.pct)*100)}% Espaço`}</span></div><button class="btn ghost sm" data-act="novoProduto" data-forn="${f.id}">${ic('plus','sm')}Produto</button></div>
+      <div class="list">${ps.map(p => `<div class="li tap" data-act="editarProduto" data-v="${p.id}" role="button" tabindex="0"><span class="ico-b" style="color:${f.hue}">${ic(p.icon || CATS_LOJA[p.cat]?.icon || 'tag')}</span><div class="main-c"><span class="t">${escapeH(p.nome)}</span><span class="s">${CATS_LOJA[p.cat]?.nome || 'Outros'}</span></div><b class="num">${brl(p.preco)}</b></div>`).join('') || '<p class="small muted">Nenhum produto cadastrado.</p>'}</div></div>`; }).join('')}</div>`;
+}
+function folhaProduto(id, forn){
+  const p = id ? prodPor(id) : {nome:'', preco:'', forn: forn || FORNECEDORES[0].id, cat:'casa'};
+  abrirFolha(`${folhaCab(id ? 'Editar produto' : 'Novo produto', 'Aparece na tela de vender. O app já separa a parte do fornecedor.')}
+  <form class="stack" id="fProduto" data-id="${id || ''}">
+    <div class="field"><label for="pdNome">Nome do produto</label><input class="inp" id="pdNome" required maxlength="60" value="${escapeH(p.nome)}" placeholder="Ex.: Incenso nag champa"></div>
+    <div class="field"><label for="pdPreco">Preço</label><input class="inp money num" id="pdPreco" inputmode="decimal" required value="${p.preco === '' ? '' : String(p.preco.toFixed(2)).replace('.', ',')}" placeholder="0,00"></div>
+    <div class="field"><label>De quem é</label><div class="optgrid">${FORNECEDORES.filter(f => f.ativo !== false).map(f => `<button type="button" class="opt ${p.forn===f.id?'on':''}" data-act="opt" data-grp="pdForn" data-v="${f.id}"><i class="fdot" style="background:${f.hue}"></i>${escapeH(f.curto)}</button>`).join('')}</div><input type="hidden" id="pdForn" value="${p.forn}"></div>
+    <div class="field"><label>Categoria</label><div class="optgrid">${Object.entries(CATS_LOJA).map(([k,c]) => `<button type="button" class="opt ${p.cat===k?'on':''}" data-act="opt" data-grp="pdCat" data-v="${k}">${ic(c.icon)}<span>${c.nome}</span></button>`).join('')}</div><input type="hidden" id="pdCat" value="${p.cat}"></div>
+    <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="removerProduto" data-v="${id}">${ic('x','sm')}Tirar da lojinha</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar produto</button></div>
   </form>`);
 }
 
