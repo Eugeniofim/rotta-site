@@ -68,7 +68,7 @@ function semear(){
           const ult = ULTIMA_VINDA[a.id];
           if (ult && di > ult) return;
           const recente = diasEntre(d, HOJE) <= 9 && !ult;               /* quem não está sumido veio nos últimos dias */
-          const p = recente ? .97 : t.atv === 'particular' ? .95 : t.atv === 'ingles' ? .86 : m.plano === '1x' ? .86 : .78;
+          const p = recente ? .97 : t.atv === 'particular' ? .95 : m.plano === '1x' ? .86 : .78;
           if ((ult && di === ult) || R() < p){ S.presencas.push({s:sid, a:a.id, t: m.plano || 'mensal'}); n++; }
         }));
         if (t.atv === 'yoga' && R() < .2){ S.presencas.push({s:sid, a:null, nome:'Visitante', t:'avulsa'}); n++; }
@@ -166,6 +166,9 @@ function semear(){
     if (mi === 6) L('entrada', 20, 4200, 'Festival — ingressos', 'Eventos');
     if ([4,8,10].includes(mi)) L('entrada', 22, 380, 'Yoga & café', 'Eventos');
     if (mi === 7) L('entrada', 4, 400, '50% aluguel do espaço 04/07', 'Extra');
+    /* inglês: não passa pela escola nem pelas mensalidades; a administração lança à mão a parte do Espaço (35%) */
+    const ing = (FECH_PLANILHA[mes]?.outras?.ingles) ?? (MENSAL_EXEMPLO[mes]?.ingles) ?? 3000;
+    L('entrada', 10, ing * .35, 'Inglês · parte do Espaço (Marina)', 'Inglês');
   }
 
   /* repasses da equipe já pagos (meses fechados) */
@@ -190,7 +193,7 @@ function semear(){
     const saude = SAUDE[a.id];
     a.ficha = {exp:['nunca','ja','pratico'][Math.floor(R()*3)], obj:[OBJ[i%7], OBJ[(i*3+2)%7]].filter((x,j,arr) => arr.indexOf(x) === j).join(','),
       temSaude: saude ? 'sim' : 'nao', saude: saude || '', saudeOk: !!saude && a.id !== 'a13', emerg: kid ? a.resp : `${EMERG[i%8]} (${['marido','mãe','irmã','pai','esposa','filho'][i%6]})`, emergTel:'(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)),
-      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a38'].includes(a.id)};
+      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a33'].includes(a.id)};
     if (kid) a.ficha.obj = 'Musicalidade,Socialização';
   });
   S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.whats, imagem:a.ficha.imagem, whatsappEm:a.desde, imagemEm:a.desde}]));
@@ -200,6 +203,8 @@ function semear(){
   S.pontosAcoes.a07 = {...S.pontosAcoes.a07, indicar:'2026-09-14'};
   S.trocas = [{id:'tr1', a:'a07', premio:'pr2', custo:500, d:'2026-10-26', estado:'pendente'}, {id:'tr2', a:'a10', premio:'pr1', custo:300, d:'2026-10-12', estado:'entregue'}];
   S.avisos = {}; S.caixa = {};
+  /* código de acesso pessoal de cada instrutor (no banco fica só o hash; aqui é demonstração) */
+  S.codigos = Object.fromEntries(EQUIPE.map(p => [p.id, {c:String(100000 + Math.floor(R() * 900000)), v:1, em:'2026-10-01'}]));
   /* lojinha: os fornecedores ficam; os produtos a Dessa cadastra (o histórico de vendas continua) */
   S.produtos = [];
   /* alunos que avisaram que pagaram: só a administração dá baixa */
@@ -289,14 +294,14 @@ function receitaMes(S, mes){
   const F = FECH_PLANILHA[mes];
   if (F){
     const P = ATIV; /* na planilha os % eram fixos: 70/30 e inglês 65/35 */
-    const lin = (atv, bruto) => linhas.push({atv, bruto, pct:P[atv].repasse, instr:r2(bruto*P[atv].repasse), ea:r2(bruto*(1-P[atv].repasse)), fonte:'planilha'});
+    const lin = (atv, bruto) => ATIV[atv] && linhas.push({atv, bruto, pct:P[atv].repasse, instr:r2(bruto*P[atv].repasse), ea:r2(bruto*(1-P[atv].repasse)), fonte:'planilha'});
     lin('yoga', F.yogaBruto);
     lin('particular', (F.extras.kamala.particular||0) + (F.extras.anajulia.particular||0));
     lin('gestantes', F.extras.kamala.gestantes||0);
     lin('meditacao', F.extras.kamala.meditacao||0);
     Object.entries(F.outras).forEach(([k,v]) => lin(k, v));
   } else if (MENSAL_EXEMPLO[mes]){
-    Object.entries(MENSAL_EXEMPLO[mes]).forEach(([k,v]) => add(k, v, 'exemplo'));
+    Object.entries(MENSAL_EXEMPLO[mes]).forEach(([k,v]) => ATIV[k] && add(k, v, 'exemplo'));
   } else {
     const soma = {};
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m) soma[m.atv] = (soma[m.atv]||0) + p.valor; });
@@ -389,7 +394,7 @@ function repassesEquipe(S, mes){
   const out = {};
   const add = (id, lab, v) => { if (Math.abs(v) < .005 || !PESSOA[id]) return; (out[id] = out[id] || {id, nome:PESSOA[id].nome, itens:[], total:0}).itens.push({lab, v}); out[id].total += v; };
   fy.linhas.forEach(l => { add(l.id, 'Yoga (turmas)', l.yogaFinal); add(l.id, 'Particular', l.extras.particular); add(l.id, 'Gestantes', l.extras.gestantes); add(l.id, 'Meditação', l.extras.meditacao); });
-  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', ingles:'marina', massagem:'aurelice', terapias:'kamala'};
+  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', massagem:'aurelice', terapias:'kamala'};
   rec.linhas.filter(l => dono[l.atv]).forEach(l => add(dono[l.atv], ATIV[l.atv].curto, l.instr));
   (S.descontos || []).filter(d => d.mes === mes && out[d.p]).forEach(d => add(d.p, `Lojinha: ${d.desc}`, -d.valor));
   return Object.values(out).map(o => ({...o, pago: S.repEquipe.find(r => r.p === o.id && r.mes === mes)})).sort((a,b) => b.total - a.total);

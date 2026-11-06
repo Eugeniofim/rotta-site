@@ -4,7 +4,7 @@
 UI.livres = {};
 
 function vPorta(){
-  const instrs = ['kamala','anajulia','sara','bruno','brunos','marina','aurelice'];
+  const instrs = ['kamala','anajulia','sara','bruno','brunos','aurelice'];
   const alunosDemo = [['a01','Luana · yoga e meditação'],['a04','Camila · yoga e aquarela'],['a12','Débora · mensalidade atrasada'],['a30','Alice · musicalização']];
   return `<div class="door">
     <div class="raios" aria-hidden="true"></div>
@@ -35,6 +35,8 @@ function vPorta(){
 function render(){
   const root = $('#root');
   const y = scrollY;
+  /* painel do instrutor só com o código pessoal (vale também para link direto e "Ver como") */
+  if (UI.role === 'instrutor' && !instrutorLiberado(UI.who.instrutor)){ const pid = UI.who.instrutor; UI.role = null; history.replaceState(null, '', location.pathname); root.innerHTML = vPorta(); depois(); setTimeout(() => folhaCodigo(pid), 60); return; }
   if (!UI.role){ root.innerHTML = vPorta(); depois(); return; }
   const v = UI.role === 'admin' ? vAdmin() : UI.role === 'instrutor' ? vInstrutor() : vAluno();
   root.innerHTML = casca(v);
@@ -70,7 +72,7 @@ function reRender(){ const y = scrollY; render(); scrollTo({top:y}); }
 
 /* ---------- ações ---------- */
 const ACT = {
-  entrar:(d) => { fecharFolha(); UI.who[d.v] = d.who; if (d.v === 'aluno'){ UI.alunoAtv = 'pratica'; if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) ganhar('instalar', d.who); } ir(d.v, NAV[d.v][0][0]); },
+  entrar:(d) => { if (d.v === 'instrutor' && !instrutorLiberado(d.who)){ folhaCodigo(d.who); return; } fecharFolha(); UI.who[d.v] = d.who; if (d.v === 'aluno'){ UI.alunoAtv = 'pratica'; if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) ganhar('instalar', d.who); } ir(d.v, NAV[d.v][0][0]); },
   tab:(d) => { fecharFolha(); ir(null, d.v); },
   role:(d) => ir(d.v),
   trocar:() => abrirFolha(`${folhaCab('Ver o app como…', 'No app de verdade cada pessoa entra com o próprio login e vê só o painel dela.')}
@@ -85,7 +87,7 @@ const ACT = {
   opt:(d, el) => {
     $$(`.opt[data-grp="${d.grp}"]`).forEach(o => o.classList.toggle('on', o === el));
     const h = $('#'+d.grp); if (h) h.value = d.v;
-    if (d.grp === 'lCat'){ const dica = CAT_SAIDA[d.v]?.dica; const el2 = $('#lDica'); if (el2) el2.textContent = dica || ''; }
+    if (d.grp === 'lCat'){ const dica = CAT_SAIDA[d.v]?.dica || CAT_ENTRADA[d.v]?.dica; const el2 = $('#lDica'); if (el2) el2.textContent = dica || ''; }
     if (d.grp === 'vForma'){ const f = $('#vClienteF'); if (f) f.hidden = !['fiado','descontado'].includes(d.v); }
     if (d.grp === 'iAtv'){ inscSalvar(); UI.insc.d.atv = d.v; UI.insc.d.instr = ''; UI.insc.d.turmas = ''; const y = $('#sheet').scrollTop; folhaInscricao(); $('#sheet').scrollTop = y; return; }
     if (d.grp === 'fnModelo'){ const f = $('#fnPctF'); if (f) f.hidden = d.v !== 'consig'; }
@@ -193,6 +195,9 @@ const ACT = {
 
   /* logo e avisos */
   logo:() => ACT.sair(),
+  conferirCodigo:(d) => { if (conferirCodigo(d.v)){ fecharFolha(); avisar(`Bem-vinda, ${PESSOA[d.v].nome}`, 'check'); ACT.entrar({v:'instrutor', who:d.v}); } },
+  verCodigo:(d) => { UI.verCod = UI.verCod === d.v ? null : d.v; reRender(); },
+  novoCodigo:(d) => { novoCodigo(d.v); reRender(); folhaCodigoNovo(d.v); },
   sino:() => folhaCaixa(),
   irAviso:(d) => { fecharFolha(); if (d.v === 'confirmar'){ ACT.ir({v:'admin-confirmar'}); return; } if (UI.role === 'aluno' && d.v === 'eventos'){ UI.alunoAtv = 'eventos'; ir(null, 'inicio'); return; } if (d.v === 'inscricoes'){ ir('admin', 'inicio'); return; } ir(null, d.v); },
   divVis:(d) => { UI.div.vis = d.v; reRender(); },
@@ -297,6 +302,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('#sheet').classList.contains('on')) fecharFolha();
+  if (e.key === 'Enter' && e.target.id === 'codigoIn'){ e.preventDefault(); $('[data-act=conferirCodigo]')?.click(); return; }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role=button][data-act]')){ e.preventDefault(); e.target.click(); }
 });
 $('#scrim').addEventListener('click', fecharFolha);

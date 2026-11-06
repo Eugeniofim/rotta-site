@@ -691,7 +691,7 @@ insert into public.atividades (id, nome, repasse, visibilidade, agendada) values
   ('yoga','Yoga & AcroYoga',.70,'todos',false), ('particular','Yoga particular',.70,'escolhido',false),
   ('gestantes','Yoga para gestantes',.70,'todos',false), ('meditacao','Meditação',.70,'todos',false),
   ('aquarela','Aquarela',.70,'todos',false), ('musicalizacao','Musicalização infantil',.70,'todos',false),
-  ('violao','Violão',.70,'todos',false), ('ingles','Inglês',.65,'todos',false),
+  ('violao','Violão',.70,'todos',false),
   ('massagem','Massagem terapêutica',.70,'escolhido',true), ('terapias','Terapias integrais',.70,'escolhido',true)
 on conflict (id) do nothing;
 
@@ -1085,3 +1085,63 @@ insert into public.regras_aviso (id, nome, canais, modelo) values
   ('inscricao','Nova inscrição (administração)','{push,email}','Nova inscrição: {nome} quer {atividade}.'),
   ('backup','Backup mensal em Excel (administração)','{email}','Segue o backup do app em Excel.')
 on conflict (id) do nothing;
+
+-- =====================================================================
+-- 10. CÓDIGO DE ACESSO PESSOAL DE CADA INSTRUTOR
+--     A administração gera (6 números, aparece UMA vez). O banco guarda só o hash (bcrypt).
+--     No celular, a pessoa entra sem senha (login anônimo do Supabase) e digita o código:
+--     o banco confere e liga aquele aparelho ao perfil dela. 5 erros = 15 minutos bloqueado.
+--     Gerar código novo derruba todos os aparelhos ligados ao código antigo.
+-- =====================================================================
+create schema if not exists extensions;
+create extension if not exists pgcrypto with schema extensions;
+create table if not exists public.codigos_equipe (
+  equipe_id     uuid primary key references public.equipe(id),
+  hash          text not null,
+  versao        int not null default 1,
+  criado_em     timestamptz not null default now(),
+  tentativas    int not null default 0,
+  bloqueado_ate timestamptz
+);
+alter table public.codigos_equipe enable row level security;
+alter table public.codigos_equipe force row level security;
+drop policy if exists admin_tudo on public.codigos_equipe;
+create policy admin_tudo on public.codigos_equipe for all to authenticated using (public.eh_admin()) with check (public.eh_admin());
+
+create or replace function public.gerar_codigo_equipe(p_equipe uuid) returns text
+language plpgsql security definer set search_path = public, extensions as $$
+declare c text;
+begin
+  if not public.eh_admin() then raise exception 'Só a administração gera código de acesso.'; end if;
+  if not exists (select 1 from public.equipe where id = p_equipe) then raise exception 'Pessoa da equipe não encontrada.'; end if;
+  loop
+    c := lpad(((('x' || encode(gen_random_bytes(4), 'hex'))::bit(32)::bigint % 900000) + 100000)::text, 6, '0');
+    exit when c !~ '^(\d)\1+$' and position(c in '0123456789') = 0 and position(c in '9876543210') = 0;
+  end loop;
+  insert into public.codigos_equipe (equipe_id, hash) values (p_equipe, crypt(c, gen_salt('bf', 8)))
+    on conflict (equipe_id) do update set hash = excluded.hash, versao = codigos_equipe.versao + 1, criado_em = now(), tentativas = 0, bloqueado_ate = null;
+  delete from public.perfis where equipe_id = p_equipe and papel = 'instrutor';      -- aparelhos com o código antigo saem
+  insert into public.auditoria (tabela, registro, acao, depois) values ('codigos_equipe', p_equipe::text, 'NOVO CÓDIGO', jsonb_build_object('por', auth.uid()));
+  return c;
+end $$;
+
+create or replace function public.entrar_com_codigo(p_equipe uuid, p_codigo text) returns boolean
+language plpgsql security definer set search_path = public, extensions as $$
+declare k record;
+begin
+  if auth.uid() is null then raise exception 'Entre no app primeiro.'; end if;
+  select * into k from public.codigos_equipe where equipe_id = p_equipe for update;
+  if k is null then raise exception 'Peça o seu código para a administração.'; end if;
+  if k.bloqueado_ate > now() then raise exception 'Muitas tentativas. Espere 15 minutos ou peça um código novo.'; end if;
+  if crypt(coalesce(p_codigo, ''), k.hash) = k.hash then
+    update public.codigos_equipe set tentativas = 0, bloqueado_ate = null where equipe_id = p_equipe;
+    insert into public.perfis (user_id, papel, equipe_id) values (auth.uid(), 'instrutor', p_equipe)
+      on conflict (user_id) do update set papel = 'instrutor', equipe_id = excluded.equipe_id, aluno_id = null;
+    return true;
+  end if;
+  update public.codigos_equipe set tentativas = case when k.tentativas + 1 >= 5 then 0 else k.tentativas + 1 end,
+    bloqueado_ate = case when k.tentativas + 1 >= 5 then now() + interval '15 minutes' end where equipe_id = p_equipe;
+  return false;
+end $$;
+revoke execute on function public.gerar_codigo_equipe(uuid), public.entrar_com_codigo(uuid, text) from public, anon;
+grant execute on function public.gerar_codigo_equipe(uuid), public.entrar_com_codigo(uuid, text) to authenticated;

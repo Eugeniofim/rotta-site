@@ -56,7 +56,6 @@ const EQUIPE = cfg.EQUIPE || [
   {id:'stefy',    nome:'Stefy',     atvs:['yoga'], cor:'#C08A12', pix:'•••.482.•••-10', obs:'Yoga de férias'},
   {id:'bruno',    nome:'Bruno',     atvs:['aquarela'], cor:'#2F7FB8', pix:'bru•••@gmail.com'},
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
-  {id:'marina',   nome:'Marina',    atvs:['ingles'], cor:'#1F8A9E', pix:'mar•••@hotmail.com'},
   {id:'aurelice', nome:'Aurelice',  atvs:['massagem'], cor:'#A2563A', pix:'(41) 9••••-3345'},
 ];
 const ADMINS = [{id:'dessa', nome:'Dessa'},{id:'vitor', nome:'Vitor'}];
@@ -79,8 +78,6 @@ const ATIV = {
                   desc:'Música, ritmo e brincadeira para crianças de 3 a 7 anos.'},
   violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true,
                   desc:'Aulas de violão em pequenos grupos, do primeiro acorde às músicas favoritas.'},
-  ingles:        {nome:'Inglês', curto:'Inglês', icon:'languages', cor:'#1F8A9E', hex:'#1F8A9E', repasse:.65, vis:'todos', turma:true,
-                  desc:'Turma de conversação às terças e quintas de manhã.'},
   massagem:      {nome:'Massagem terapêutica', curto:'Massagem', icon:'hand-heart', cor:'#A2563A', hex:'#A2563A', repasse:.70, vis:'escolhido', agendada:true,
                   desc:'Sessões de 60 minutos com hora marcada.'},
   terapias:      {nome:'Terapias integrais', curto:'Terapias', icon:'sprout', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'escolhido', agendada:true,
@@ -114,8 +111,6 @@ const TURMAS = cfg.TURMAS || [
   {id:'qua1500', atv:'aquarela', dia:3, h:'15:00', instr:'bruno', sala:'Ateliê'},
   {id:'qui1700', atv:'violao', dia:4, h:'17:00', instr:'brunos', sala:'Sala Lua'},
   {id:'sab1000', atv:'musicalizacao', dia:6, h:'10:00', instr:'brunos', sala:'Ateliê'},
-  {id:'ter1000', atv:'ingles', dia:2, h:'10:00', instr:'marina', sala:'Coworking'},
-  {id:'qui1000', atv:'ingles', dia:4, h:'10:00', instr:'marina', sala:'Coworking'},
   {id:'ter1000p', atv:'particular', dia:2, h:'10:00', instr:'kamala', sala:'Sala Lua', aluno:'a02'},
   {id:'sex1600p', atv:'particular', dia:5, h:'16:00', instr:'anajulia', sala:'Sala Sol', aluno:'a03'},
 ];
@@ -156,12 +151,6 @@ const ALUNOS_BASE = [
   ['a31','Theo Gomes','2026-03-07',    [['musicalizacao',150,['sab1000'],7,'pix']], 'Responsável: André Gomes · 6 anos'],
   ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']]],
   ['a33','Rodrigo Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']]],
-  ['a34','Amanda Viana','2025-08-04',  [['ingles',500,['ter1000','qui1000'],4,'pix']]],
-  ['a35','Beatriz Sales','2025-08-04', [['ingles',500,['ter1000','qui1000'],4,'pix']]],
-  ['a36','Tatiane Souza','2025-08-04', [['ingles',500,['ter1000','qui1000'],4,'pix']]],
-  ['a37','Fernanda Reis','2026-02-02', [['ingles',500,['ter1000','qui1000'],2,'pix']]],
-  ['a38','Heitor Brandão','2026-02-02',[['ingles',500,['ter1000','qui1000'],2,'pix']]],
-  ['a39','Clara Nogueira','2026-03-02',[['ingles',500,['ter1000','qui1000'],2,'cartao']]],
 ];
 /* quem anda sumido (última presença) e quem está devendo — para os alertas */
 const ULTIMA_VINDA = {a09:'2026-10-15', a19:'2026-10-15', a11:'2026-10-19', a18:'2026-10-20', a22:'2026-10-17'};
@@ -328,6 +317,7 @@ const CAT_SAIDA = {
   'Extra':                      {icon:'circle-alert', dica:'O que não se encaixa nas outras'},
 };
 const CAT_ENTRADA = {
+  'Inglês':    {icon:'languages', dica:'Lançado à mão: a parte do Espaço (35%). A Marina recebe direto.'},
   'Airbnb':    {icon:'bed'},
   'Coworking': {icon:'grid-2x2'},
   'Eventos':   {icon:'ticket'},
@@ -420,7 +410,7 @@ function semear(){
           const ult = ULTIMA_VINDA[a.id];
           if (ult && di > ult) return;
           const recente = diasEntre(d, HOJE) <= 9 && !ult;               /* quem não está sumido veio nos últimos dias */
-          const p = recente ? .97 : t.atv === 'particular' ? .95 : t.atv === 'ingles' ? .86 : m.plano === '1x' ? .86 : .78;
+          const p = recente ? .97 : t.atv === 'particular' ? .95 : m.plano === '1x' ? .86 : .78;
           if ((ult && di === ult) || R() < p){ S.presencas.push({s:sid, a:a.id, t: m.plano || 'mensal'}); n++; }
         }));
         if (t.atv === 'yoga' && R() < .2){ S.presencas.push({s:sid, a:null, nome:'Visitante', t:'avulsa'}); n++; }
@@ -518,6 +508,9 @@ function semear(){
     if (mi === 6) L('entrada', 20, 4200, 'Festival — ingressos', 'Eventos');
     if ([4,8,10].includes(mi)) L('entrada', 22, 380, 'Yoga & café', 'Eventos');
     if (mi === 7) L('entrada', 4, 400, '50% aluguel do espaço 04/07', 'Extra');
+    /* inglês: não passa pela escola nem pelas mensalidades; a administração lança à mão a parte do Espaço (35%) */
+    const ing = (FECH_PLANILHA[mes]?.outras?.ingles) ?? (MENSAL_EXEMPLO[mes]?.ingles) ?? 3000;
+    L('entrada', 10, ing * .35, 'Inglês · parte do Espaço (Marina)', 'Inglês');
   }
 
   /* repasses da equipe já pagos (meses fechados) */
@@ -542,7 +535,7 @@ function semear(){
     const saude = SAUDE[a.id];
     a.ficha = {exp:['nunca','ja','pratico'][Math.floor(R()*3)], obj:[OBJ[i%7], OBJ[(i*3+2)%7]].filter((x,j,arr) => arr.indexOf(x) === j).join(','),
       temSaude: saude ? 'sim' : 'nao', saude: saude || '', saudeOk: !!saude && a.id !== 'a13', emerg: kid ? a.resp : `${EMERG[i%8]} (${['marido','mãe','irmã','pai','esposa','filho'][i%6]})`, emergTel:'(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)),
-      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a38'].includes(a.id)};
+      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a33'].includes(a.id)};
     if (kid) a.ficha.obj = 'Musicalidade,Socialização';
   });
   S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.whats, imagem:a.ficha.imagem, whatsappEm:a.desde, imagemEm:a.desde}]));
@@ -552,6 +545,8 @@ function semear(){
   S.pontosAcoes.a07 = {...S.pontosAcoes.a07, indicar:'2026-09-14'};
   S.trocas = [{id:'tr1', a:'a07', premio:'pr2', custo:500, d:'2026-10-26', estado:'pendente'}, {id:'tr2', a:'a10', premio:'pr1', custo:300, d:'2026-10-12', estado:'entregue'}];
   S.avisos = {}; S.caixa = {};
+  /* código de acesso pessoal de cada instrutor (no banco fica só o hash; aqui é demonstração) */
+  S.codigos = Object.fromEntries(EQUIPE.map(p => [p.id, {c:String(100000 + Math.floor(R() * 900000)), v:1, em:'2026-10-01'}]));
   /* lojinha: os fornecedores ficam; os produtos a Dessa cadastra (o histórico de vendas continua) */
   S.produtos = [];
   /* alunos que avisaram que pagaram: só a administração dá baixa */
@@ -641,14 +636,14 @@ function receitaMes(S, mes){
   const F = FECH_PLANILHA[mes];
   if (F){
     const P = ATIV; /* na planilha os % eram fixos: 70/30 e inglês 65/35 */
-    const lin = (atv, bruto) => linhas.push({atv, bruto, pct:P[atv].repasse, instr:r2(bruto*P[atv].repasse), ea:r2(bruto*(1-P[atv].repasse)), fonte:'planilha'});
+    const lin = (atv, bruto) => ATIV[atv] && linhas.push({atv, bruto, pct:P[atv].repasse, instr:r2(bruto*P[atv].repasse), ea:r2(bruto*(1-P[atv].repasse)), fonte:'planilha'});
     lin('yoga', F.yogaBruto);
     lin('particular', (F.extras.kamala.particular||0) + (F.extras.anajulia.particular||0));
     lin('gestantes', F.extras.kamala.gestantes||0);
     lin('meditacao', F.extras.kamala.meditacao||0);
     Object.entries(F.outras).forEach(([k,v]) => lin(k, v));
   } else if (MENSAL_EXEMPLO[mes]){
-    Object.entries(MENSAL_EXEMPLO[mes]).forEach(([k,v]) => add(k, v, 'exemplo'));
+    Object.entries(MENSAL_EXEMPLO[mes]).forEach(([k,v]) => ATIV[k] && add(k, v, 'exemplo'));
   } else {
     const soma = {};
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m) soma[m.atv] = (soma[m.atv]||0) + p.valor; });
@@ -741,7 +736,7 @@ function repassesEquipe(S, mes){
   const out = {};
   const add = (id, lab, v) => { if (Math.abs(v) < .005 || !PESSOA[id]) return; (out[id] = out[id] || {id, nome:PESSOA[id].nome, itens:[], total:0}).itens.push({lab, v}); out[id].total += v; };
   fy.linhas.forEach(l => { add(l.id, 'Yoga (turmas)', l.yogaFinal); add(l.id, 'Particular', l.extras.particular); add(l.id, 'Gestantes', l.extras.gestantes); add(l.id, 'Meditação', l.extras.meditacao); });
-  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', ingles:'marina', massagem:'aurelice', terapias:'kamala'};
+  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', massagem:'aurelice', terapias:'kamala'};
   rec.linhas.filter(l => dono[l.atv]).forEach(l => add(dono[l.atv], ATIV[l.atv].curto, l.instr));
   (S.descontos || []).filter(d => d.mes === mes && out[d.p]).forEach(d => add(d.p, `Lojinha: ${d.desc}`, -d.valor));
   return Object.values(out).map(o => ({...o, pago: S.repEquipe.find(r => r.p === o.id && r.mes === mes)})).sort((a,b) => b.total - a.total);
@@ -1031,7 +1026,7 @@ function montarBackup(S, {ate = MES_ATUAL, quem = 'Administração', quando = HO
 
   /* MENSALIDADES: uma aba por mês */
   const NOME_SECAO = {yoga:'YOGA + ACROYOGA', particular:'YOGA PARTICULAR', gestantes:'YOGA GESTANTES', meditacao:'MEDITAÇÃO', aquarela:'AQUARELA', musicalizacao:'MUSICALIZAÇÃO', violao:'VIOLÃO', ingles:'INGLÊS', massagem:'MASSAGEM TERAPÊUTICA', terapias:'TERAPIAS INTEGRAIS'};
-  const DONO = {aquarela:'Bruno', musicalizacao:'Bruno S.', violao:'Bruno S.', ingles:'Marina', massagem:'Aurelice', terapias:'Kamala', yoga:'Instrutoras', particular:'Instrutora', gestantes:'Kamala', meditacao:'Kamala'};
+  const DONO = {aquarela:'Bruno', musicalizacao:'Bruno S.', violao:'Bruno S.', massagem:'Aurelice', terapias:'Kamala', yoga:'Instrutoras', particular:'Instrutora', gestantes:'Kamala', meditacao:'Kamala'};
   meses.forEach(mes => {
     const rec = receitaMes(S, mes), fy = fechamentoYoga(S, mes), M = XLS.aba('Mens. ' + MES_ABA(mes), {cor:COR.mens, larguras:[14, 30, 14, 30, 4, 16, 16, 14, 14, 14, 14]});
     M.put(0, 0, `ENTRADA ANIRVANA - ${MESES[+mes.slice(5) - 1].toUpperCase()}/${mes.slice(0, 4)}`, 3).junta(0, 0, 2).put(0, 3, rec.ea, 5);

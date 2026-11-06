@@ -20,7 +20,7 @@ Supabase (Postgres + regras de acesso por linha)  ◄── webhook ── Asaas
 | `supabase/functions/enviar-avisos/index.ts` | A cada 5 minutos: põe na fila os avisos do momento (aula, vencimento, atraso, saudade, véspera de evento) e manda por push, WhatsApp oficial e e-mail. |
 | `supabase/functions/backup-mensal/index.ts` | Todo dia 1º às 3h, e ao fechar um mês: gera o backup em Excel no formato das planilhas do Espaço, guarda e manda por e-mail. |
 | `supabase/functions/_compartilhado/motor.js` | As mesmas regras do app (repasse, lojinha, balanço, pontos, backup), geradas pelo `build.py`. O servidor e o celular fazem a mesma conta. |
-| `testes/testar-banco.py` | 86 testes que entram como administração, instrutora, aluna e sem login, e conferem o que cada uma pode ver e fazer. |
+| `testes/testar-banco.py` | 99 testes que entram como administração, instrutora, aluna e sem login, e conferem o que cada uma pode ver e fazer. |
 
 Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-do-socket> <porta>`.
 
@@ -43,6 +43,7 @@ Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-
 | Eventos | cria e divulga, confirma pagamento | vê | se inscreve e avisa que pagou |
 | Pontos | vê todos, entrega presentes | nada | vê os dele e troca |
 | Fila de avisos e backups | tudo | nada | nada |
+| Código de acesso da equipe | gera e troca (vê uma vez só) | digita o seu | nada |
 
 ## Regras que o banco impõe
 
@@ -58,6 +59,8 @@ Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-
 - **Pontos não se fabricam:** o aluno só ganha sozinho os de instalar o app e ligar os avisos. Os outros vêm da chamada, dos pagamentos em dia e das indicações. Duas trocas ao mesmo tempo não furam o saldo.
 - **Evento lotado não aceita ninguém**, e só a administração marca o pagamento do evento.
 - **WhatsApp e e-mail só para quem aceitou:** a própria fila descarta o aviso de quem não deu o sim.
+- **Código de acesso pessoal de cada instrutor:** 6 números gerados pela administração; o banco guarda só o hash (bcrypt). A pessoa digita uma vez no celular dela e o aparelho fica ligado ao perfil. Cinco erros seguidos bloqueiam por 15 minutos. Gerar um código novo derruba na hora todos os aparelhos do código antigo.
+- **Inglês** não passa pela escola nem pelas mensalidades: a administração lança à mão no balanço a parte do Espaço.
 - **Lojinha:** fornecedores são cadastrados pela administração; o % fica congelado em cada venda, então mudar o % de um fornecedor vale só para as vendas novas.
 
 ## O que a lei pede e como o app atende

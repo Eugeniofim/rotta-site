@@ -187,7 +187,7 @@ function montarBackup(S, {ate = MES_ATUAL, quem = 'Administração', quando = HO
 
   /* MENSALIDADES: uma aba por mês */
   const NOME_SECAO = {yoga:'YOGA + ACROYOGA', particular:'YOGA PARTICULAR', gestantes:'YOGA GESTANTES', meditacao:'MEDITAÇÃO', aquarela:'AQUARELA', musicalizacao:'MUSICALIZAÇÃO', violao:'VIOLÃO', ingles:'INGLÊS', massagem:'MASSAGEM TERAPÊUTICA', terapias:'TERAPIAS INTEGRAIS'};
-  const DONO = {aquarela:'Bruno', musicalizacao:'Bruno S.', violao:'Bruno S.', ingles:'Marina', massagem:'Aurelice', terapias:'Kamala', yoga:'Instrutoras', particular:'Instrutora', gestantes:'Kamala', meditacao:'Kamala'};
+  const DONO = {aquarela:'Bruno', musicalizacao:'Bruno S.', violao:'Bruno S.', massagem:'Aurelice', terapias:'Kamala', yoga:'Instrutoras', particular:'Instrutora', gestantes:'Kamala', meditacao:'Kamala'};
   meses.forEach(mes => {
     const rec = receitaMes(S, mes), fy = fechamentoYoga(S, mes), M = XLS.aba('Mens. ' + MES_ABA(mes), {cor:COR.mens, larguras:[14, 30, 14, 30, 4, 16, 16, 14, 14, 14, 14]});
     M.put(0, 0, `ENTRADA ANIRVANA - ${MESES[+mes.slice(5) - 1].toUpperCase()}/${mes.slice(0, 4)}`, 3).junta(0, 0, 2).put(0, 3, rec.ea, 5);

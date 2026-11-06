@@ -34,3 +34,7 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - **Lojinha:** produtos zerados para cadastrar; cadastro de fornecedores na aba Fornecedores; mudar o % não mexe nas vendas antigas.
 - **Backup mensal em Excel** (regra): todo dia 1º e ao fechar o mês, no formato das planilhas do Espaço.
 - Painel do aluno sem a aba Formação; tocar na logo volta para a tela inicial.
+
+## v5
+- **Inglês** saiu da Escola e das Mensalidades: é lançado à mão no Balanço (categoria Inglês, parte do Espaço).
+- **Código de acesso pessoal** para cada instrutor (6 números). A administração vê e gera um novo em Escola → Equipe; o código antigo para de valer na hora.

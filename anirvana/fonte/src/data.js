@@ -52,7 +52,6 @@ const EQUIPE = [
   {id:'stefy',    nome:'Stefy',     atvs:['yoga'], cor:'#C08A12', pix:'•••.482.•••-10', obs:'Yoga de férias'},
   {id:'bruno',    nome:'Bruno',     atvs:['aquarela'], cor:'#2F7FB8', pix:'bru•••@gmail.com'},
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
-  {id:'marina',   nome:'Marina',    atvs:['ingles'], cor:'#1F8A9E', pix:'mar•••@hotmail.com'},
   {id:'aurelice', nome:'Aurelice',  atvs:['massagem'], cor:'#A2563A', pix:'(41) 9••••-3345'},
 ];
 const ADMINS = [{id:'dessa', nome:'Dessa'},{id:'vitor', nome:'Vitor'}];
@@ -75,8 +74,6 @@ const ATIV = {
                   desc:'Música, ritmo e brincadeira para crianças de 3 a 7 anos.'},
   violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true,
                   desc:'Aulas de violão em pequenos grupos, do primeiro acorde às músicas favoritas.'},
-  ingles:        {nome:'Inglês', curto:'Inglês', icon:'languages', cor:'#1F8A9E', hex:'#1F8A9E', repasse:.65, vis:'todos', turma:true,
-                  desc:'Turma de conversação às terças e quintas de manhã.'},
   massagem:      {nome:'Massagem terapêutica', curto:'Massagem', icon:'hand-heart', cor:'#A2563A', hex:'#A2563A', repasse:.70, vis:'escolhido', agendada:true,
                   desc:'Sessões de 60 minutos com hora marcada.'},
   terapias:      {nome:'Terapias integrais', curto:'Terapias', icon:'sprout', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'escolhido', agendada:true,
@@ -110,8 +107,6 @@ const TURMAS = [
   {id:'qua1500', atv:'aquarela', dia:3, h:'15:00', instr:'bruno', sala:'Ateliê'},
   {id:'qui1700', atv:'violao', dia:4, h:'17:00', instr:'brunos', sala:'Sala Lua'},
   {id:'sab1000', atv:'musicalizacao', dia:6, h:'10:00', instr:'brunos', sala:'Ateliê'},
-  {id:'ter1000', atv:'ingles', dia:2, h:'10:00', instr:'marina', sala:'Coworking'},
-  {id:'qui1000', atv:'ingles', dia:4, h:'10:00', instr:'marina', sala:'Coworking'},
   {id:'ter1000p', atv:'particular', dia:2, h:'10:00', instr:'kamala', sala:'Sala Lua', aluno:'a02'},
   {id:'sex1600p', atv:'particular', dia:5, h:'16:00', instr:'anajulia', sala:'Sala Sol', aluno:'a03'},
 ];
@@ -152,12 +147,6 @@ const ALUNOS_BASE = [
   ['a31','Theo Gomes','2026-03-07',    [['musicalizacao',150,['sab1000'],7,'pix']], 'Responsável: André Gomes · 6 anos'],
   ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']]],
   ['a33','Rodrigo Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']]],
-  ['a34','Amanda Viana','2025-08-04',  [['ingles',500,['ter1000','qui1000'],4,'pix']]],
-  ['a35','Beatriz Sales','2025-08-04', [['ingles',500,['ter1000','qui1000'],4,'pix']]],
-  ['a36','Tatiane Souza','2025-08-04', [['ingles',500,['ter1000','qui1000'],4,'pix']]],
-  ['a37','Fernanda Reis','2026-02-02', [['ingles',500,['ter1000','qui1000'],2,'pix']]],
-  ['a38','Heitor Brandão','2026-02-02',[['ingles',500,['ter1000','qui1000'],2,'pix']]],
-  ['a39','Clara Nogueira','2026-03-02',[['ingles',500,['ter1000','qui1000'],2,'cartao']]],
 ];
 /* quem anda sumido (última presença) e quem está devendo — para os alertas */
 const ULTIMA_VINDA = {a09:'2026-10-15', a19:'2026-10-15', a11:'2026-10-19', a18:'2026-10-20', a22:'2026-10-17'};
@@ -324,6 +313,7 @@ const CAT_SAIDA = {
   'Extra':                      {icon:'circle-alert', dica:'O que não se encaixa nas outras'},
 };
 const CAT_ENTRADA = {
+  'Inglês':    {icon:'languages', dica:'Lançado à mão: a parte do Espaço (35%). A Marina recebe direto.'},
   'Airbnb':    {icon:'bed'},
   'Coworking': {icon:'grid-2x2'},
   'Eventos':   {icon:'ticket'},

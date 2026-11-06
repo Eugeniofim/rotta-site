@@ -9,7 +9,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   const ctx = await b.newContext({viewport:{width:390, height:844}, deviceScaleFactor:1, acceptDownloads:true});
   const page = await ctx.newPage();
   const erros = []; page.on('pageerror', e => erros.push(e.message)); page.on('console', m => { if (m.type() === 'error') erros.push('console: ' + m.text()); });
-  const ok = [], falhas = [];
+  const ok = globalThis.OK = [], falhas = [];
   const conf = (cond, txt) => (cond ? ok : falhas).push(txt);
   const shot = n => page.screenshot({path:path.join(OUT, n + '.png')});
   const clica = async (sel, ms = 450) => { await page.locator(sel).first().click(); await espera(ms); };
@@ -90,6 +90,14 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   await clica('[data-act=testeAviso]', 900); await shot('19-teste-push');
   await clica('[data-act=divVis][data-v=pontos]', 700); await shot('20-pontos-admin'); await overflow('pontos');
   await clica('[data-act=entregarTroca]', 600); conf(await page.evaluate(() => S.trocas.find(t => t.id === 'tr1').estado === 'entregue'), 'pontos: entregou presente');
+  // escola: código de acesso na equipe
+  await clica('.bnav [data-v=escola]', 600); await clica('[data-act=escolaVis][data-v=equipe]', 600);
+  await clica('[data-act=verCodigo][data-v=sara]', 400);
+  conf(await page.locator('.pill', {hasText:'Código'}).filter({hasText: await page.evaluate(() => S.codigos.sara.c.slice(0,3))}).count() === 1, 'equipe: administração vê o código da Sara');
+  const antigo = await page.evaluate(() => S.codigos.sara.c);
+  await clica('[data-act=novoCodigo][data-v=sara]', 600); await shot('20b-codigo-novo');
+  conf(await page.evaluate(a => S.codigos.sara.c !== a && S.codigos.sara.v === 2, antigo), 'equipe: gerar novo troca o código da Sara');
+  await clica('#sheet [data-act=fechar]', 300); await clica('[data-act=escolaVis][data-v=alunos]', 600);
   // escola: ficha do aluno no admin
   await clica('.bnav [data-v=escola]', 700); await clica('[data-act=verAluno][data-v=a13]', 800); await shot('21-ficha-admin-a13');
   conf(await page.locator('#sheet').innerText().then(t => t.includes('Labirintite') && t.includes('Não autorizou')), 'ficha: admin vê saúde sem autorização marcada');
@@ -98,7 +106,17 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   await clica('.topbar [data-act=logo]', 700); conf(await page.locator('.door').count() === 1, 'logo: volta para a tela inicial');
 
   // instrutora: ficha
-  await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 900);
+  await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 700); await shot('22a-codigo');
+  conf(await page.locator('#codigoIn').isVisible() && await page.locator('.app').count() === 0, 'instrutora: pede o código pessoal antes de entrar');
+  await page.fill('#codigoIn', '000000'); await clica('[data-act=conferirCodigo]', 500);
+  conf((await page.locator('#codigoMsg').innerText()).includes('Restam 4'), 'código errado: avisa quantas tentativas restam');
+  await page.fill('#codigoIn', await page.evaluate(() => S.codigos.kamala.c)); await clica('[data-act=conferirCodigo]', 900);
+  conf(await page.locator('.app').count() === 1, 'código certo: entra no painel da Kamala');
+  await clica('.topbar [data-act=logo]', 500); await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 800);
+  conf(await page.locator('.app').count() === 1, 'neste celular ela não precisa digitar de novo');
+  await page.evaluate(() => { location.hash = '#instrutor-hoje'; UI.who.instrutor = 'sara'; lerHash(); render(); }); await espera(600);
+  conf(await page.locator('#codigoIn').isVisible(), 'link direto para o painel de outra instrutora também pede código');
+  await clica('#sheet [data-act=fechar]', 300); await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 800);
   await clica('[data-act=sino]', 600); await shot('22-sino-kamala'); await clica('#sheet [data-act=fechar]');
   await clica('.bnav [data-v=alunos]', 800);
   await page.evaluate(() => ACT.verAlunoI({v:'a13'})); await espera(700); await shot('23-ficha-instr-a13');
@@ -168,4 +186,4 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   console.log('FALHAS:', falhas.length); falhas.forEach(t => console.log('  ✗', t));
   console.log('ERROS JS:', erros.length ? erros.join('\n') : 'nenhum');
   await b.close();
-})().catch(e => { console.error('QUEBROU:', e.message.split('\n')[0]); process.exit(1); });
+})().catch(e => { console.error('QUEBROU:', e.message.slice(0, 400), '| último ok:', (globalThis.OK || []).slice(-2)); process.exit(1); });

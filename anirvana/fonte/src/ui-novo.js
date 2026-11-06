@@ -262,7 +262,7 @@ function confirmarInscricao(id){
 const ALVOS = {
   todos:  {nome:'Todos os alunos', f:() => true},
   yoga:   {nome:'Yoga e meditação', f:a => a.mats.some(m => ['yoga','particular','gestantes','meditacao'].includes(m.atv))},
-  artes:  {nome:'Aquarela, música e inglês', f:a => a.mats.some(m => ['aquarela','musicalizacao','violao','ingles'].includes(m.atv))},
+  artes:  {nome:'Aquarela e música', f:a => a.mats.some(m => ['aquarela','musicalizacao','violao'].includes(m.atv))},
   eventos:{nome:'Quem já veio em eventos', f:a => (S.eventos || []).some(e => e.inscritos.some(i => i.a === a.id))},
   sumidos:{nome:'Quem anda sumido', f:a => freqStatus(S, a).st !== 'ok'},
 };
@@ -446,6 +446,7 @@ const GRUPOS_CAT = [
   {id:'Airbnb', nome:'Airbnb', icon:'bed', tipo:'ambos', dica:'hospedagem que entra × café, roupa de cama e lavanderia'},
   {id:'Eventos', nome:'Eventos', icon:'ticket', tipo:'ambos', dica:'ingressos × estrutura e materiais'},
   {id:'Cantina', nome:'Cantina', icon:'coffee', tipo:'ambos', dica:'vendas × insumos'},
+  {id:'Inglês', nome:'Inglês', icon:'languages', tipo:'in', dica:'lançado à mão: a parte do Espaço'},
   {id:'Coworking', nome:'Coworking', icon:'grid-2x2', tipo:'in', dica:'mensalistas'},
   {id:'Despesa Fixa', nome:'Despesas fixas', icon:'landmark', tipo:'out', dica:'luz, internet, Nilson, Sara, MEI, taxas'},
   {id:'Social Mídia e Publicidade', nome:'Social mídia e publicidade', icon:'trending-up', tipo:'out', dica:'Valéria, Instagram, Google, Canva'},
@@ -540,4 +541,57 @@ function vBalancoCategorias(){
       <span class="cat-d">${difTxt(g, R.dif) || '&nbsp;'}</span>
     </button>`; }).join('')}</div>
   <p class="small muted">Verde-azulado é o que entrou; laranja é o que saiu. Mensalidades e lojinha mostram só a parte que fica com o Espaço. Airbnb, eventos, cantina e extra mostram as duas coisas e o resultado.</p>`;
+}
+
+/* ============================================================
+   CÓDIGO DE ACESSO PESSOAL DE CADA INSTRUTOR
+   a administração gera e troca; o instrutor digita uma vez por aparelho
+   ============================================================ */
+const LEMBRAR = CHAVE + '_aparelho';
+const lerLembrar = () => { try{ return JSON.parse(localStorage.getItem(LEMBRAR) || '{}'); }catch(e){ return {}; } };
+const gravarLembrar = o => { try{ localStorage.setItem(LEMBRAR, JSON.stringify(o)); }catch(e){} };
+UI.codigoOk = {}; UI.tentativas = {};
+function instrutorLiberado(pid){ const c = (S.codigos || {})[pid]; if (!c) return true; return UI.codigoOk[pid] === c.v || lerLembrar()[pid] === c.v; }
+function folhaCodigo(pid){
+  const p = PESSOA[pid], T = UI.tentativas[pid] || {n:0, ate:0}, bloq = T.ate > Date.now();
+  abrirFolha(`${folhaCab(`Olá, ${escapeH(p.nome)}`, 'Digite o seu código de acesso pessoal')}
+  <div class="stack" style="justify-items:center;text-align:center">
+    <span class="ico-b" style="width:64px;height:64px;border-radius:20px;background:color-mix(in srgb,${p.cor} 16%,var(--surface));color:${p.cor}">${ic('lock','xl')}</span>
+    <input class="inp codigo" id="codigoIn" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Código de 6 números" ${bloq ? 'disabled' : ''}>
+    <p class="small ${T.n ? '' : 'muted'}" id="codigoMsg" style="${T.n ? 'color:var(--bad);font-weight:600' : ''}">${bloq ? 'Muitas tentativas. Espere 15 minutos ou peça um código novo para a Dessa ou o Vitor.' : T.n ? `Código não confere. Restam ${5 - T.n} tentativas.` : 'São 6 números. Quem tem é só você.'}</p>
+    <label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="codigoLembrar" checked style="width:20px;height:20px;accent-color:var(--pri)"> Lembrar neste celular</label>
+    <button class="btn pri block" data-act="conferirCodigo" data-v="${pid}" ${bloq ? 'disabled' : ''}>${ic('check')}Entrar</button>
+    <p class="tiny muted">Esqueceu? A administração gera um código novo em Escola → Equipe.<br><b>Demonstração:</b> o código de ${escapeH(p.nome)} é ${S.codigos[pid].c}.</p>
+  </div>`);
+  setTimeout(() => $('#codigoIn')?.focus(), 350);
+}
+function conferirCodigo(pid){
+  const T = UI.tentativas[pid] = UI.tentativas[pid] || {n:0, ate:0};
+  if (T.ate > Date.now()) return false;
+  const dig = ($('#codigoIn')?.value || '').replace(/\D/g, '');
+  if (dig === S.codigos[pid].c){
+    T.n = 0; UI.codigoOk[pid] = S.codigos[pid].v;
+    const L = lerLembrar(); if ($('#codigoLembrar')?.checked) L[pid] = S.codigos[pid].v; else delete L[pid]; gravarLembrar(L);
+    return true;
+  }
+  T.n++; if (T.n >= 5){ T.ate = Date.now() + 15 * 60e3; T.n = 0; }
+  folhaCodigo(pid); return false;
+}
+function novoCodigo(pid){
+  let c; do { c = String(100000 + Math.floor(Math.random() * 900000)); } while (/^(\d)\1+$/.test(c) || '0123456789'.includes(c) || '9876543210'.includes(c));
+  const ant = S.codigos[pid] || {v:0};
+  S.codigos[pid] = {c, v:ant.v + 1, em:HOJE_ISO}; delete UI.codigoOk[pid];
+  const L = lerLembrar(); delete L[pid]; gravarLembrar(L);   /* o código antigo para de valer em todo aparelho */
+  salvar();
+  return c;
+}
+function folhaCodigoNovo(pid){
+  const p = PESSOA[pid], c = S.codigos[pid].c;
+  const msg = `Oi, ${p.nome}! Seu código de acesso ao app do Espaço Anirvana é ${c}. Ele é pessoal: não passe para ninguém. Abra rottaguide.com/anirvana, toque no seu nome e digite o código.`;
+  abrirFolha(`${folhaCab(`Código de ${escapeH(p.nome)}`, 'Mande só para ela. O código antigo já não vale mais.')}
+  <div class="stack" style="justify-items:center;text-align:center">
+    <div class="codigo-grande num">${c.slice(0,3)} ${c.slice(3)}</div>
+    <div class="sheet-foot" style="width:100%"><button class="btn sec" data-act="copiar" data-v="${c}">${ic('copy','sm')}Copiar código</button><button class="btn sol" data-act="copiar" data-v="${escapeH(msg)}">${ic('send','sm')}Copiar mensagem para o WhatsApp</button></div>
+    <p class="tiny muted">No app de verdade o banco guarda só uma versão embaralhada do código (hash): nem a administração consegue ver de novo depois de fechar esta tela. Para trocar, é só gerar outro.</p>
+  </div>`);
 }

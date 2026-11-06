@@ -76,7 +76,8 @@ function vBalancoMes(mes){
   const cats = Object.entries(porCat).sort((a,b) => b[1]-a[1]).map(([lab,v]) => ({lab, v}));
   const inCat = {}; b.manualIn.forEach(l => inCat[l.cat] = (inCat[l.cat]||0) + l.valor);
   const F = FECH_PLANILHA[mes];
-  const difPlan = F && Math.abs(F.entradaEA - b.rec.ea) > 1;
+  const ingMan = b.manualIn.filter(l => l.cat === 'Inglês').reduce((t,l) => t + l.valor, 0);   /* inglês agora é lançado à mão */
+  const difPlan = F && Math.abs(F.entradaEA - (b.rec.ea + ingMan)) > 1;
   return `
   <div class="grid g4">
     <div class="stat"><span class="k"><i class="sw" style="background:var(--chart-in)"></i>Entradas do Espaço</span><span class="v">${brl0(b.entradas)}</span><span class="d">${nomeMes(mes)}</span></div>
@@ -84,7 +85,7 @@ function vBalancoMes(mes){
     <div class="stat"><span class="k">Saldo</span><span class="v" style="color:${b.saldo>=0?'var(--ok)':'var(--bad)'}">${brl0(b.saldo)}</span><span class="d">${b.saldo>=0?'sobrou':'faltou'} no mês</span></div>
     <div class="stat"><span class="k">Passou pelo caixa</span><span class="v">${brl0(b.rec.bruto + b.loja.bruto + b.manualIn.reduce((s,l)=>s+l.valor,0))}</span><span class="d">${brl0(b.repassar)} era da equipe e fornecedores</span></div>
   </div>
-  ${difPlan ? `<div class="alert warn"><span class="ib">${ic('triangle-alert')}</span><div><div class="t">A planilha de ${nomeMes(mes).toLowerCase()} somou ${brl(F.entradaEA)} para o Espaço; pelas contas do app são ${brl(b.rec.ea)}.</div><div class="s">A diferença de ${brl(b.rec.ea - F.entradaEA)} é a parte do Espaço na musicalização (R$ 300,00 × 30%), que ficou fora do total "ENTRADA ANIRVANA". No app o total é sempre a soma das partes.</div></div></div>` : ''}
+  ${difPlan ? `<div class="alert warn"><span class="ib">${ic('triangle-alert')}</span><div><div class="t">A planilha de ${nomeMes(mes).toLowerCase()} somou ${brl(F.entradaEA)} para o Espaço; pelas contas do app são ${brl(b.rec.ea + ingMan)}.</div><div class="s">A diferença de ${brl(b.rec.ea + ingMan - F.entradaEA)} é a parte do Espaço na musicalização (R$ 300,00 × 30%), que ficou fora do total "ENTRADA ANIRVANA". No app o total é sempre a soma das partes.</div></div></div>` : ''}
   <div class="grid g2">
     <div class="card"><div class="card-h"><h3>Entradas</h3><b class="num">${brl(b.entradas)}</b></div>
       <div class="eyebrow" style="margin-bottom:6px">Mensalidades · parte do Espaço ${fonteTag(b.rec.fonte)}</div>
@@ -293,9 +294,12 @@ function vFormacaoAdmin(){
   </div>`;
 }
 function vEquipe(){
-  return `<div class="card"><div class="card-h"><div><h3>Equipe</h3><span class="sub">Quem dá aula e quais alunos cada pessoa enxerga no app</span></div></div>
-    <div class="list">${EQUIPE.map(p => `<div class="li">${av(p.nome)}<div class="main-c"><span class="t">${p.nomeCompleto ? `${p.nome} <span class="small muted" style="font-weight:500">· ${p.nomeCompleto}</span>` : p.nome}${p.obs?` <span class="tag">${p.obs}</span>`:''}</span><span class="s">${p.atvs.map(a => ATIV[a].curto).join(', ')} · vê ${alunosVisiveis(S,p.id).length} alunos</span>${p.bio?`<span class="s">${p.bio}</span>`:''}</div><div class="end"><span class="small muted">${p.atvs.map(a => Math.round(S.regras.pct[a]*100)+'%').filter((x,i,arr)=>arr.indexOf(x)===i).join(' / ')}</span></div></div>`).join('')}</div>
-    <div class="alert pri" style="margin-top:12px"><span class="ib">${ic('users')}</span><div><div class="t">Quem vê quem</div><div class="s">Aluno de yoga em turma aparece para todas as instrutoras de yoga. Aluno de yoga particular aparece só para a instrutora que ele escolheu. Aquarela só para o professor de aquarela, e assim por diante.</div></div></div></div>`;
+  return `<div class="card"><div class="card-h"><div><h3>Equipe</h3><span class="sub">Quem dá aula, quais alunos cada pessoa enxerga e o código de acesso de cada uma</span></div></div>
+    <div class="list">${EQUIPE.map(p => { const c = (S.codigos || {})[p.id], ver = UI.verCod === p.id;
+      return `<div class="li" style="align-items:flex-start">${av(p.nome)}<div class="main-c"><span class="t">${p.nomeCompleto ? `${p.nome} <span class="small muted" style="font-weight:500">· ${p.nomeCompleto}</span>` : p.nome}${p.obs?` <span class="tag">${p.obs}</span>`:''}</span><span class="s">${p.atvs.filter(a => ATIV[a]).map(a => ATIV[a].curto).join(', ')} · vê ${alunosVisiveis(S,p.id).length} alunos · ${p.atvs.filter(a => ATIV[a]).map(a => Math.round(S.regras.pct[a]*100)+'%').filter((x,i,arr)=>arr.indexOf(x)===i).join(' / ')}</span>${p.bio?`<span class="s">${p.bio}</span>`:''}
+        ${c ? `<div class="row wrap" style="gap:6px;margin-top:8px;align-items:center"><span class="pill neu">${ic('lock')}Código <b class="num" style="letter-spacing:.12em;margin-left:4px">${ver ? c.c.slice(0,3) + ' ' + c.c.slice(3) : '••• •••'}</b></span><button class="btn ghost sm" data-act="verCodigo" data-v="${p.id}">${ver ? 'Esconder' : 'Ver'}</button><button class="btn sec sm" data-act="novoCodigo" data-v="${p.id}">${ic('rotate-ccw','sm')}Gerar novo</button><span class="tiny muted">desde ${dataBR(c.em)}</span></div>` : ''}</div></div>`; }).join('')}</div>
+    <div class="alert pri" style="margin-top:12px"><span class="ib">${ic('lock')}</span><div><div class="t">Cada instrutor tem um código pessoal</div><div class="s">São 6 números, só dela. Ela digita uma vez no celular dela. Se alguém sair da equipe ou o código vazar, toque em "Gerar novo": o antigo para de valer na hora, em todo aparelho. Cinco erros seguidos bloqueiam por 15 minutos.</div></div></div>
+    <div class="alert pri" style="margin-top:8px"><span class="ib">${ic('users')}</span><div><div class="t">Quem vê quem</div><div class="s">Aluno de yoga em turma aparece para todas as instrutoras de yoga. Aluno de yoga particular aparece só para a instrutora que ele escolheu. Aquarela só para o professor de aquarela, e assim por diante.</div></div></div></div>`;
 }
 function vSubsAdmin(){
   return `<div class="card"><div class="card-h"><div><h3>Pedidos de troca de aula</h3><span class="sub">As instrutoras pedem e aceitam pelo app; vocês só acompanham</span></div></div>
