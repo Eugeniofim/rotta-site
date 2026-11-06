@@ -1,0 +1,73 @@
+// Testa: botão de inscrições, menu Atividades (cursos), horários, eventos editáveis, escrever aviso, Escola sem Formação
+const { chromium } = require('playwright');
+const path = require('path');
+(async () => {
+  const b = await chromium.launch(), p = await b.newPage({viewport:{width:390, height:844}}), erros = [], ok = [], f = [];
+  const conf = (c, t) => (c ? ok : f).push(t); const w = ms => p.waitForTimeout(ms);
+  const clica = async (sel, ms = 500) => { await p.locator(sel).first().click(); await w(ms); };
+  const shot = n => p.screenshot({path:path.join(__dirname, 'shots-novo', n + '.png')});
+  p.on('pageerror', e => erros.push(e.message));
+  await p.goto('file:///home/user/anirvana-app/dist/anirvana/index.html'); await p.evaluate(() => localStorage.clear()); await p.reload(); await w(600);
+  await clica('[data-act=entrar][data-v=admin][data-who=dessa]', 800);
+  conf(await p.locator('.topbar .insc-btn').isVisible(), 'topo: botão Inscrições visível no celular');
+  conf((await p.locator('.topbar .insc-btn b').innerText()) === '3', 'topo: mostra as 3 inscrições novas');
+  const sw = await p.evaluate(() => document.documentElement.scrollWidth); conf(sw <= 390, `topo cabe no celular (${sw}px)`);
+  await shot('ex-01-topo');
+  const rot = await p.$$eval('.bnav button span:not(.dot)', s => s.map(x => [x.textContent, x.scrollWidth <= x.parentElement.clientWidth + 1]));
+  conf(rot.every(r => r[1]) && rot.length === 7, 'barra de baixo com 7 itens cabe: ' + rot.map(r => r[0]).join('/'));
+  await clica('.topbar .insc-btn', 700); await shot('ex-02-inscricoes');
+  conf(await p.locator('h1', {hasText:'Inscrições'}).count() === 1, 'tela de Inscrições abre pelo botão do topo');
+  await clica('#root [data-act=inscricaoBalcao]', 600);
+  conf(await p.locator('.atv-card[data-v=movimento]').count() === 1, 'Movimento consciente está na inscrição (ficha do yoga)');
+  await clica('#sheet [data-act=fechar]', 300);
+  // atividades
+  await clica('.bnav [data-v=atividades]', 700); await shot('ex-03-atividades');
+  conf(await p.locator('h1', {hasText:'Atividades e cursos'}).count() === 1, 'menu Atividades (cursos) no painel da administração');
+  await clica('[data-act=novaAtividade]', 600);
+  await p.fill('#atNome', 'Dança circular'); await p.fill('#atDesc', 'Dança em roda, para todas as idades.'); await p.fill('#atValor', '120,00');
+  await clica('.opt[data-grp=atIcon][data-v=sparkles]', 100); await shot('ex-04-nova-atividade');
+  await clica('#fAtividade button[type=submit]', 700);
+  const aid = await p.evaluate(() => Object.keys(ATIV).find(k => ATIV[k].nome === 'Dança circular'));
+  conf(!!aid && await p.evaluate(k => FORMULARIOS.yoga.atvs.includes(k) && S.regras.pct[k] === .7, aid), 'atividade nova criada, com ficha do yoga e 70%');
+  await clica(`[data-act=novoHorario][data-v=${aid}]`, 600); await clica('.opt[data-grp=hrDia][data-v="5"]', 100); await p.fill('#hrHora', '19:30'); await clica('.opt[data-grp=hrInstr]', 100);
+  await clica('#fHorario button[type=submit]', 700);
+  conf(await p.evaluate(k => TURMAS.some(t => t.atv === k && t.dia === 5 && t.h === '19:30'), aid), 'horário novo entra na grade (sexta 19:30)');
+  await p.reload(); await w(700);
+  conf(await p.evaluate(k => !!ATIV[k] && TURMAS.some(t => t.atv === k), aid), 'atividade e horário ficam salvos ao recarregar');
+  await clica('.topbar [data-act=logo]', 400); await clica('[data-act=inscricao]', 600);
+  conf(await p.locator(`.atv-card[data-v=${aid}]`).count() === 1, 'atividade nova aparece na inscrição');
+  await clica(`.atv-card[data-v=${aid}]`, 500);
+  conf(await p.locator('.opt[data-grp=iTur]').count() === 1, 'e o horário dela também');
+  await clica('#sheet [data-act=fechar]', 300); await clica('[data-act=entrar][data-v=admin][data-who=dessa]', 700); await clica('.bnav [data-v=atividades]', 600);
+  await clica(`[data-act=tirarHorario]`, 600);
+  await clica(`[data-act=editarAtividade][data-v=${aid}]`, 500); await clica('[data-act=excluirAtividade]', 600);
+  conf(await p.evaluate(k => !ATIV[k], aid), 'atividade sem aluno pode ser apagada');
+  await clica('[data-act=editarAtividade][data-v=yoga]', 500); await clica('[data-act=excluirAtividade]', 500);
+  conf(await p.evaluate(() => !!ATIV.yoga), 'atividade com alunos não é apagada (avisa antes)');
+  await clica('#sheet [data-act=fechar]', 300);
+  // escola sem formação
+  await clica('.bnav [data-v=escola]', 600);
+  conf(await p.locator('[data-act=escolaVis][data-v=formacao]').count() === 0, 'Escola sem a aba Formação');
+  // eventos: editar e excluir
+  await clica('.bnav [data-v=divulgar]', 700); await clica('[data-act=divVis][data-v=eventos]', 600);
+  await clica('[data-act=editarEvento]', 600); await p.fill('#eNome', 'Yoga & Café de primavera'); await p.fill('#eVagas', '25'); await shot('ex-05-editar-evento');
+  await clica('#fEvento button[type=submit]', 600);
+  conf(await p.evaluate(() => S.eventos[0].nome === 'Yoga & Café de primavera' && S.eventos[0].vagas === 25 && S.eventos[0].inscritos.length === 7), 'evento editado, inscritos continuam');
+  await clica('[data-act=editarEvento]', 500); await p.fill('#eVagas', '3'); await clica('#fEvento button[type=submit]', 500);
+  conf(await p.evaluate(() => S.eventos[0].vagas === 25), 'não deixa ter menos vagas que inscritos');
+  await clica('#sheet [data-act=excluirEvento]', 500); await shot('ex-06-excluir-evento'); await clica('[data-act=confirmarExcluirEvento]', 600);
+  conf(await p.evaluate(() => !S.eventos.length && (S.caixa['a:a04'] || []).some(x => x.t.includes('cancelado'))), 'evento excluído e inscritos avisados');
+  // escrever aviso
+  await clica('[data-act=divVis][data-v=escrever]', 600); await shot('ex-07-escrever');
+  await clica('[data-act=avModelo][data-v="1"]', 400);
+  conf((await p.inputValue('#avTexto')).includes('feriado'), 'modelo de aviso preenche o texto');
+  await clica('[data-act=avAlvo][data-v="atv:yoga"]', 400); await p.fill('#avTexto', 'Amanhã é feriado: o Espaço fecha. Bom descanso!'); await p.dispatchEvent('#avTexto', 'input'); await w(150);
+  conf((await p.locator('#avPrev').innerText()).startsWith('Amanhã'), 'prévia acompanha o texto');
+  const bt = await p.locator('[data-act=avEnviar]').innerText(); conf(/Enviar para \d+/.test(bt), 'aviso: ' + bt);
+  await clica('[data-act=avEnviar]', 1400); await shot('ex-08-aviso-enviado');
+  conf(await p.evaluate(() => (S.avisosLivres || [])[0]?.texto.startsWith('Amanhã') && (S.caixa['a:a01'] || []).some(x => x.s.startsWith('Amanhã'))), 'aviso chega no sino dos alunos de yoga');
+  await clica('[data-act=avAlvo][data-v=equipe]', 400); await p.fill('#avTexto', 'Reunião de equipe sexta às 14h.'); await clica('[data-act=avQuando][data-v=depois]', 400);
+  await p.fill('#avTexto', 'Reunião de equipe sexta às 14h.'); await clica('[data-act=avEnviar]', 600);
+  conf(await p.evaluate(() => S.avisosLivres[0].agendado && S.avisosLivres[0].para.includes('equipe')), 'aviso agendado para a equipe');
+  console.log('OK', ok.length, '\n ' + ok.join('\n ')); console.log('FALHAS', f); console.log('ERROS', erros); await b.close();
+})().catch(e => { console.error('QUEBROU', e.message.slice(0, 300)); process.exit(1); });

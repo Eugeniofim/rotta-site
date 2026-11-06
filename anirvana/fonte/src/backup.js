@@ -267,13 +267,23 @@ function montarBackup(S, {ate = MES_ATUAL, quem = 'Administração', quando = HO
   { const r0 = 6 + Math.max(saldoFornecedores(S).length, S.fiado.length); LS.linha(r0, 0, ['Produto', 'Categoria', 'Preço', 'Fornecedor'], 1); (S.produtos || []).forEach((p, i) => LS.linha(r0 + 1 + i, 0, [p.nome, CATS_LOJA[p.cat]?.nome || '', p.preco, FORN[p.forn]?.nome || p.forn], [7, 0, 2, 0])); }
   abas.push(LS);
 
-  /* ALUNOS E FICHAS */
-  const AL = XLS.aba('Alunos e fichas', {cor:COR.cad, larguras:[24, 12, 16, 28, 22, 34, 12, 14, 26, 18, 18, 40, 30, 16, 12, 12, 12], congela:1});
-  AL.linha(0, 0, ['Nome', 'Nascimento', 'WhatsApp', 'E-mail', 'Responsável', 'Atividades e planos', 'Desde', 'Situação', 'Busca', 'Experiência', 'Conheceu por', 'Saúde (dado sensível)', 'Emergência', 'Instrutoras veem saúde?', 'WhatsApp?', 'Imagem?', 'Pontos'], 1);
-  S.alunos.forEach((a, i) => { const f = a.ficha || {}, c = (S.consent || {})[a.id] || {}, P = pontosAluno(S, a.id);
-    AL.linha(1 + i, 0, [a.nome, a.nasc ? {d:a.nasc} : '', a.tel, a.email || '', a.resp ? `${a.resp} ${a.respTel || ''}` : '', a.mats.map(m => `${nomePlano(m).replace(/<[^>]+>/g, '')} ${brl(valorMat(S, m))} dia ${m.venc}${m.status !== 'ativo' ? ' (' + m.status + ')' : ''}`).join(' + '), {d:a.desde}, a.mats.every(m => m.status === 'cancelado') ? 'saiu' : 'ativo',
-      (f.obj || '').split(',').filter(Boolean).join(', '), {nunca:'nunca praticou', ja:'já praticou', pratico:'pratica'}[f.exp] || '', f.como ? f.como + (f.indicou ? ` (${f.indicou})` : '') : '', f.temSaude === 'sim' ? f.saude : 'nada informado', f.emerg ? `${f.emerg} ${f.emergTel || ''}` : '', f.temSaude === 'sim' ? (f.saudeOk ? 'sim' : 'não') : '', c.whatsapp ? 'sim' : 'não', c.imagem ? 'sim' : 'não', P.total], [7, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10]); });
+  /* ALUNOS E FICHAS — uma linha por aluno; depois, uma aba por formulário com todas as respostas */
+  const AL = XLS.aba('Alunos', {cor:COR.cad, larguras:[24, 12, 16, 28, 16, 28, 34, 12, 10, 40, 14, 12, 12, 10], congela:1});
+  AL.linha(0, 0, ['Nome', 'Nascimento', 'WhatsApp', 'E-mail', 'CPF', 'Responsável', 'Atividades e planos', 'Desde', 'Situação', 'Saúde (dado sensível)', 'Professoras veem saúde?', 'WhatsApp?', 'Imagem?', 'Pontos'], 1);
+  S.alunos.forEach((a, i) => { const f = a.ficha || {}, c = (S.consent || {})[a.id] || {}, P = typeof pontosAluno === 'function' ? pontosAluno(S, a.id) : {total:''};
+    AL.linha(1 + i, 0, [a.nome, a.nasc ? {d:a.nasc} : '', a.tel, a.email || '', a.cpf || '', a.resp ? `${a.resp} ${a.respTel || ''}` : '', a.mats.map(m => `${nomePlano(m).replace(/<[^>]+>/g, '')} ${brl(valorMat(S, m))} dia ${m.venc}${m.status !== 'ativo' ? ' (' + m.status + ')' : ''}`).join(' + '), {d:a.desde},
+      a.mats.every(m => m.status === 'cancelado') ? 'saiu' : 'ativo', resumoSaude(f) || 'nada informado', f.saudeOk ? 'sim' : 'não', c.whatsapp ? 'sim' : 'não', c.imagem ? 'sim' : 'não', P.total], [7, 4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 10]); });
   abas.push(AL);
+  /* as fichas como nos Google Forms: uma coluna por pergunta */
+  Object.values(FORMULARIOS).forEach(F => {
+    const quem = S.alunos.filter(a => (a.ficha || {}).form === F.id); if (!quem.length) return;
+    const cs = [...camposForm(F), ...CAMPOS_APP.filter(c => c.k === 'indicou')];
+    const A = XLS.aba(`Fichas ${F.id === 'yoga' ? 'Yoga' : 'Crianças'}`, {cor:COR.cad, larguras:[24, 16, ...cs.map(c => c.saude || c.tipo === 'escolha' ? 30 : 20)], congela:1});
+    A.linha(0, 0, ['Aluno', 'Atividade', ...cs.map(c => c.l.length > 60 ? c.c : c.l)], 1);
+    quem.forEach((a, i) => { const r = a.ficha.respostas || {};
+      A.linha(1 + i, 0, [a.nome, ATIV[a.mats[0].atv]?.nome || '', ...cs.map(c => { const v = r[c.k]; if (v === true) return 'Sim'; if (v === false || v === undefined) return ''; if (c.tipo === 'data' && v) return {d:v}; if (c.k === 'imagem') return v === 'sim' ? 'Sim, autorizo' : 'Não'; return v; })], [7, 0, ...cs.map(c => c.tipo === 'data' ? 4 : c.saude ? 9 : 0)]); });
+    abas.push(A);
+  });
   const PG = XLS.aba('Pagamentos', {cor:COR.cad, larguras:[12, 24, 22, 12, 14, 12], congela:1});
   PG.linha(0, 0, ['Data', 'Aluno', 'Atividade', 'Mês', 'Valor', 'Forma'], 1);
   S.pagamentos.slice().sort((a, b) => a.d < b.d ? -1 : 1).forEach((p, i) => { const a = alunoPor(S, p.a), m = a && a.mats.find(x => x.id === p.mat); PG.linha(1 + i, 0, [{d:p.d}, a ? a.nome : '—', m ? ATIV[m.atv].nome : '', p.mes, p.valor, p.metodo === 'cartao' ? 'cartão' : p.metodo], [4, 0, 0, 0, 2, 0]); });

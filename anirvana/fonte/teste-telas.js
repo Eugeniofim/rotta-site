@@ -40,7 +40,7 @@ const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
     await p.click('#sheet [data-act=fechar]');
     for (const v of ['vendas','fornecedores','receber']){ await p.click(`[data-act=lojaVis][data-v=${v}]`); await shot(p, '10-loja-' + v); }
     await p.click('.rail [data-act=tab][data-v=escola]'); await shot(p, '11-escola-alunos');
-    await p.click('[data-act=escolaVis][data-v=formacao]'); await shot(p, '11b-formacao'); await p.click('[data-act=estagio] >> nth=3'); await p.click('[data-act=escolaVis][data-v=equipe]'); await shot(p, '11c-equipe');
+    await p.click('[data-act=escolaVis][data-v=equipe]'); await shot(p, '11c-equipe');
     await p.click('[data-act=escolaVis][data-v=horarios]'); await shot(p, '12-escola-horarios');
     await p.click('.rail [data-act=tab][data-v=inicio]'); await p.click('[data-act=lancar]'); await p.fill('#lValor','120,50'); await p.fill('#lDesc','Lâmpadas'); await p.click('.opt[data-v="Manutenção"]'); await shot(p, '13-lancar', false);
     await p.click('#fLanc button[type=submit]'); await p.waitForTimeout(300);
@@ -83,7 +83,7 @@ const PAGE = path.join(__dirname, 'page.html'); fs.writeFileSync(PAGE, wrap);
       await p.click('.bnav [data-v=plano]'); await shot(p, `${tag}09-plano`);
       await p.click('.bnav [data-v=historico]'); await shot(p, `${tag}10-hist`); await overflow(p, tag+'hist');
       await p.click('.bnav [data-v=inicio]'); await p.click('[data-act=alunoAtv][data-v=eventos]'); await shot(p, `${tag}11-eventos`); await overflow(p, tag+'eventos');
-      await p.click('.rolebtn'); await p.click('#sheet [data-act=entrar][data-v=admin][data-who=dessa]'); await p.click('.bnav [data-v=escola]'); await p.click('[data-act=escolaVis][data-v=formacao]'); await shot(p, `${tag}12-formacao-adm`); await overflow(p, tag+'formacao-adm');
+      await p.click('.rolebtn'); await p.click('#sheet [data-act=entrar][data-v=admin][data-who=dessa]'); await p.click('.bnav [data-v=escola]'); await p.click('[data-act=escolaVis][data-v=equipe]'); await shot(p, `${tag}12-equipe-adm`); await overflow(p, tag+'equipe-adm');
     });
   }
   await b.close();

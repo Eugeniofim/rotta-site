@@ -691,8 +691,8 @@ insert into public.atividades (id, nome, repasse, visibilidade, agendada) values
   ('yoga','Yoga & AcroYoga',.70,'todos',false), ('particular','Yoga particular',.70,'escolhido',false),
   ('gestantes','Yoga para gestantes',.70,'todos',false), ('meditacao','Meditação',.70,'todos',false),
   ('aquarela','Aquarela',.70,'todos',false), ('musicalizacao','Musicalização infantil',.70,'todos',false),
-  ('violao','Violão',.70,'todos',false),
-  ('massagem','Massagem terapêutica',.70,'escolhido',true), ('terapias','Terapias integrais',.70,'escolhido',true)
+  ('violao','Violão',.70,'todos',false), ('movimento','Movimento consciente',.70,'todos',false)
+  -- inglês, massagem terapêutica e terapias integrais não são atividade regular: entram à mão no balanço (lancamentos)
 on conflict (id) do nothing;
 
 insert into public.planos (id, atividade, nome, preco, aulas_semana) values
@@ -706,6 +706,30 @@ on conflict (id) do nothing;
 --    EVENTOS, AVISOS AUTOMÁTICOS, BAIXA DE PAGAMENTO E BACKUP MENSAL
 -- =====================================================================
 
+-- CPF (formulário do yoga; é também o que o Asaas pede para cobrar) e endereço (formulário de criança):
+-- ficam numa tabela à parte, que só a administração e o próprio aluno enxergam. A professora não vê.
+create table if not exists public.alunos_privado (
+  aluno_id uuid primary key references public.alunos(id),
+  cpf      text check (cpf is null or cpf ~ '^\d{3}\.\d{3}\.\d{3}-\d{2}$'),
+  endereco text,
+  atualizado_em timestamptz not null default now()
+);
+
+-- CPF válido (dígitos verificadores)
+create or replace function public.cpf_valido(c text) returns boolean
+language plpgsql immutable as $$
+declare d text := regexp_replace(coalesce(c, ''), '\D', '', 'g'); t int; r int; k int;
+begin
+  if length(d) <> 11 or d ~ '^(\d)\1+$' then return false; end if;
+  for k in 9..10 loop
+    t := 0;
+    for i in 1..k loop t := t + substr(d, i, 1)::int * (k + 2 - i); end loop;
+    r := (t * 10) % 11; if r = 10 then r := 0; end if;
+    if r <> substr(d, k + 1, 1)::int then return false; end if;
+  end loop;
+  return true;
+end $$;
+
 -- ficha de inscrição (sem saúde: saúde fica na tabela separada abaixo)
 create table if not exists public.fichas (
   aluno_id            uuid primary key references public.alunos(id),
@@ -718,6 +742,8 @@ create table if not exists public.fichas (
   completa            boolean not null default false,
   atualizado_em       timestamptz not null default now()
 );
+alter table public.fichas add column if not exists formulario text not null default 'yoga' check (formulario in ('yoga','criancas'));
+alter table public.fichas add column if not exists respostas jsonb not null default '{}';     -- as respostas do formulário (menos saúde)
 -- saúde é dado sensível (LGPD art. 11): tabela própria, e a instrutora só vê com consentimento específico
 create table if not exists public.fichas_saude (
   aluno_id                 uuid primary key references public.alunos(id),
@@ -725,6 +751,7 @@ create table if not exists public.fichas_saude (
   mostrar_para_instrutores boolean not null default false,
   atualizado_em            timestamptz not null default now()
 );
+alter table public.fichas_saude add column if not exists respostas jsonb not null default '{}';   -- pressão, coluna, intestino... (yoga) ou alergias (criança)
 create or replace function public.saude_exige_consentimento() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -754,15 +781,27 @@ create table if not exists public.inscricoes (
 create or replace function public.inscrever(p jsonb) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare novo uuid; nasc date := nullif(p->>'nasc','')::date; tel text := regexp_replace(coalesce(p->>'tel',''), '\D', '', 'g');
+        form text := case when p->>'atv' in ('aquarela','musicalizacao','violao') then 'criancas' else 'yoga' end;
+        faltou text;
 begin
   if length(trim(coalesce(p->>'nome',''))) not between 3 and 120 then raise exception 'Escreva o nome completo.'; end if;
   if length(tel) not between 10 and 13 then raise exception 'WhatsApp inválido.'; end if;
   if not exists (select 1 from public.atividades where id = p->>'atv') then raise exception 'Atividade inválida.'; end if;
-  if coalesce((p->>'termos')::boolean, false) is false or coalesce((p->>'priv')::boolean, false) is false then
-    raise exception 'É preciso aceitar os termos e a política de privacidade.'; end if;
-  if nasc is not null and nasc > current_date - interval '18 years' and length(trim(coalesce(p->>'resp',''))) < 3 then
-    raise exception 'Menor de idade: informe o responsável (LGPD art. 14).'; end if;
-  if length(coalesce(p->>'saude','')) > 1000 or length(p::text) > 8000 then raise exception 'Texto longo demais.'; end if;
+  if nasc is null or nasc > current_date then raise exception 'Data de nascimento inválida.'; end if;
+  if coalesce((p->>'priv')::boolean, false) is false then raise exception 'É preciso aceitar a política de privacidade.'; end if;
+  -- as perguntas obrigatórias de cada formulário (as mesmas do Google Forms do Espaço)
+  if form = 'yoga' then
+    if not public.cpf_valido(p->>'cpf') then raise exception 'CPF inválido.'; end if;
+    select string_agg(k, ', ') into faltou from unnest(array['motivo','praticou','pressao','coluna','dores','intestino','labirintite','saudeGeral','maisInfo','emergNome','emergTel','imagem']) k where length(trim(coalesce(p->>k, ''))) = 0;
+    if faltou is not null then raise exception 'Faltou responder: %', faltou; end if;
+    if coalesce((p->>'termos')::boolean, false) is false then raise exception 'É preciso aceitar os termos de responsabilidade.'; end if;
+    if nasc > current_date - interval '18 years' and length(trim(coalesce(p->>'respNome',''))) < 3 then raise exception 'Menor de idade: informe o responsável (LGPD art. 14).'; end if;
+  else
+    select string_agg(k, ', ') into faltou from unnest(array['endereco','saude','restricao','respNome','respParentesco','imagem']) k where length(trim(coalesce(p->>k, ''))) = 0;
+    if faltou is not null then raise exception 'Faltou responder: %', faltou; end if;
+    if coalesce((p->>'ciente')::boolean, false) is false then raise exception 'É preciso confirmar que está ciente da mensalidade.'; end if;
+  end if;
+  if length(p::text) > 12000 then raise exception 'Texto longo demais.'; end if;
   if (select count(*) from public.inscricoes where regexp_replace(coalesce(dados->>'tel',''), '\D', '', 'g') = tel
         and criada_em > now() - interval '1 day') >= 3 then
     raise exception 'Já recebemos sua inscrição. A equipe vai falar com você pelo WhatsApp.'; end if;
@@ -775,27 +814,38 @@ end $$;
 -- a administração confirma: vira aluno, ficha, saúde, consentimentos e matrícula de uma vez
 create or replace function public.confirmar_inscricao(p_id uuid, p_valor numeric default null, p_vencimento int default null) returns uuid
 language plpgsql security definer set search_path = public as $$
-declare i record; d jsonb; aid uuid; plano text; v numeric; quem uuid;
+declare i record; d jsonb; aid uuid; plano text; v numeric; quem uuid; form text; crianca boolean; saude jsonb; resumo text;
+        campos_saude text[];
 begin
   if not public.eh_admin() then raise exception 'Só a administração confirma matrícula.'; end if;
   select * into i from public.inscricoes where id = p_id for update;
   if i is null or i.estado <> 'nova' then raise exception 'Esta inscrição não está esperando confirmação.'; end if;
   d := i.dados;
+  form := case when d->>'atv' in ('aquarela','musicalizacao','violao') then 'criancas' else 'yoga' end;
+  crianca := form = 'criancas';
+  campos_saude := case when crianca then array['saude'] else array['pressao','coluna','dores','intestino','labirintite','saudeGeral','maisInfo'] end;
   insert into public.alunos (nome, telefone, email, nascimento, responsavel_nome, responsavel_telefone)
-    values (trim(d->>'nome'), d->>'tel', nullif(d->>'email',''), nullif(d->>'nasc','')::date, nullif(d->>'resp',''), nullif(d->>'respTel',''))
+    values (trim(d->>'nome'), d->>'tel', nullif(d->>'email',''), nullif(d->>'nasc','')::date,
+            nullif(d->>'respNome',''), case when crianca then d->>'tel' else nullif(d->>'respTel','') end)
     returning id into aid;
+  insert into public.alunos_privado (aluno_id, cpf, endereco) values (aid, nullif(d->>'cpf',''), nullif(d->>'endereco',''));
   select id into quem from public.alunos where id <> aid and length(coalesce(d->>'indicou','')) >= 3
     and lower(nome) like lower(trim(d->>'indicou')) || '%' limit 1;
-  insert into public.fichas (aluno_id, experiencia, objetivos, emergencia_nome, emergencia_telefone, como_conheceu, indicado_por, completa)
-    values (aid, nullif(d->>'exp',''), coalesce(string_to_array(nullif(d->>'obj',''), ','), '{}'), d->>'emerg', d->>'emergTel', d->>'como', quem,
-            (d->>'exp') is not null and (d->>'emerg') is not null);
-  insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'termos', 'v1'), (aid, 'privacidade', 'v1');
+  -- respostas: o que não é saúde vai para fichas; saúde vai para fichas_saude
+  saude := (select coalesce(jsonb_object_agg(k, d->k), '{}') from unnest(campos_saude) k where d ? k);
+  insert into public.fichas (aluno_id, formulario, respostas, emergencia_nome, emergencia_telefone, indicado_por, completa)
+    values (aid, form, (d - campos_saude) - array['nome','tel','email','nasc','cpf','endereco','atv','plano','turmas','instr','experimental','saudeOk','priv','whats'],
+            d->>'emergNome', d->>'emergTel', quem, true);
+  insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'privacidade', 'v1');
+  if coalesce((d->>'termos')::boolean, false) or coalesce((d->>'ciente')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'termos', form || '-v1'); end if;
   if coalesce((d->>'whats')::boolean, true) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'whatsapp', 'v1'); end if;
-  if coalesce((d->>'imagem')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'imagem', 'v1'); end if;
-  if nullif(d->>'resp','') is not null then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'responsavel_menor', 'v1'); end if;
-  if d->>'temSaude' = 'sim' and length(coalesce(d->>'saude','')) > 0 then
+  if d->>'imagem' = 'sim' then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'imagem', 'v1'); end if;
+  if nullif(d->>'respNome','') is not null then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'responsavel_menor', 'v1'); end if;
+  select string_agg(k || ': ' || (d->>k), ' · ') into resumo from unnest(campos_saude) k where d ? k and d->>k !~* '^(n[aã]o|nenhum[a]?|normal|nada)\.?$';
+  if saude <> '{}'::jsonb then
     if coalesce((d->>'saudeOk')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'saude', 'v1'); end if;
-    insert into public.fichas_saude (aluno_id, descricao, mostrar_para_instrutores) values (aid, d->>'saude', coalesce((d->>'saudeOk')::boolean, false));
+    insert into public.fichas_saude (aluno_id, descricao, respostas, mostrar_para_instrutores)
+      values (aid, coalesce(resumo, 'nada informado'), saude, coalesce((d->>'saudeOk')::boolean, false));
   end if;
   plano := case when d->>'atv' = 'yoga' then 'yoga-' || coalesce(nullif(d->>'plano',''), '2x') end;
   v := coalesce(p_valor, (select preco from public.planos where id = plano));
@@ -1022,7 +1072,7 @@ end $$;
 do $$
 declare t text;
 begin
-  foreach t in array array['fichas','fichas_saude','inscricoes','avisos_pagamento','pontos_acoes','premios','trocas_pontos','configuracoes',
+  foreach t in array array['fichas','fichas_saude','alunos_privado','inscricoes','avisos_pagamento','pontos_acoes','premios','trocas_pontos','configuracoes',
                            'eventos_espaco','inscricoes_evento','regras_aviso','push_inscricoes','fila_avisos','backups'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('alter table public.%I force row level security', t);
@@ -1039,6 +1089,9 @@ drop policy if exists eu_aluno on public.fichas;
 create policy eu_aluno on public.fichas for all to authenticated using (aluno_id = public.meu_aluno()) with check (aluno_id = public.meu_aluno());
 drop policy if exists instrutor_ve on public.fichas;
 create policy instrutor_ve on public.fichas for select to authenticated using (public.aluno_visivel(aluno_id));
+-- CPF e endereço: só a administração (admin_tudo) e o próprio aluno
+drop policy if exists eu_aluno on public.alunos_privado;
+create policy eu_aluno on public.alunos_privado for select to authenticated using (aluno_id = public.meu_aluno());
 -- saúde: o aluno vê a dele; a instrutora só se ele autorizou
 drop policy if exists eu_aluno on public.fichas_saude;
 create policy eu_aluno on public.fichas_saude for all to authenticated using (aluno_id = public.meu_aluno()) with check (aluno_id = public.meu_aluno());

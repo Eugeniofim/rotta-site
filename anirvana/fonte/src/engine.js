@@ -90,14 +90,7 @@ function semear(){
     }));
   });
 
-  /* atendimentos com hora marcada (massagem e terapias) */
-  const clientes = ['Rosana','Marcelo','Tereza','Jorge','Silvia','Paulo','Cristina','Luana Ferraz','Ivone','Márcia','Eduardo','Lúcia'];
-  ['2026-08','2026-09','2026-10'].forEach((mes,k) => {
-    const nM = [7,9,6][k], nT = [2,1,2][k];
-    for (let i=0;i<nM;i++) S.sessoes.push({id:'se'+(S.seq++), atv:'massagem', instr:'aurelice', d:`${mes}-${pad(2+Math.floor(i*26/nM))}`, cliente:clientes[Math.floor(R()*clientes.length)], valor:250});
-    for (let i=0;i<nT;i++) S.sessoes.push({id:'se'+(S.seq++), atv:'terapias', instr:'kamala', d:`${mes}-${pad(6+i*11)}`, cliente:clientes[Math.floor(R()*clientes.length)], valor:i%2?260:220});
-  });
-  S.sessoes = S.sessoes.filter(s => s.d <= HOJE_ISO);
+  /* massagem terapêutica e terapias integrais: não são atividade regular; entram à mão no balanço (ver lançamentos) */
 
   /* vendas reais da planilha (mar–jul) */
   const porMes = {};
@@ -168,7 +161,11 @@ function semear(){
     if (mi === 7) L('entrada', 4, 400, '50% aluguel do espaço 04/07', 'Extra');
     /* inglês: não passa pela escola nem pelas mensalidades; a administração lança à mão a parte do Espaço (35%) */
     const ing = (FECH_PLANILHA[mes]?.outras?.ingles) ?? (MENSAL_EXEMPLO[mes]?.ingles) ?? 3000;
-    L('entrada', 10, ing * .35, 'Inglês · parte do Espaço (Marina)', 'Inglês');
+    L('entrada', 10, ing * .35, 'Inglês · parte do Espaço', 'Inglês');
+    const mas = (FECH_PLANILHA[mes]?.outras?.massagem) ?? (MENSAL_EXEMPLO[mes]?.massagem) ?? [1750, 2250, 1500][mi - 8] ?? 0;
+    const ter = (FECH_PLANILHA[mes]?.outras?.terapias) ?? (MENSAL_EXEMPLO[mes]?.terapias) ?? [440, 260, 480][mi - 8] ?? 0;
+    if (mas) L('entrada', 26, mas * .3, 'Massagens do mês · parte do Espaço', 'Massagem terapêutica');
+    if (ter) L('entrada', 27, ter * .3, 'Atendimentos do mês · parte do Espaço', 'Terapias integrais');
   }
 
   /* repasses da equipe já pagos (meses fechados) */
@@ -179,24 +176,45 @@ function semear(){
 
 
   /* ---------- fichas (no lugar do Google Forms), pontos, avisos e eventos ---------- */
-  const OBJ = ['Flexibilidade','Dor nas costas','Ansiedade e estresse','Condicionamento','Respiração','Espiritualidade','Dormir melhor'];
-  const COMO_ = ['Instagram','Indicação','Google','Passei na frente','Evento do Espaço'];
-  const SAUDE = {a05:'Hérnia de disco na lombar (L4-L5). Evitar flexão profunda.', a10:'Cirurgia no joelho direito em 2024.', a16:'Pressão alta, controlada com remédio.', a23:'Gestante de 24 semanas.', a24:'Gestante de 16 semanas.', a13:'Labirintite de vez em quando.'};
-  const EMERG = ['Carlos','Ana','Marcelo','Rita','Jorge','Sônia','Paulo','Lúcia'];
+  const EMERG = ['Carlos (marido)','Ana (mãe)','Marcelo (irmão)','Rita (mãe)','Jorge (esposo)','Sônia (irmã)','Paulo (pai)','Lúcia (filha)'];
+  const MOTIVO = ['Flexibilidade e alongamento','Ansiedade e estresse','Dor nas costas','Autoconhecimento','Indicação da fisioterapeuta','Respirar melhor e dormir melhor','Equilíbrio do corpo e da mente'];
+  const PRATICOU = ['Nunca pratiquei','Já pratiquei há alguns anos','Sim, pratico há 2 anos','Fiz algumas aulas on-line','Pratico em casa'];
+  const SAUDE_Y = {   /* respostas de saúde que não são "não" (o resto responde que está tudo bem) */
+    a05:{coluna:'Sim, lombar (hérnia de disco L4-L5)', maisInfo:'Fisioterapia uma vez por semana. Evitar flexão profunda.'},
+    a10:{dores:'Joelho direito, operei em 2024', maisInfo:'Cirurgia de menisco em 2024.'},
+    a16:{pressao:'Alta', maisInfo:'Uso remédio para pressão todos os dias.'},
+    a13:{labirintite:'Sim, labirintite de vez em quando'},
+    a23:{maisInfo:'Gestante de 24 semanas, pré-natal em dia, liberada pela médica.', coluna:'Um pouco na lombar'},
+    a24:{maisInfo:'Gestante de 16 semanas, liberada pela médica.'},
+    a08:{intestino:'Funciona dia sim, dia não'},
+  };
+  const SAUDE_C = {a30:'Alergia a amendoim', a31:'Não'};
+  const tel = () => '(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999));
+  const cpf = () => { const d = Array.from({length:9}, () => Math.floor(R()*10)); const dv = n => { let t = 0; for (let k = 0; k < n; k++) t += d[k] * (n + 1 - k); const r = (t * 10) % 11; return r === 10 ? 0 : r; }; d.push(dv(9)); d.push(dv(10)); const x = d.join(''); return `${x.slice(0,3)}.${x.slice(3,6)}.${x.slice(6,9)}-${x.slice(9)}`; };
+  const KIDS = ['aquarela','musicalizacao','violao'];
   S.alunos.forEach((a, i) => {
     const kid = /Responsável: ([^·]+)·\s*(\d+) anos/.exec(a.obs);
     const anos = kid ? +kid[2] : 22 + Math.floor(R()*38);
     a.nasc = `${2026 - anos - (HOJE.getMonth() < 6 ? 1 : 0)}-${pad(1 + Math.floor(R()*12))}-${pad(1 + Math.floor(R()*27))}`;
-    if (kid){ a.resp = kid[1].trim(); a.respTel = '(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)); }
-    const pn = a.nome.split(' ')[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-    a.email = i % 4 === 3 ? '' : `${pn}.${a.nome.split(' ').slice(-1)[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}@gmail.com`;
-    const saude = SAUDE[a.id];
-    a.ficha = {exp:['nunca','ja','pratico'][Math.floor(R()*3)], obj:[OBJ[i%7], OBJ[(i*3+2)%7]].filter((x,j,arr) => arr.indexOf(x) === j).join(','),
-      temSaude: saude ? 'sim' : 'nao', saude: saude || '', saudeOk: !!saude && a.id !== 'a13', emerg: kid ? a.resp : `${EMERG[i%8]} (${['marido','mãe','irmã','pai','esposa','filho'][i%6]})`, emergTel:'(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)),
-      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a33'].includes(a.id)};
-    if (kid) a.ficha.obj = 'Musicalidade,Socialização';
+    if (kid){ a.resp = kid[1].trim(); a.respTel = a.tel; }
+    const pn = s_ => s_.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const quem = kid ? a.resp : a.nome;
+    a.email = i % 4 === 3 ? '' : `${pn(quem.split(' ')[0])}.${pn(quem.split(' ').slice(-1)[0])}@gmail.com`;
+    const crianca = KIDS.includes(a.mats[0].atv);
+    if (crianca){
+      a.ficha = {form:'criancas', saudeOk:true, completa: a.id !== 'a33', respostas:{nome:a.nome, nasc:a.nasc, endereco:`Rua ${['das Gaivotas','Guaraqueçaba','Erva Cidreira','das Palmeiras'][i%4]}, ${10 + i*7} · Pontal do Sul`, saude: SAUDE_C[a.id] || 'Não', restricao: i % 5 === 0 ? 'Vegetariano' : 'Nenhuma',
+        respNome:a.resp || '', respParentesco: i % 2 ? 'Mãe' : 'Pai', tel:a.tel, email:a.email, imagem: i % 3 ? 'sim' : 'nao', ciente:true, priv:true, whats:true}};
+    } else {
+      const sy = SAUDE_Y[a.id] || {};
+      a.cpf = cpf();
+      a.ficha = {form:'yoga', saudeOk: a.id !== 'a13', completa: !['a12','a22'].includes(a.id), respostas:{nome:a.nome, nasc:a.nasc, tel:a.tel, cpf:a.cpf, email:a.email,
+        motivo: MOTIVO[i % MOTIVO.length], praticou: PRATICOU[i % PRATICOU.length], pressao: sy.pressao || (i % 9 === 4 ? 'Baixa' : 'Normal'), coluna: sy.coluna || 'Não', dores: sy.dores || 'Não',
+        intestino: sy.intestino || ['Funciona todos os dias','Todos os dias, às vezes mais de uma vez','Funciona todos os dias'][i % 3], labirintite: sy.labirintite || 'Não', saudeGeral: ['Boa','Muito boa','Física boa, mental cansada','Regular, quero melhorar'][i % 4],
+        maisInfo: sy.maisInfo || 'Não', emergNome: EMERG[i % 8], emergTel: tel(), termos:true, imagem: i % 3 ? 'sim' : 'nao', priv:true, whats:true, indicou: i % 5 === 1 ? 'Luana Ferraz' : ''}};
+      if (['a12','a22'].includes(a.id)) ['motivo','praticou','pressao','coluna','dores','intestino','labirintite','saudeGeral','maisInfo'].forEach(k => delete a.ficha.respostas[k]);
+    }
   });
-  S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.whats, imagem:a.ficha.imagem, whatsappEm:a.desde, imagemEm:a.desde}]));
+  S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.respostas.whats !== false, imagem:a.ficha.respostas.imagem === 'sim', whatsappEm:a.desde, imagemEm:a.desde}]));
   /* quem já instalou o app e ligou os avisos (a Luana ainda não: é o exemplo da demonstração) */
   S.pontosAcoes = {};
   S.alunos.forEach((a, i) => { if (a.id !== 'a01' && i % 3 !== 2) S.pontosAcoes[a.id] = {instalar:'2026-10-0' + (1 + i%8), ...(i % 2 ? {notif:'2026-10-0' + (1 + i%8)} : {})}; });
@@ -220,9 +238,14 @@ function semear(){
   ];
   /* inscrições novas, como chegariam pelo link (no lugar do Google Forms) */
   S.inscricoes = [
-    {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', email:'marina.souto@gmail.com', atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, exp:'nunca', obj:'Ansiedade e estresse,Flexibilidade', temSaude:'nao', emerg:'Rui (marido)', emergTel:'(41) 99771-2030', como:'Instagram', termos:true, priv:true, whats:true, imagem:true}},
-    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{nome:'Pedro Alves', nasc:'2011-09-03', tel:'(41) 99640-1187', resp:'Sandra Alves', respTel:'(41) 99640-1180', atv:'violao', turmas:'qui1700', exp:'ja', obj:'Musicalidade', temSaude:'nao', emerg:'Sandra Alves (mãe)', emergTel:'(41) 99640-1180', como:'Indicação', indicou:'Rodrigo Pacheco', termos:true, priv:true, whats:true, imagem:false}},
-    {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', email:'helena.rib@hotmail.com', atv:'gestantes', turmas:'sab1030', exp:'nunca', obj:'Gestação,Respiração', temSaude:'sim', saude:'Gestante de 20 semanas, gravidez sem intercorrências.', saudeOk:true, emerg:'Diego (marido)', emergTel:'(41) 99733-5500', como:'Google', termos:true, priv:true, whats:true, imagem:false}},
+    {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', cpf:'529.982.247-25', email:'marina.souto@gmail.com',
+      motivo:'Ansiedade e estresse do trabalho', praticou:'Nunca pratiquei', pressao:'Normal', coluna:'Às vezes na cervical', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Física boa, mental cansada', maisInfo:'Não',
+      emergNome:'Rui (marido)', emergTel:'(41) 99771-2030', termos:true, imagem:'sim', saudeOk:true, priv:true, whats:true, indicou:''}},
+    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'violao', turmas:'qui1700', nome:'Pedro Alves', nasc:'2013-09-03', endereco:'Rua das Gaivotas, 210 · Pontal do Sul', saude:'Não', restricao:'Nenhuma',
+      respNome:'Sandra Alves', respParentesco:'Mãe', tel:'(41) 99640-1180', email:'sandra.alves@gmail.com', imagem:'nao', ciente:true, saudeOk:true, priv:true, whats:true, indicou:'Rafael Pacheco'}},
+    {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'gestantes', turmas:'sab1030', nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', cpf:'111.444.777-35', email:'helena.rib@hotmail.com',
+      motivo:'Preparar o corpo para o parto', praticou:'Fiz algumas aulas antes de engravidar', pressao:'Normal', coluna:'Um pouco na lombar', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Boa', maisInfo:'Gestante de 20 semanas, gravidez sem intercorrências, liberada pela obstetra.',
+      emergNome:'Diego (marido)', emergTel:'(41) 99733-5500', termos:true, imagem:'nao', saudeOk:true, priv:true, whats:true, indicou:''}},
   ];
   /* eventos criados pela administração */
   S.eventos = EVENTOS.map(e => ({...e, vagas:20, alvo:'todos', canais:['push','whatsapp'], criado:'2026-10-20', divulgado:'2026-10-21', inscritos:['a04','a07','a10','a16','a20','a25','a28'].map((a, i) => ({a, d:`2026-10-${21 + i}`, pago:a !== 'a20'})), externos:3}));
@@ -394,7 +417,7 @@ function repassesEquipe(S, mes){
   const out = {};
   const add = (id, lab, v) => { if (Math.abs(v) < .005 || !PESSOA[id]) return; (out[id] = out[id] || {id, nome:PESSOA[id].nome, itens:[], total:0}).itens.push({lab, v}); out[id].total += v; };
   fy.linhas.forEach(l => { add(l.id, 'Yoga (turmas)', l.yogaFinal); add(l.id, 'Particular', l.extras.particular); add(l.id, 'Gestantes', l.extras.gestantes); add(l.id, 'Meditação', l.extras.meditacao); });
-  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', massagem:'aurelice', terapias:'kamala'};
+  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos'};
   rec.linhas.filter(l => dono[l.atv]).forEach(l => add(dono[l.atv], ATIV[l.atv].curto, l.instr));
   (S.descontos || []).filter(d => d.mes === mes && out[d.p]).forEach(d => add(d.p, `Lojinha: ${d.desc}`, -d.valor));
   return Object.values(out).map(o => ({...o, pago: S.repEquipe.find(r => r.p === o.id && r.mes === mes)})).sort((a,b) => b.total - a.total);

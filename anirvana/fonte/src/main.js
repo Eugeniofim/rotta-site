@@ -4,7 +4,7 @@
 UI.livres = {};
 
 function vPorta(){
-  const instrs = ['kamala','anajulia','sara','bruno','brunos','aurelice'];
+  const instrs = EQUIPE.filter(p => p.ativo !== false && p.id !== 'stefy').map(p => p.id);
   const alunosDemo = [['a01','Luana · yoga e meditação'],['a04','Camila · yoga e aquarela'],['a12','Débora · mensalidade atrasada'],['a30','Alice · musicalização']];
   return `<div class="door">
     <div class="raios" aria-hidden="true"></div>
@@ -36,6 +36,7 @@ function render(){
   const root = $('#root');
   const y = scrollY;
   /* painel do instrutor só com o código pessoal (vale também para link direto e "Ver como") */
+  if (UI.role === 'instrutor' && PESSOA[UI.who.instrutor]?.ativo === false){ UI.role = null; history.replaceState(null, '', location.pathname); }
   if (UI.role === 'instrutor' && !instrutorLiberado(UI.who.instrutor)){ const pid = UI.who.instrutor; UI.role = null; history.replaceState(null, '', location.pathname); root.innerHTML = vPorta(); depois(); setTimeout(() => folhaCodigo(pid), 60); return; }
   if (!UI.role){ root.innerHTML = vPorta(); depois(); return; }
   const v = UI.role === 'admin' ? vAdmin() : UI.role === 'instrutor' ? vInstrutor() : vAluno();
@@ -80,7 +81,7 @@ const ACT = {
     <button class="btn sec" data-act="sair">${ic('log-out')}Voltar para a entrada</button>
     <button class="btn ghost" data-act="reset">${ic('rotate-ccw')}Recomeçar a demonstração</button></div>`),
   sair:() => { fecharFolha(); UI.role = null; history.replaceState(null,'',location.pathname); render(); scrollTo({top:0}); },
-  reset:() => { S = semear(); ligarFornecedores(); salvar(); UI.cart = {}; fecharFolha(); render(); avisar('Demonstração recomeçada'); },
+  reset:() => { restaurarBases(); S = semear(); ligarFornecedores(); ligarAtividades(); ligarEquipe(); salvar(); UI.cart = {}; fecharFolha(); render(); avisar('Demonstração recomeçada'); },
   fechar:() => fecharFolha(),
   ir:(d) => { const [r,t] = d.v.split('-'); if (t === 'confirmar'){ UI.mensVis = 'alunos'; UI.mensSt = 'analise'; UI.mensAtv = 'todas'; ir(null,'mensalidades'); return; } if (t === 'alunos'){ UI.escolaVis = 'alunos'; ir(null,'escola'); return; } if (t === 'mais'){ UI.escolaVis = 'subs'; ir(null,'escola'); return; } if (d.sub) UI.lojaVis = d.sub; if (t === 'mensalidades'){ UI.mensVis = 'alunos'; UI.mensSt = 'atrasado'; } ir(null, t); },
   copiar:(d) => { const ok = () => avisar('Copiado'); try{ navigator.clipboard.writeText(d.v).then(ok, () => avisar(d.v,'copy')); }catch(e){ avisar(d.v,'copy'); } },
@@ -91,8 +92,6 @@ const ACT = {
     if (d.grp === 'vForma'){ const f = $('#vClienteF'); if (f) f.hidden = !['fiado','descontado'].includes(d.v); }
     if (d.grp === 'iAtv'){ inscSalvar(); UI.insc.d.atv = d.v; UI.insc.d.instr = ''; UI.insc.d.turmas = ''; const y = $('#sheet').scrollTop; folhaInscricao(); $('#sheet').scrollTop = y; return; }
     if (d.grp === 'fnModelo'){ const f = $('#fnPctF'); if (f) f.hidden = d.v !== 'consig'; }
-    if (d.grp === 'iTemSaude'){ const f = $('#iSaudeF'); if (f) f.hidden = d.v !== 'sim'; }
-    if (d.grp === 'iComo'){ const f = $('#iIndicouF'); if (f) f.hidden = d.v !== 'Indicação'; }
     if (d.grp === 'nAtv'){ $('#nPlanoF').hidden = d.v !== 'yoga'; const fi = $('#nInstrF'); if (fi){ const q = EQUIPE.filter(p => p.atvs.includes(d.v)); fi.hidden = ATIV[d.v].vis !== 'escolhido'; fi.querySelector('.optgrid').innerHTML = q.map(p => `<button type="button" class="opt" data-act="opt" data-grp="nInstr" data-v="${p.id}">${p.nome}</button>`).join(''); $('#nInstr').value = ''; } $('#nTurmas').innerHTML = TURMAS.filter(t => t.atv === d.v && !t.aluno).map(t => `<button type="button" class="opt" data-act="optMulti" data-grp="nTur" data-v="${t.id}">${DIAS[t.dia]} ${t.h}<br><span class="tiny muted">${PESSOA[t.instr].nome}</span></button>`).join('') || '<p class="small muted">Com hora marcada: a terapeuta combina o horário.</p>'; $('#nTur').value = ''; }
   },
   optMulti:(d, el) => { el.classList.toggle('on'); $('#'+d.grp).value = $$(`.opt.on[data-grp="${d.grp}"]`).map(o => o.dataset.v).join(','); },
@@ -196,39 +195,72 @@ const ACT = {
   /* logo e avisos */
   logo:() => ACT.sair(),
   conferirCodigo:(d) => { if (conferirCodigo(d.v)){ fecharFolha(); avisar(`Bem-vinda, ${PESSOA[d.v].nome}`, 'check'); ACT.entrar({v:'instrutor', who:d.v}); } },
+  novaAtividade:() => folhaAtividade(null),
+  editarAtividade:(d) => folhaAtividade(d.v),
+  excluirAtividade:(d) => { const k = d.v, n = S.alunos.filter(a => a.mats.some(m => m.atv === k && m.status !== 'cancelado')).length;
+    if (n){ avisar(`${ATIV[k].curto} tem ${n} ${n === 1 ? 'aluno' : 'alunos'}. Cancele as matrículas antes de tirar a atividade.`, 'circle-alert'); return; }
+    S.atividades[k] = null; S.turmasFora = [...new Set([...S.turmasFora, ...TURMAS.filter(t => t.atv === k).map(t => t.id)])]; ligarAtividades(); ligarEquipe(); salvar(); fecharFolha(); reRender(); avisar('Atividade tirada. O histórico continua no balanço.', 'check'); },
+  novoHorario:(d) => folhaHorario(d.v),
+  tirarHorario:(d) => { const t = TURMA[d.v], n = matriculadosNaTurma(S, d.v).length; S.turmasFora = [...new Set([...S.turmasFora, d.v])]; S.alunos.forEach(a => a.mats.forEach(m => { m.turmas = m.turmas.filter(x => x !== d.v); })); ligarAtividades(); ligarEquipe(); salvar(); reRender(); avisar(`${DIAS_L[t.dia]} ${t.h} saiu da grade${n ? `. ${n} ${n === 1 ? 'aluno precisa' : 'alunos precisam'} de outro horário` : ''}.`, 'check'); },
+  editarEvento:(d) => folhaEvento(d.v),
+  excluirEvento:(d) => folhaExcluirEvento(d.v),
+  confirmarExcluirEvento:(d) => { const e = S.eventos.find(x => x.id === d.v); S.caixa = S.caixa || {}; e.inscritos.forEach(i => (S.caixa['a:' + i.a] = S.caixa['a:' + i.a] || []).unshift({t:`${e.nome} foi cancelado`, s:`Era ${dataBR(e.data)} às ${e.h}. A equipe fala com você pelo WhatsApp.`, icon:'circle-alert'})); S.eventos = S.eventos.filter(x => x.id !== d.v); salvar(); fecharFolha(); reRender(); avisar(`${e.nome} excluído${e.inscritos.length ? ` · ${e.inscritos.length} inscritos avisados` : ''}`, 'check'); },
+  novoInstrutor:() => folhaInstrutor(null),
+  editarInstrutor:(d) => folhaInstrutor(d.v),
+  excluirInstrutor:(d) => folhaExcluirInstrutor(d.v),
+  confirmarExclusao:(d) => excluirInstrutor(d.v, $('#exRep')?.value || null),
   verCodigo:(d) => { UI.verCod = UI.verCod === d.v ? null : d.v; reRender(); },
   novoCodigo:(d) => { novoCodigo(d.v); reRender(); folhaCodigoNovo(d.v); },
   sino:() => folhaCaixa(),
-  irAviso:(d) => { fecharFolha(); if (d.v === 'confirmar'){ ACT.ir({v:'admin-confirmar'}); return; } if (UI.role === 'aluno' && d.v === 'eventos'){ UI.alunoAtv = 'eventos'; ir(null, 'inicio'); return; } if (d.v === 'inscricoes'){ ir('admin', 'inicio'); return; } ir(null, d.v); },
+  irAviso:(d) => { fecharFolha(); if (d.v === 'confirmar'){ ACT.ir({v:'admin-confirmar'}); return; } if (UI.role === 'aluno' && d.v === 'eventos'){ UI.alunoAtv = 'eventos'; ir(null, 'inicio'); return; } if (d.v === 'inscricoes'){ ir('admin', 'inscricoes'); return; } ir(null, d.v); },
   divVis:(d) => { UI.div.vis = d.v; reRender(); },
+  avAlvo:(d) => { UI.av.texto = $('#avTexto')?.value ?? UI.av.texto; UI.av.titulo = $('#avTitulo')?.value ?? UI.av.titulo; UI.av.alvo = d.v; reRender(); },
+  avCanal:(d) => { UI.av.texto = $('#avTexto')?.value ?? UI.av.texto; UI.av.titulo = $('#avTitulo')?.value ?? UI.av.titulo; const c = new Set(UI.av.canais); c.has(d.v) ? c.delete(d.v) : c.add(d.v); UI.av.canais = [...c]; reRender(); },
+  avQuando:(d) => { UI.av.texto = $('#avTexto')?.value ?? UI.av.texto; UI.av.titulo = $('#avTitulo')?.value ?? UI.av.titulo; UI.av.quando = d.v; reRender(); },
+  avModelo:(d) => { const [t, x] = MODELOS_AVISO[+d.v]; UI.av.titulo = t; UI.av.texto = x; reRender(); },
+  avEnviar:() => enviarAvisoLivre(),
   canalAviso:(d) => { const r = regraAviso(d.v), c = (S.avisos = S.avisos || {})[d.v] = S.avisos[d.v] || {}; const set = new Set(r.canais); set.has(d.x) ? set.delete(d.x) : set.add(d.x); c.canais = [...set]; salvar(); reRender(); avisar(`${r.nome}: ${c.canais.length ? c.canais.map(k => CANAIS[k].nome).join(', ') : 'nenhum canal'}`, 'bell'); },
   ligaAviso:(d) => { const r = regraAviso(d.v), c = (S.avisos = S.avisos || {})[d.v] = S.avisos[d.v] || {}; c.ativo = !r.ativo; salvar(); reRender(); avisar(`${r.nome}: ${c.ativo ? 'ligado' : 'desligado'}`, c.ativo ? 'bell' : 'pause'); },
   previaAviso:(d) => folhaPreviaAviso(d.v),
   testeAviso:(d) => { const r = regraAviso(d.v); fecharFolha(); mostrarPush('Espaço Anirvana', preencher(r.modelo, alunoPor(S,'a01'))); (S.enviados = S.enviados || []).push({para:`${quemNome()} (teste)`, canal:r.canais[0] || 'push', regra:r.id, quando:'hoje 10:50'}); salvar(); setTimeout(reRender, 300); },
 
-  /* inscrição (no lugar do Google Forms) */
-  inscricao:() => { UI.insc = {passo:1, d:{}}; folhaInscricao(); },
-  inscPasso:(d) => { inscSalvar(); const dir = +d.v; if (dir > 0){ const falta = inscValida(UI.insc.passo); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; } } UI.insc.passo = Math.max(1, Math.min(4, UI.insc.passo + dir)); folhaInscricao(); $('#sheet').scrollTop = 0; },
+  /* inscrição (réplica dos Google Forms de cada atividade) */
+  inscricao:() => { UI.insc = {passo:0, d:{}}; folhaInscricao(); },
+  inscPasso:(d) => { inscSalvar(); const dir = +d.v; if (dir > 0){ const falta = inscValida(UI.insc.passo); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; } } UI.insc.passo = Math.max(0, Math.min(3, UI.insc.passo + dir)); folhaInscricao(); $('#sheet').scrollTop = 0; },
+  verTermos:() => { inscSalvar(); folhaTermos(); },
+  fecharTermos:() => folhaInscricao(),
   inscEnviar:() => {
-    inscSalvar(); const falta = inscValida(4); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; }
-    const d = UI.insc.d; (S.inscricoes = S.inscricoes || []).push({id:'in' + (S.seq++), d:HOJE_ISO, estado:'nova', origem:'app', dados:{...d}}); salvar();
-    abrirFolha(`${folhaCab('Inscrição enviada', '')}<div class="stack" style="text-align:center;justify-items:center"><span class="ico-b" style="width:72px;height:72px;border-radius:24px;background:var(--ok-bg);color:var(--ok)">${ic('check','xl')}</span><h2 style="font-size:26px">Namaskar, ${escapeH(d.nome.split(' ')[0])}!</h2><p class="muted" style="max-width:40ch">A Dessa e o Vitor já receberam sua inscrição e a sua ficha. A confirmação do horário chega pelo WhatsApp${d.experimental ? ', junto com a data da aula experimental' : ''}.</p><button class="btn pri" data-act="fechar">Pronto</button></div>`);
+    inscSalvar(); const falta = inscValida(3); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; }
+    const d = UI.insc.d, F = FORMULARIOS[formDe(d.atv)]; (S.inscricoes = S.inscricoes || []).push({id:'in' + (S.seq++), d:HOJE_ISO, estado:'nova', origem:UI.insc.balcao ? 'balcao' : 'app', dados:{...d}}); salvar();
+    const quem = F.crianca ? d.respNome : d.nome, prof = PROF_FORM[d.atv];
+    const zap = `https://wa.me/5541998487892?text=${encodeURIComponent(`Oi! Acabei de fazer a inscrição de ${d.nome} em ${ATIV[d.atv].nome} pelo app.`)}`;
+    abrirFolha(`${folhaCab('Inscrição enviada', '')}<div class="stack" style="text-align:center;justify-items:center"><span class="ico-b" style="width:72px;height:72px;border-radius:24px;background:var(--ok-bg);color:var(--ok)">${ic('check','xl')}</span><h2 style="font-size:26px">Namaskar, ${escapeH(String(quem || '').split(' ')[0])}!</h2>
+      <p class="muted" style="max-width:42ch">${F.final ? escapeH(F.final.replace('{prof}', prof || '')) : `A Dessa e o Vitor já receberam sua inscrição e a sua ficha. A confirmação do horário chega pelo WhatsApp${d.experimental ? ', junto com a data da aula experimental' : ''}.`}</p>
+      <div class="row wrap" style="justify-content:center"><a class="btn sec" href="${zap}" target="_blank" rel="noopener">${ic('phone','sm')}Falar no WhatsApp</a><button class="btn pri" data-act="fechar">Pronto</button></div></div>`);
     setTimeout(() => mostrarPush('Nova inscrição', `${d.nome} quer ${ATIV[d.atv].curto.toLowerCase()}. A ficha já está no painel.`), 900);
     if (UI.role) setTimeout(reRender, 400);
   },
-  verInscricao:(d) => { const i = S.inscricoes.find(x => x.id === d.v), x = i.dados; const a = {id:'_', nome:x.nome, nasc:x.nasc, email:x.email, resp:x.resp, respTel:x.respTel, ficha:{...x, saudeOk: x.saudeOk !== false && x.temSaude === 'sim'}};
-    abrirFolha(`${folhaCab(escapeH(x.nome), `Inscrição de ${dataBR(i.d)}${i.origem === 'forms' ? ' · veio do Google Forms' : ' · pelo app'}`)}<div class="stack">
-      <div class="list"><div class="li"><span class="ico-b" style="color:${ATIV[x.atv].hex}">${ic(ATIV[x.atv].icon)}</span><div class="main-c"><span class="t">${ATIV[x.atv].nome}${x.plano && x.atv === 'yoga' ? ' · ' + PLANOS_YOGA[x.plano].nome : ''}</span><span class="s">${(x.turmas || '').split(',').filter(Boolean).map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ') || 'horário a combinar'}${x.experimental ? ' · quer aula experimental' : ''}</span></div></div>
-      <div class="li"><span class="ico-b">${ic('phone')}</span><div class="main-c"><span class="t num">${escapeH(x.tel || '—')}</span><span class="s">WhatsApp</span></div>${x.tel ? `<button class="btn ghost sm" data-act="copiar" data-v="${escapeH(x.tel)}">${ic('copy','sm')}Copiar</button>` : ''}</div></div>
+  verInscricao:(d) => { const i = S.inscricoes.find(x => x.id === d.v), x = i.dados, F = FORMULARIOS[formDe(x.atv)];
+    const a = {id:'_', nome:x.nome, mats:[{atv:x.atv}], ficha:{form:F.id, respostas:x, saudeOk:x.saudeOk !== false}};
+    const contato = F.crianca ? x.tel : x.tel;
+    abrirFolha(`${folhaCab(escapeH(x.nome), `${escapeH(tituloForm(F, x.atv))} · inscrição de ${dataBR(i.d)}${i.origem === 'forms' ? ' · veio do Google Forms' : ' · pelo app'}`)}<div class="stack">
+      <div class="list"><div class="li"><span class="ico-b" style="color:${ATIV[x.atv].hex}">${ic(ATIV[x.atv].icon)}</span><div class="main-c"><span class="t">${ATIV[x.atv].nome}${x.plano && x.atv === 'yoga' ? ' · ' + PLANOS_YOGA[x.plano].nome : ''}</span><span class="s">${(x.turmas || '').split(',').filter(Boolean).map(t => TURMA[t] ? `${DIAS[TURMA[t].dia]} ${TURMA[t].h}` : '').join(', ') || 'horário a combinar'}${x.experimental ? ' · quer aula experimental' : ''}</span></div></div>
+      <div class="li"><span class="ico-b">${ic('phone')}</span><div class="main-c"><span class="t num">${escapeH(contato || '—')}</span><span class="s">${F.crianca ? `WhatsApp de ${escapeH(x.respNome || 'responsável')}` : 'WhatsApp'}</span></div>${contato ? `<button class="btn ghost sm" data-act="copiar" data-v="${escapeH(contato)}">${ic('copy','sm')}Copiar</button>` : ''}</div></div>
       ${blocoFicha(a, 'admin')}
-      ${i.origem === 'forms' && !x.termos ? `<div class="alert warn"><span class="ib">${ic('circle-alert')}</span><div><div class="t">Falta o aceite</div><div class="s">Quem veio do Google Forms recebe o link para aceitar os termos e a privacidade no primeiro acesso.</div></div></div>` : ''}
+      ${i.origem === 'forms' && !x.priv ? `<div class="alert warn"><span class="ib">${ic('circle-alert')}</span><div><div class="t">Falta o aceite da privacidade</div><div class="s">Quem veio do Google Forms recebe o link para aceitar a política de privacidade no primeiro acesso.</div></div></div>` : ''}
       <div class="sheet-foot"><button class="btn sec" data-act="fechar">Depois</button><button class="btn pri" data-act="confirmarInscricao" data-v="${i.id}">${ic('check')}Confirmar matrícula</button></div></div>`); },
-  confirmarInscricao:(d) => { const r = confirmarInscricao(d.v); salvar(); fecharFolha(); reRender(); avisar(`Matrícula confirmada. A ficha já aparece para ${r.quem.join(', ') || 'a equipe'}, e o aluno recebeu o WhatsApp de boas-vindas.`, 'user-plus'); },
+  confirmarInscricao:(d) => { const r = confirmarInscricao(d.v); salvar(); fecharFolha(); reRender(); avisar(`Matrícula confirmada. A ficha já aparece para ${r.quem.join(', ') || 'a equipe'}, e a família recebeu o WhatsApp de boas-vindas.`, 'user-plus'); },
   linkInscricao:() => ACT.copiar({v:'https://rottaguide.com/anirvana#inscricao'}),
-  salvarMinhaFicha:() => { inscSalvar(); const falta = inscValida(3); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; } const a = alunoPor(S, UI.who.aluno), d = UI.insc.d;
-    a.ficha = {...(a.ficha || {}), exp:d.exp, obj:d.obj, temSaude:d.temSaude, saude:d.temSaude === 'sim' ? d.saude : '', saudeOk:d.temSaude === 'sim' && d.saudeOk !== false, emerg:d.emerg, emergTel:d.emergTel, como:d.como, indicou:d.indicou, completa:true};
-    const novo = !((S.pontosAcoes || {})[a.id] || {}).ficha && !(a.ficha && a.ficha.completa); ganhar('ficha'); salvar(); fecharFolha(); reRender(); avisar(novo ? 'Ficha salva: +30 pontos' : 'Ficha atualizada. A instrutora já vê.', 'clipboard-check'); },
-  verMinhaFicha:() => { const a = alunoPor(S, UI.who.aluno); if (!a.ficha) a.ficha = {}; const eraCompleta = a.ficha.completa; UI.insc = {passo:3, d:{...a.ficha, nome:a.nome, nasc:a.nasc, tel:a.tel, email:a.email, atv:a.mats[0].atv, termos:true, priv:true}, minha:true}; folhaInscricao(); },
+  importarForms:() => folhaImportar(),
+  inscricaoBalcao:() => { UI.insc = {passo:0, d:{}, balcao:true}; folhaInscricao(); },
+  salvarMinhaFicha:() => { inscSalvar(); const falta = inscValida(UI.insc.passo); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; }
+    const a = alunoPor(S, UI.who.aluno), d = UI.insc.d, F = FORMULARIOS[formDe(d.atv)], antes = !!(a.ficha && a.ficha.completa);
+    const respostas = Object.fromEntries(Object.entries(d).filter(([k]) => !['atv','plano','turmas','instr','experimental','saudeOk'].includes(k)));
+    a.ficha = {...(a.ficha || {}), form:F.id, respostas:{...((a.ficha || {}).respostas || {}), ...respostas}, saudeOk:d.saudeOk !== false, completa:true};
+    const novo = !antes && !((S.pontosAcoes || {})[a.id] || {}).ficha; ganhar('ficha'); salvar(); fecharFolha(); reRender(); avisar(novo ? 'Ficha salva: +30 pontos' : 'Ficha atualizada. A professora já vê.', 'clipboard-check'); },
+  verMinhaFicha:() => { const a = alunoPor(S, UI.who.aluno), f = a.ficha || {}, atv = a.mats[0].atv, F = FORMULARIOS[formDe(atv)];
+    const passo = F.passos.findIndex(p => p.campos.some(c => c.saude)) + 1;
+    UI.insc = {passo, d:{...(f.respostas || {}), atv, nome:a.nome, nasc:a.nasc, saudeOk:f.saudeOk !== false}, minha:true}; folhaInscricao(); },
 
   /* pontos */
   instalarApp:() => folhaInstalar(),
@@ -311,14 +343,17 @@ $('#scrim').addEventListener('click', fecharFolha);
 let _buscaT;
 document.addEventListener('input', e => {
   const el = e.target, k = el.dataset.actIn; if (!k) return;
+  if (k === 'inscNasc'){ const i = idade(el.value), m = i !== null && i < 18; $$('.menor-f').forEach(f => { f.hidden = !m; }); return; }
+  if (k === 'cpf'){ el.value = cpfMascara(el.value); return; }
   if (k === 'fnPct'){ const v = num(el.value), a = $('#fnPctAj'); if (a && v >= 0 && v <= 100) a.textContent = `O Espaço fica com ${Math.round(100 - v)}%.${$('#fForn')?.dataset.id ? ' Vendas antigas não mudam.' : ''}`; return; }
+  if (k === 'lojaBusca'){ const q = el.value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); $$('.prod[data-nome]').forEach(c => { c.hidden = !!q && !c.dataset.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q); }); return; }
+  if (k === 'avTexto'){ const t = $('#avTexto'), ti = $('#avTitulo'); UI.av.texto = t.value; UI.av.titulo = ti.value; const pv = $('#avPrev'), pt = $('#avPrevT'), c = $('#avConta'); if (pv) pv.textContent = t.value || 'Sua mensagem aparece aqui.'; if (pt) pt.textContent = ti.value || 'Espaço Anirvana'; if (c) c.textContent = `${t.value.length}/500`; return; }
   if (k === 'divMsg'){ const pv = $('#dPrev'); if (pv) pv.textContent = el.value; return; }
   if (k === 'busca'){ UI.busca = el.value; clearTimeout(_buscaT); _buscaT = setTimeout(() => { const pos = el.selectionStart; reRender(); const b = $('#busca'); if (b){ b.focus(); b.setSelectionRange(pos,pos); } }, 220); }
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'csvForms' && e.target.files[0]){ const fr = new FileReader(); fr.onload = () => { const n = importarForms(String(fr.result)); salvar(); reRender(); avisar(n ? `${n} ${n===1?'inscrição importada':'inscrições importadas'} do Google Forms` : 'Não achei respostas nesse arquivo', n ? 'check' : 'circle-alert'); }; fr.readAsText(e.target.files[0]); return; }
+  if (e.target.id === 'csvForms' && e.target.files[0]){ const atv = $('#impAtv')?.value || 'yoga', fr = new FileReader(); fr.onload = () => { const n = importarForms(String(fr.result), atv); salvar(); fecharFolha(); reRender(); avisar(n ? `${n} ${n === 1 ? 'inscrição importada' : 'inscrições importadas'} do formulário de ${ATIV[atv].curto}` : 'Não achei respostas nesse arquivo', n ? 'check' : 'circle-alert'); }; fr.readAsText(e.target.files[0]); return; }
   const el = e.target, k = el.dataset.actIn; if (!k) return;
-  if (k === 'inscNasc'){ const i = idade(el.value), f = $('#iRespF'); if (f) f.hidden = !(i !== null && i < 18); return; }
   if (k === 'preco'){ const v = num(el.value); if (v > 0){ S.regras.planos[el.dataset.v] = v; salvar(); reRender(); avisar(`${PLANOS_YOGA[el.dataset.v].nome}: ${brl(v)} · presença agora vale ${brl(taxasYoga(S.regras.planos, S.regras.pct.yoga)[el.dataset.v])}`); } }
   if (k === 'pct'){ const v = num(el.value); if (v >= 0 && v <= 100){ S.regras.pct[el.dataset.v] = v/100; salvar(); reRender(); avisar(`${ATIV[el.dataset.v].curto}: equipe ${v}% · Espaço ${100-v}%`); } }
   if (k === 'vazia'){ const v = num(el.value); if (v >= 0){ S.regras[el.dataset.v] = v; salvar(); reRender(); avisar(`Aula vazia: ${brl(v)}`); } }
@@ -364,9 +399,49 @@ document.addEventListener('submit', e => {
     if (!nome){ $('#eNome').focus(); avisar('Dê um nome para o evento', 'circle-alert'); return; }
     if (!data || data < HOJE_ISO){ $('#eData').focus(); avisar('Escolha um dia de hoje em diante', 'circle-alert'); return; }
     if (!(valor >= 0) || !(vagas > 0)){ avisar('Confira valor e vagas', 'circle-alert'); return; }
+    const ed = f.dataset.id && S.eventos.find(x => x.id === f.dataset.id);
+    if (ed){ if (vagas < ed.inscritos.length + (ed.externos || 0)){ avisar(`Já tem ${ed.inscritos.length + (ed.externos || 0)} inscritos: as vagas não podem ser menos que isso`, 'circle-alert'); return; } Object.assign(ed, {nome, data, h, valor, vagas, desc:$('#eDesc').value.trim(), icon:$('#eIcon').value}); salvar(); fecharFolha(); reRender(); avisar(`${nome} atualizado`, 'check'); return; }
     const id = 'ev' + (S.seq++);
     S.eventos.push({id, nome, data, h, valor, vagas, desc:$('#eDesc').value.trim(), icon:$('#eIcon').value, alvo:'todos', canais:['push','whatsapp'], criado:HOJE_ISO, divulgado:null, inscritos:[], externos:0});
     salvar(); reRender(); UI.div.alvo = 'todos'; UI.div.canais = ['push','whatsapp']; UI.div.msg = null; folhaDivulgar(id);
+    return;
+  }
+  if (f.id === 'fAtividade'){
+    const nome = $('#atNome').value.trim(), curto = ($('#atCurto').value.trim() || nome.split(' ')[0]).slice(0, 16), pct = num($('#atPct').value) / 100;
+    if (!nome){ $('#atNome').focus(); avisar('Dê um nome para a atividade', 'circle-alert'); return; }
+    if (!(pct >= 0 && pct <= 1)){ $('#atPct').focus(); avisar('O % vai de 0 a 100', 'circle-alert'); return; }
+    const valor = $('#atValor') ? num($('#atValor').value) : undefined;
+    const id = f.dataset.id || ('at' + (S.seq++));
+    const dados = {nome, curto, desc:$('#atDesc').value.trim(), icon:$('#atIcon').value, hex:$('#atCor').value, cor:$('#atCor').value, vis:$('#atVis').value, form:$('#atForm').value, repasse:pct, turma:$('#atVis').value !== 'escolhido', ...(valor > 0 ? {valor} : {})};
+    if (!f.dataset.id && Object.values(ATIV).some(a => a.nome.toLowerCase() === nome.toLowerCase())){ avisar('Já existe uma atividade com esse nome', 'circle-alert'); return; }
+    S.atividades[id] = {...(S.atividades[id] || {}), ...dados}; S.regras.pct[id] = pct;
+    ligarAtividades(); ligarEquipe(); salvar(); fecharFolha(); reRender();
+    avisar(f.dataset.id ? `${nome} atualizada` : `${nome} criada. Agora ponha os horários e quem dá.`, 'check');
+    return;
+  }
+  if (f.id === 'fHorario'){
+    const atv = f.dataset.atv, dia = +$('#hrDia').value, h = $('#hrHora').value, instr = $('#hrInstr').value, sala = $('#hrSala').value.trim() || 'Sala';
+    if (!h || !instr){ avisar('Escolha a hora e quem dá', 'circle-alert'); return; }
+    if (TURMAS.some(t => t.dia === dia && t.h === h && t.instr === instr)){ avisar(`${PESSOA[instr].nome} já tem aula ${DIAS[dia]} ${h}`, 'circle-alert'); return; }
+    const id = `${atv}-${['dom','seg','ter','qua','qui','sex','sab'][dia]}${h.replace(':', '')}`;
+    S.turmasNovas.push({id, atv, dia, h, instr, sala}); S.turmasFora = S.turmasFora.filter(x => x !== id);
+    const p = PESSOA[instr]; if (!p.atvs.includes(atv)) p.atvs = [...p.atvs, atv];
+    ligarAtividades(); ligarEquipe(); salvar(); fecharFolha(); reRender(); avisar(`${ATIV[atv].curto} ${DIAS_L[dia].toLowerCase()} ${h} com ${p.nome} na grade`, 'calendar-days');
+    return;
+  }
+  if (f.id === 'fEquipe'){
+    const nome = $('#eqNome').value.trim(), completo = $('#eqCompleto').value.trim(), atvs = $('#eqAtvs').value.split(',').filter(Boolean);
+    if (!nome){ $('#eqNome').focus(); avisar('Digite o nome', 'circle-alert'); return; }
+    if (!atvs.length){ avisar('Escolha pelo menos uma atividade', 'circle-alert'); return; }
+    const dados = {nome, nomeCompleto:completo || undefined, atvs, tel:$('#eqTel').value.trim(), pix:$('#eqPix').value.trim(), bio:$('#eqBio').value.trim() || undefined};
+    const ed = f.dataset.id && PESSOA[f.dataset.id];
+    if (ed){ Object.assign(ed, dados); ligarEquipe(); salvar(); fecharFolha(); reRender(); avisar(`${nome} atualizada`, 'check'); return; }
+    if (S.equipe.some(p => p.ativo !== false && p.nome.toLowerCase() === nome.toLowerCase())){ avisar('Já tem alguém com esse nome na equipe', 'circle-alert'); return; }
+    const CORES = ['#0E7266','#B9488E','#2F7FB8','#C08A12','#3E8E6E','#6A55C9','#E5672A','#1F8A9E','#A2563A','#5B8C2A'];
+    const id = 'e' + (S.seq++);
+    S.equipe.push({id, ...dados, cor:CORES[S.equipe.length % CORES.length], ativo:true, entrou:HOJE_ISO});
+    (S.codigos = S.codigos || {}); novoCodigo(id); ligarEquipe(); salvar(); reRender();
+    folhaCodigoNovo(id); avisar(`${nome} entrou na equipe. Mande o código pessoal para ela.`, 'user-plus');
     return;
   }
   if (f.id === 'fForn'){

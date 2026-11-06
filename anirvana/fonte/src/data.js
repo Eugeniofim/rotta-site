@@ -46,13 +46,12 @@ const DIAS_L = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'
 /* ---------- equipe ---------- */
 const EQUIPE = [
   {id:'anajulia', nome:'Ana Julia', atvs:['yoga','particular'], cor:'#E5672A', pix:'ana•••@gmail.com'},
-  {id:'kamala',   nome:'Kamala',    atvs:['yoga','particular','gestantes','meditacao','terapias'], cor:'#B9488E', pix:'(41) 9••••-2210',
+  {id:'kamala',   nome:'Kamala',    atvs:['yoga','particular','gestantes','meditacao'], cor:'#B9488E', pix:'(41) 9••••-2210',
    nomeCompleto:'Camilla Beatritse Kamalá', bio:'Instrutora de Yoga e AcroYoga, terapeuta sistêmica e integrativa, com formação em Tantra Yoga e Yoga Terapêutico.'},
   {id:'sara',     nome:'Sara',      atvs:['yoga'], cor:'#3E8E6E', pix:'(41) 9••••-7781'},
   {id:'stefy',    nome:'Stefy',     atvs:['yoga'], cor:'#C08A12', pix:'•••.482.•••-10', obs:'Yoga de férias'},
   {id:'bruno',    nome:'Bruno',     atvs:['aquarela'], cor:'#2F7FB8', pix:'bru•••@gmail.com'},
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
-  {id:'aurelice', nome:'Aurelice',  atvs:['massagem'], cor:'#A2563A', pix:'(41) 9••••-3345'},
 ];
 const ADMINS = [{id:'dessa', nome:'Dessa'},{id:'vitor', nome:'Vitor'}];
 
@@ -69,15 +68,13 @@ const ATIV = {
   meditacao:     {nome:'Meditação', curto:'Meditação', icon:'flower-2', cor:'#6A55C9', hex:'#6A55C9', repasse:.70, vis:'todos', turma:true,
                   desc:'Encontro semanal de meditação guiada e silêncio, às segundas à noite.'},
   aquarela:      {nome:'Aquarela', curto:'Aquarela', icon:'palette', cor:'#2F7FB8', hex:'#2F7FB8', repasse:.70, vis:'todos', turma:true,
-                  desc:'Ateliê de aquarela para iniciantes e quem já pinta. Material básico incluso.'},
+                  desc:'Aulas de aquarela para crianças com o Prof. Bruno Costa. Material básico incluso.'},
   musicalizacao: {nome:'Musicalização infantil', curto:'Musicalização', icon:'music', cor:'#C08A12', hex:'#C08A12', repasse:.70, vis:'todos', turma:true,
                   desc:'Música, ritmo e brincadeira para crianças de 3 a 7 anos.'},
+  movimento:     {nome:'Movimento consciente', curto:'Movimento', icon:'person-standing', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'todos', turma:true,
+                  desc:'Consciência corporal e movimento. Usa a mesma ficha de inscrição do yoga. Horários e valor: a definir com a equipe.'},
   violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true,
-                  desc:'Aulas de violão em pequenos grupos, do primeiro acorde às músicas favoritas.'},
-  massagem:      {nome:'Massagem terapêutica', curto:'Massagem', icon:'hand-heart', cor:'#A2563A', hex:'#A2563A', repasse:.70, vis:'escolhido', agendada:true,
-                  desc:'Sessões de 60 minutos com hora marcada.'},
-  terapias:      {nome:'Terapias integrais', curto:'Terapias', icon:'sprout', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'escolhido', agendada:true,
-                  desc:'Atendimentos individuais de terapias integrativas com hora marcada.'},
+                  desc:'Aulas de violão para crianças e jovens com o Prof. Bruno Saes, do primeiro acorde às músicas favoritas.'},
 };
 
 /* ---------- planos de yoga ----------
@@ -141,12 +138,12 @@ const ALUNOS_BASE = [
   ['a25','Elisa Campos','2025-01-20',  [['meditacao',80,['seg2000'],20,'pix']]],
   ['a26','Renata Lopes','2026-02-05',  [['meditacao',100,['seg2000'],5,'pix']]],
   ['a27','Cecília Moraes','2026-06-15',[['meditacao',100,['seg2000'],15,'pix']]],
-  ['a28','Marta Siqueira','2025-06-02',[['aquarela',240,['qua1500'],2,'pix']]],
-  ['a29','Larissa Torres','2026-03-09',[['aquarela',130,['qua1500'],15,'pix']]],
+  ['a28','Manuela Siqueira','2025-06-02',[['aquarela',240,['qua1500'],2,'pix']], 'Responsável: Marta Siqueira · 8 anos'],
+  ['a29','Laura Torres','2026-03-09',[['aquarela',130,['qua1500'],15,'pix']], 'Responsável: Larissa Torres · 7 anos'],
   ['a30','Alice Rezende','2026-02-21', [['musicalizacao',150,['sab1000'],21,'pix']], 'Responsável: Mônica Rezende · 5 anos'],
   ['a31','Theo Gomes','2026-03-07',    [['musicalizacao',150,['sab1000'],7,'pix']], 'Responsável: André Gomes · 6 anos'],
-  ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']]],
-  ['a33','Rodrigo Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']]],
+  ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']], 'Responsável: Ana Vieira · 12 anos'],
+  ['a33','Rafael Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']], 'Responsável: Rodrigo Pacheco · 10 anos'],
 ];
 /* quem anda sumido (última presença) e quem está devendo — para os alertas */
 const ULTIMA_VINDA = {a09:'2026-10-15', a19:'2026-10-15', a11:'2026-10-19', a18:'2026-10-20', a22:'2026-10-17'};
@@ -313,7 +310,9 @@ const CAT_SAIDA = {
   'Extra':                      {icon:'circle-alert', dica:'O que não se encaixa nas outras'},
 };
 const CAT_ENTRADA = {
-  'Inglês':    {icon:'languages', dica:'Lançado à mão: a parte do Espaço (35%). A Marina recebe direto.'},
+  'Inglês':    {icon:'languages', dica:'Lançado à mão: a parte do Espaço (35%).'},
+  'Massagem terapêutica': {icon:'hand-heart', dica:'Lançado à mão: a parte do Espaço de cada atendimento.'},
+  'Terapias integrais':   {icon:'sprout', dica:'Lançado à mão: a parte do Espaço de cada atendimento.'},
   'Airbnb':    {icon:'bed'},
   'Coworking': {icon:'grid-2x2'},
   'Eventos':   {icon:'ticket'},

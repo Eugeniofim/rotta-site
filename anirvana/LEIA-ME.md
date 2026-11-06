@@ -38,3 +38,14 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 ## v5
 - **Inglês** saiu da Escola e das Mensalidades: é lançado à mão no Balanço (categoria Inglês, parte do Espaço).
 - **Código de acesso pessoal** para cada instrutor (6 números). A administração vê e gera um novo em Escola → Equipe; o código antigo para de valer na hora.
+
+## v6
+- **Inscrição igual aos Google Forms do Espaço:** formulário do Yoga (vale para yoga e acroyoga, gestantes, particular, meditação e movimento consciente) e formulário de criança (aquarela, musicalização e violão), com as mesmas perguntas. Importa o CSV de cada formulário.
+- **Botão Inscrições** sempre visível no topo da administração, com "Nova inscrição" (balcão), link e importação.
+- **Menu Atividades (cursos):** criar, editar e apagar atividades e horários.
+- **Massagem terapêutica e terapias integrais** lançadas à mão no balanço, como o inglês. Marina e Aurelice fora da equipe.
+- **Equipe:** cadastrar, editar e excluir instrutores (as turmas passam para quem assumir).
+- **Divulgar:** escrever aviso para todos (ou um grupo), eventos com editar e excluir.
+- **Lojinha:** "Outro item" no topo, resumo do dia e busca de produto. Cadastro de fornecedores.
+- **Escola** sem a aba Formação.
+- CPF e endereço ficam numa tabela que só a administração e o próprio aluno veem (banco: 103 testes).

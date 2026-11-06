@@ -118,143 +118,6 @@ function folhaCaixa(){
   ${UI.role === 'admin' ? `<button class="btn sec" data-act="tab" data-v="avisos">${ic('settings','sm')}Configurar avisos automáticos</button>` : ''}</div>`);
 }
 
-/* ---------- INSCRIÇÃO ---------- */
-const OBJETIVOS = ['Flexibilidade','Dor nas costas','Ansiedade e estresse','Gestação','Condicionamento','Respiração','Espiritualidade','Dormir melhor'];
-const COMO = ['Instagram','Indicação','Google','Passei na frente','Evento do Espaço','Outro'];
-UI.insc = {passo:1, d:{}};
-const idade = nasc => { if (!nasc) return null; const n = pd(nasc); let i = HOJE.getFullYear() - n.getFullYear(); if (HOJE.getMonth() < n.getMonth() || (HOJE.getMonth() === n.getMonth() && HOJE.getDate() < n.getDate())) i--; return i; };
-function inscSalvar(){
-  const d = UI.insc.d, v = id => { const el = $('#' + id); return el ? el.value.trim() : undefined; }, ck = id => { const el = $('#' + id); return el ? el.checked : undefined; };
-  [['nome','iNome'],['nasc','iNasc'],['tel','iTel'],['email','iEmail'],['resp','iResp'],['respTel','iRespTel'],['atv','iAtv'],['plano','iPlano'],['turmas','iTur'],['instr','iInstr'],
-   ['exp','iExp'],['obj','iObj'],['temSaude','iTemSaude'],['saude','iSaude'],['emerg','iEmerg'],['emergTel','iEmergTel'],['como','iComo'],['indicou','iIndicou']].forEach(([k,id]) => { const x = v(id); if (x !== undefined) d[k] = x; });
-  [['experimental','iExpm'],['saudeOk','iSaudeOk'],['termos','iTermos'],['priv','iPriv'],['imagem','iImagem'],['whats','iWhats']].forEach(([k,id]) => { const x = ck(id); if (x !== undefined) d[k] = x; });
-}
-function inscValida(p){
-  const d = UI.insc.d, falta = [];
-  if (p === 1){ if (!d.nome) falta.push('seu nome'); if (!d.nasc) falta.push('a data de nascimento'); if (!d.tel) falta.push('o WhatsApp'); if (idade(d.nasc) !== null && idade(d.nasc) < 18 && !d.resp) falta.push('o nome do responsável'); }
-  if (p === 2){ if (!d.atv) falta.push('a atividade'); else if (ATIV[d.atv].vis === 'escolhido' && !d.instr) falta.push('com quem'); }
-  if (p === 3){ if (d.temSaude === 'sim' && !d.saude) falta.push('o que precisamos saber da sua saúde'); if (!d.emerg || !d.emergTel) falta.push('um contato de emergência'); }
-  if (p === 4){ if (!d.termos) falta.push('aceitar os termos'); if (!d.priv) falta.push('aceitar a política de privacidade'); }
-  return falta;
-}
-function folhaInscricao(){
-  const {passo, d} = UI.insc, menor = idade(d.nasc) !== null && idade(d.nasc) < 18;
-  const titulos = ['Você','Atividade','Sua ficha','Combinados'];
-  const opts = (grp, lista, sel, multi) => `<div class="optgrid">${lista.map(([k,l,i]) => `<button type="button" class="opt ${(multi ? (sel||'').split(',').includes(k) : sel === k)?'on':''}" data-act="${multi?'optMulti':'opt'}" data-grp="${grp}" data-v="${k}">${i?ic(i):''}<span>${l}</span></button>`).join('')}</div><input type="hidden" id="${grp}" value="${escapeH(sel||'')}">`;
-  let corpo = '';
-  if (passo === 1) corpo = `
-    <div class="field"><label for="iNome">Nome completo</label><input class="inp" id="iNome" value="${escapeH(d.nome||'')}" autocomplete="name"></div>
-    <div class="grid g2"><div class="field"><label for="iNasc">Nascimento</label><input class="inp" type="date" id="iNasc" value="${escapeH(d.nasc||'')}" data-act-in="inscNasc"></div>
-    <div class="field"><label for="iTel">WhatsApp</label><input class="inp" id="iTel" inputmode="tel" placeholder="(41) 9 0000-0000" value="${escapeH(d.tel||'')}" autocomplete="tel"></div></div>
-    <div class="field"><label for="iEmail">E-mail (opcional)</label><input class="inp" id="iEmail" type="email" value="${escapeH(d.email||'')}" autocomplete="email"></div>
-    <div class="grid g2" id="iRespF" ${menor?'':'hidden'}><div class="field"><label for="iResp">Nome do responsável</label><input class="inp" id="iResp" value="${escapeH(d.resp||'')}"></div><div class="field"><label for="iRespTel">WhatsApp do responsável</label><input class="inp" id="iRespTel" inputmode="tel" value="${escapeH(d.respTel||'')}"></div><p class="small muted" style="grid-column:1/-1">Menor de idade: a inscrição fica no nome do responsável (LGPD).</p></div>`;
-  if (passo === 2){
-    const a = d.atv && ATIV[d.atv];
-    const turmas = a ? TURMAS.filter(t => t.atv === d.atv && !t.aluno) : [];
-    corpo = `<div class="field"><label>Qual atividade?</label>${opts('iAtv', Object.entries(ATIV).map(([k,x]) => [k, x.curto, x.icon]), d.atv)}</div>
-    ${d.atv === 'yoga' ? `<div class="field"><label>Plano</label>${opts('iPlano', ['1x','2x','3x','4x'].map(k => [k, `${PLANOS_YOGA[k].nome} · ${brl(S.regras.planos[k])}`]), d.plano || '2x')}</div>` : ''}
-    ${a && a.vis === 'escolhido' ? `<div class="field"><label>Com quem?</label>${opts('iInstr', EQUIPE.filter(p => p.atvs.includes(d.atv)).map(p => [p.id, p.nome]), d.instr)}</div>` : ''}
-    ${turmas.length ? `<div class="field"><label>Horários que você prefere</label>${opts('iTur', turmas.map(t => [t.id, `${DIAS_L[t.dia]} ${t.h} · ${PESSOA[t.instr].nome}`]), d.turmas, true)}</div>` : ''}
-    ${a ? `<label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="iExpm" ${d.experimental?'checked':''} style="width:20px;height:20px;accent-color:var(--pri)"> Quero fazer uma aula experimental antes</label>` : ''}`;
-  }
-  if (passo === 3) corpo = `
-    <div class="field"><label>Você já praticou?</label>${opts('iExp', [['nunca','Nunca pratiquei'],['ja','Já pratiquei'],['pratico','Pratico hoje']], d.exp)}</div>
-    <div class="field"><label>O que você busca? (pode escolher vários)</label>${opts('iObj', OBJETIVOS.map(o => [o, o]), d.obj, true)}</div>
-    <div class="field"><label>Tem alguma lesão, condição de saúde ou está gestante?</label>${opts('iTemSaude', [['nao','Não'],['sim','Sim']], d.temSaude || 'nao')}</div>
-    <div class="field" id="iSaudeF" ${d.temSaude === 'sim' ? '' : 'hidden'}><label for="iSaude">Conte para a gente</label><textarea class="inp" id="iSaude" placeholder="Ex.: hérnia na lombar, gestante de 20 semanas">${escapeH(d.saude||'')}</textarea>
-      <label class="row small" style="gap:10px;cursor:pointer;margin-top:6px;align-items:flex-start"><input type="checkbox" id="iSaudeOk" ${d.saudeOk!==false?'checked':''} style="width:20px;height:20px;flex:none;accent-color:var(--pri)"> Autorizo as instrutoras da minha atividade a verem essas informações, para cuidar da minha segurança na prática.</label></div>
-    <div class="grid g2"><div class="field"><label for="iEmerg">Contato de emergência</label><input class="inp" id="iEmerg" placeholder="Nome" value="${escapeH(d.emerg||'')}"></div><div class="field"><label for="iEmergTel">Telefone</label><input class="inp" id="iEmergTel" inputmode="tel" value="${escapeH(d.emergTel||'')}"></div></div>
-    <div class="field"><label>Como conheceu o Espaço?</label>${opts('iComo', COMO.map(c => [c, c]), d.como)}</div>
-    <div class="field" id="iIndicouF" ${d.como === 'Indicação' ? '' : 'hidden'}><label for="iIndicou">Quem indicou? (a pessoa ganha pontos)</label><input class="inp" id="iIndicou" value="${escapeH(d.indicou||'')}"></div>`;
-  if (passo === 4) corpo = `
-    <div class="card flat"><div class="eyebrow" style="margin-bottom:6px">Sua inscrição</div><p><b>${escapeH(d.nome)}</b>${d.resp?` · responsável ${escapeH(d.resp)}`:''}</p><p class="small muted">${d.atv ? ATIV[d.atv].nome : ''}${d.plano && d.atv === 'yoga' ? ' · ' + PLANOS_YOGA[d.plano].nome : ''}${d.turmas ? ' · ' + d.turmas.split(',').filter(Boolean).map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(', ') : ''}${d.experimental ? ' · com aula experimental' : ''}</p></div>
-    ${[['iTermos','termos','Li e aceito os termos de uso do Espaço', true],['iPriv','priv','Li e aceito a política de privacidade (como o Espaço cuida dos meus dados)', true],['iWhats','whats','Quero receber avisos de aula e pagamento pelo WhatsApp', false],['iImagem','imagem','Autorizo fotos minhas nas redes do Espaço (posso tirar depois)', false]].map(([id,k,t,obr]) => `<label class="row" style="gap:12px;cursor:pointer;align-items:flex-start;font-size:14.5px"><input type="checkbox" id="${id}" ${d[k] || (k==='whats' && d[k]===undefined) ? 'checked' : ''} style="width:22px;height:22px;flex:none;accent-color:var(--pri)"> <span>${t}${obr?' <span class="tiny muted">(obrigatório)</span>':''}</span></label>`).join('')}
-    <p class="small muted">Depois de enviar, a equipe confirma seu horário pelo WhatsApp. A primeira cobrança só acontece quando a matrícula for confirmada.</p>`;
-  if (UI.insc.minha){
-    abrirFolha(`${folhaCab('Sua ficha', 'Ajuda a instrutora a cuidar de você na prática. Vale +30 pontos.')}
-    <div class="stack" id="inscCorpo">${corpo}<div class="sheet-foot"><button class="btn sec" data-act="fechar">Depois</button><button class="btn pri" data-act="salvarMinhaFicha">${ic('check')}Salvar ficha</button></div></div>`, {wide:true});
-    return;
-  }
-  abrirFolha(`${folhaCab('Inscrição no Espaço Anirvana', `Passo ${passo} de 4 · ${titulos[passo-1]}`)}
-  <div class="passos-insc">${titulos.map((t,i) => `<span class="${i+1<passo?'feito':i+1===passo?'agora':''}"></span>`).join('')}</div>
-  <div class="stack" id="inscCorpo">${corpo}
-    <div class="sheet-foot">${passo > 1 ? `<button class="btn sec" data-act="inscPasso" data-v="-1">Voltar</button>` : `<button class="btn sec" data-act="fechar">Cancelar</button>`}${passo < 4 ? `<button class="btn pri" data-act="inscPasso" data-v="1">Continuar${ic('arrow-right','sm')}</button>` : `<button class="btn sol" data-act="inscEnviar">${ic('check')}Enviar inscrição</button>`}</div>
-  </div>`, {wide:true});
-}
-function fichaDe(a){ return a.ficha || {}; }
-function blocoFicha(a, modo){
-  const f = fichaDe(a), i = idade(a.nasc);
-  const verSaude = modo === 'admin' || f.saudeOk;
-  const linhas = [
-    ['Idade', i !== null ? `${i} anos` : '—'],
-    ['E-mail', a.email || '—'],
-    ...(a.resp ? [['Responsável', `${a.resp}${a.respTel ? ' · ' + a.respTel : ''}`]] : []),
-    ['Experiência', {nunca:'Nunca praticou', ja:'Já praticou', pratico:'Pratica hoje'}[f.exp] || '—'],
-    ['Busca', (f.obj || '').split(',').filter(Boolean).join(', ') || '—'],
-    ['Emergência', f.emerg ? `${f.emerg} · ${f.emergTel || ''}` : '—'],
-    ['Conheceu por', f.como ? f.como + (f.indicou ? ` (${f.indicou})` : '') : '—'],
-  ];
-  const saude = f.temSaude === 'sim' ? (verSaude ? `<div class="alert warn"><span class="ib">${ic('heart-pulse')}</span><div><div class="t">Saúde · cuidado na prática</div><div class="s">${escapeH(f.saude)}${modo === 'admin' && !f.saudeOk ? '<br><b>Não autorizou mostrar para as instrutoras.</b>' : ''}</div></div></div>` : `<p class="small muted">${ic('pause','sm')} Tem informação de saúde, mas a pessoa não autorizou mostrar para a equipe. Fale com a administração.</p>`) : `<p class="small muted">Sem restrição de saúde informada.</p>`;
-  const cs = (S.consent || {})[a.id] || {whatsapp: f.whats !== false, imagem: !!f.imagem};
-  return `<div><div class="eyebrow" style="margin-bottom:6px">Ficha de inscrição</div>${saude}<div class="list" style="margin-top:6px">${linhas.map(([k,v]) => `<div class="li" style="padding:8px 4px"><span class="small muted" style="width:110px;flex:none">${k}</span><span class="small" style="flex:1;min-width:0">${escapeH(v)}</span></div>`).join('')}</div>
-    <div class="row wrap small" style="margin-top:8px;gap:8px"><span class="pill ${cs.whatsapp?'ok':'neu'}">${ic(cs.whatsapp?'check':'x')}WhatsApp</span><span class="pill ${cs.imagem?'ok':'neu'}">${ic(cs.imagem?'check':'x')}Uso de imagem</span><span class="pill ${f.termos!==false?'ok':'neu'}">${ic('check')}Termos aceitos</span></div></div>`;
-}
-function cardInscricoes(){
-  const novas = (S.inscricoes || []).filter(i => i.estado === 'nova');
-  return `<div class="card" style="border-top:4px solid var(--sol)"><div class="card-h"><div><h3>Novas inscrições</h3><span class="sub">${novas.length ? `${novas.length} esperando confirmação` : 'Nenhuma esperando'}</span></div>
-    <div class="row wrap"><button class="btn sec sm" data-act="linkInscricao">${ic('copy','sm')}Link da inscrição</button><label class="btn ghost sm" style="cursor:pointer">${ic('layers','sm')}Importar do Google Forms<input type="file" accept=".csv,text/csv" id="csvForms" hidden></label></div></div>
-    <div class="list">${novas.map(i => `<div class="li">${av(i.dados.nome)}<div class="main-c"><span class="t">${escapeH(i.dados.nome)}${i.origem==='forms'?' <span class="tag">Google Forms</span>':''}</span><span class="s">${ATIV[i.dados.atv]?.nome || i.dados.atv}${i.dados.plano && i.dados.atv==='yoga' ? ' · ' + i.dados.plano : ''} · ${dataBR(i.d)}${i.dados.como ? ' · via ' + escapeH(i.dados.como) : ''}${i.dados.experimental ? ' · quer aula experimental' : ''}</span></div><div class="end"><button class="btn ghost sm" data-act="verInscricao" data-v="${i.id}">Ver ficha</button><button class="btn pri sm" data-act="confirmarInscricao" data-v="${i.id}">Confirmar</button></div></div>`).join('') || '<p class="small muted">Quando alguém se inscrever pelo link, aparece aqui com a ficha completa.</p>'}</div></div>`;
-}
-/* Google Forms → planilha → CSV: lê cabeçalhos pelo sentido (nome, whatsapp, e-mail, nascimento, atividade...) */
-function lerCSV(txt){
-  const linhas = [], sep = (txt.split('\n')[0].match(/;/g)||[]).length > (txt.split('\n')[0].match(/,/g)||[]).length ? ';' : ',';
-  let campo = '', linha = [], aspas = false;
-  for (let i = 0; i < txt.length; i++){
-    const c = txt[i];
-    if (aspas){ if (c === '"' && txt[i+1] === '"'){ campo += '"'; i++; } else if (c === '"') aspas = false; else campo += c; }
-    else if (c === '"') aspas = true;
-    else if (c === sep){ linha.push(campo); campo = ''; }
-    else if (c === '\n' || c === '\r'){ if (c === '\r' && txt[i+1] === '\n') i++; linha.push(campo); campo = ''; if (linha.some(x => x.trim())) linhas.push(linha); linha = []; }
-    else campo += c;
-  }
-  linha.push(campo); if (linha.some(x => x.trim())) linhas.push(linha);
-  return linhas;
-}
-function importarForms(txt){
-  const L = lerCSV(txt); if (L.length < 2) return 0;
-  const cab = L[0].map(h => h.toLowerCase());
-  const col = (...ps) => cab.findIndex(h => ps.some(p => h.includes(p)));
-  const c = {nome:col('nome'), tel:col('whats','telefone','celular'), email:col('mail'), nasc:col('nasc'), atv:col('atividade','modalidade','aula'), como:col('conheceu','soube'), saude:col('saúde','saude','lesão','lesao','restri')};
-  const achaAtv = s => { s = (s||'').toLowerCase(); const k = Object.keys(ATIV).find(k => s.includes(ATIV[k].curto.toLowerCase()) || s.includes(k)); return k || 'yoga'; };
-  const dataISO = s => { const m = (s||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? `${m[3]}-${pad(m[2])}-${pad(m[1])}` : ''; };
-  let n = 0;
-  L.slice(1).forEach(r => {
-    const nome = (r[c.nome] || '').trim(); if (!nome) return;
-    const saude = c.saude >= 0 ? (r[c.saude] || '').trim() : '';
-    (S.inscricoes = S.inscricoes || []).push({id:'in'+(S.seq++), d:HOJE_ISO, estado:'nova', origem:'forms', dados:{nome, tel:(r[c.tel]||'').trim(), email:(r[c.email]||'').trim(), nasc:dataISO(r[c.nasc]), atv:achaAtv(r[c.atv]), plano:'2x', como:(r[c.como]||'').trim(),
-      temSaude: saude && !/^n(ão|ao)?$/i.test(saude) ? 'sim' : 'nao', saude, saudeOk:false, termos:false, priv:false}});
-    n++;
-  });
-  return n;
-}
-function confirmarInscricao(id){
-  const i = S.inscricoes.find(x => x.id === id), d = i.dados;
-  const aid = 'a' + (S.seq++);
-  const plano = d.atv === 'yoga' ? (d.plano || '2x') : null;
-  S.alunos.push({id:aid, nome:d.nome, desde:HOJE_ISO, obs: d.resp ? `Responsável: ${d.resp}` : '', status:'ativo', tel:d.tel || '', email:d.email || '', nasc:d.nasc || '', resp:d.resp || '', respTel:d.respTel || '',
-    ficha:{exp:d.exp, obj:d.obj, temSaude:d.temSaude, saude:d.saude, saudeOk:d.saudeOk !== false && d.temSaude === 'sim', emerg:d.emerg, emergTel:d.emergTel, como:d.como, indicou:d.indicou, whats:d.whats !== false, imagem:!!d.imagem, termos:!!d.termos, completa: !!(d.exp && d.emerg)},
-    mats:[{id:aid+'-0', atv:d.atv, plano, valor: plano ? null : (S.alunos.flatMap(a => a.mats).find(m => m.atv === d.atv)?.valor || 150), turmas:(d.turmas||'').split(',').filter(Boolean), venc:Math.min(28, HOJE.getDate()), metodo:'pix', cartaoFim:null, instr:d.instr || null, status:'ativo', inicio:HOJE_ISO}]});
-  (S.consent = S.consent || {})[aid] = {whatsapp: d.whats !== false, imagem: !!d.imagem, whatsappEm: HOJE_ISO, imagemEm: HOJE_ISO};
-  i.estado = 'confirmada'; i.aluno = aid;
-  /* quem indicou ganha os pontos */
-  if (d.indicou){ const q = d.indicou.trim().toLowerCase(), quem = S.alunos.find(x => x.id !== aid && (x.nome.toLowerCase() === q || x.nome.split(' ')[0].toLowerCase() === q.split(' ')[0] && q.split(' ').length === 1 || x.nome.toLowerCase().startsWith(q))); if (quem) ganhar('indicar', quem.id); }
-  /* a equipe da atividade recebe o aviso com a ficha */
-  S.caixa = S.caixa || {};
-  EQUIPE.filter(p => d.instr ? p.id === d.instr : p.atvs.includes(d.atv)).forEach(p => (S.caixa['i:' + p.id] = S.caixa['i:' + p.id] || []).unshift({t:`Aluno novo: ${d.nome}`, s:`${ATIV[d.atv].curto} · a ficha já está no app`, icon:'user-plus', go:'alunos'}));
-  (S.enviados = S.enviados || []).push({para:d.nome, canal:'whatsapp', regra:'inscricao', quando:`hoje ${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`});
-  return {aid, quem: EQUIPE.filter(p => d.instr ? p.id === d.instr : p.atvs.includes(d.atv)).map(p => p.nome)};
-}
-
 /* ============================================================
    EVENTOS — a Dessa cria, divulga (push, WhatsApp, e-mail e arte
    para o Instagram) e acompanha as inscrições num lugar só
@@ -267,7 +130,7 @@ const ALVOS = {
   sumidos:{nome:'Quem anda sumido', f:a => freqStatus(S, a).st !== 'ok'},
 };
 const ICONES_EV = [['coffee','Café'],['sun','Sol'],['music','Música'],['flower-2','Flor'],['moon','Lua'],['leaf','Natureza'],['heart','Coração'],['sparkles','Festa']];
-UI.div = {vis:'eventos', alvo:'todos', canais:['push','whatsapp']};
+UI.div = {vis:'escrever', alvo:'todos', canais:['push','whatsapp']};
 const alcance = (alvo, canais) => {
   const al = S.alunos.filter(a => a.mats.some(m => m.status !== 'cancelado') && ALVOS[alvo].f(a));
   const c = {
@@ -284,9 +147,9 @@ const legendaInsta = e => `✨ ${e.nome} no Espaço Anirvana\n\n📅 ${DIAS_L[pd
 
 function vDivulgar(){
   const vis = UI.div.vis;
-  return `<div class="pagehead"><div><h1>Divulgar</h1><p>Eventos, avisos automáticos e pontos dos alunos. Tudo que chega no celular de quem pratica sai daqui.</p></div>
-    <div class="row wrap"><div class="seg">${[['eventos','Eventos'],['avisos','Avisos automáticos'],['pontos','Pontos']].map(([k,l]) => `<button class="${vis===k?'on':''}" data-act="divVis" data-v="${k}">${l}</button>`).join('')}</div>${vis==='eventos'?`<button class="btn sol" data-act="novoEvento">${ic('calendar-plus')}Novo evento</button>`:''}</div></div>
-  ${vis === 'avisos' ? vAvisos(false) : vis === 'pontos' ? vPontosAdmin() : vEventosAdmin()}`;
+  return `<div class="pagehead"><div><h1>Divulgar</h1><p>Avisos para todos, eventos, avisos automáticos e pontos. Tudo que chega no celular de alunos e professoras sai daqui.</p></div>
+    <div class="row wrap"><div class="seg">${[['escrever','Escrever aviso'],['eventos','Eventos'],['avisos','Avisos automáticos'],['pontos','Pontos']].map(([k,l]) => `<button class="${vis===k?'on':''}" data-act="divVis" data-v="${k}">${l}</button>`).join('')}</div>${vis==='eventos'?`<button class="btn sol" data-act="novoEvento">${ic('calendar-plus')}Novo evento</button>`:''}</div></div>
+  ${vis === 'escrever' ? vEscreverAviso() : vis === 'avisos' ? vAvisos(false) : vis === 'pontos' ? vPontosAdmin() : vEventosAdmin()}`;
 }
 function vEventosAdmin(){
   const evs = (S.eventos || []).slice().sort((a,b) => a.data < b.data ? -1 : 1);
@@ -301,18 +164,19 @@ function vEventosAdmin(){
       </div>
       <div class="hbar" style="margin-top:12px"><span class="small">${e.vagas - tot > 0 ? `${e.vagas - tot} vagas livres` : 'Lotado'}</span><span class="small muted">${Math.round(pct*100)}%</span><div class="track"><span style="width:${RM?Math.round(pct*100):0}%;background:linear-gradient(90deg,var(--sol),var(--acafrao))" data-w="${Math.round(pct*100)}"></span></div></div>
       <p class="small muted" style="margin-top:4px">${e.divulgado ? `${ic('check','sm')} Divulgado em ${dataBR(e.divulgado)} por ${(e.canais||[]).map(c => CANAIS[c].nome.toLowerCase()).join(' e ')} para ${ALVOS[e.alvo||'todos'].nome.toLowerCase()}` : `${ic('circle-alert','sm')} Ainda não divulgado`}</p>
-      <div class="row wrap" style="margin-top:12px"><button class="btn ${e.divulgado?'sec':'sol'}" data-act="divulgarEvento" data-v="${e.id}">${ic('megaphone')}${e.divulgado ? 'Divulgar de novo' : 'Divulgar'}</button><button class="btn sec" data-act="arteEvento" data-v="${e.id}">${ic('image')}Arte para o Instagram</button><button class="btn ghost" data-act="inscritosEvento" data-v="${e.id}">${ic('users','sm')}Inscritos</button><button class="btn ghost" data-act="copiar" data-v="https://${linkEvento(e)}">${ic('copy','sm')}Link</button></div>
+      <div class="row wrap" style="margin-top:12px"><button class="btn ${e.divulgado?'sec':'sol'}" data-act="divulgarEvento" data-v="${e.id}">${ic('megaphone')}${e.divulgado ? 'Divulgar de novo' : 'Divulgar'}</button><button class="btn sec" data-act="arteEvento" data-v="${e.id}">${ic('image')}Arte para o Instagram</button><button class="btn ghost" data-act="inscritosEvento" data-v="${e.id}">${ic('users','sm')}Inscritos</button><button class="btn ghost" data-act="copiar" data-v="https://${linkEvento(e)}">${ic('copy','sm')}Link</button><button class="btn ghost" data-act="editarEvento" data-v="${e.id}">${ic('pencil','sm')}Editar</button></div>
     </div>`; }).join('') || '<p class="muted">Nenhum evento ainda.</p>'}`;
 }
-function folhaEvento(){
-  abrirFolha(`${folhaCab('Novo evento', 'Depois de salvar, você escolhe para quem divulgar.')}
-  <form class="stack" id="fEvento">
-    <div class="field"><label for="eNome">Nome do evento</label><input class="inp" id="eNome" required placeholder="Ex.: Roda de mantras na lua cheia"></div>
-    <div class="grid g2"><div class="field"><label for="eData">Dia</label><input class="inp" type="date" id="eData" value="${iso(addD(HOJE, 16))}" min="${HOJE_ISO}"></div><div class="field"><label for="eHora">Hora</label><input class="inp" type="time" id="eHora" value="18:30"></div></div>
-    <div class="grid g2"><div class="field"><label for="eValor">Valor por pessoa</label><input class="inp num" id="eValor" inputmode="decimal" value="50,00"></div><div class="field"><label for="eVagas">Vagas</label><input class="inp num" id="eVagas" inputmode="numeric" value="20"></div></div>
-    <div class="field"><label for="eDesc">Conte como vai ser</label><textarea class="inp" id="eDesc" placeholder="Uma ou duas frases. É o texto que vai na divulgação.">Mantras, respiração e meditação guiada sob a lua cheia, com chá quentinho no final.</textarea></div>
-    <div class="field"><label>Símbolo</label><div class="optgrid">${ICONES_EV.map(([k,l],i) => `<button type="button" class="opt ${i===4?'on':''}" data-act="opt" data-grp="eIcon" data-v="${k}">${ic(k)}<span>${l}</span></button>`).join('')}</div><input type="hidden" id="eIcon" value="moon"></div>
-    <div class="sheet-foot"><button type="button" class="btn sec" data-act="fechar">Cancelar</button><button class="btn pri" type="submit">${ic('check')}Salvar e divulgar</button></div>
+function folhaEvento(id){
+  const e = id ? S.eventos.find(x => x.id === id) : null, v = (k, pad_) => escapeH(e ? e[k] : pad_);
+  abrirFolha(`${folhaCab(e ? `Editar ${escapeH(e.nome)}` : 'Novo evento', e ? 'Quem já se inscreveu continua inscrito.' : 'Depois de salvar, você escolhe para quem divulgar.')}
+  <form class="stack" id="fEvento" data-id="${id || ''}">
+    <div class="field"><label for="eNome">Nome do evento</label><input class="inp" id="eNome" required placeholder="Ex.: Roda de mantras na lua cheia" value="${v('nome', '')}"></div>
+    <div class="grid g2"><div class="field"><label for="eData">Dia</label><input class="inp" type="date" id="eData" value="${v('data', iso(addD(HOJE, 16)))}" min="${HOJE_ISO}"></div><div class="field"><label for="eHora">Hora</label><input class="inp" type="time" id="eHora" value="${v('h', '18:30')}"></div></div>
+    <div class="grid g2"><div class="field"><label for="eValor">Valor por pessoa</label><input class="inp num" id="eValor" inputmode="decimal" value="${e ? String(e.valor.toFixed(2)).replace('.', ',') : '50,00'}"></div><div class="field"><label for="eVagas">Vagas</label><input class="inp num" id="eVagas" inputmode="numeric" value="${v('vagas', 20)}"></div></div>
+    <div class="field"><label for="eDesc">Conte como vai ser</label><textarea class="inp" id="eDesc" placeholder="Uma ou duas frases. É o texto que vai na divulgação.">${e ? escapeH(e.desc || '') : 'Mantras, respiração e meditação guiada sob a lua cheia, com chá quentinho no final.'}</textarea></div>
+    <div class="field"><label>Símbolo</label><div class="optgrid">${ICONES_EV.map(([k,l],i) => `<button type="button" class="opt ${(e ? e.icon === k : i===4)?'on':''}" data-act="opt" data-grp="eIcon" data-v="${k}">${ic(k)}<span>${l}</span></button>`).join('')}</div><input type="hidden" id="eIcon" value="${e ? e.icon || 'sparkles' : 'moon'}"></div>
+    <div class="sheet-foot">${e ? `<button type="button" class="btn ghost" data-act="excluirEvento" data-v="${id}">${ic('x','sm')}Excluir</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}${e ? 'Salvar' : 'Salvar e divulgar'}</button></div>
   </form>`);
 }
 function folhaDivulgar(id){
@@ -447,6 +311,8 @@ const GRUPOS_CAT = [
   {id:'Eventos', nome:'Eventos', icon:'ticket', tipo:'ambos', dica:'ingressos × estrutura e materiais'},
   {id:'Cantina', nome:'Cantina', icon:'coffee', tipo:'ambos', dica:'vendas × insumos'},
   {id:'Inglês', nome:'Inglês', icon:'languages', tipo:'in', dica:'lançado à mão: a parte do Espaço'},
+  {id:'Massagem terapêutica', nome:'Massagem terapêutica', icon:'hand-heart', tipo:'in', dica:'lançado à mão: a parte do Espaço'},
+  {id:'Terapias integrais', nome:'Terapias integrais', icon:'sprout', tipo:'in', dica:'lançado à mão: a parte do Espaço'},
   {id:'Coworking', nome:'Coworking', icon:'grid-2x2', tipo:'in', dica:'mensalistas'},
   {id:'Despesa Fixa', nome:'Despesas fixas', icon:'landmark', tipo:'out', dica:'luz, internet, Nilson, Sara, MEI, taxas'},
   {id:'Social Mídia e Publicidade', nome:'Social mídia e publicidade', icon:'trending-up', tipo:'out', dica:'Valéria, Instagram, Google, Canva'},
@@ -551,7 +417,7 @@ const LEMBRAR = CHAVE + '_aparelho';
 const lerLembrar = () => { try{ return JSON.parse(localStorage.getItem(LEMBRAR) || '{}'); }catch(e){ return {}; } };
 const gravarLembrar = o => { try{ localStorage.setItem(LEMBRAR, JSON.stringify(o)); }catch(e){} };
 UI.codigoOk = {}; UI.tentativas = {};
-function instrutorLiberado(pid){ const c = (S.codigos || {})[pid]; if (!c) return true; return UI.codigoOk[pid] === c.v || lerLembrar()[pid] === c.v; }
+function instrutorLiberado(pid){ if (PESSOA[pid]?.ativo === false) return false; const c = (S.codigos || {})[pid]; if (!c) return false; return UI.codigoOk[pid] === c.v || lerLembrar()[pid] === c.v; }
 function folhaCodigo(pid){
   const p = PESSOA[pid], T = UI.tentativas[pid] || {n:0, ate:0}, bloq = T.ate > Date.now();
   abrirFolha(`${folhaCab(`Olá, ${escapeH(p.nome)}`, 'Digite o seu código de acesso pessoal')}
@@ -561,7 +427,7 @@ function folhaCodigo(pid){
     <p class="small ${T.n ? '' : 'muted'}" id="codigoMsg" style="${T.n ? 'color:var(--bad);font-weight:600' : ''}">${bloq ? 'Muitas tentativas. Espere 15 minutos ou peça um código novo para a Dessa ou o Vitor.' : T.n ? `Código não confere. Restam ${5 - T.n} tentativas.` : 'São 6 números. Quem tem é só você.'}</p>
     <label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="codigoLembrar" checked style="width:20px;height:20px;accent-color:var(--pri)"> Lembrar neste celular</label>
     <button class="btn pri block" data-act="conferirCodigo" data-v="${pid}" ${bloq ? 'disabled' : ''}>${ic('check')}Entrar</button>
-    <p class="tiny muted">Esqueceu? A administração gera um código novo em Escola → Equipe.<br><b>Demonstração:</b> o código de ${escapeH(p.nome)} é ${S.codigos[pid].c}.</p>
+    <p class="tiny muted">Esqueceu? A administração gera um código novo em Escola → Equipe.<br>${S.codigos[pid] ? `<b>Demonstração:</b> o código de ${escapeH(p.nome)} é ${S.codigos[pid].c}.` : "<b>Ainda não tem código: peça para a administração.</b>"}</p>
   </div>`);
   setTimeout(() => $('#codigoIn')?.focus(), 350);
 }
@@ -594,4 +460,163 @@ function folhaCodigoNovo(pid){
     <div class="sheet-foot" style="width:100%"><button class="btn sec" data-act="copiar" data-v="${c}">${ic('copy','sm')}Copiar código</button><button class="btn sol" data-act="copiar" data-v="${escapeH(msg)}">${ic('send','sm')}Copiar mensagem para o WhatsApp</button></div>
     <p class="tiny muted">No app de verdade o banco guarda só uma versão embaralhada do código (hash): nem a administração consegue ver de novo depois de fechar esta tela. Para trocar, é só gerar outro.</p>
   </div>`);
+}
+
+/* ============================================================
+   EQUIPE: cadastrar e excluir instrutores
+   ============================================================ */
+function folhaInstrutor(id){
+  const p = id ? PESSOA[id] : {nome:'', nomeCompleto:'', atvs:[], tel:'', pix:'', bio:''};
+  abrirFolha(`${folhaCab(id ? `Editar ${escapeH(p.nome)}` : 'Cadastrar instrutor', id ? 'Mudou atividade, telefone ou Pix? Atualize aqui.' : 'Ao salvar, o app cria o código de acesso pessoal dela.')}
+  <form class="stack" id="fEquipe" data-id="${id || ''}">
+    <div class="grid g2"><div class="field"><label for="eqNome">Nome (como aparece no app)</label><input class="inp" id="eqNome" required maxlength="30" value="${escapeH(p.nome)}" placeholder="Ex.: Giorgia"></div>
+      <div class="field"><label for="eqCompleto">Nome completo</label><input class="inp" id="eqCompleto" maxlength="80" value="${escapeH(p.nomeCompleto || '')}"></div></div>
+    <div class="field"><label>O que ela dá no Espaço</label><div class="optgrid">${Object.entries(ATIV).map(([k,a]) => `<button type="button" class="opt ${p.atvs.includes(k)?'on':''}" data-act="optMulti" data-grp="eqAtvs" data-v="${k}">${ic(a.icon)}<span>${a.curto}</span></button>`).join('')}</div><input type="hidden" id="eqAtvs" value="${p.atvs.join(',')}"><span class="help">Ela só vê os alunos dessas atividades (e os particulares que a escolherem).</span></div>
+    <div class="grid g2"><div class="field"><label for="eqTel">WhatsApp</label><input class="inp" id="eqTel" inputmode="tel" value="${escapeH(p.tel || '')}" placeholder="(41) 9 0000-0000"></div>
+      <div class="field"><label for="eqPix">Chave Pix (para o repasse)</label><input class="inp" id="eqPix" value="${escapeH(p.pix || '')}"></div></div>
+    <div class="field"><label for="eqBio">Sobre ela (aparece para os alunos)</label><textarea class="inp" id="eqBio" maxlength="300" placeholder="Formação, estilo de aula...">${escapeH(p.bio || '')}</textarea></div>
+    <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="excluirInstrutor" data-v="${id}">${ic('x','sm')}Excluir da equipe</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}${id ? 'Salvar' : 'Cadastrar e gerar código'}</button></div>
+  </form>`);
+}
+function folhaExcluirInstrutor(pid){
+  const p = PESSOA[pid], ts = TURMAS.filter(t => t.instr === pid), parts = S.alunos.filter(a => a.mats.some(m => m.instr === pid && m.status !== 'cancelado'));
+  const atvs = [...new Set([...ts.map(t => t.atv), ...parts.flatMap(a => a.mats.filter(m => m.instr === pid).map(m => m.atv))])];
+  const quem = EQUIPE.filter(x => x.id !== pid && atvs.every(a => x.atvs.includes(a)));
+  const precisa = ts.length || parts.length;
+  abrirFolha(`${folhaCab(`Excluir ${escapeH(p.nome)} da equipe`, 'Ela para de entrar no app na hora. As aulas que deu e os repasses ficam no histórico.')}
+  <div class="stack">
+    ${precisa ? `<div class="alert warn"><span class="ib">${ic('triangle-alert')}</span><div><div class="t">${p.nome} tem ${ts.length ? `${ts.length} ${ts.length === 1 ? 'turma' : 'turmas'}` : ''}${ts.length && parts.length ? ' e ' : ''}${parts.length ? `${parts.length} ${parts.length === 1 ? 'aluno particular' : 'alunos particulares'}` : ''}</div><div class="s">${ts.map(t => `${nomeTurma(t)} ${DIAS[t.dia]} ${t.h}`).join(' · ')}${parts.length ? (ts.length ? ' · ' : '') + parts.map(a => a.nome.split(' ')[0]).join(', ') : ''}</div></div></div>
+      <div class="field"><label>Quem assume</label>${quem.length ? `<div class="optgrid">${quem.map((x, i) => `<button type="button" class="opt ${i === 0 ? 'on' : ''}" data-act="opt" data-grp="exRep" data-v="${x.id}">${escapeH(x.nome)}</button>`).join('')}</div><input type="hidden" id="exRep" value="${quem[0].id}">` : `<p class="small muted">Ninguém da equipe dá ${atvs.map(a => ATIV[a].curto.toLowerCase()).join(' e ')}. Cadastre quem vai assumir antes, ou as turmas ficam sem instrutor até vocês escolherem.</p><input type="hidden" id="exRep" value="">`}</div>` : '<p class="small muted">Ela não tem turma nem aluno particular agora.</p>'}
+    <div class="sheet-foot"><button class="btn sec" data-act="fechar">Cancelar</button><button class="btn pri" data-act="confirmarExclusao" data-v="${pid}" style="background:var(--bad)">${ic('x')}Excluir ${escapeH(p.nome)}</button></div>
+  </div>`);
+}
+function excluirInstrutor(pid, rep){
+  const p = PESSOA[pid];
+  S.turmaInstr = S.turmaInstr || {};
+  TURMAS.filter(t => t.instr === pid).forEach(t => { if (rep) S.turmaInstr[t.id] = rep; });
+  if (rep) S.alunos.forEach(a => a.mats.forEach(m => { if (m.instr === pid) m.instr = rep; }));
+  p.ativo = false; p.saiu = HOJE_ISO;
+  if (S.codigos) delete S.codigos[pid];
+  const L = lerLembrar(); delete L[pid]; gravarLembrar(L); delete UI.codigoOk[pid];
+  ligarEquipe(); salvar(); fecharFolha(); reRender();
+  avisar(`${p.nome} saiu da equipe${rep ? `. ${PESSOA[rep].nome} assume as turmas dela` : ''}.`, 'check');
+}
+
+/* ============================================================
+   ESCOLA → ATIVIDADES: cadastrar atividade nova e os horários
+   ============================================================ */
+const ICONES_ATV = ['sun','flower-2','person-standing','heart','leaf','wind','sparkles','footprints','activity','palette','music','guitar','baby','user','book-open','coffee'];
+const CORES_ATV = ['#EE7A2F','#B9488E','#D46A8C','#6A55C9','#2F7FB8','#C08A12','#7A5C2E','#3E8E6E','#1F8A9E','#A2563A'];
+function vAtividadesAdmin(){
+  const nAl = k => S.alunos.filter(a => a.mats.some(m => m.atv === k && m.status !== 'cancelado')).length;
+  return `<div class="row wrap" style="justify-content:space-between;align-items:center"><p class="small muted" style="max-width:62ch">As atividades que aparecem na inscrição, na grade e nas mensalidades. Inglês, massagem terapêutica e terapias integrais não são atividade regular: entram à mão no balanço.</p><button class="btn sol" data-act="novaAtividade">${ic('plus')}Nova atividade</button></div>
+  <div class="grid g2">${Object.entries(ATIV).map(([k, a]) => { const ts = TURMAS.filter(t => t.atv === k && !t.aluno), prof = EQUIPE.filter(p => p.atvs.includes(k));
+    return `<div class="card" style="border-top:4px solid ${a.hex}"><div class="card-h"><div class="row" style="gap:12px;min-width:0"><span class="ico-b" style="color:${a.hex}">${ic(a.icon)}</span><div style="min-width:0"><h3>${escapeH(a.nome)}</h3><span class="sub">${FORMULARIOS[formDe(k)].crianca ? 'ficha de criança' : 'ficha do yoga'} · equipe ${Math.round((S.regras.pct[k] ?? .7) * 100)}% · ${a.vis === 'escolhido' ? 'só a professora escolhida vê' : 'todas da atividade veem'}</span></div></div><button class="iconbtn" data-act="editarAtividade" data-v="${k}" aria-label="Editar ${escapeH(a.nome)}">${ic('pencil','sm')}</button></div>
+      <p class="small muted">${escapeH(a.desc || '')}</p>
+      <div class="row wrap small" style="gap:8px;margin:8px 0"><span class="pill neu">${ic('users')}${nAl(k)} alunos</span><span class="pill neu">${ic('wallet')}${k === 'yoga' ? 'planos de 1x a 4x' : a.valor ? brl(a.valor) + '/mês' : 'valor a definir'}</span><span class="pill neu">${ic('hand-heart')}${prof.map(p => p.nome).join(', ') || 'sem professora'}</span></div>
+      ${a.vis !== 'escolhido' ? `<div class="eyebrow" style="margin:6px 0">Horários</div><div class="row wrap" style="gap:6px">${ts.map(t => `<span class="chip" style="height:34px">${DIAS[t.dia]} ${t.h} · ${escapeH(PESSOA[t.instr]?.nome || '—')}<button class="x-mini" data-act="tirarHorario" data-v="${t.id}" aria-label="Tirar o horário ${DIAS[t.dia]} ${t.h}">${ic('x','sm')}</button></span>`).join('') || '<span class="small muted">Nenhum horário ainda.</span>'}<button class="btn ghost sm" data-act="novoHorario" data-v="${k}">${ic('plus','sm')}Horário</button></div>` : '<p class="small muted">Aula particular: o horário é combinado com a professora.</p>'}
+    </div>`; }).join('')}</div>`;
+}
+function folhaAtividade(id){
+  const a = id ? ATIV[id] : {nome:'', curto:'', desc:'', icon:'sparkles', hex:CORES_ATV[Object.keys(ATIV).length % CORES_ATV.length], vis:'todos', form:'yoga', valor:''};
+  const form = id ? formDe(id) : 'yoga', pct = Math.round(((id ? S.regras.pct[id] : .7) ?? .7) * 100);
+  abrirFolha(`${folhaCab(id ? `Editar ${escapeH(a.nome)}` : 'Nova atividade', 'Aparece na inscrição, na grade, na chamada e nas mensalidades.')}
+  <form class="stack" id="fAtividade" data-id="${id || ''}">
+    <div class="grid g2"><div class="field"><label for="atNome">Nome</label><input class="inp" id="atNome" required maxlength="40" value="${escapeH(a.nome)}" placeholder="Ex.: Dança circular"></div>
+      <div class="field"><label for="atCurto">Nome curto</label><input class="inp" id="atCurto" maxlength="16" value="${escapeH(a.curto || '')}" placeholder="Aparece nos botões"></div></div>
+    <div class="field"><label for="atDesc">Como é</label><textarea class="inp" id="atDesc" maxlength="240" placeholder="Uma frase para quem vai se inscrever">${escapeH(a.desc || '')}</textarea></div>
+    <div class="field"><label>Ficha de inscrição</label><div class="optgrid">${[['yoga','Ficha do yoga','adultos: saúde, coluna, pressão...'],['criancas','Ficha de criança','dados da criança e do responsável']].map(([k, l, d]) => `<button type="button" class="opt ${form === k ? 'on' : ''}" data-act="opt" data-grp="atForm" data-v="${k}"><span>${l}<br><span class="tiny muted">${d}</span></span></button>`).join('')}</div><input type="hidden" id="atForm" value="${form}"></div>
+    <div class="field"><label>Quem vê os alunos</label><div class="optgrid">${[['todos','Todas as professoras da atividade'],['escolhido','Só a professora que o aluno escolher']].map(([k, l]) => `<button type="button" class="opt ${a.vis === k ? 'on' : ''}" data-act="opt" data-grp="atVis" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="atVis" value="${a.vis}"></div>
+    <div class="grid g2"><div class="field"><label for="atPct">% que fica com a professora</label><input class="inp num" id="atPct" inputmode="numeric" value="${pct}"></div>
+      ${id === 'yoga' ? '<div class="field"><label>Valor</label><p class="small muted">Os planos do yoga ficam em Mensalidades → Regras.</p></div>' : `<div class="field"><label for="atValor">Mensalidade</label><input class="inp money num" id="atValor" inputmode="decimal" value="${a.valor ? String(a.valor.toFixed(2)).replace('.', ',') : ''}" placeholder="0,00"></div>`}</div>
+    <div class="field"><label>Símbolo</label><div class="optgrid icones">${ICONES_ATV.map(k => `<button type="button" class="opt ${a.icon === k ? 'on' : ''}" data-act="opt" data-grp="atIcon" data-v="${k}" aria-label="${k}">${ic(k)}</button>`).join('')}</div><input type="hidden" id="atIcon" value="${a.icon}"></div>
+    <div class="field"><label>Cor</label><div class="row wrap" style="gap:8px">${CORES_ATV.map(c => `<button type="button" class="opt cor ${a.hex === c ? 'on' : ''}" style="--c:${c}" data-act="opt" data-grp="atCor" data-v="${c}" aria-label="cor ${c}"></button>`).join('')}</div><input type="hidden" id="atCor" value="${a.hex}"></div>
+    <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="excluirAtividade" data-v="${id}">${ic('x','sm')}Tirar atividade</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+function folhaHorario(atv){
+  const quem = EQUIPE.filter(p => p.atvs.includes(atv)), todos = quem.length ? quem : EQUIPE;
+  abrirFolha(`${folhaCab(`Horário de ${escapeH(ATIV[atv].curto)}`, 'Entra na grade, na chamada da professora e na inscrição.')}
+  <form class="stack" id="fHorario" data-atv="${atv}">
+    <div class="field"><label>Dia</label><div class="optgrid">${[1,2,3,4,5,6,0].map(d => `<button type="button" class="opt ${d === 1 ? 'on' : ''}" data-act="opt" data-grp="hrDia" data-v="${d}"><span>${DIAS_L[d]}</span></button>`).join('')}</div><input type="hidden" id="hrDia" value="1"></div>
+    <div class="grid g2"><div class="field"><label for="hrHora">Hora</label><input class="inp" type="time" id="hrHora" value="18:30"></div><div class="field"><label for="hrSala">Sala</label><input class="inp" id="hrSala" value="Sala Sol" maxlength="30"></div></div>
+    <div class="field"><label>Quem dá</label><div class="optgrid">${todos.map((p, i) => `<button type="button" class="opt ${i === 0 ? 'on' : ''}" data-act="opt" data-grp="hrInstr" data-v="${p.id}"><span>${escapeH(p.nome)}</span></button>`).join('')}</div><input type="hidden" id="hrInstr" value="${todos[0]?.id || ''}">${quem.length ? '' : `<span class="help">Ninguém da equipe dá ${escapeH(ATIV[atv].curto.toLowerCase())} ainda: quem você escolher passa a dar.</span>`}</div>
+    <div class="sheet-foot"><button type="button" class="btn sec" data-act="fechar">Cancelar</button><button class="btn pri" type="submit">${ic('check')}Pôr na grade</button></div>
+  </form>`);
+}
+/* ---------- eventos: editar e excluir ---------- */
+function folhaExcluirEvento(id){
+  const e = S.eventos.find(x => x.id === id), n = e.inscritos.length;
+  abrirFolha(`${folhaCab(`Excluir ${escapeH(e.nome)}?`, `${dataBR(e.data)} às ${e.h}`)}
+  <div class="stack">${n ? `<div class="alert warn"><span class="ib">${ic('triangle-alert')}</span><div><div class="t">${n} ${n === 1 ? 'pessoa inscrita' : 'pessoas inscritas'}</div><div class="s">Elas recebem o aviso de que o evento foi cancelado. Quem já pagou: combine a devolução pelo WhatsApp.</div></div></div>` : '<p class="small muted">Ninguém se inscreveu ainda.</p>'}
+    <div class="sheet-foot"><button class="btn sec" data-act="fechar">Voltar</button><button class="btn pri" style="background:var(--bad)" data-act="confirmarExcluirEvento" data-v="${id}">${ic('x')}Excluir evento</button></div></div>`);
+}
+
+/* ============================================================
+   DIVULGAR → ESCREVER AVISO: uma mensagem livre para todos ou um grupo
+   ============================================================ */
+UI.av = {alvo:'todos', canais:['push','whatsapp'], quando:'agora', texto:'', titulo:''};
+const MODELOS_AVISO = [
+  ['Aula cancelada', 'A aula de hoje foi cancelada. Pedimos desculpas! Quem quiser repor, é só responder aqui que a gente encaixa um horário.'],
+  ['Feriado', 'No feriado o Espaço fica fechado. As aulas voltam no dia seguinte, no horário de sempre. Bom descanso!'],
+  ['Mudança de horário', 'A partir da próxima semana a turma muda de horário. Confira a grade nova no app.'],
+  ['Chuva forte', 'Por causa da chuva forte, a aula de hoje vai ser on-line. O link chega aqui no app 10 minutos antes.'],
+];
+function alvosAviso(){
+  const out = [['todos', 'Todos os alunos'], ...Object.entries(ATIV).filter(([k]) => S.alunos.some(a => a.mats.some(m => m.atv === k && m.status !== 'cancelado'))).map(([k, a]) => ['atv:' + k, 'Alunos de ' + a.curto.toLowerCase()]), ['sumidos', 'Quem anda sumido'], ['equipe', 'Professoras e equipe']];
+  return out;
+}
+function destinatarios(alvo){
+  if (alvo === 'equipe') return {equipe:EQUIPE.slice(), alunos:[]};
+  const al = S.alunos.filter(a => a.mats.some(m => m.status !== 'cancelado'));
+  if (alvo === 'todos') return {equipe:[], alunos:al};
+  if (alvo === 'sumidos') return {equipe:[], alunos:al.filter(a => freqStatus(S, a).st !== 'ok')};
+  if (alvo.startsWith('atv:')){ const k = alvo.slice(4); return {equipe:[], alunos:al.filter(a => a.mats.some(m => m.atv === k && m.status !== 'cancelado'))}; }
+  return {equipe:[], alunos:al};
+}
+function alcanceAviso(alvo, canais){
+  const D = destinatarios(alvo);
+  const c = {
+    push: [...D.alunos.filter(a => ((S.pontosAcoes || {})[a.id] || {}).notif), ...D.equipe],
+    whatsapp: [...D.alunos.filter(a => ((S.consent || {})[a.id] || {}).whatsapp), ...D.equipe],
+    email: [...D.alunos.filter(a => a.email), ...D.equipe.filter(p => p.email)],
+  };
+  const unicos = new Set(canais.flatMap(k => c[k].map(x => x.id)));
+  return {D, c, unicos, total:D.alunos.length + D.equipe.length};
+}
+function vEscreverAviso(){
+  const A = UI.av, R = alcanceAviso(A.alvo, A.canais), hist = (S.avisosLivres || []).slice(0, 6);
+  return `<div class="split">
+    <div class="card pad-lg escrever"><div class="card-h"><div><h3>${ic('megaphone','sm')} Escrever aviso</h3><span class="sub">Chega no celular na hora, pelo canal que cada pessoa aceitou</span></div></div>
+      <div class="field"><label>Para quem</label><div class="optgrid">${alvosAviso().map(([k, l]) => `<button type="button" class="opt ${A.alvo === k ? 'on' : ''}" data-act="avAlvo" data-v="${k}"><span>${escapeH(l)}<br><span class="tiny muted">${alcanceAviso(k, A.canais).total} pessoas</span></span></button>`).join('')}</div></div>
+      <div class="field"><label>Por onde</label><div class="row wrap" style="gap:8px">${Object.entries(CANAIS).map(([k, c]) => `<button type="button" class="chip ${A.canais.includes(k) ? 'on' : ''}" data-act="avCanal" data-v="${k}">${ic(c.icon,'sm')}${c.nome} <span class="n">${R.c[k].length}</span></button>`).join('')}</div></div>
+      <div class="field"><label for="avTitulo">Título (aparece em negrito no celular)</label><input class="inp" id="avTitulo" maxlength="60" value="${escapeH(A.titulo)}" placeholder="Ex.: Aula cancelada hoje" data-act-in="avTexto"></div>
+      <div class="field"><label for="avTexto">Mensagem</label><textarea class="inp" id="avTexto" rows="4" maxlength="500" placeholder="Escreva aqui o aviso..." data-act-in="avTexto">${escapeH(A.texto)}</textarea>
+        <div class="row wrap" style="gap:6px;margin-top:6px"><span class="tiny muted">Modelos:</span>${MODELOS_AVISO.map(([t], i) => `<button type="button" class="chip" style="height:30px;font-size:12px" data-act="avModelo" data-v="${i}">${t}</button>`).join('')}<span class="sp"></span><span class="tiny muted" id="avConta">${A.texto.length}/500</span></div></div>
+      <div class="field"><label>Quando</label><div class="row wrap" style="gap:8px"><button type="button" class="chip ${A.quando === 'agora' ? 'on' : ''}" data-act="avQuando" data-v="agora">${ic('send','sm')}Agora</button><button type="button" class="chip ${A.quando !== 'agora' ? 'on' : ''}" data-act="avQuando" data-v="depois">${ic('clock','sm')}Agendar</button>${A.quando !== 'agora' ? `<input class="inp" type="datetime-local" id="avData" style="max-width:240px" value="${A.quando === 'depois' ? iso(addD(HOJE, 1)) + 'T08:00' : A.quando}" min="${HOJE_ISO}T00:00">` : ''}</div></div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Como chega no celular</div><div class="push-mock"><img src="${LOGO_MARK}" alt=""><div><b id="avPrevT">${escapeH(A.titulo || 'Espaço Anirvana')}</b><span id="avPrev">${escapeH(A.texto || 'Sua mensagem aparece aqui.')}</span></div><small>agora</small></div></div>
+      <div class="row wrap" style="margin-top:14px;justify-content:flex-end"><button class="btn sol" data-act="avEnviar" ${R.unicos.size ? '' : 'disabled'}>${ic(A.quando === 'agora' ? 'send' : 'clock')}${A.quando === 'agora' ? `Enviar para ${R.unicos.size} ${R.unicos.size === 1 ? 'pessoa' : 'pessoas'}` : `Agendar para ${R.unicos.size} ${R.unicos.size === 1 ? 'pessoa' : 'pessoas'}`}</button></div>
+      <p class="tiny muted" style="margin-top:8px">WhatsApp e e-mail só para quem aceitou. Push só para quem instalou o app e ligou os avisos. Ninguém recebe duas vezes.</p>
+    </div>
+    <div class="card"><div class="card-h"><h3>Avisos enviados</h3></div>
+      <div class="list">${hist.map(h => `<div class="li" style="align-items:flex-start"><span class="ico-b" style="${h.agendado ? '' : 'background:var(--ok-bg);color:var(--ok)'}">${ic(h.agendado ? 'clock' : 'check')}</span><div class="main-c"><span class="t">${escapeH(h.titulo || h.texto.slice(0, 40))}</span><span class="s">${escapeH(h.texto.slice(0, 120))}${h.texto.length > 120 ? '…' : ''}</span><span class="s">${h.agendado ? `agendado para ${dataBR(h.quando.slice(0, 10))} ${h.quando.slice(11, 16)}` : `${dataBR(h.d)} ${h.h}`} · ${escapeH(h.para)} · ${h.alcance} pessoas · ${h.canais.map(c => CANAIS[c].nome.toLowerCase()).join(', ')}</span></div></div>`).join('') || '<p class="small muted">Os avisos que vocês mandarem aparecem aqui.</p>'}</div></div>
+  </div>`;
+}
+function enviarAvisoLivre(){
+  const A = UI.av, R = alcanceAviso(A.alvo, A.canais), texto = ($('#avTexto')?.value || '').trim(), titulo = ($('#avTitulo')?.value || '').trim();
+  if (!texto){ $('#avTexto')?.focus(); avisar('Escreva a mensagem', 'circle-alert'); return; }
+  const agendar = A.quando !== 'agora', quando = agendar ? ($('#avData')?.value || '') : '';
+  if (agendar && (!quando || quando < `${HOJE_ISO}T${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`)){ avisar('Escolha um dia e hora daqui para frente', 'circle-alert'); return; }
+  const para = alvosAviso().find(([k]) => k === A.alvo)?.[1] || 'Todos';
+  (S.avisosLivres = S.avisosLivres || []).unshift({id:'al' + (S.seq++), d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, titulo, texto, alvo:A.alvo, para, canais:A.canais.slice(), alcance:R.unicos.size, agendado:agendar, quando});
+  if (!agendar){
+    A.canais.forEach(c => (S.enviados = S.enviados || []).push({para:`${R.c[c].length} · ${para}`, canal:c, regra:'livre', quando:'hoje ' + `${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`}));
+    S.caixa = S.caixa || {};
+    R.D.alunos.forEach(a => (S.caixa['a:' + a.id] = S.caixa['a:' + a.id] || []).unshift({t:titulo || 'Aviso do Espaço', s:texto.slice(0, 140), icon:'megaphone'}));
+    R.D.equipe.forEach(p => (S.caixa['i:' + p.id] = S.caixa['i:' + p.id] || []).unshift({t:titulo || 'Aviso do Espaço', s:texto.slice(0, 140), icon:'megaphone'}));
+  }
+  A.texto = ''; A.titulo = ''; A.quando = 'agora';
+  salvar(); reRender();
+  if (!agendar) mostrarPush(titulo || 'Espaço Anirvana', texto);
+  setTimeout(() => avisar(agendar ? `Aviso agendado para ${dataBR(quando.slice(0, 10))} às ${quando.slice(11, 16)}` : `Aviso enviado para ${R.unicos.size} pessoas`, agendar ? 'clock' : 'send'), agendar ? 0 : 1100);
 }

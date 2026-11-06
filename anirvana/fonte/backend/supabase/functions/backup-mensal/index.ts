@@ -19,9 +19,9 @@ Deno.serve(async (req: Request) => {
   const tudo = async (t: string, sel = '*') => { const { data, error } = await db.from(t).select(sel); if (error) throw new Error(`${t}: ${error.message}`); return data ?? []; };
 
   // ---------- o banco no formato que as regras do app entendem ----------
-  const [equipe, turmas, fornecedores, alunos, mats, aulas, presencas, cobrancas, vendas, itens, repForn, fiado, lanc, repEq, fichas, saude, consent, eventos, inscEv, inscricoes, acoes, trocas, planos, atividades] = await Promise.all(
+  const [equipe, turmas, fornecedores, alunos, mats, aulas, presencas, cobrancas, vendas, itens, repForn, fiado, lanc, repEq, fichas, saude, consent, eventos, inscEv, inscricoes, acoes, trocas, planos, atividades, privado] = await Promise.all(
     ['equipe', 'turmas', 'fornecedores', 'alunos', 'matriculas', 'aulas', 'presencas', 'cobrancas', 'vendas', 'venda_itens', 'repasses_fornecedor', 'fiado', 'lancamentos', 'repasses_equipe',
-     'fichas', 'fichas_saude', 'consentimentos', 'eventos_espaco', 'inscricoes_evento', 'inscricoes', 'pontos_acoes', 'trocas_pontos', 'planos', 'atividades'].map(t => tudo(t)));
+     'fichas', 'fichas_saude', 'consentimentos', 'eventos_espaco', 'inscricoes_evento', 'inscricoes', 'pontos_acoes', 'trocas_pontos', 'planos', 'atividades', 'alunos_privado'].map(t => tudo(t)));
   const [ano, mes] = competencia.split('-').map(Number), fimMes = new Date(Date.UTC(ano, mes, 0, 15));
   const M = criarMotor({
     HOJE: fimMes, MES_ATUAL: competencia,
@@ -36,7 +36,8 @@ Deno.serve(async (req: Request) => {
     alunos: alunos.filter((a: any) => !a.apagado).map((a: any) => {
       const f: any = fichas.find((x: any) => x.aluno_id === a.id) ?? {}, s: any = saude.find((x: any) => x.aluno_id === a.id);
       return { id: a.id, nome: a.nome, desde: a.desde, obs: a.observacoes ?? '', tel: a.telefone ?? '', email: a.email ?? '', nasc: a.nascimento ?? '', resp: a.responsavel_nome ?? '', respTel: a.responsavel_telefone ?? '',
-        ficha: { exp: f.experiencia, obj: (f.objetivos ?? []).join(','), emerg: f.emergencia_nome, emergTel: f.emergencia_telefone, como: f.como_conheceu, temSaude: s ? 'sim' : 'nao', saude: s?.descricao ?? '', saudeOk: !!s?.mostrar_para_instrutores, completa: !!f.completa },
+        cpf: privado.find((x: any) => x.aluno_id === a.id)?.cpf ?? '',
+        ficha: { form: f.formulario ?? 'yoga', respostas: { ...(f.respostas ?? {}), ...(s?.respostas ?? {}), endereco: privado.find((x: any) => x.aluno_id === a.id)?.endereco ?? undefined }, saudeOk: !!s?.mostrar_para_instrutores, completa: !!f.completa },
         mats: mats.filter((m: any) => m.aluno_id === a.id).map((m: any) => ({ id: m.id, atv: m.atividade, plano: plano(m.plano_id), valor: m.plano_id ? null : +m.valor, turmas: m.turmas, venc: m.vencimento_dia, metodo: m.metodo, instr: m.instrutor_id, status: { ativa: 'ativo', pausada: 'pausado', cancelada: 'cancelado' }[m.estado as string], inicio: m.inicio, fim: m.fim })) };
     }),
     aulas: Object.fromEntries(aulas.map((au: any) => [au.id, { id: au.id, d: au.data, turma: au.turma_id, instr: au.instrutor_id, sub: au.instrutor_id !== turmas.find((t: any) => t.id === au.turma_id)?.instrutor_id, feita: au.estado === 'feita', vazia: !presencas.some((p: any) => p.aula_id === au.id) }])),

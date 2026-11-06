@@ -11,14 +11,38 @@ function carregar(){
   return semear();
 }
 function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(S)); }catch(e){} }
+/* cópia do que veio de fábrica, para "Recomeçar a demonstração" */
+const BASE = {equipe:EQUIPE.map(p => ({...p})), forn:FORNECEDORES.map(f => ({...f})), turmas:TURMAS.map(t => t.instr), turmasLista:TURMAS.map(t => ({...t})), ativ:JSON.parse(JSON.stringify(ATIV)), forms:Object.fromEntries(Object.entries(FORMULARIOS).map(([k, F]) => [k, F.atvs.slice()]))};
+function restaurarBases(){ Object.keys(ATIV).forEach(k => delete ATIV[k]); Object.assign(ATIV, JSON.parse(JSON.stringify(BASE.ativ))); TURMAS.splice(0, TURMAS.length, ...BASE.turmasLista.map(t => ({...t}))); Object.keys(TURMA).forEach(k => delete TURMA[k]); TURMAS.forEach(t => { TURMA[t.id] = t; }); Object.entries(BASE.forms).forEach(([k, a]) => { FORMULARIOS[k].atvs = a.slice(); }); EQUIPE.splice(0, EQUIPE.length, ...BASE.equipe.map(p => ({...p}))); FORNECEDORES.splice(0, FORNECEDORES.length, ...BASE.forn.map(f => ({...f}))); TURMAS.forEach((t, i) => { t.instr = BASE.turmas[i]; }); }
 let S = carregar();
 /* fornecedores moram no estado (a Dessa cadastra e edita); as regras leem FORNECEDORES e FORN */
 function ligarFornecedores(){
-  if (!S.fornecedores) S.fornecedores = FORNECEDORES.map(f => ({...f, ativo:true}));
+  if (!S.fornecedores) S.fornecedores = BASE.forn.map(f => ({...f, ativo:true}));
   FORNECEDORES.splice(0, FORNECEDORES.length, ...S.fornecedores);
   Object.keys(FORN).forEach(k => delete FORN[k]); S.fornecedores.forEach(f => { FORN[f.id] = f; });
 }
 ligarFornecedores();
+/* equipe também mora no estado: a administração cadastra e exclui. EQUIPE = quem está na equipe; PESSOA = todos (o histórico continua com nome) */
+function ligarEquipe(){
+  if (!S.equipe) S.equipe = BASE.equipe.map(p => ({...p, ativo:true}));
+  EQUIPE.splice(0, EQUIPE.length, ...S.equipe.filter(p => p.ativo !== false));
+  Object.keys(PESSOA).forEach(k => delete PESSOA[k]); S.equipe.forEach(p => { PESSOA[p.id] = p; });
+  const fab = Object.fromEntries(BASE.turmasLista.map(t => [t.id, t.instr]));
+  Object.values(TURMA).forEach(t => { t.instr = (S.turmaInstr || {})[t.id] || fab[t.id] || t.instr; });
+}
+/* atividades e horários: as de fábrica + as que a administração cadastra (e as que tira) */
+function ligarAtividades(){
+  S.atividades = S.atividades || {}; S.turmasNovas = S.turmasNovas || []; S.turmasFora = S.turmasFora || [];
+  Object.keys(ATIV).forEach(k => delete ATIV[k]); Object.assign(ATIV, JSON.parse(JSON.stringify(BASE.ativ)));
+  Object.entries(S.atividades).forEach(([k, a]) => { if (a === null) delete ATIV[k]; else ATIV[k] = {...(ATIV[k] || {}), ...a}; });
+  Object.entries(BASE.forms).forEach(([k, a]) => { FORMULARIOS[k].atvs = a.filter(x => ATIV[x]); });
+  Object.entries(ATIV).forEach(([k, a]) => { if (a.form && !FORMULARIOS[a.form].atvs.includes(k)){ Object.values(FORMULARIOS).forEach(F => { F.atvs = F.atvs.filter(x => x !== k); }); FORMULARIOS[a.form].atvs.push(k); } if (S.regras.pct[k] === undefined) S.regras.pct[k] = a.repasse ?? .7; });
+  const todas = [...BASE.turmasLista.map(t => ({...t})), ...S.turmasNovas.map(t => ({...t}))];
+  Object.keys(TURMA).forEach(k => delete TURMA[k]); todas.forEach(t => { TURMA[t.id] = t; });
+  TURMAS.splice(0, TURMAS.length, ...todas.filter(t => !S.turmasFora.includes(t.id) && ATIV[t.atv]));
+}
+ligarAtividades();
+ligarEquipe();
 
 const UI = {
   role:null, who:{admin:'dessa', instrutor:'kamala', aluno:'a01'},
@@ -29,11 +53,11 @@ const UI = {
 };
 
 const NAV = {
-  admin:[['inicio','Início','house'],['balanco','Balanço','chart-column'],['mensalidades','Mensalidades','wallet'],['lojinha','Lojinha','store'],['escola','Escola','users'],['divulgar','Divulgar','megaphone']],
+  admin:[['inicio','Início','house'],['balanco','Balanço','chart-column'],['mensalidades','Mensalidades','wallet'],['lojinha','Lojinha','store'],['escola','Escola','users'],['atividades','Atividades','graduation-cap'],['divulgar','Divulgar','megaphone']],
   instrutor:[['hoje','Hoje','sun'],['agenda','Agenda','calendar-days'],['alunos','Alunos','users'],['mes','Meu mês','wallet']],
   aluno:[['inicio','Início','house'],['aulas','Aulas','calendar-days'],['plano','Plano','credit-card'],['historico','Histórico','chart-column']],
 };
-const CURTO = {mensalidades:'Mensal.'};   /* rótulo da barra de baixo, que tem pouco espaço */
+const CURTO = {mensalidades:'Mensal.', atividades:'Cursos'};   /* rótulo da barra de baixo, que tem pouco espaço */
 const ROLE_NOME = {admin:'Administração', instrutor:'Instrutores', aluno:'Alunos'};
 function quemNome(){
   if (UI.role === 'admin') return ADMINS.find(a => a.id === UI.who.admin).nome;
@@ -65,7 +89,7 @@ function casca(conteudo){
   };
   const marca = `<img src="${LOGO_MARK}" alt=""><div><b>Espaço Anirvana</b><small>${ROLE_NOME[UI.role]}</small></div>`;
   const nAvisos = caixaDe().length;
-  return `<div class="app">
+  return `<div class="app ${UI.role === 'admin' ? 'eh-admin' : ''}">
     <aside class="rail" aria-label="Menu">
       <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
       ${nav.map(([id,lab,ico]) => `<button class="navi ${cur===id?'on':''}" data-act="tab" data-v="${id}">${ic(ico)}<span>${lab}</span>${badge(id)?`<span class="cnt">${badge(id)}</span>`:''}</button>`).join('')}
@@ -77,12 +101,13 @@ function casca(conteudo){
       <div class="topbar">
         <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
         <div class="grow"></div>
+        ${UI.role === 'admin' ? (() => { const n = (S.inscricoes || []).filter(i => i.estado === 'nova').length; return `<button class="insc-btn ${cur === 'inscricoes' ? 'on' : ''}" data-act="tab" data-v="inscricoes" aria-label="Inscrições${n ? ': ' + n + ' novas' : ''}">${ic('user-plus')}<span>Inscrições</span>${n ? `<b>${n}</b>` : ''}</button>`; })() : ''}
         <button class="iconbtn sino" data-act="sino" aria-label="Avisos${nAvisos ? ': ' + nAvisos : ''}">${ic('bell')}${nAvisos ? `<span class="dot">${nAvisos}</span>` : ''}</button>
         <button class="rolebtn" data-act="trocar" aria-label="Trocar de painel">${av(quemNome())}<span>${escapeH(quemNome().split(' ')[0])}</span>${ic('chevron-right','sm')}</button>
       </div>
       <div class="wrap">${conteudo}</div>
     </main>
-    <nav class="bnav" aria-label="Navegação">
+    <nav class="bnav n${nav.length}" aria-label="Navegação">
       ${nav.map(([id,lab,ico]) => `<button class="${cur===id?'on':''}" data-act="tab" data-v="${id}" aria-label="${lab}">${ic(ico,'lg')}<span>${CURTO[id] || lab}</span>${badge(id)?`<span class="dot">${badge(id)}</span>`:''}</button>`).join('')}
     </nav>
   </div>`;

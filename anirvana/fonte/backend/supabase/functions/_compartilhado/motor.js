@@ -50,13 +50,12 @@ const DIAS_L = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'
 /* ---------- equipe ---------- */
 const EQUIPE = cfg.EQUIPE || [
   {id:'anajulia', nome:'Ana Julia', atvs:['yoga','particular'], cor:'#E5672A', pix:'ana•••@gmail.com'},
-  {id:'kamala',   nome:'Kamala',    atvs:['yoga','particular','gestantes','meditacao','terapias'], cor:'#B9488E', pix:'(41) 9••••-2210',
+  {id:'kamala',   nome:'Kamala',    atvs:['yoga','particular','gestantes','meditacao'], cor:'#B9488E', pix:'(41) 9••••-2210',
    nomeCompleto:'Camilla Beatritse Kamalá', bio:'Instrutora de Yoga e AcroYoga, terapeuta sistêmica e integrativa, com formação em Tantra Yoga e Yoga Terapêutico.'},
   {id:'sara',     nome:'Sara',      atvs:['yoga'], cor:'#3E8E6E', pix:'(41) 9••••-7781'},
   {id:'stefy',    nome:'Stefy',     atvs:['yoga'], cor:'#C08A12', pix:'•••.482.•••-10', obs:'Yoga de férias'},
   {id:'bruno',    nome:'Bruno',     atvs:['aquarela'], cor:'#2F7FB8', pix:'bru•••@gmail.com'},
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
-  {id:'aurelice', nome:'Aurelice',  atvs:['massagem'], cor:'#A2563A', pix:'(41) 9••••-3345'},
 ];
 const ADMINS = [{id:'dessa', nome:'Dessa'},{id:'vitor', nome:'Vitor'}];
 
@@ -73,15 +72,13 @@ const ATIV = {
   meditacao:     {nome:'Meditação', curto:'Meditação', icon:'flower-2', cor:'#6A55C9', hex:'#6A55C9', repasse:.70, vis:'todos', turma:true,
                   desc:'Encontro semanal de meditação guiada e silêncio, às segundas à noite.'},
   aquarela:      {nome:'Aquarela', curto:'Aquarela', icon:'palette', cor:'#2F7FB8', hex:'#2F7FB8', repasse:.70, vis:'todos', turma:true,
-                  desc:'Ateliê de aquarela para iniciantes e quem já pinta. Material básico incluso.'},
+                  desc:'Aulas de aquarela para crianças com o Prof. Bruno Costa. Material básico incluso.'},
   musicalizacao: {nome:'Musicalização infantil', curto:'Musicalização', icon:'music', cor:'#C08A12', hex:'#C08A12', repasse:.70, vis:'todos', turma:true,
                   desc:'Música, ritmo e brincadeira para crianças de 3 a 7 anos.'},
+  movimento:     {nome:'Movimento consciente', curto:'Movimento', icon:'person-standing', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'todos', turma:true,
+                  desc:'Consciência corporal e movimento. Usa a mesma ficha de inscrição do yoga. Horários e valor: a definir com a equipe.'},
   violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true,
-                  desc:'Aulas de violão em pequenos grupos, do primeiro acorde às músicas favoritas.'},
-  massagem:      {nome:'Massagem terapêutica', curto:'Massagem', icon:'hand-heart', cor:'#A2563A', hex:'#A2563A', repasse:.70, vis:'escolhido', agendada:true,
-                  desc:'Sessões de 60 minutos com hora marcada.'},
-  terapias:      {nome:'Terapias integrais', curto:'Terapias', icon:'sprout', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'escolhido', agendada:true,
-                  desc:'Atendimentos individuais de terapias integrativas com hora marcada.'},
+                  desc:'Aulas de violão para crianças e jovens com o Prof. Bruno Saes, do primeiro acorde às músicas favoritas.'},
 };
 
 /* ---------- planos de yoga ----------
@@ -145,12 +142,12 @@ const ALUNOS_BASE = [
   ['a25','Elisa Campos','2025-01-20',  [['meditacao',80,['seg2000'],20,'pix']]],
   ['a26','Renata Lopes','2026-02-05',  [['meditacao',100,['seg2000'],5,'pix']]],
   ['a27','Cecília Moraes','2026-06-15',[['meditacao',100,['seg2000'],15,'pix']]],
-  ['a28','Marta Siqueira','2025-06-02',[['aquarela',240,['qua1500'],2,'pix']]],
-  ['a29','Larissa Torres','2026-03-09',[['aquarela',130,['qua1500'],15,'pix']]],
+  ['a28','Manuela Siqueira','2025-06-02',[['aquarela',240,['qua1500'],2,'pix']], 'Responsável: Marta Siqueira · 8 anos'],
+  ['a29','Laura Torres','2026-03-09',[['aquarela',130,['qua1500'],15,'pix']], 'Responsável: Larissa Torres · 7 anos'],
   ['a30','Alice Rezende','2026-02-21', [['musicalizacao',150,['sab1000'],21,'pix']], 'Responsável: Mônica Rezende · 5 anos'],
   ['a31','Theo Gomes','2026-03-07',    [['musicalizacao',150,['sab1000'],7,'pix']], 'Responsável: André Gomes · 6 anos'],
-  ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']]],
-  ['a33','Rodrigo Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']]],
+  ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']], 'Responsável: Ana Vieira · 12 anos'],
+  ['a33','Rafael Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']], 'Responsável: Rodrigo Pacheco · 10 anos'],
 ];
 /* quem anda sumido (última presença) e quem está devendo — para os alertas */
 const ULTIMA_VINDA = {a09:'2026-10-15', a19:'2026-10-15', a11:'2026-10-19', a18:'2026-10-20', a22:'2026-10-17'};
@@ -317,7 +314,9 @@ const CAT_SAIDA = {
   'Extra':                      {icon:'circle-alert', dica:'O que não se encaixa nas outras'},
 };
 const CAT_ENTRADA = {
-  'Inglês':    {icon:'languages', dica:'Lançado à mão: a parte do Espaço (35%). A Marina recebe direto.'},
+  'Inglês':    {icon:'languages', dica:'Lançado à mão: a parte do Espaço (35%).'},
+  'Massagem terapêutica': {icon:'hand-heart', dica:'Lançado à mão: a parte do Espaço de cada atendimento.'},
+  'Terapias integrais':   {icon:'sprout', dica:'Lançado à mão: a parte do Espaço de cada atendimento.'},
   'Airbnb':    {icon:'bed'},
   'Coworking': {icon:'grid-2x2'},
   'Eventos':   {icon:'ticket'},
@@ -432,14 +431,7 @@ function semear(){
     }));
   });
 
-  /* atendimentos com hora marcada (massagem e terapias) */
-  const clientes = ['Rosana','Marcelo','Tereza','Jorge','Silvia','Paulo','Cristina','Luana Ferraz','Ivone','Márcia','Eduardo','Lúcia'];
-  ['2026-08','2026-09','2026-10'].forEach((mes,k) => {
-    const nM = [7,9,6][k], nT = [2,1,2][k];
-    for (let i=0;i<nM;i++) S.sessoes.push({id:'se'+(S.seq++), atv:'massagem', instr:'aurelice', d:`${mes}-${pad(2+Math.floor(i*26/nM))}`, cliente:clientes[Math.floor(R()*clientes.length)], valor:250});
-    for (let i=0;i<nT;i++) S.sessoes.push({id:'se'+(S.seq++), atv:'terapias', instr:'kamala', d:`${mes}-${pad(6+i*11)}`, cliente:clientes[Math.floor(R()*clientes.length)], valor:i%2?260:220});
-  });
-  S.sessoes = S.sessoes.filter(s => s.d <= HOJE_ISO);
+  /* massagem terapêutica e terapias integrais: não são atividade regular; entram à mão no balanço (ver lançamentos) */
 
   /* vendas reais da planilha (mar–jul) */
   const porMes = {};
@@ -510,7 +502,11 @@ function semear(){
     if (mi === 7) L('entrada', 4, 400, '50% aluguel do espaço 04/07', 'Extra');
     /* inglês: não passa pela escola nem pelas mensalidades; a administração lança à mão a parte do Espaço (35%) */
     const ing = (FECH_PLANILHA[mes]?.outras?.ingles) ?? (MENSAL_EXEMPLO[mes]?.ingles) ?? 3000;
-    L('entrada', 10, ing * .35, 'Inglês · parte do Espaço (Marina)', 'Inglês');
+    L('entrada', 10, ing * .35, 'Inglês · parte do Espaço', 'Inglês');
+    const mas = (FECH_PLANILHA[mes]?.outras?.massagem) ?? (MENSAL_EXEMPLO[mes]?.massagem) ?? [1750, 2250, 1500][mi - 8] ?? 0;
+    const ter = (FECH_PLANILHA[mes]?.outras?.terapias) ?? (MENSAL_EXEMPLO[mes]?.terapias) ?? [440, 260, 480][mi - 8] ?? 0;
+    if (mas) L('entrada', 26, mas * .3, 'Massagens do mês · parte do Espaço', 'Massagem terapêutica');
+    if (ter) L('entrada', 27, ter * .3, 'Atendimentos do mês · parte do Espaço', 'Terapias integrais');
   }
 
   /* repasses da equipe já pagos (meses fechados) */
@@ -521,24 +517,45 @@ function semear(){
 
 
   /* ---------- fichas (no lugar do Google Forms), pontos, avisos e eventos ---------- */
-  const OBJ = ['Flexibilidade','Dor nas costas','Ansiedade e estresse','Condicionamento','Respiração','Espiritualidade','Dormir melhor'];
-  const COMO_ = ['Instagram','Indicação','Google','Passei na frente','Evento do Espaço'];
-  const SAUDE = {a05:'Hérnia de disco na lombar (L4-L5). Evitar flexão profunda.', a10:'Cirurgia no joelho direito em 2024.', a16:'Pressão alta, controlada com remédio.', a23:'Gestante de 24 semanas.', a24:'Gestante de 16 semanas.', a13:'Labirintite de vez em quando.'};
-  const EMERG = ['Carlos','Ana','Marcelo','Rita','Jorge','Sônia','Paulo','Lúcia'];
+  const EMERG = ['Carlos (marido)','Ana (mãe)','Marcelo (irmão)','Rita (mãe)','Jorge (esposo)','Sônia (irmã)','Paulo (pai)','Lúcia (filha)'];
+  const MOTIVO = ['Flexibilidade e alongamento','Ansiedade e estresse','Dor nas costas','Autoconhecimento','Indicação da fisioterapeuta','Respirar melhor e dormir melhor','Equilíbrio do corpo e da mente'];
+  const PRATICOU = ['Nunca pratiquei','Já pratiquei há alguns anos','Sim, pratico há 2 anos','Fiz algumas aulas on-line','Pratico em casa'];
+  const SAUDE_Y = {   /* respostas de saúde que não são "não" (o resto responde que está tudo bem) */
+    a05:{coluna:'Sim, lombar (hérnia de disco L4-L5)', maisInfo:'Fisioterapia uma vez por semana. Evitar flexão profunda.'},
+    a10:{dores:'Joelho direito, operei em 2024', maisInfo:'Cirurgia de menisco em 2024.'},
+    a16:{pressao:'Alta', maisInfo:'Uso remédio para pressão todos os dias.'},
+    a13:{labirintite:'Sim, labirintite de vez em quando'},
+    a23:{maisInfo:'Gestante de 24 semanas, pré-natal em dia, liberada pela médica.', coluna:'Um pouco na lombar'},
+    a24:{maisInfo:'Gestante de 16 semanas, liberada pela médica.'},
+    a08:{intestino:'Funciona dia sim, dia não'},
+  };
+  const SAUDE_C = {a30:'Alergia a amendoim', a31:'Não'};
+  const tel = () => '(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999));
+  const cpf = () => { const d = Array.from({length:9}, () => Math.floor(R()*10)); const dv = n => { let t = 0; for (let k = 0; k < n; k++) t += d[k] * (n + 1 - k); const r = (t * 10) % 11; return r === 10 ? 0 : r; }; d.push(dv(9)); d.push(dv(10)); const x = d.join(''); return `${x.slice(0,3)}.${x.slice(3,6)}.${x.slice(6,9)}-${x.slice(9)}`; };
+  const KIDS = ['aquarela','musicalizacao','violao'];
   S.alunos.forEach((a, i) => {
     const kid = /Responsável: ([^·]+)·\s*(\d+) anos/.exec(a.obs);
     const anos = kid ? +kid[2] : 22 + Math.floor(R()*38);
     a.nasc = `${2026 - anos - (HOJE.getMonth() < 6 ? 1 : 0)}-${pad(1 + Math.floor(R()*12))}-${pad(1 + Math.floor(R()*27))}`;
-    if (kid){ a.resp = kid[1].trim(); a.respTel = '(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)); }
-    const pn = a.nome.split(' ')[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-    a.email = i % 4 === 3 ? '' : `${pn}.${a.nome.split(' ').slice(-1)[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}@gmail.com`;
-    const saude = SAUDE[a.id];
-    a.ficha = {exp:['nunca','ja','pratico'][Math.floor(R()*3)], obj:[OBJ[i%7], OBJ[(i*3+2)%7]].filter((x,j,arr) => arr.indexOf(x) === j).join(','),
-      temSaude: saude ? 'sim' : 'nao', saude: saude || '', saudeOk: !!saude && a.id !== 'a13', emerg: kid ? a.resp : `${EMERG[i%8]} (${['marido','mãe','irmã','pai','esposa','filho'][i%6]})`, emergTel:'(41) 9' + String(8000+Math.floor(R()*1999)) + '-' + String(1000+Math.floor(R()*8999)),
-      como: COMO_[i%5], indicou: i%5 === 1 ? 'Luana Ferraz' : '', whats:true, imagem: i%3 !== 0, termos:true, completa: !['a12','a22','a33'].includes(a.id)};
-    if (kid) a.ficha.obj = 'Musicalidade,Socialização';
+    if (kid){ a.resp = kid[1].trim(); a.respTel = a.tel; }
+    const pn = s_ => s_.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const quem = kid ? a.resp : a.nome;
+    a.email = i % 4 === 3 ? '' : `${pn(quem.split(' ')[0])}.${pn(quem.split(' ').slice(-1)[0])}@gmail.com`;
+    const crianca = KIDS.includes(a.mats[0].atv);
+    if (crianca){
+      a.ficha = {form:'criancas', saudeOk:true, completa: a.id !== 'a33', respostas:{nome:a.nome, nasc:a.nasc, endereco:`Rua ${['das Gaivotas','Guaraqueçaba','Erva Cidreira','das Palmeiras'][i%4]}, ${10 + i*7} · Pontal do Sul`, saude: SAUDE_C[a.id] || 'Não', restricao: i % 5 === 0 ? 'Vegetariano' : 'Nenhuma',
+        respNome:a.resp || '', respParentesco: i % 2 ? 'Mãe' : 'Pai', tel:a.tel, email:a.email, imagem: i % 3 ? 'sim' : 'nao', ciente:true, priv:true, whats:true}};
+    } else {
+      const sy = SAUDE_Y[a.id] || {};
+      a.cpf = cpf();
+      a.ficha = {form:'yoga', saudeOk: a.id !== 'a13', completa: !['a12','a22'].includes(a.id), respostas:{nome:a.nome, nasc:a.nasc, tel:a.tel, cpf:a.cpf, email:a.email,
+        motivo: MOTIVO[i % MOTIVO.length], praticou: PRATICOU[i % PRATICOU.length], pressao: sy.pressao || (i % 9 === 4 ? 'Baixa' : 'Normal'), coluna: sy.coluna || 'Não', dores: sy.dores || 'Não',
+        intestino: sy.intestino || ['Funciona todos os dias','Todos os dias, às vezes mais de uma vez','Funciona todos os dias'][i % 3], labirintite: sy.labirintite || 'Não', saudeGeral: ['Boa','Muito boa','Física boa, mental cansada','Regular, quero melhorar'][i % 4],
+        maisInfo: sy.maisInfo || 'Não', emergNome: EMERG[i % 8], emergTel: tel(), termos:true, imagem: i % 3 ? 'sim' : 'nao', priv:true, whats:true, indicou: i % 5 === 1 ? 'Luana Ferraz' : ''}};
+      if (['a12','a22'].includes(a.id)) ['motivo','praticou','pressao','coluna','dores','intestino','labirintite','saudeGeral','maisInfo'].forEach(k => delete a.ficha.respostas[k]);
+    }
   });
-  S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.whats, imagem:a.ficha.imagem, whatsappEm:a.desde, imagemEm:a.desde}]));
+  S.consent = Object.fromEntries(S.alunos.map(a => [a.id, {whatsapp:a.ficha.respostas.whats !== false, imagem:a.ficha.respostas.imagem === 'sim', whatsappEm:a.desde, imagemEm:a.desde}]));
   /* quem já instalou o app e ligou os avisos (a Luana ainda não: é o exemplo da demonstração) */
   S.pontosAcoes = {};
   S.alunos.forEach((a, i) => { if (a.id !== 'a01' && i % 3 !== 2) S.pontosAcoes[a.id] = {instalar:'2026-10-0' + (1 + i%8), ...(i % 2 ? {notif:'2026-10-0' + (1 + i%8)} : {})}; });
@@ -562,9 +579,14 @@ function semear(){
   ];
   /* inscrições novas, como chegariam pelo link (no lugar do Google Forms) */
   S.inscricoes = [
-    {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', email:'marina.souto@gmail.com', atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, exp:'nunca', obj:'Ansiedade e estresse,Flexibilidade', temSaude:'nao', emerg:'Rui (marido)', emergTel:'(41) 99771-2030', como:'Instagram', termos:true, priv:true, whats:true, imagem:true}},
-    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{nome:'Pedro Alves', nasc:'2011-09-03', tel:'(41) 99640-1187', resp:'Sandra Alves', respTel:'(41) 99640-1180', atv:'violao', turmas:'qui1700', exp:'ja', obj:'Musicalidade', temSaude:'nao', emerg:'Sandra Alves (mãe)', emergTel:'(41) 99640-1180', como:'Indicação', indicou:'Rodrigo Pacheco', termos:true, priv:true, whats:true, imagem:false}},
-    {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', email:'helena.rib@hotmail.com', atv:'gestantes', turmas:'sab1030', exp:'nunca', obj:'Gestação,Respiração', temSaude:'sim', saude:'Gestante de 20 semanas, gravidez sem intercorrências.', saudeOk:true, emerg:'Diego (marido)', emergTel:'(41) 99733-5500', como:'Google', termos:true, priv:true, whats:true, imagem:false}},
+    {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', cpf:'529.982.247-25', email:'marina.souto@gmail.com',
+      motivo:'Ansiedade e estresse do trabalho', praticou:'Nunca pratiquei', pressao:'Normal', coluna:'Às vezes na cervical', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Física boa, mental cansada', maisInfo:'Não',
+      emergNome:'Rui (marido)', emergTel:'(41) 99771-2030', termos:true, imagem:'sim', saudeOk:true, priv:true, whats:true, indicou:''}},
+    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'violao', turmas:'qui1700', nome:'Pedro Alves', nasc:'2013-09-03', endereco:'Rua das Gaivotas, 210 · Pontal do Sul', saude:'Não', restricao:'Nenhuma',
+      respNome:'Sandra Alves', respParentesco:'Mãe', tel:'(41) 99640-1180', email:'sandra.alves@gmail.com', imagem:'nao', ciente:true, saudeOk:true, priv:true, whats:true, indicou:'Rafael Pacheco'}},
+    {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'gestantes', turmas:'sab1030', nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', cpf:'111.444.777-35', email:'helena.rib@hotmail.com',
+      motivo:'Preparar o corpo para o parto', praticou:'Fiz algumas aulas antes de engravidar', pressao:'Normal', coluna:'Um pouco na lombar', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Boa', maisInfo:'Gestante de 20 semanas, gravidez sem intercorrências, liberada pela obstetra.',
+      emergNome:'Diego (marido)', emergTel:'(41) 99733-5500', termos:true, imagem:'nao', saudeOk:true, priv:true, whats:true, indicou:''}},
   ];
   /* eventos criados pela administração */
   S.eventos = EVENTOS.map(e => ({...e, vagas:20, alvo:'todos', canais:['push','whatsapp'], criado:'2026-10-20', divulgado:'2026-10-21', inscritos:['a04','a07','a10','a16','a20','a25','a28'].map((a, i) => ({a, d:`2026-10-${21 + i}`, pago:a !== 'a20'})), externos:3}));
@@ -736,7 +758,7 @@ function repassesEquipe(S, mes){
   const out = {};
   const add = (id, lab, v) => { if (Math.abs(v) < .005 || !PESSOA[id]) return; (out[id] = out[id] || {id, nome:PESSOA[id].nome, itens:[], total:0}).itens.push({lab, v}); out[id].total += v; };
   fy.linhas.forEach(l => { add(l.id, 'Yoga (turmas)', l.yogaFinal); add(l.id, 'Particular', l.extras.particular); add(l.id, 'Gestantes', l.extras.gestantes); add(l.id, 'Meditação', l.extras.meditacao); });
-  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos', massagem:'aurelice', terapias:'kamala'};
+  const dono = {aquarela:'bruno', musicalizacao:'brunos', violao:'brunos'};
   rec.linhas.filter(l => dono[l.atv]).forEach(l => add(dono[l.atv], ATIV[l.atv].curto, l.instr));
   (S.descontos || []).filter(d => d.mes === mes && out[d.p]).forEach(d => add(d.p, `Lojinha: ${d.desc}`, -d.valor));
   return Object.values(out).map(o => ({...o, pago: S.repEquipe.find(r => r.p === o.id && r.mes === mes)})).sort((a,b) => b.total - a.total);
@@ -795,6 +817,89 @@ function formandoSituacao(f, st){
 }
 function contasDoMes(S, mes){
   return CONTAS_FIXAS.map(c => ({...c, pago: S.lanc.find(l => l.conta === c.id && mesDe(l.d) === mes)}));
+}
+
+/* ============================================================
+   FORMULÁRIOS DE INSCRIÇÃO — réplica dos Google Forms do Espaço
+   (as perguntas são as mesmas, na mesma ordem; só o desenho é do app)
+   - "Aulas de Yoga Espaço Anirvana": yoga e acroyoga, gestantes, particular,
+     meditação e movimento consciente
+   - "Inscrição Aulas de Aquarela / Musicalização": crianças, com responsável
+     (violão usa o mesmo de musicalização)
+   Regra pura: roda no app e no servidor (backup).
+   ============================================================ */
+const PROF_FORM = {aquarela:'Bruno Costa', musicalizacao:'Bruno Saes', violao:'Bruno Saes'};
+const IMAGEM_TXT = 'AUTORIZO SEM QUALQUER ÔNUS ECONÔMICO/FINANCEIRO extra ao Espaço Anirvana utilizar a imagem de minha pessoa, bem como a voz, minha ou de quem represento, inseridas uma ou ambas, no material a ser transmitido ao vivo ou gravado e em qualquer tipo de mídia e veículo de comunicação, para os fins que a Instituição acima citada lhe pretender dar, do qual declaro estar plenamente ciente, especialmente quanto ao fato de que esta imagem poderá ser utilizada em aulas, palestras ou outros usos, comerciais ou não.';
+const FORMULARIOS = {
+  yoga: {id:'yoga', nome:'Aulas de Yoga', sub:'Formulário de inscrição para as aulas presenciais', atvs:['yoga','particular','gestantes','meditacao','movimento'], passos:[
+    {t:'Você', campos:[
+      {k:'nome', l:'Nome completo', c:'Nome', obr:1, auto:'name'},
+      {k:'nasc', l:'Data de nascimento', c:'Nascimento', tipo:'data', obr:1},
+      {k:'tel', l:'Telefone (WhatsApp de preferência)', c:'WhatsApp', tipo:'tel', obr:1},
+      {k:'cpf', l:'CPF', c:'CPF', tipo:'cpf', obr:1, adm:1},
+      {k:'email', l:'E-mail', c:'E-mail', tipo:'email', ajuda:'Opcional. Para receber o recibo e os avisos.', adm:1},
+      {k:'respNome', l:'Nome do responsável', c:'Responsável', obr:1, menor:1},
+      {k:'respTel', l:'WhatsApp do responsável', c:'Tel. do responsável', tipo:'tel', obr:1, menor:1},
+    ]},
+    {t:'Prática e saúde', campos:[
+      {k:'motivo', l:'Qual o motivo principal de sua procura pelo Yoga?', c:'Motivo', obr:1},
+      {k:'praticou', l:'Já praticou ou pratica Yoga?', c:'Já praticou', obr:1},
+      {k:'pressao', l:'Como está sua pressão arterial?', c:'Pressão arterial', tipo:'multi', ops:['Baixa','Normal','Alta'], obr:1, saude:1},
+      {k:'coluna', l:'Você sente dores na coluna? Se sim, em que região?', c:'Coluna', obr:1, saude:1},
+      {k:'dores', l:'Você sente dores...? Se sim, descreva brevemente.', c:'Outras dores', obr:1, saude:1},
+      {k:'intestino', l:'Como está o funcionamento do seu intestino?', c:'Intestino', ajuda:'Funciona todos os dias, mais de uma vez ao dia ou quantas vezes na semana', obr:1, saude:1},
+      {k:'labirintite', l:'Tem labirintite, tonturas ou algo do gênero?', c:'Labirintite / tontura', obr:1, saude:1},
+      {k:'saudeGeral', l:'Como você considera sua saúde física e mental?', c:'Saúde física e mental', obr:1, saude:1},
+      {k:'maisInfo', l:'Mais alguma informação importante?', c:'Medicação, tratamento, cirurgia', ajuda:'Uso de medicação, tratamento de saúde, cirurgias realizadas', obr:1, saude:1, area:1},
+      {sec:'Contato de emergência'},
+      {k:'emergNome', l:'Nome e grau de parentesco', c:'Emergência', obr:1},
+      {k:'emergTel', l:'Telefone', c:'Tel. de emergência', tipo:'tel', obr:1},
+    ]},
+    {t:'Combinados', campos:[
+      {k:'termos', c:'aceitar os termos', tipo:'aceite', l:'Declaro estar ciente e concordar com os termos de responsabilidade que me foram enviados.', op:'Sim, declaro estar ciente e concordo com os termos.', obr:1, termos:1},
+      {k:'imagem', c:'responder sobre o uso de imagem', tipo:'escolha', l:'Autorização de uso de imagem', texto:IMAGEM_TXT, ops:[['sim','Sim, autorizo.'],['nao','Não, não autorizo.']], obr:1},
+    ]},
+  ]},
+  criancas: {id:'criancas', nome:'Aulas de {atv}', sub:'Inscrição no Espaço Anirvana', atvs:['aquarela','musicalizacao','violao'], crianca:1, passos:[
+    {t:'A criança', campos:[
+      {sec:'Informações da criança'},
+      {k:'nome', l:'Nome', c:'Nome', obr:1},
+      {k:'nasc', l:'Data de nascimento', c:'Nascimento', tipo:'data', obr:1},
+      {k:'endereco', l:'Endereço', c:'Endereço', obr:1, adm:1},
+      {k:'saude', l:'Possui algum problema de saúde, alergia ou informações de saúde que possam ser relevantes? Se sim, conte-nos um pouco.', c:'Saúde e alergias', obr:1, saude:1, area:1},
+      {k:'restricao', l:'Restrições alimentares', c:'Restrição alimentar', tipo:'escolha', ops:[['Nenhuma','Nenhuma'],['Vegetariano','Vegetariano'],['Vegano','Vegano'],['Sem glúten','Sem glúten']], obr:1},
+    ]},
+    {t:'Responsável', campos:[
+      {sec:'Informações do(a) responsável'},
+      {k:'respNome', l:'Nome', c:'Responsável', obr:1},
+      {k:'respParentesco', l:'Grau de parentesco da criança', c:'Parentesco', obr:1},
+      {k:'tel', l:'Telefone de contato', c:'WhatsApp', ajuda:'De preferência com WhatsApp', tipo:'tel', obr:1},
+      {k:'email', l:'E-mail do responsável', c:'E-mail', tipo:'email', ajuda:'Opcional. Para o recibo e os avisos.', adm:1},
+    ]},
+    {t:'Combinados', campos:[
+      {k:'imagem', c:'responder sobre imagens e filmagens', tipo:'escolha', l:'Você autoriza o uso de imagens e filmagens, feitas durante as aulas, para divulgações em nossas redes sociais?', ops:[['sim','Sim, autorizo'],['nao','Não']], obr:1},
+      {k:'ciente', c:'confirmar a mensalidade', tipo:'aceite', l:'Estou ciente que devo pagar a mensalidade para iniciar as atividades.', op:'Sim!', obr:1},
+    ]},
+  ], final:'Agradecemos a sua inscrição! Agora é só nos avisar pelo WhatsApp (41) 99848-7892 que passaremos os dados para o pagamento da mensalidade. Até breve! Espaço Anirvana e Prof. {prof}.'},
+};
+/* o app acrescenta no fim o que a LGPD pede (e a indicação, que dá pontos) */
+const CAMPOS_APP = [
+  {k:'saudeOk', tipo:'check', padrao:true, l:'Autorizo que as informações de saúde acima sejam vistas só pela professora da atividade, para cuidar da segurança na aula.'},
+  {k:'priv', c:'aceitar a política de privacidade', tipo:'check', obr:1, l:'Li e aceito a política de privacidade (como o Espaço cuida dos dados).'},
+  {k:'whats', tipo:'check', padrao:true, l:'Quero receber avisos de aula e de pagamento pelo WhatsApp.'},
+  {k:'indicou', l:'Alguém indicou o Espaço? (opcional)', c:'Indicação', ajuda:'A pessoa ganha pontos quando a matrícula é confirmada.'},
+];
+const formDe = atv => Object.values(FORMULARIOS).find(F => F.atvs.includes(atv))?.id || 'yoga';
+const tituloForm = (F, atv) => F.nome.replace('{atv}', ATIV[atv] ? ATIV[atv].curto : '');
+const camposForm = F => F.passos.flatMap(p => p.campos).filter(c => c.k);
+const cpfOk = s => { const d = String(s || '').replace(/\D/g, ''); if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false; const dv = n => { let t = 0; for (let i = 0; i < n; i++) t += +d[i] * (n + 1 - i); const r = (t * 10) % 11; return r === 10 ? 0 : r; }; return dv(9) === +d[9] && dv(10) === +d[10]; };
+const cpfMascara = s => { const d = String(s || '').replace(/\D/g, '').slice(0, 11); return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2'); };
+const idade = nasc => { if (!nasc) return null; const n = pd(nasc); let i = HOJE.getFullYear() - n.getFullYear(); if (HOJE.getMonth() < n.getMonth() || (HOJE.getMonth() === n.getMonth() && HOJE.getDate() < n.getDate())) i--; return i; };
+/* resumo de saúde em uma linha (para planilha e listas) */
+function resumoSaude(f){
+  const F = FORMULARIOS[f.form] || FORMULARIOS.yoga, r = f.respostas || {};
+  const nada = v => !v || /^(n[aã]o|nenhum[a]?|normal|nada|-)\.?$/i.test(String(v).trim());
+  return camposForm(F).filter(c => c.saude && !nada(r[c.k])).map(c => `${c.c}: ${r[c.k]}`).join(' · ');
 }
 
 /* ============================================================
@@ -1106,13 +1211,23 @@ function montarBackup(S, {ate = MES_ATUAL, quem = 'Administração', quando = HO
   { const r0 = 6 + Math.max(saldoFornecedores(S).length, S.fiado.length); LS.linha(r0, 0, ['Produto', 'Categoria', 'Preço', 'Fornecedor'], 1); (S.produtos || []).forEach((p, i) => LS.linha(r0 + 1 + i, 0, [p.nome, CATS_LOJA[p.cat]?.nome || '', p.preco, FORN[p.forn]?.nome || p.forn], [7, 0, 2, 0])); }
   abas.push(LS);
 
-  /* ALUNOS E FICHAS */
-  const AL = XLS.aba('Alunos e fichas', {cor:COR.cad, larguras:[24, 12, 16, 28, 22, 34, 12, 14, 26, 18, 18, 40, 30, 16, 12, 12, 12], congela:1});
-  AL.linha(0, 0, ['Nome', 'Nascimento', 'WhatsApp', 'E-mail', 'Responsável', 'Atividades e planos', 'Desde', 'Situação', 'Busca', 'Experiência', 'Conheceu por', 'Saúde (dado sensível)', 'Emergência', 'Instrutoras veem saúde?', 'WhatsApp?', 'Imagem?', 'Pontos'], 1);
-  S.alunos.forEach((a, i) => { const f = a.ficha || {}, c = (S.consent || {})[a.id] || {}, P = pontosAluno(S, a.id);
-    AL.linha(1 + i, 0, [a.nome, a.nasc ? {d:a.nasc} : '', a.tel, a.email || '', a.resp ? `${a.resp} ${a.respTel || ''}` : '', a.mats.map(m => `${nomePlano(m).replace(/<[^>]+>/g, '')} ${brl(valorMat(S, m))} dia ${m.venc}${m.status !== 'ativo' ? ' (' + m.status + ')' : ''}`).join(' + '), {d:a.desde}, a.mats.every(m => m.status === 'cancelado') ? 'saiu' : 'ativo',
-      (f.obj || '').split(',').filter(Boolean).join(', '), {nunca:'nunca praticou', ja:'já praticou', pratico:'pratica'}[f.exp] || '', f.como ? f.como + (f.indicou ? ` (${f.indicou})` : '') : '', f.temSaude === 'sim' ? f.saude : 'nada informado', f.emerg ? `${f.emerg} ${f.emergTel || ''}` : '', f.temSaude === 'sim' ? (f.saudeOk ? 'sim' : 'não') : '', c.whatsapp ? 'sim' : 'não', c.imagem ? 'sim' : 'não', P.total], [7, 4, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10]); });
+  /* ALUNOS E FICHAS — uma linha por aluno; depois, uma aba por formulário com todas as respostas */
+  const AL = XLS.aba('Alunos', {cor:COR.cad, larguras:[24, 12, 16, 28, 16, 28, 34, 12, 10, 40, 14, 12, 12, 10], congela:1});
+  AL.linha(0, 0, ['Nome', 'Nascimento', 'WhatsApp', 'E-mail', 'CPF', 'Responsável', 'Atividades e planos', 'Desde', 'Situação', 'Saúde (dado sensível)', 'Professoras veem saúde?', 'WhatsApp?', 'Imagem?', 'Pontos'], 1);
+  S.alunos.forEach((a, i) => { const f = a.ficha || {}, c = (S.consent || {})[a.id] || {}, P = typeof pontosAluno === 'function' ? pontosAluno(S, a.id) : {total:''};
+    AL.linha(1 + i, 0, [a.nome, a.nasc ? {d:a.nasc} : '', a.tel, a.email || '', a.cpf || '', a.resp ? `${a.resp} ${a.respTel || ''}` : '', a.mats.map(m => `${nomePlano(m).replace(/<[^>]+>/g, '')} ${brl(valorMat(S, m))} dia ${m.venc}${m.status !== 'ativo' ? ' (' + m.status + ')' : ''}`).join(' + '), {d:a.desde},
+      a.mats.every(m => m.status === 'cancelado') ? 'saiu' : 'ativo', resumoSaude(f) || 'nada informado', f.saudeOk ? 'sim' : 'não', c.whatsapp ? 'sim' : 'não', c.imagem ? 'sim' : 'não', P.total], [7, 4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 10]); });
   abas.push(AL);
+  /* as fichas como nos Google Forms: uma coluna por pergunta */
+  Object.values(FORMULARIOS).forEach(F => {
+    const quem = S.alunos.filter(a => (a.ficha || {}).form === F.id); if (!quem.length) return;
+    const cs = [...camposForm(F), ...CAMPOS_APP.filter(c => c.k === 'indicou')];
+    const A = XLS.aba(`Fichas ${F.id === 'yoga' ? 'Yoga' : 'Crianças'}`, {cor:COR.cad, larguras:[24, 16, ...cs.map(c => c.saude || c.tipo === 'escolha' ? 30 : 20)], congela:1});
+    A.linha(0, 0, ['Aluno', 'Atividade', ...cs.map(c => c.l.length > 60 ? c.c : c.l)], 1);
+    quem.forEach((a, i) => { const r = a.ficha.respostas || {};
+      A.linha(1 + i, 0, [a.nome, ATIV[a.mats[0].atv]?.nome || '', ...cs.map(c => { const v = r[c.k]; if (v === true) return 'Sim'; if (v === false || v === undefined) return ''; if (c.tipo === 'data' && v) return {d:v}; if (c.k === 'imagem') return v === 'sim' ? 'Sim, autorizo' : 'Não'; return v; })], [7, 0, ...cs.map(c => c.tipo === 'data' ? 4 : c.saude ? 9 : 0)]); });
+    abas.push(A);
+  });
   const PG = XLS.aba('Pagamentos', {cor:COR.cad, larguras:[12, 24, 22, 12, 14, 12], congela:1});
   PG.linha(0, 0, ['Data', 'Aluno', 'Atividade', 'Mês', 'Valor', 'Forma'], 1);
   S.pagamentos.slice().sort((a, b) => a.d < b.d ? -1 : 1).forEach((p, i) => { const a = alunoPor(S, p.a), m = a && a.mats.find(x => x.id === p.mat); PG.linha(1 + i, 0, [{d:p.d}, a ? a.nome : '—', m ? ATIV[m.atv].nome : '', p.mes, p.valor, p.metodo === 'cartao' ? 'cartão' : p.metodo], [4, 0, 0, 0, 2, 0]); });

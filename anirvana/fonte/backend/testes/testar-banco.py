@@ -52,7 +52,7 @@ A = {'luana':'20000000-0000-0000-0000-000000000001', 'camila':'20000000-0000-000
 seed = f"""
 insert into auth.users values {','.join(f"('{u}')" for u in U.values())};
 insert into equipe (id, nome, atividades, pix_chave) values
- ('{E['kamala']}','Kamala','{{yoga,particular,gestantes,meditacao,terapias}}','pix-kamala'),
+ ('{E['kamala']}','Kamala','{{yoga,particular,gestantes,meditacao}}','pix-kamala'),
  ('{E['bruno']}','Bruno','{{aquarela}}','pix-bruno'),
  ('{E['sara']}','Sara','{{yoga}}','pix-sara'),
  ('{E['anajulia']}','Ana Julia','{{yoga,particular}}','pix-ana');
@@ -183,14 +183,21 @@ confere('cancelar pelo app nos 7 primeiros dias = arrependimento (CDC art. 49)',
 # ---------- inscrição pelo link (sem login) ----------
 def anon(sql):
     return psql(f"set local role anon; {sql}")
-insc = """{"nome":"Rita Moura","tel":"(41) 99111-2222","atv":"yoga","plano":"2x","turmas":"seg1830","termos":true,"priv":true,"exp":"nunca","emerg":"Rui","emergTel":"41999990000","temSaude":"sim","saude":"Hérnia lombar","saudeOk":true,"indicou":"Luana","whats":true}"""
+insc = """{"nome":"Rita Moura","nasc":"1988-02-03","tel":"(41) 99111-2222","cpf":"529.982.247-25","atv":"yoga","plano":"2x","turmas":"seg1830","motivo":"Ansiedade","praticou":"Nunca","pressao":"Alta","coluna":"Sim, lombar","dores":"Não","intestino":"Todos os dias","labirintite":"Não","saudeGeral":"Boa","maisInfo":"Hérnia lombar","emergNome":"Rui (marido)","emergTel":"41999990000","termos":true,"imagem":"sim","priv":true,"saudeOk":true,"indicou":"Luana","whats":true}"""
 s, o = anon(f"select inscrever('{insc}'::jsonb)")
 confere('sem login, a pessoa se inscreve pelo link', s, o)
 id_insc = valor(o)
-s, o = anon("""select inscrever('{"nome":"Pedro Alves","tel":"41996401187","atv":"violao","nasc":"2015-09-03","termos":true,"priv":true}'::jsonb)""")
-confere('menor sem responsável não se inscreve', not s and 'respons' in o, o)
-s, o = anon("""select inscrever('{"nome":"Ana Teste","tel":"41996401100","atv":"yoga","termos":false,"priv":true}'::jsonb)""")
-confere('sem aceitar os termos não se inscreve', not s and 'termos' in o, o)
+s, o = anon("""select inscrever('{"nome":"Pedro Alves","tel":"41996401187","atv":"violao","nasc":"2015-09-03","endereco":"Rua A, 1","saude":"Não","restricao":"Nenhuma","imagem":"nao","ciente":true,"priv":true}'::jsonb)""")
+confere('criança sem responsável não se inscreve (formulário de criança)', not s and 'respNome' in o, o)
+s, o = anon(f"select inscrever('{insc.replace('529.982.247-25', '123.456.789-00')}'::jsonb)")
+confere('CPF inválido é recusado (formulário do yoga)', not s and 'CPF' in o, o)
+s, o = anon(f"select inscrever('{insc.replace(',\"labirintite\":\"Não\"', '')}'::jsonb)")
+confere('faltou pergunta obrigatória do formulário', not s and 'labirintite' in o, o)
+crianca = """{"nome":"Lia Prates","nasc":"2018-03-02","atv":"aquarela","endereco":"Rua das Gaivotas, 40","saude":"Alergia a corante","restricao":"Vegetariano","respNome":"Joana Prates","respParentesco":"Mãe","tel":"(41) 99222-3333","imagem":"nao","ciente":true,"priv":true,"saudeOk":true}"""
+s, o = anon(f"select inscrever('{crianca}'::jsonb)")
+confere('criança com responsável se inscreve na aquarela', s, o)
+s, o = anon(f"select inscrever('{insc.replace('Rita Moura', 'Ana Teste').replace('99111-2222', '99640-1100').replace('\"termos\":true', '\"termos\":false')}'::jsonb)")
+confere('sem aceitar os termos de responsabilidade não se inscreve', not s and 'termos' in o, o)
 s, o = anon('select count(*) from inscricoes')
 confere('sem login não lê as inscrições de ninguém', not s or valor(o) == '0', o)
 for _ in range(2): anon(f"select inscrever('{insc}'::jsonb)")
@@ -201,11 +208,13 @@ confere('instrutora não confirma matrícula', not s, o)
 s, o = como(U['admin'], f"select confirmar_inscricao('{id_insc}')")
 confere('administração confirma: vira aluno com ficha e matrícula', s, o)
 nova = valor(o)
-s, o = psql(f"select (select count(*) from fichas where aluno_id='{nova}') || '/' || (select count(*) from matriculas where aluno_id='{nova}' and plano_id='yoga-2x' and valor=160) || '/' || (select count(*) from consentimentos where aluno_id='{nova}')")
-confere('ficha, matrícula de 160 e 4 consentimentos (termos, privacidade, WhatsApp, saúde)', s and valor(o) == '1/1/4', o)
+s, o = psql(f"select (select formulario from fichas where aluno_id='{nova}') || '/' || (select count(*) from matriculas where aluno_id='{nova}' and plano_id='yoga-2x' and valor=160) || '/' || (select count(*) from consentimentos where aluno_id='{nova}') || '/' || (select respostas->>'pressao' from fichas_saude where aluno_id='{nova}') || '/' || (select cpf from alunos_privado where aluno_id='{nova}')")
+confere('ficha do yoga, matrícula de 160, 5 consentimentos, saúde e CPF guardados', s and valor(o) == 'yoga/1/5/Alta/529.982.247-25', o)
+s, o = como(U['kamala'], f"select count(*) from alunos_privado where aluno_id='{nova}'")
+confere('professora não vê CPF nem endereço', s and valor(o) == '0', o)
 s, o = psql(f"select count(*) from pontos_acoes where aluno_id='{A['luana']}' and tipo='indicar'")
 confere('quem indicou ganha os pontos da indicação', s and valor(o) == '1', o)
-s, o = como(U['kamala'], f"select descricao from fichas_saude where aluno_id='{nova}'")
+s, o = como(U['kamala'], f"select respostas->>'maisInfo' from fichas_saude where aluno_id='{nova}'")
 confere('instrutora de yoga vê a saúde autorizada', s and valor(o) == 'Hérnia lombar', o)
 s, o = como(U['bruno'], f"select count(*) from fichas_saude where aluno_id='{nova}'")
 confere('professor de outra atividade não vê a saúde', s and valor(o) == '0', o)

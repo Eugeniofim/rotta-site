@@ -9,8 +9,8 @@ from pathlib import Path
 RAIZ = Path(__file__).parent
 SRC = RAIZ / 'src'
 LUCIDE = Path(sys.argv[1]) if len(sys.argv) > 1 else None
-SCRIPTS = ['data.js', 'engine.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'pontos.js', 'backup.js', 'ui-novo.js', 'main.js', 'pwa.js']
-CACHE = 'anirvana-v5'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
+SCRIPTS = ['data.js', 'engine.js', 'formularios.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'pontos.js', 'backup.js', 'inscricao.js', 'ui-novo.js', 'main.js', 'pwa.js']
+CACHE = 'anirvana-v6'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
 
 js = '\n'.join((SRC / f).read_text() for f in SCRIPTS)
 css = (SRC / 'style.css').read_text()
@@ -134,7 +134,7 @@ self.addEventListener('fetch', e => {{
 ''')
 
 # 3) motor do servidor (função backup-mensal): mesmas regras do app, sem tela
-motor = '\n'.join((SRC / f).read_text() for f in ['data.js', 'engine.js', 'pontos.js', 'backup.js'])
+motor = '\n'.join((SRC / f).read_text() for f in ['data.js', 'engine.js', 'formularios.js', 'pontos.js', 'backup.js'])
 for antes, depois in [
     ("const HOJE = new Date(2026, 9, 29, 10, 50);", "const HOJE = cfg.HOJE || new Date(2026, 9, 29, 10, 50);"),
     ("const MES_ATUAL = '2026-10';", "const MES_ATUAL = cfg.MES_ATUAL || '2026-10';"),

@@ -8,6 +8,8 @@ function vAdmin(){
   if (t === 'lojinha') return vLojinha();
   if (t === 'escola') return vEscola();
   if (t === 'divulgar') return vDivulgar();
+  if (t === 'inscricoes') return vInscricoes();
+  if (t === 'atividades') return `<div class="pagehead"><div><h1>Atividades e cursos</h1><p>O que o Espaço oferece: aparece na inscrição, na grade, na chamada e nas mensalidades.</p></div></div>${vAtividadesAdmin()}`;
   return vAdminInicio();
 }
 
@@ -243,8 +245,8 @@ function vRegras(){
 function vEscola(){
   return `
   <div class="pagehead"><div><h1>Escola</h1><p>Alunos, horários, equipe e trocas de aula.</p></div>
-    <div class="row wrap"><div class="seg">${[['alunos','Alunos'],['formacao','Formação'],['horarios','Horários'],['equipe','Equipe'],['subs','Trocas']].map(([k,l]) => `<button class="${UI.escolaVis===k?'on':''}" data-act="escolaVis" data-v="${k}">${l}</button>`).join('')}</div>${UI.escolaVis==='alunos'?`<button class="btn pri" data-act="novoAluno">${ic('user-plus')}Novo aluno</button>`:''}</div></div>
-  ${UI.escolaVis === 'formacao' ? vFormacaoAdmin() : UI.escolaVis === 'horarios' ? vGrade(null) : UI.escolaVis === 'equipe' ? vEquipe() : UI.escolaVis === 'subs' ? vSubsAdmin() : vEscolaAlunos()}`;
+    <div class="row wrap"><div class="seg">${[['alunos','Alunos'],['horarios','Horários'],['equipe','Equipe'],['subs','Trocas']].map(([k,l]) => `<button class="${UI.escolaVis===k?'on':''}" data-act="escolaVis" data-v="${k}">${l}</button>`).join('')}</div>${UI.escolaVis==='alunos'?`<button class="btn pri" data-act="novoAluno">${ic('user-plus')}Novo aluno</button>`:''}</div></div>
+  ${UI.escolaVis === 'horarios' ? vGrade(null) : UI.escolaVis === 'equipe' ? vEquipe() : UI.escolaVis === 'subs' ? vSubsAdmin() : vEscolaAlunos()}`;
 }
 function vEscolaAlunos(){
   const q = UI.busca.trim().toLowerCase();
@@ -261,7 +263,7 @@ function vGrade(meu){
   return `<div class="card"><div class="card-h"><div><h3>Grade da semana</h3><span class="sub">${meu ? 'Suas aulas em destaque. Toque numa delas para ver a chamada ou pedir troca.' : 'Horários de exemplo · ajustar com a grade real do Espaço'}</span></div></div>
     <div class="week">${dias.map(d => `<div class="day"><h4 class="${HOJE.getDay()===d?'today':''}"><span>${DIAS[d]}</span></h4><div>${TURMAS.filter(t => t.dia === d).sort((a,b)=>a.h.localeCompare(b.h)).map(t => { const mine = meu && t.instr === meu; const n = t.aluno ? 1 : matriculadosNaTurma(S,t.id).length;
       return `<button class="slot ${meu ? (mine?'mine':'dim') : ''}" style="--c:${ATIV[t.atv].hex}" ${(!meu||mine)?`data-act="${meu?'minhaTurma':'verTurma'}" data-v="${t.id}"`:'tabindex="-1"'}><span class="tiny muted">${t.h} · ${t.sala}</span><b>${nomeTurma(t)}</b><span class="tiny">${PESSOA[t.instr].nome} · ${n} ${n===1?'aluno':'alunos'}</span></button>`; }).join('')}</div></div>`).join('')}</div>
-    <p class="small muted" style="margin-top:6px">Massagem e terapias integrais são com hora marcada e não entram na grade.</p></div>`;
+    <p class="small muted" style="margin-top:6px">Inglês, massagem terapêutica e terapias integrais não entram na grade: são lançados à mão no balanço.</p></div>`;
 }
 const MONO = {nao:['Não começou','neu'], tema:['Tema definido','pri'], escrevendo:['Escrevendo','warn'], entregue:['Entregue','ok']};
 function vFormacaoAdmin(){
@@ -294,10 +296,12 @@ function vFormacaoAdmin(){
   </div>`;
 }
 function vEquipe(){
-  return `<div class="card"><div class="card-h"><div><h3>Equipe</h3><span class="sub">Quem dá aula, quais alunos cada pessoa enxerga e o código de acesso de cada uma</span></div></div>
+  const sairam = (S.equipe || []).filter(p => p.ativo === false);
+  return `<div class="card"><div class="card-h"><div><h3>Equipe</h3><span class="sub">Quem dá aula, quais alunos cada pessoa enxerga e o código de acesso de cada uma</span></div><button class="btn sol" data-act="novoInstrutor">${ic('user-plus')}Cadastrar instrutor</button></div>
     <div class="list">${EQUIPE.map(p => { const c = (S.codigos || {})[p.id], ver = UI.verCod === p.id;
-      return `<div class="li" style="align-items:flex-start">${av(p.nome)}<div class="main-c"><span class="t">${p.nomeCompleto ? `${p.nome} <span class="small muted" style="font-weight:500">· ${p.nomeCompleto}</span>` : p.nome}${p.obs?` <span class="tag">${p.obs}</span>`:''}</span><span class="s">${p.atvs.filter(a => ATIV[a]).map(a => ATIV[a].curto).join(', ')} · vê ${alunosVisiveis(S,p.id).length} alunos · ${p.atvs.filter(a => ATIV[a]).map(a => Math.round(S.regras.pct[a]*100)+'%').filter((x,i,arr)=>arr.indexOf(x)===i).join(' / ')}</span>${p.bio?`<span class="s">${p.bio}</span>`:''}
-        ${c ? `<div class="row wrap" style="gap:6px;margin-top:8px;align-items:center"><span class="pill neu">${ic('lock')}Código <b class="num" style="letter-spacing:.12em;margin-left:4px">${ver ? c.c.slice(0,3) + ' ' + c.c.slice(3) : '••• •••'}</b></span><button class="btn ghost sm" data-act="verCodigo" data-v="${p.id}">${ver ? 'Esconder' : 'Ver'}</button><button class="btn sec sm" data-act="novoCodigo" data-v="${p.id}">${ic('rotate-ccw','sm')}Gerar novo</button><span class="tiny muted">desde ${dataBR(c.em)}</span></div>` : ''}</div></div>`; }).join('')}</div>
+      return `<div class="li" style="align-items:flex-start">${av(p.nome)}<div class="main-c" style="flex:1;min-width:0"><span class="t">${p.nomeCompleto ? `${p.nome} <span class="small muted" style="font-weight:500">· ${p.nomeCompleto}</span>` : p.nome}${p.obs?` <span class="tag">${p.obs}</span>`:''}</span><span class="s">${p.atvs.filter(a => ATIV[a]).map(a => ATIV[a].curto).join(', ')} · vê ${alunosVisiveis(S,p.id).length} alunos · ${p.atvs.filter(a => ATIV[a]).map(a => Math.round(S.regras.pct[a]*100)+'%').filter((x,i,arr)=>arr.indexOf(x)===i).join(' / ')}</span>${p.bio?`<span class="s">${p.bio}</span>`:''}
+        ${c ? `<div class="row wrap" style="gap:6px;margin-top:8px;align-items:center"><span class="pill neu">${ic('lock')}Código <b class="num" style="letter-spacing:.12em;margin-left:4px">${ver ? c.c.slice(0,3) + ' ' + c.c.slice(3) : '••• •••'}</b></span><button class="btn ghost sm" data-act="verCodigo" data-v="${p.id}">${ver ? 'Esconder' : 'Ver'}</button><button class="btn sec sm" data-act="novoCodigo" data-v="${p.id}">${ic('rotate-ccw','sm')}Gerar novo</button><span class="tiny muted">desde ${dataBR(c.em)}</span></div>` : ''}</div><button class="iconbtn" data-act="editarInstrutor" data-v="${p.id}" aria-label="Editar ou excluir ${escapeH(p.nome)}">${ic('pencil','sm')}</button></div>`; }).join('')}</div>
+    ${sairam.length ? `<div class="eyebrow" style="margin:14px 0 6px">Saíram da equipe</div><div class="list">${sairam.map(p => `<div class="li" style="opacity:.7">${av(p.nome)}<div class="main-c"><span class="t">${escapeH(p.nome)}</span><span class="s">saiu em ${dataBR(p.saiu || HOJE_ISO)} · aulas e repasses continuam no histórico</span></div></div>`).join('')}</div>` : ''}
     <div class="alert pri" style="margin-top:12px"><span class="ib">${ic('lock')}</span><div><div class="t">Cada instrutor tem um código pessoal</div><div class="s">São 6 números, só dela. Ela digita uma vez no celular dela. Se alguém sair da equipe ou o código vazar, toque em "Gerar novo": o antigo para de valer na hora, em todo aparelho. Cinco erros seguidos bloqueiam por 15 minutos.</div></div></div>
     <div class="alert pri" style="margin-top:8px"><span class="ib">${ic('users')}</span><div><div class="t">Quem vê quem</div><div class="s">Aluno de yoga em turma aparece para todas as instrutoras de yoga. Aluno de yoga particular aparece só para a instrutora que ele escolheu. Aquarela só para o professor de aquarela, e assim por diante.</div></div></div></div>`;
 }
