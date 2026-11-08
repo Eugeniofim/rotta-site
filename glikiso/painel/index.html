@@ -243,7 +243,7 @@ function telaInicio(d) {
   return `<div class="cabeca"><div><p class="rotulo">Clube Glikilovers</p><h1>${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, Melissa</h1><p class="sub">Exemplo de como o painel fica depois de um mês de clube.</p></div>
       <a class="btn btn-escuro" href="#avisos">${I.megafone}Mandar um aviso</a></div>
     <div class="grade g4">
-      <div class="caixa destaque"><p class="rotulo">No clube</p><p class="numero">${d.membros.length}</p><p class="numero-nota">${semana} entraram esta semana</p></div>
+      <div class="caixa destaque"><p class="rotulo">No clube</p><p class="numero">${d.membros.length}</p><p class="numero-nota">${semana} ${semana === 1 ? "entrou" : "entraram"} esta semana</p></div>
       <div class="caixa"><p class="rotulo">Cookies registrados</p><p class="numero">${usados30.length}</p><p class="numero-nota">códigos usados em 30 dias</p></div>
       <div class="caixa"><p class="rotulo">Prêmios a entregar</p><p class="numero">${pendentes.length}</p><p class="numero-nota">${pendentes.length ? "veja em Balcão" : "tudo entregue"}</p></div>
       <div class="caixa"><p class="rotulo">Aniversários</p><p class="numero">${niver.length}</p><p class="numero-nota">nesta semana</p></div>
