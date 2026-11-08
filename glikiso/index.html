@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gliki Sô Cookeria · Seu momento feliz está aqui</title>
+<meta name="description" content="Cookies mega recheados, feitos à mão. Delivery em Curitiba e Paranaguá, loja em Caiobá e a 1ª máquina de cookies do Paraná no Jockey Plaza.">
+<meta name="theme-color" content="#2a1913">
+<!-- Prévia: fora do Google. Tirar quando virar o link oficial dela. -->
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Gliki Sô Cookeria">
+<meta property="og:description" content="Seu momento feliz está aqui. Peça seu cookie em Curitiba, Paranaguá ou Caiobá.">
+<meta property="og:image" content="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cacau: #2a1913;      /* a parede de chocolate */
+    --cacau-2: #3a2419;
+    --bordo: #6e1f2a;      /* a curva bordô da parede */
+    --oliva: #6f7452;      /* o círculo do logo */
+    --creme: #f3e6d3;      /* massa crua */
+    --creme-2: #d9c7ae;
+    --led: #ffe9b8;        /* a fita de LED */
+    --massa: #c98a4b;      /* borda assada */
+    --display: "Gloock", Georgia, serif;
+    --rotulo: "Oswald", "Arial Narrow", sans-serif;
+    --texto: "Figtree", system-ui, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--cacau);
+    color: var(--creme);
+    font: 400 16px/1.5 var(--texto);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--led); outline-offset: 3px; border-radius: 8px; }
+
+  .pagina { max-width: 480px; margin: 0 auto; overflow: hidden; }
+
+  .previa {
+    font: 500 11px/1 var(--rotulo);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 9px 16px;
+    background: var(--oliva);
+    color: var(--creme);
+  }
+
+  /* ---------- topo: a parede em miniatura ---------- */
+  .topo { position: relative; padding: 0 20px 8px; min-height: 360px; }
+  .topo::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 74%; height: 250px;
+    background: var(--bordo);
+    border-bottom-left-radius: 100% 96%;
+  }
+  .topo-foto {
+    position: absolute;
+    top: 26px; right: -18px;
+    width: 210px; height: 210px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  }
+  .topo-texto { position: relative; padding-top: 150px; }
+  .logo {
+    width: 86px; height: 86px;
+    border-radius: 50%;
+    border: 3px solid var(--creme);
+    background: var(--oliva);
+    object-fit: cover;
+    margin-bottom: 18px;
+  }
+  .rotulo {
+    font: 500 13px/1 var(--rotulo);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--creme-2);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font: 400 44px/1.02 var(--display);
+    letter-spacing: -.01em;
+    margin: 0 0 14px;
+    max-width: 11ch;
+  }
+  .topo-sub { margin: 0; color: var(--creme-2); max-width: 32ch; }
+
+  /* ---------- pedir na cidade ---------- */
+  .bloco { padding: 28px 20px 0; }
+  .cidades {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 4px;
+    background: var(--cacau-2);
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .cidades button {
+    font: 600 14px/1 var(--texto);
+    color: var(--creme-2);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 6px;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .cidades button[aria-pressed="true"] { background: var(--creme); color: var(--cacau); }
+
+  .botao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    font: 600 16px/1.2 var(--texto);
+    text-decoration: none;
+    text-align: center;
+    transition: transform .15s ease, background .2s;
+  }
+  .botao:active { transform: scale(.98); }
+  .botao-principal { background: var(--creme); color: var(--cacau); font-size: 17px; }
+  .botao-principal:hover { background: #fff4e4; }
+  .botao-linha { border: 1.5px solid rgba(243,230,211,.35); color: var(--creme); }
+  .botao-linha:hover { background: rgba(243,230,211,.08); }
+  .par { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .par.um { grid-template-columns: 1fr; }
+  .botao svg { width: 20px; height: 20px; flex: none; }
+
+  .endereco {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(243,230,211,.14);
+    font-size: 14px;
+    color: var(--creme-2);
+  }
+  .endereco a { color: var(--led); font-weight: 600; white-space: nowrap; }
+
+  .oferta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 1.5px dashed var(--massa);
+    border-radius: 18px;
+    font-size: 14px;
+  }
+  .oferta strong { font: 500 17px/1.2 var(--rotulo); letter-spacing: .08em; display: block; color: var(--led); }
+  .oferta button {
+    font: 600 13px/1 var(--texto);
+    background: var(--massa);
+    color: var(--cacau);
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* ---------- a máquina, com as fitas de LED ---------- */
+  .maquina-area { position: relative; margin: 44px 0 0; padding: 46px 40px 0 20px; }
+  .fitas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .fitas path {
+    fill: none;
+    stroke: var(--led);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px #ffd98a) drop-shadow(0 0 10px rgba(255,196,110,.55));
+  }
+  .maquina {
+    position: relative;
+    padding: 24px 22px 22px;
+    border-radius: 24px;
+    background:
+      radial-gradient(120% 70% at 100% 0%, rgba(255,233,184,.16), transparent 60%),
+      var(--cacau-2);
+  }
+  .maquina h2 { font: 400 30px/1.08 var(--display); margin: 0 0 10px; }
+  .maquina .status {
+    display: inline-block;
+    font: 500 13px/1.3 var(--rotulo);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--cacau);
+    background: var(--led);
+    border-radius: 6px;
+    padding: 6px 9px;
+    margin: 0 0 14px;
+  }
+  .maquina p { margin: 0 0 18px; color: var(--creme-2); }
+  .passos { margin-top: 12px; border-top: 1px solid rgba(243,230,211,.14); }
+  .passos summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 0 2px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+  }
+  .passos summary::-webkit-details-marker { display: none; }
+  .passos summary::after { content: "+"; font-size: 20px; line-height: 1; color: var(--led); }
+  .passos[open] summary::after { content: "−"; }
+  .passos ol { margin: 12px 0 4px; padding: 0; list-style: none; counter-reset: passo; }
+  .passos li {
+    counter-increment: passo;
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 10px;
+    padding: 7px 0;
+    font-size: 15px;
+    color: var(--creme-2);
+  }
+  .passos li::before {
+    content: counter(passo);
+    font: 500 15px/28px var(--rotulo);
+    text-align: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--led);
+    color: var(--led);
+  }
+  .marque { font-size: 14px; color: var(--creme-2); margin: 14px 0 0; }
+  .marque a { color: var(--led); font-weight: 600; }
+
+  /* ---------- queridinhos ---------- */
+  .titulo-bloco { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+  h2.secao { font: 400 28px/1.1 var(--display); margin: 0; }
+  .titulo-bloco a { font-size: 14px; color: var(--led); font-weight: 600; }
+  .vitrine {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 62%;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 20px;
+    padding: 0 20px 6px;
+    margin: 0 -20px;
+    scrollbar-width: none;
+  }
+  .vitrine::-webkit-scrollbar { display: none; }
+  .cookie { scroll-snap-align: start; text-decoration: none; }
+  .cookie-foto { position: relative; aspect-ratio: 1; border-radius: 20px; overflow: hidden; background: var(--cacau-2); }
+  .cookie-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+  .cookie:hover .cookie-foto img { transform: scale(1.04); }
+  .selo {
+    position: absolute;
+    top: 10px; left: 10px;
+    font: 500 11px/1 var(--rotulo);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: var(--creme);
+    color: var(--cacau);
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+  .cookie-nome { margin: 10px 2px 0; font-weight: 600; line-height: 1.3; }
+
+  /* ---------- clube, avaliação, instagram ---------- */
+  .cartao {
+    display: block;
+    padding: 22px;
+    border-radius: 24px;
+    text-decoration: none;
+    margin-top: 12px;
+  }
+  .cartao h3 { font: 400 24px/1.15 var(--display); margin: 0 0 6px; }
+  .cartao p { margin: 0 0 16px; }
+  .cartao .acao { font-weight: 700; display: inline-flex; gap: 8px; align-items: center; }
+  .clube { background: var(--oliva); }
+  .clube p { color: #efe6d6; }
+  .avaliar { background: var(--creme); color: var(--cacau); }
+  .avaliar .estrelas { color: var(--massa); letter-spacing: 3px; font-size: 18px; margin-bottom: 6px; }
+  .avaliar p { color: #5a4035; }
+  .insta { border: 1.5px solid rgba(243,230,211,.25); }
+  .insta p { color: var(--creme-2); }
+
+  .todos h3 { margin: 22px 0 2px; }
+  .todos a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 2px;
+    border-bottom: 1px solid rgba(243,230,211,.14);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .todos a::after { content: "→"; color: var(--led); }
+  .todos a:hover { color: var(--led); }
+
+  footer {
+    padding: 36px 20px 44px;
+    text-align: center;
+    font: 400 12px/1.6 var(--rotulo);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(243,230,211,.5);
+  }
+
+  @media (min-width: 481px) {
+    body { padding: 24px 0; }
+    .pagina { border-radius: 28px; box-shadow: 0 0 0 1px rgba(243,230,211,.08); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div class="previa" id="previa" hidden>Prévia feita pela Ti Artes · ainda não é o link oficial</div>
+
+  <header class="topo">
+    <img class="topo-foto" id="topoFoto" src="" alt="">
+    <div class="topo-texto">
+      <img class="logo" id="logo" src="" alt="Logo Gliki Sô">
+      <p class="rotulo">Gliki Sô Cookeria</p>
+      <h1>Seu momento feliz está aqui</h1>
+      <p class="topo-sub">Cookies mega recheados, feitos à mão. A 1ª cookeria do litoral do Paraná.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="bloco" aria-labelledby="t-pedir">
+      <p class="rotulo" id="t-pedir">Peça na sua cidade</p>
+      <div class="cidades" id="cidades"></div>
+      <div id="pedido"></div>
+    </section>
+
+    <section class="maquina-area" id="maquinaArea" aria-labelledby="t-maquina">
+      <svg class="fitas" id="fitas" aria-hidden="true"></svg>
+      <div class="maquina">
+        <p class="rotulo">Novidade · Jockey Plaza Shopping</p>
+        <h2 id="t-maquina">A 1ª máquina de cookies do Paraná</h2>
+        <p class="status" id="status"></p>
+        <p>Seu cookie favorito, direto da máquina, em Curitiba.</p>
+        <a class="botao botao-principal" id="mapaMaquina" target="_blank" rel="noopener">Como chegar</a>
+        <details class="passos">
+          <summary>Como comprar na máquina</summary>
+          <ol>
+            <li>Toque na tela para começar</li>
+            <li>Digite o número do produto</li>
+            <li>Confira o produto e o valor</li>
+            <li>Toque na tela logo abaixo</li>
+            <li>Escolha a forma de pagamento</li>
+            <li>Aproxime ou insira o cartão</li>
+          </ol>
+        </details>
+        <p class="marque">Comprou? Marque <a id="marque" target="_blank" rel="noopener">@glikisocookeria</a> no story.</p>
+      </div>
+    </section>
+
+    <section class="bloco" aria-labelledby="t-queridinhos" style="padding-top:44px">
+      <div class="titulo-bloco">
+        <h2 class="secao" id="t-queridinhos">Os queridinhos</h2>
+        <a id="verCardapio" target="_blank" rel="noopener">Cardápio completo</a>
+      </div>
+      <div class="vitrine" id="vitrine"></div>
+    </section>
+
+    <section class="bloco" style="padding-top:32px" aria-label="Fique perto da Gliki">
+      <a class="cartao clube" id="clube" target="_blank" rel="noopener">
+        <p class="rotulo" style="color:#efe6d6">#glikilovers</p>
+        <h3>Grupo VIP no WhatsApp</h3>
+        <p>Cupons e sabores novos antes de todo mundo.</p>
+        <span class="acao">Entrar no grupo →</span>
+      </a>
+      <a class="cartao avaliar" id="avaliar" target="_blank" rel="noopener">
+        <div class="estrelas" aria-hidden="true">★★★★★</div>
+        <h3>Comeu? Conta pra gente</h3>
+        <p>Sua avaliação no Google ajuda a Gliki a crescer.</p>
+        <span class="acao">Avaliar no Google →</span>
+      </a>
+      <a class="cartao insta" id="insta" target="_blank" rel="noopener">
+        <h3>@glikisocookeria</h3>
+        <p>Sabores da semana, bastidores e onde a Gliki vai estar.</p>
+        <span class="acao">Seguir no Instagram →</span>
+      </a>
+    </section>
+
+    <section class="bloco todos" aria-labelledby="t-todos" style="padding-top:40px">
+      <h2 class="secao" id="t-todos">Todos os links</h2>
+      <div id="todos"></div>
+    </section>
+  </main>
+
+  <footer>Gliki Sô Cookeria · Paranaguá · Curitiba · Caiobá</footer>
+</div>
+
+<script>
+/* Tudo o que muda fica aqui. */
+const CONFIG = {
+  previa: true,
+  logo: "https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg",
+  fotoTopo: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg",
+  instagram: "https://instagram.com/glikisocookeria",
+  grupoVip: "https://chat.whatsapp.com/GYfjm6gl9ni5Qy4bgsEXao",
+  avaliacao: "https://g.co/kgs/BSL7Dhp",
+  maquina: {
+    mapa: "https://www.google.com/maps/search/?api=1&query=Jockey+Plaza+Shopping+Curitiba",
+    inauguracao: "2026-11-08T10:00:00-03:00"
+  },
+  cidadeInicial: "curitiba",
+  cidades: {
+    curitiba: {
+      nome: "Curitiba",
+      delivery: "https://app.cardapioweb.com/gliki_so_cookeria",
+      ifood: "https://www.ifood.com.br/delivery/curitiba-pr/gliki-so-cookeria-cwb-jardim-botanico/c791c14d-640e-49d2-a5f6-0c6bb1f65d93",
+      whatsapp: "https://wa.me/message/ITSRMUQZQP64O1",
+      endereco: "R. Hildebrando de Araújo, 1035 · Jardim Botânico",
+      mapa: "R. Hildebrando de Araújo, 1035, Jardim Botânico, Curitiba - PR",
+      cupom: { codigo: "PRIMEIRACOMPRA", texto: "5% off no 1º pedido do delivery" }
+    },
+    paranagua: {
+      nome: "Paranaguá",
+      delivery: "https://app.cardapioweb.com/glikisocookeria",
+      whatsapp: "https://wa.me/message/MN4TFKPZ2ZHAO1",
+      endereco: "R. Manoel Corrêa, 622 · Costeira",
+      mapa: "R. Manoel Corrêa, 622, Costeira, Paranaguá - PR",
+      aviso: "Compre 3 cookies e ganhe 1. As regras estão no cardápio."
+    },
+    caioba: {
+      nome: "Caiobá",
+      aviso: "Endereço e horários de Caiobá estão nos destaques do nosso Instagram."
+    }
+  },
+  queridinhos: [
+    { nome: "Ninho com Nutella", selo: "Mais pedido", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534310/d007d98a10332570-CD0E-46B0-9CFE-5500D1232C31.jpeg" },
+    { nome: "Red Velvet com brigadeiro branco", selo: "Mais pedido", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg" },
+    { nome: "Lotus Biscoff", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534332/a3372658IMG_7114.jpeg" },
+    { nome: "Nutella", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534333/739cd598IMG_1781045522397.jpeg" },
+    { nome: "Potinho cookie com Nutella", selo: "Potinho", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534327/18548989IMG_1777486853223.jpeg" }
+  ]
+};
+
+const $ = (id) => document.getElementById(id);
+const icone = {
+  whats: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>',
+  sacola: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>'
+};
+const mapa = (q) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+
+function guardar(chave, valor) { try { localStorage.setItem(chave, valor); } catch (e) {} }
+function ler(chave) { try { return localStorage.getItem(chave); } catch (e) { return null; } }
+
+/* ---------- cidade ---------- */
+let cidadeAtual = CONFIG.cidades[ler("gliki_cidade")] ? ler("gliki_cidade") : CONFIG.cidadeInicial;
+
+function desenharCidades() {
+  $("cidades").innerHTML = Object.entries(CONFIG.cidades).map(([id, c]) =>
+    `<button type="button" data-cidade="${id}" aria-pressed="${id === cidadeAtual}">${c.nome}</button>`
+  ).join("");
+  $("cidades").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    cidadeAtual = b.dataset.cidade;
+    guardar("gliki_cidade", cidadeAtual);
+    desenharCidades();
+    desenharPedido();
+  }));
+}
+
+function desenharPedido() {
+  const c = CONFIG.cidades[cidadeAtual];
+  let html = "";
+  if (c.delivery) {
+    html += `<a class="botao botao-principal" href="${c.delivery}" target="_blank" rel="noopener">${icone.sacola} Pedir delivery em ${c.nome}</a>`;
+  } else {
+    html += `<a class="botao botao-principal" href="${CONFIG.instagram}" target="_blank" rel="noopener">Ver ${c.nome} no Instagram</a>`;
+  }
+  const extras = [];
+  if (c.ifood) extras.push(`<a class="botao botao-linha" href="${c.ifood}" target="_blank" rel="noopener">iFood</a>`);
+  if (c.whatsapp) extras.push(`<a class="botao botao-linha" href="${c.whatsapp}" target="_blank" rel="noopener">${icone.whats} WhatsApp</a>`);
+  if (extras.length) html += `<div class="par ${extras.length === 1 ? "um" : ""}">${extras.join("")}</div>`;
+  if (c.cupom) {
+    html += `<div class="oferta"><div><strong>${c.cupom.codigo}</strong>${c.cupom.texto}</div>
+      <button type="button" id="copiar">Copiar código</button></div>`;
+  } else if (c.aviso) {
+    html += `<div class="oferta"><div>${c.aviso}</div></div>`;
+  }
+  if (c.endereco) {
+    html += `<div class="endereco"><span>${c.endereco}</span><a href="${mapa(c.mapa)}" target="_blank" rel="noopener">Abrir no mapa</a></div>`;
+  }
+  $("pedido").innerHTML = html;
+  $("verCardapio").href = c.delivery || CONFIG.instagram;
+  $("verCardapio").textContent = c.delivery ? "Cardápio completo" : "Ver no Instagram";
+  desenharVitrine();
+
+  const copiar = $("copiar");
+  if (copiar) copiar.addEventListener("click", async () => {
+    const codigo = c.cupom.codigo;
+    try { await navigator.clipboard.writeText(codigo); }
+    catch (e) {
+      const campo = document.createElement("textarea");
+      campo.value = codigo; document.body.appendChild(campo); campo.select();
+      try { document.execCommand("copy"); } catch (e2) {}
+      campo.remove();
+    }
+    copiar.textContent = "Copiado";
+    setTimeout(() => { copiar.textContent = "Copiar código"; }, 1800);
+  });
+}
+
+/* ---------- vitrine ---------- */
+function desenharVitrine() {
+  const destino = CONFIG.cidades[cidadeAtual].delivery || CONFIG.instagram;
+  $("vitrine").innerHTML = CONFIG.queridinhos.map((q) => `
+    <a class="cookie" href="${destino}" target="_blank" rel="noopener">
+      <div class="cookie-foto">
+        <img src="${q.foto}" alt="Cookie ${q.nome}" loading="lazy">
+        ${q.selo ? `<span class="selo">${q.selo}</span>` : ""}
+      </div>
+      <p class="cookie-nome">${q.nome}</p>
+    </a>`).join("");
+}
+
+/* ---------- todos os links, sem precisar trocar de cidade ---------- */
+function desenharTodos() {
+  const grupos = Object.values(CONFIG.cidades).map((c) => {
+    const links = [];
+    if (c.delivery) links.push(["Delivery", c.delivery]);
+    if (c.ifood) links.push(["iFood", c.ifood]);
+    if (c.whatsapp) links.push(["WhatsApp", c.whatsapp]);
+    if (c.mapa) links.push(["Endereço no mapa", mapa(c.mapa)]);
+    if (!links.length) links.push([`${c.nome} no Instagram`, CONFIG.instagram]);
+    return [c.nome, links];
+  });
+  grupos.push(["Gliki Sô", [
+    ["Máquina no Jockey Plaza", CONFIG.maquina.mapa],
+    ["Grupo VIP #glikilovers", CONFIG.grupoVip],
+    ["Avaliar no Google", CONFIG.avaliacao],
+    ["Instagram", CONFIG.instagram]
+  ]]);
+  $("todos").innerHTML = grupos.map(([nome, links]) =>
+    `<h3 class="rotulo">${nome}</h3>` +
+    links.map(([texto, url]) => `<a href="${url}" target="_blank" rel="noopener">${texto}</a>`).join("")
+  ).join("");
+}
+
+/* ---------- máquina ---------- */
+function statusMaquina() {
+  const agora = new Date();
+  const inicio = new Date(CONFIG.maquina.inauguracao);
+  const fimDoDia = new Date(inicio.getTime() + 14 * 3600 * 1000);
+  const diaBR = (d) => d.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  if (agora < inicio) {
+    return diaBR(agora) === diaBR(inicio)
+      ? "É hoje · inauguração a partir das 10h"
+      : "Inauguração domingo, 08/11, às 10h";
+  }
+  if (agora < fimDoDia) return "É hoje · inauguração rolando agora";
+  return "Aberta no horário do shopping";
+}
+
+/* As fitas de LED da parede: saem da esquerda, correm por cima do cartão e descem pela direita. */
+function desenharFitas() {
+  const area = $("maquinaArea");
+  const svg = $("fitas");
+  const w = area.clientWidth, h = area.clientHeight;
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  const caminhos = [10, 21, 32].map((o) => `M -4 ${o} H ${w - o} V ${h}`);
+  svg.innerHTML = caminhos.map((d) => `<path d="${d}"/>`).join("");
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  svg.querySelectorAll("path").forEach((p, i) => {
+    const total = p.getTotalLength();
+    p.style.strokeDasharray = total;
+    p.style.strokeDashoffset = area.dataset.acesa ? 0 : total;
+    p.style.transition = `stroke-dashoffset 1.6s cubic-bezier(.6,0,.2,1) ${i * 0.22}s`;
+  });
+}
+function acenderFitas() {
+  const area = $("maquinaArea");
+  area.dataset.acesa = "1";
+  $("fitas").querySelectorAll("path").forEach((p) => { p.style.strokeDashoffset = 0; });
+}
+
+/* ---------- começo ---------- */
+$("previa").hidden = !CONFIG.previa;
+$("logo").src = CONFIG.logo;
+$("topoFoto").src = CONFIG.fotoTopo;
+$("mapaMaquina").href = CONFIG.maquina.mapa;
+$("marque").href = CONFIG.instagram;
+$("clube").href = CONFIG.grupoVip;
+$("avaliar").href = CONFIG.avaliacao;
+$("insta").href = CONFIG.instagram;
+$("status").textContent = statusMaquina();
+desenharCidades();
+desenharPedido();
+desenharTodos();
+desenharFitas();
+
+if ("IntersectionObserver" in window) {
+  new IntersectionObserver((entradas, obs) => {
+    if (entradas.some((e) => e.isIntersecting)) { requestAnimationFrame(acenderFitas); obs.disconnect(); }
+  }, { threshold: 0.35 }).observe($("maquinaArea"));
+} else {
+  acenderFitas();
+}
+/* Redesenha quando o cartão muda de tamanho (tela girou, abriu "Como comprar", fonte carregou). */
+if ("ResizeObserver" in window) {
+  new ResizeObserver(desenharFitas).observe($("maquinaArea"));
+} else {
+  addEventListener("resize", desenharFitas);
+}
+</script>
+</body>
+</html>
