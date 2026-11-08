@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Painel da Paula · Prévia</title>
+<!-- Prévia: fora do Google. Tirar quando virar o site oficial dela. -->
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Painel da Paula · Prévia">
+<meta property="og:description" content="Vitrine, lotes, clientes e avisos das duas marcas, num lugar só.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rottaguide.com/paulaoliveira/painel/">
+<meta property="og:image" content="https://rottaguide.com/paulaoliveira/painel/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Figtree:wght@400;500;600;700&family=Gloock&family=IM+Fell+Double+Pica:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--tx:'Figtree',system-ui,sans-serif;--mono:'DM Mono',ui-monospace,monospace}
+[data-marca=paula]{--bg:#F3EFEA;--card:#fff;--cor:#123A2D;--sobre:#EDE6A0;--borda:#1d2a2522;--suave:#5b6660;--tit:'Gloock',Georgia,serif;--real:#E3ECD9}
+[data-marca=fada]{--bg:#E7F3F4;--card:#fff;--cor:#0A1E4A;--sobre:#E4BF6C;--borda:#0a1e4a22;--suave:#4f6079;--tit:'IM Fell Double Pica',Georgia,serif;--real:#D7EBEF}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:#1b211e;font:400 16px/1.42 var(--tx);-webkit-font-smoothing:antialiased;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cor);outline-offset:2px}
+img{display:block;max-width:100%}
+.previa{background:#111;color:#fff;font-size:13px;padding:7px 14px;text-align:center}
+.alto{display:flex;align-items:center;gap:14px;padding:12px clamp(14px,3vw,34px);background:var(--cor);color:var(--sobre);position:sticky;top:0;z-index:30;flex-wrap:wrap}
+.alto h1{font:400 clamp(21px,2.4vw,26px)/1 var(--tit);margin-right:auto}
+.tt{display:inline-flex;background:#ffffff22;border-radius:26px;padding:3px}
+.tt button{min-height:40px;padding:0 15px;border-radius:24px;font-weight:600;font-size:14.5px;color:inherit}
+.tt button[aria-pressed=true]{background:var(--sobre);color:var(--cor)}
+.alto a{font-size:14.5px;font-weight:600;min-height:40px;display:inline-flex;align-items:center}
+.miolo{display:grid;grid-template-columns:210px minmax(0,1fr);max-width:1320px;margin:auto}
+.nav{position:sticky;top:64px;align-self:start;padding:24px 10px 24px clamp(14px,3vw,34px);display:flex;flex-direction:column;gap:3px}
+.nav button{display:block;text-align:left;width:100%;min-height:46px;padding:0 14px;border-radius:12px;font-weight:600}
+.nav button[aria-current=page]{background:var(--cor);color:var(--sobre)}
+.nav button small{float:right;font:400 13px/46px var(--mono)}
+.pg{padding:24px clamp(14px,3vw,34px) 40px;min-width:0}
+.pg h2{font:400 clamp(36px,5vw,58px)/1 var(--tit);margin-bottom:6px}
+.pg>p.lead{color:var(--suave);font-size:18px;margin-bottom:22px}
+.gr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.k{background:var(--card);border-radius:18px;padding:16px}
+.k b{display:block;font:400 clamp(27px,3vw,36px)/1.05 var(--tit);margin-top:3px}
+.k span{font-size:14px;color:var(--suave)}
+.cols{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:12px;margin-top:12px}
+.bloco{background:var(--card);border-radius:18px;padding:18px}
+.bloco h3{font-size:19px;font-weight:700;margin-bottom:10px}
+.faz{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border-top:1px solid var(--borda);padding:12px 0}
+.faz:first-of-type{border-top:0}
+.faz p{font-size:15px;color:var(--suave)}
+.faz strong{font-weight:600;font-size:17px;display:block}
+.b{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:24px;background:var(--cor);color:var(--sobre);font-weight:600;font-size:15.5px;white-space:nowrap;text-decoration:none}
+.b.v{background:none;color:var(--cor);box-shadow:inset 0 0 0 1.5px var(--cor)}
+.bar{display:grid;grid-template-columns:minmax(90px,130px) 1fr 40px;gap:8px;align-items:center;padding:5px 0;font-size:15px}
+.bar i{display:block;height:14px;border-radius:7px;background:var(--cor)}
+.bar span:last-child{font:400 14px var(--mono);text-align:right}
+.tp{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.lst{background:var(--card);border-radius:18px;overflow:hidden}
+.ln{display:grid;grid-template-columns:62px minmax(0,1fr) 112px 186px;gap:12px;align-items:center;padding:9px 14px;border-top:1px solid var(--borda)}
+.ln:first-child{border-top:0}
+.ln img{width:62px;height:62px;object-fit:contain;border-radius:10px;background:var(--bg)}
+.ln b{font-weight:600}
+.ln small{display:block;color:var(--suave);font-size:14px}
+.ln input.pr{width:100%;height:44px;border:0;border-radius:10px;background:var(--bg);padding:0 10px;font:400 15.5px var(--mono)}
+.ln select{width:100%;height:44px;border:0;border-radius:10px;background:var(--bg);padding:0 8px;font-weight:600;font-size:14.5px}
+.fil{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.ch{min-height:42px;padding:0 14px;border-radius:22px;font-weight:600;font-size:14.5px;box-shadow:inset 0 0 0 1.5px var(--borda);background:var(--card)}
+.ch[aria-pressed=true]{background:var(--cor);color:var(--sobre);box-shadow:none}
+.bus{height:46px;border:0;border-radius:23px;background:var(--card);padding:0 18px;width:min(300px,100%)}
+.cli{display:grid;grid-template-columns:minmax(0,1.4fr) 124px 98px 96px;gap:10px;align-items:center;padding:0 14px;min-height:64px;border-top:1px solid var(--borda);width:100%;text-align:left}
+.cli:first-child{border-top:0}
+.cli:hover{background:var(--bg)}
+.cli b{font-weight:600}
+.cli small{display:block;font-size:13.5px;color:var(--suave)}
+.tag{display:inline-block;padding:3px 9px;border-radius:12px;background:var(--real);font-size:13px;font-weight:600;white-space:nowrap}
+.tot{font:400 15.5px var(--mono);text-align:right}
+.tempo{list-style:none;padding:0;margin:14px 0 0}
+.tempo li{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--borda);font-size:15.5px}
+.tempo b{font:400 14px var(--mono)}
+.f{display:block;margin-top:12px;font-weight:600;font-size:15px}
+.f input,.f select,.f textarea{display:block;width:100%;margin-top:4px;border:0;box-shadow:inset 0 0 0 1.5px var(--borda);border-radius:12px;padding:11px 12px;background:#fff;font-weight:400;font-size:16px;min-height:48px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cels{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}
+.cel{background:#101114;border-radius:36px;padding:9px;position:sticky;top:90px}
+.tela{height:470px;border-radius:28px;background:var(--cor);padding:44px 12px;color:#fff}
+.tela .h{text-align:center;font:400 54px/1 var(--tit);margin-bottom:22px}
+.pu{background:#ffffffec;color:#111;border-radius:16px;padding:10px 12px;font-size:14.5px}
+.pu b{display:block;font-size:12.5px;color:#555;font-weight:500}
+.au{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:10px;align-items:center;border-top:1px solid var(--borda);padding:11px 0}
+.au b{font-weight:600}.au small{display:block;color:var(--suave);font-size:14.5px}
+.sw{width:54px;height:32px;border-radius:17px;background:#c7ccc9;position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw[aria-checked=true]{background:var(--cor)}.sw[aria-checked=true]::after{transform:translateX(22px)}
+.cs{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.cs button{width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 1px #0003}
+.cs button[aria-pressed=true]{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--cor)}
+dialog{border:0;padding:0;background:var(--card);color:inherit;max-width:none}
+dialog::backdrop{background:#0008}
+dialog.lado{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(480px,100vw)}
+.dl{padding:24px;position:relative}
+.dl h3{font:400 34px/1.05 var(--tit);padding-right:36px}
+.x{position:absolute;right:8px;top:8px;width:44px;height:44px;font-size:26px}
+.hist{list-style:none;padding:0;margin-top:6px}.hist li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--borda);font-size:15px}
+.dados{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.dados div span{display:block;color:var(--suave);font-size:13.5px}
+.aviso{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#111;color:#fff;padding:12px 18px;border-radius:24px;z-index:80;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s;max-width:calc(100vw - 24px);text-align:center}
+.aviso.on{opacity:1}
+.post{border-top:1px solid var(--borda);padding:12px 0}.post small{color:var(--suave)}
+@media(max-width:900px){
+ .miolo{display:block}.nav{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:40;flex-direction:row;background:var(--card);box-shadow:0 -1px 0 var(--borda);padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px}
+ .nav button{text-align:center;padding:0 2px;font-size:13px;min-height:54px;border-radius:12px}.nav button small{display:none}
+ .gr{grid-template-columns:1fr 1fr}.cols,.cels{grid-template-columns:1fr}.cel{position:static;max-width:280px;margin:auto}
+ .ln{grid-template-columns:54px minmax(0,1fr);grid-auto-rows:auto}.ln img{width:54px;height:54px;grid-row:span 2}.ln .ps{display:grid;grid-template-columns:96px 1fr;gap:6px;grid-column:2}
+ .cli{grid-template-columns:minmax(0,1fr) auto;padding:10px 14px}.cli .mob{display:none}
+}
+@media(min-width:901px){.ln .ps{display:contents}}
+</style>
+</head>
+<body data-marca="paula">
+<div class="previa">Prévia feita pela Ti Artes · clientes, vendas e filas são exemplo · nada aqui sai deste aparelho</div>
+<header class="alto"><h1 id="tit">Painel</h1>
+ <div class="tt" role="group" aria-label="Marca"><button id="m-paula" onclick="marca('paula')">Paula Oliveira</button><button id="m-fada" onclick="marca('fada')">Fada Marinha</button></div>
+ <a id="versite" target="_blank" rel="noopener">Ver o site ↗</a></header>
+<div class="miolo"><nav class="nav" id="nav" aria-label="Seções"></nav><main class="pg" id="pg"></main></div>
+<dialog id="dlg" class="lado"></dialog>
+<div class="aviso" id="aviso" role="status"></div>
+
+<script src="../comum/dados-paula.js"></script>
+<script src="../comum/dados-fada.js"></script>
+<script src="../comum/loja.js"></script>
+<script>
+const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
+const R=Loja.dinheiro,esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let M=(()=>{try{return localStorage.getItem('pp_marca')||'paula'}catch(e){return'paula'}})(),aba='hoje';
+const ABAS=[['hoje','Hoje'],['vitrine','Vitrine'],['lancar','Lotes'],['clientes','Clientes'],['avisos','Avisos'],['clube','Clube']];
+const NOME={paula:'Paula Oliveira',fada:'Fada Marinha'},CLUBE={paula:'Elenco',fada:'Cardume'};
+const VOC={paula:{disponivel:'Em cartaz',estreia:'Estreia',esgotado:'Lotação esgotada'},fada:{disponivel:'À tona',estreia:'Próxima maré',esgotado:'Foi com a maré'}};
+const img=(p,t=240)=>{const u=p.recorte||p.fotos[0]||'';return /^data:|\.(jpg|png|webp)$/.test(u)?u:u+'-'+t+'-0.webp'};
+const dias=d=>Math.floor((Date.now()-new Date(d))/864e5);
+const aviso=t=>{const a=$('#aviso');a.textContent=t;a.classList.add('on');clearTimeout(aviso.t);aviso.t=setTimeout(()=>a.classList.remove('on'),2800)};
+
+function clientes(){return Loja.estado().clientes.filter(c=>c.marca===M||c.marca==='ambas').map(c=>{const ped=c.pedidos.filter(p=>p.marca===M);const total=ped.reduce((s,p)=>s+p.valor,0),ult=ped[0]?dias(ped[0].em):9999,n=ped.length;
+ let seg='Comprou uma vez';if(n>=5||total>=2500)seg='Colecionadora';else if(n>=3&&ult<180)seg='Fiel';else if(n===1&&ult<60)seg='Nova';else if(ult>240)seg='Sumida';else if(ult>120)seg='Esfriando';
+ return {...c,ped,total,ult,n,seg}}).filter(c=>c.n>0).sort((a,b)=>b.total-a.total)}
+
+function nav(){$('#nav').innerHTML=ABAS.map(([k,t])=>`<button aria-current="${aba===k?'page':'false'}" onclick="ir('${k}')">${t==='Clube'?CLUBE[M]:t}</button>`).join('')}
+function ir(k){aba=k;desenha();scrollTo(0,0)}
+function marca(m){M=m;try{localStorage.setItem('pp_marca',m)}catch(e){}desenha()}
+
+function hoje(){
+ const cs=clientes(),ps=Loja.produtos(M),lim=Date.now()-30*864e5,mes=cs.flatMap(c=>c.ped).filter(p=>new Date(p.em)>lim),soma=mes.reduce((s,p)=>s+p.valor,0);
+ const fila=ps.filter(p=>p.fila).sort((a,b)=>b.fila-a.fila),totalFila=fila.reduce((s,p)=>s+p.fila,0),lanc=Loja.estado().lancamentos.filter(l=>l.marca===M);
+ const hojeD=new Date(),aniv=cs.filter(c=>{const d=new Date(c.nascimento+'T12:00');const a=new Date(hojeD.getFullYear(),d.getMonth(),d.getDate());const x=(a-hojeD)/864e5;return x>=-1&&x<=7});
+ const som=cs.filter(c=>c.seg==='Sumida'||c.seg==='Esfriando'),top=fila[0],prox=lanc[0];
+ return `<h2>Bom dia, Paula</h2><p class="lead">${NOME[M]}. O que pede a sua atenção hoje.</p>
+ <div class="gr"><div class="k"><span>Vendas em 30 dias</span><b>${R(soma)}</b></div><div class="k"><span>Pedidos em 30 dias</span><b>${mes.length}</b></div><div class="k"><span>Pessoas na fila</span><b>${totalFila}</b></div><div class="k"><span>${CLUBE[M]} com o app</span><b>${cs.filter(c=>c.app).length}</b></div></div>
+ <div class="cols"><section class="bloco"><h3>Para fazer agora</h3>
+ ${prox?`<div class="faz"><div><strong>${esc(prox.nome)} abre ${new Date(prox.quando).toLocaleDateString('pt-BR',{weekday:'long'})}</strong><p>Os avisos saem sozinhos. Lote de ${prox.lote} frascos.</p></div><button class="b" onclick="ir('lancar')">Ver lote</button></div>`:''}
+ ${top?`<div class="faz"><div><strong>${top.fila} pessoas querem ${esc(top.nome)}</strong><p>É o perfume mais pedido. Vale produzir o próximo lote?</p></div><button class="b v" onclick="ir('lancar')">Agendar</button></div>`:''}
+ ${aniv.length?`<div class="faz"><div><strong>${aniv.length} ${aniv.length>1?'aniversários':'aniversário'} esta semana</strong><p>${aniv.slice(0,3).map(c=>esc(c.nome.split(' ')[0])).join(', ')}</p></div><button class="b v" onclick="ficha('${aniv[0].id}')">Abrir ficha</button></div>`:''}
+ ${som.length?`<div class="faz"><div><strong>${som.length} clientes não compram há mais de 4 meses</strong><p>Uma mensagem de saudade costuma trazer parte delas de volta.</p></div><button class="b v" onclick="seg='Sumida';ir('clientes')">Ver quem</button></div>`:''}
+ </section><section class="bloco"><h3>Qual perfume volta primeiro</h3>${fila.slice(0,7).map(p=>`<div class="bar"><span>${esc(p.nome)}</span><i style="width:${Math.round(100*p.fila/fila[0].fila)}%"></i><span>${p.fila}</span></div>`).join('')||'<p>Ainda não tem ninguém na fila.</p>'}</section></div>`}
+
+let filtroV='todos';
+function vitrine(){const ps=Loja.produtos(M).filter(p=>filtroV==='todos'||p.status===filtroV);const c={disponivel:0,estreia:0,esgotado:0};Loja.produtos(M).forEach(p=>c[p.status]++);
+ return `<div class="tp"><div><h2>Vitrine</h2><p class="lead" style="margin:0">O que muda aqui aparece no site na mesma hora.</p></div><button class="b" onclick="novo()">Novo perfume</button></div>
+ <div class="fil">${[['todos','Todos'],['disponivel',VOC[M].disponivel+' ('+c.disponivel+')'],['estreia',VOC[M].estreia+' ('+c.estreia+')'],['esgotado',VOC[M].esgotado+' ('+c.esgotado+')']].map(([k,t])=>`<button class="ch" aria-pressed="${filtroV===k}" onclick="filtroV='${k}';desenha()">${t}</button>`).join('')}</div>
+ <div class="lst">${ps.map(p=>`<div class="ln"><img src="${img(p)}" alt="" loading="lazy"><div><b>${esc(p.nome)}</b><small>${esc(p.medida)}${p.fila?` · ${p.fila} na fila`:''}</small></div><div class="ps"><input class="pr" aria-label="Preço de ${esc(p.nome)}" inputmode="numeric" value="${p.preco}" onchange="muda('${p.id}',{preco:+this.value.replace(/\\D/g,'')});aviso('Preço de ${esc(p.nome)} atualizado')">
+ <select aria-label="Situação de ${esc(p.nome)}" onchange="muda('${p.id}',{status:this.value});aviso('${esc(p.nome)} atualizado no site')">${['disponivel','esgotado'].map(s=>`<option value="${s}" ${p.status===s||(s==='esgotado'&&p.status==='estreia')?'selected':''}>${VOC[M][s]}</option>`).join('')}</select></div></div>`).join('')}</div>`}
+function muda(id,c){Loja.alterar(M,id,c)}
+
+const CORES=[['#123A2D','#EDE6A0'],['#F7A400','#3A0606'],['#FFDC3C','#141007'],['#B4CE54','#34101A'],['#1A4BA0','#F8EF7A'],['#E8592F','#1C0E06'],['#78112E','#FFDCCB'],['#F1D6DE','#532033']];
+let corNova=0,fotoNova='';
+function novo(){corNova=0;fotoNova='';abre(`<h3>Novo perfume</h3><form onsubmit="salvaNovo(event)"><label class="f">Nome<input name="nome" required placeholder="${M==='paula'?'Ex.: Marlene':'Ex.: Filha de Iemanjá'}"></label>
+ <div class="f2"><label class="f">Tamanho<input name="medida" required placeholder="50 ml"></label><label class="f">Preço<input name="preco" required inputmode="numeric" placeholder="497"></label></div>
+ <label class="f">Foto<input type="file" accept="image/*" onchange="lerFoto(this)"></label><div id="fv"></div>
+ <label class="f">A frase dele, nas suas palavras<textarea name="frase" rows="2" required></textarea></label>
+ ${M==='paula'?`<label class="f">O que chega primeiro<input name="saida"></label><label class="f">O que fica no meio<input name="coracao"></label><label class="f">O que fica na pele<input name="base"></label><div class="f">Cor do cartaz<div class="cs">${CORES.map((c,i)=>`<button type="button" aria-label="Cor ${i+1}" aria-pressed="${i===0}" style="background:${c[0]}" onclick="corNova=${i};$$('.cs button').forEach((b,j)=>b.setAttribute('aria-pressed',j===${i}))"></button>`).join('')}</div></div>`:`<label class="f">Em que água ele mora<select name="zona"><option value="clara">Águas claras</option><option value="recife">Recife</option><option value="aberto">Mar aberto</option><option value="fundo">Fundo do mar</option></select></label><label class="f">Notas<input name="notas"></label>`}
+ <label class="f">Como ele entra<select name="status"><option value="disponivel">${VOC[M].disponivel}</option><option value="esgotado">${VOC[M].esgotado}</option></select></label>
+ <button class="b" style="width:100%;margin-top:16px;min-height:52px">Colocar no site</button></form>`)}
+function lerFoto(i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const m=new Image();m.onload=()=>{const c=document.createElement('canvas'),q=Math.min(1,900/Math.max(m.width,m.height));c.width=m.width*q;c.height=m.height*q;c.getContext('2d').drawImage(m,0,0,c.width,c.height);fotoNova=c.toDataURL('image/jpeg',.8);$('#fv').innerHTML=`<img src="${fotoNova}" alt="Prévia da foto" style="max-height:140px;margin-top:8px;border-radius:10px">`};m.src=r.result};r.readAsDataURL(f)}
+function salvaNovo(e){e.preventDefault();const f=e.target,id='n'+Date.now(),base={id,nome:f.nome.value.trim(),medida:f.medida.value.trim(),preco:+f.preco.value.replace(/\D/g,''),frase:f.frase.value.trim(),status:f.status.value,fotos:fotoNova?[fotoNova]:[],tipo:'perfume',historia:'',destaque:true};
+ if(M==='paula')Object.assign(base,{saida:f.saida.value,coracao:f.coracao.value,base:f.base.value,fundo:CORES[corNova][0],tinta:CORES[corNova][1],familia:'Novidade',para:'ela',recorte:null});else Object.assign(base,{zona:f.zona.value,notas:f.notas.value});
+ Loja.criar(M,base);dlg.close();aviso(base.nome+' entrou no site');}
+
+function lancar(){const ls=Loja.estado().lancamentos.filter(l=>l.marca===M),ps=Loja.produtos(M).filter(p=>p.tipo==='perfume'&&p.status==='esgotado').sort((a,b)=>b.fila-a.fila);
+ return `<h2>Lotes</h2><p class="lead">Escolha o perfume, o dia e quantos frascos. O resto acontece sozinho.</p><div class="cols"><section class="bloco"><h3>Agendar um lote</h3><form onsubmit="agenda(event)"><label class="f">Perfume<select name="p">${ps.map(p=>`<option value="${p.id}">${esc(p.nome)} · ${esc(p.medida)}${p.fila?` · ${p.fila} na fila`:''}</option>`).join('')}</select></label><div class="f2"><label class="f">Dia e hora<input type="datetime-local" name="q" required></label><label class="f">Quantos frascos<input name="l" required inputmode="numeric" value="60"></label></div><button class="b" style="width:100%;margin-top:14px;min-height:52px">Agendar</button></form>
+ <ul class="tempo"><li><b>1 dia antes</b>Aviso para quem está na fila</li><li><b>1 hora antes</b>${CLUBE[M]} com o app compra primeiro</li><li><b>Na hora</b>Aviso para todo mundo, o site abre</li><li><b>Acabou</b>Volta sozinho para “${VOC[M].esgotado}”</li></ul></section>
+ <section class="bloco"><h3>Já agendados</h3>${ls.map(l=>`<div class="faz"><div><strong>${esc(l.nome)}</strong><p>${new Date(l.quando).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${l.lote} frascos</p></div><button class="b v" onclick="tiraLote('${l.id}')">Cancelar</button></div>`).join('')||'<p>Nenhum lote agendado.</p>'}</section></div>`}
+function agenda(e){e.preventDefault();const f=e.target,p=Loja.produto(M,f.p.value);Loja.mexe(s=>{s.lancamentos.unshift({id:'l'+Date.now(),marca:M,produto:p.id,nome:p.nome+' · '+p.medida,quando:new Date(f.q.value).toISOString(),lote:+f.l.value})});aviso('Lote de '+p.nome+' agendado. O site já mostra a contagem.')}
+function tiraLote(id){Loja.mexe(s=>{s.lancamentos=s.lancamentos.filter(l=>l.id!==id)});aviso('Lote cancelado')}
+
+let seg='Todas',busca='';
+function clientesPg(){const cs=clientes(),segs=['Todas','Colecionadora','Fiel','Nova','Esfriando','Sumida'];const l=cs.filter(c=>(seg==='Todas'||c.seg===seg)&&c.nome.toLowerCase().includes(busca.toLowerCase()));
+ return `<div class="tp"><div><h2>Clientes</h2><p class="lead" style="margin:0">Da que mais compra para a que menos compra.</p></div><input class="bus" placeholder="Buscar pelo nome" aria-label="Buscar cliente" value="${esc(busca)}" oninput="busca=this.value;lista()"></div>
+ <div class="fil">${segs.map(s=>`<button class="ch" aria-pressed="${seg===s}" onclick="seg='${s}';desenha()">${s}${s==='Todas'?'':' ('+cs.filter(c=>c.seg===s).length+')'}</button>`).join('')}</div><div class="lst" id="lc">${listaHTML(l)}</div>`}
+function listaHTML(l){return l.map(c=>`<button class="cli" onclick="ficha('${c.id}')"><span><b>${esc(c.nome)}</b><small>${esc(c.cidade)}</small></span><span class="mob"><span class="tag">${c.seg}</span></span><span class="mob" style="font-size:14.5px">${c.ult===0?'hoje':c.ult+' dias'}</span><span class="tot">${R(c.total)}</span></button>`).join('')||'<p style="padding:18px">Ninguém com esse filtro.</p>'}
+function lista(){const cs=clientes().filter(c=>(seg==='Todas'||c.seg===seg)&&c.nome.toLowerCase().includes(busca.toLowerCase()));$('#lc').innerHTML=listaHTML(cs)}
+function ficha(id){const c=clientes().find(x=>x.id===id);if(!c)return;const espera=Object.entries({});
+ abre(`<h3>${esc(c.nome)}</h3><p style="margin-top:6px"><span class="tag">${c.seg}</span></p>
+ <div class="dados"><div><span>Comprou no total</span><b>${R(c.total)}</b></div><div><span>Pedidos</span><b>${c.n}</b></div><div><span>Última compra</span><b>${c.ult} dias atrás</b></div><div><span>Cheiro preferido</span><b>${esc(c.familia)}</b></div><div><span>WhatsApp</span><b>${esc(c.wa)}</b></div><div><span>Aniversário</span><b>${new Date(c.nascimento+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'long'})}</b></div><div><span>Cidade</span><b>${esc(c.cidade)}</b></div><div><span>App no celular</span><b>${c.app?'Sim':'Ainda não'}</b></div></div>
+ <button class="b" style="width:100%;min-height:50px" onclick="aviso('No app de verdade abre o WhatsApp com a mensagem pronta')">Chamar no WhatsApp</button>
+ <label class="f" style="margin-top:16px">Anotação sua<textarea rows="2" oninput="Loja.estado().clientes.find(x=>x.id==='${c.id}').nota=this.value" onchange="Loja.mexe(()=>{})" placeholder="Ex.: prefere perfumes secos, presente para a mãe em maio">${esc(c.nota)}</textarea></label>
+ <h4 style="margin-top:18px;font-size:17px">O que já comprou</h4><ul class="hist">${c.ped.map(p=>`<li><span>${esc(p.nome)}</span><span>${new Date(p.em+'T12:00').toLocaleDateString('pt-BR')} · ${R(p.valor)}</span></li>`).join('')}</ul>`)}
+
+let msg={t:'',p:'Todas',c:{app:true,whats:false,email:false}};
+const AUTO=[['boasvindas','Boas-vindas','Quando alguém baixa o app ou entra na lista'],['fila','Voltou ao estoque','Avisa quem pediu para ser avisada'],['vespera','Véspera do lote','Um dia antes, para a fila'],['abriu','Lote abriu','Na hora marcada, para todo mundo'],['carrinho','Esqueceu a sacola','Duas horas depois de largar a compra'],['pago','Pagamento confirmado','Agradece e conta o prazo'],['postado','Caixinha postada','Manda o rastreio'],['pele','Como ficou na pele?','Sete dias depois de receber'],['recompra','Está acabando?','Sessenta dias depois da compra'],['aniversario','Aniversário','Um presente na semana da pessoa'],['saudade','Saudade','Depois de 120 dias sem comprar']];
+function avisos(){const a=Loja.estado().automacoes,cs=clientes(),pub={Todas:cs.length,'Só quem comprou mais de uma vez':cs.filter(c=>c.n>1).length,'Quem está sumida':cs.filter(c=>c.seg==='Sumida'||c.seg==='Esfriando').length};
+ return `<h2>Avisos</h2><p class="lead">Escreva como você fala. O resto o painel cuida.</p><div class="cels"><section class="bloco"><h3>Mandar um aviso</h3><label class="f">O que você quer dizer<textarea id="mt" rows="3" placeholder="${M==='paula'?'Lord chega sábado, às 8. Fique pronta.':'Sereias, a Guardiã das Flores voltou à tona.'}" oninput="msg.t=this.value;$('#pv').textContent=this.value||this.placeholder">${esc(msg.t)}</textarea></label>
+ <div class="f">Para quem<div class="fil" style="margin:6px 0 0">${Object.entries(pub).map(([k,v])=>`<button class="ch" aria-pressed="${msg.p===k}" onclick="msg.p='${k}';desenha()">${k} (${v})</button>`).join('')}</div></div>
+ <div class="f">Por onde<div class="fil" style="margin:6px 0 0">${[['app','Celular'],['whats','WhatsApp'],['email','E-mail']].map(([k,t])=>`<button class="ch" aria-pressed="${msg.c[k]}" onclick="msg.c.${k}=!msg.c.${k};desenha()">${t}</button>`).join('')}</div></div>
+ <button class="b" style="width:100%;margin-top:16px;min-height:52px" onclick="manda(${pub[msg.p]})">Enviar para ${pub[msg.p]} pessoas</button></section>
+ <div class="cel" aria-hidden="true"><div class="tela"><div class="h">19:58</div><div class="pu"><b>${NOME[M]} · agora</b><span id="pv">${esc(msg.t)||(M==='paula'?'Lord chega sábado, às 8. Fique pronta.':'Sereias, a Guardiã das Flores voltou à tona.')}</span></div></div></div></div>
+ <section class="bloco" style="margin-top:12px"><h3>O que sai sozinho</h3>${AUTO.map(([k,t,d])=>`<div class="au"><div><b>${t}</b><small>${d}</small></div><button class="sw" role="switch" aria-checked="${!!a[k]}" aria-label="${t}" onclick="Loja.mexe(s=>{s.automacoes.${k}=!s.automacoes.${k}})"></button></div>`).join('')}</section>`}
+function manda(n){if(!msg.t.trim()){aviso('Escreva o aviso primeiro');$('#mt').focus();return}Loja.mexe(s=>{s.avisos.unshift({id:'a'+Date.now(),marca:M,titulo:msg.t,corpo:'',canais:Object.keys(msg.c).filter(k=>msg.c[k]),publico:msg.p,em:new Date().toISOString(),alcance:n})});msg.t='';aviso('Aviso enviado para '+n+' pessoas (exemplo)')}
+
+function clube(){const cs=clientes(),s=Loja.estado(),mural=s.mural.filter(m=>m.marca===M),ps=Loja.produtos(M).filter(p=>p.fila).sort((a,b)=>b.fila-a.fila).slice(0,3),tot=ps.reduce((a,p)=>a+p.fila,0)||1;
+ return `<h2>${CLUBE[M]}</h2><p class="lead">A sua rede de clientes, dentro do app. Só você publica. Elas reagem e votam.</p><div class="gr"><div class="k"><span>No ${CLUBE[M]}</span><b>${cs.length}</b></div><div class="k"><span>Com o app</span><b>${cs.filter(c=>c.app).length}</b></div><div class="k"><span>Colecionadoras</span><b>${cs.filter(c=>c.seg==='Colecionadora').length}</b></div><div class="k"><span>Avisos enviados</span><b>${s.avisos.filter(a=>a.marca===M).length}</b></div></div>
+ <div class="cols"><section class="bloco"><h3>Publicar no mural</h3><label class="f">Bastidor, novidade, pergunta<textarea id="mu" rows="3" placeholder="Hoje macerando o próximo lote..."></textarea></label><button class="b" style="margin-top:12px" onclick="publica()">Publicar</button>${mural.map(m=>`<div class="post">${esc(m.t)}<br><small>${new Date(m.em).toLocaleString('pt-BR')}</small></div>`).join('')}</section>
+ <section class="bloco"><h3>Votação: qual volta primeiro</h3>${ps.map(p=>`<div class="bar"><span>${esc(p.nome)}</span><i style="width:${Math.round(100*p.fila/ps[0].fila)}%"></i><span>${Math.round(100*p.fila/tot)}%</span></div>`).join('')}</section></div>`}
+function publica(){const t=$('#mu').value.trim();if(!t)return;Loja.mexe(s=>{s.mural.unshift({marca:M,t,em:new Date().toISOString()})});aviso('Publicado no mural')}
+
+/* cada foto da loja existe em tamanhos diferentes: se um faltar, tenta os outros */
+const TAMS=['-1024-1024.webp','-640-0.webp','-480-0.webp','-320-0.webp','-240-0.webp'];
+addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;const u=i.src,k=TAMS.findIndex(t=>u.endsWith(t));if(k<0)return;const n=+(i.dataset.tent||0);if(n>=TAMS.length-1)return;i.dataset.tent=n+1;i.src=u.slice(0,-TAMS[k].length)+TAMS[(k+1)%TAMS.length]},true);
+const PG={hoje,vitrine,lancar,clientes:clientesPg,avisos,clube};
+function abre(h){const d=$('#dlg');d.innerHTML=`<div class="dl"><button class="x" aria-label="Fechar" onclick="dlg.close()">×</button>${h}</div>`;if(!d.open)d.showModal()}
+const dlg=$('#dlg');dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+function desenha(){document.body.dataset.marca=M;$('#tit').textContent='Painel · '+NOME[M];$('#m-paula').setAttribute('aria-pressed',M==='paula');$('#m-fada').setAttribute('aria-pressed',M==='fada');$('#versite').href='../'+M+'/index.html';nav();$('#pg').innerHTML=PG[aba]()}
+Loja.aoMudar(()=>{const f=document.activeElement;if(f&&/INPUT|TEXTAREA|SELECT/.test(f.tagName)&&$('#pg').contains(f))return;desenha()});
+desenha();
+</script>
+</body>
+</html>

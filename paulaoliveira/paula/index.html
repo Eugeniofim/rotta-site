@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Paula Oliveira Parfum · Perfumista independente</title>
+<meta name="description" content="Perfumes escritos como personagens. Lotes com dia e hora marcados.">
+<!-- Prévia: fora do Google. Tirar quando virar o site oficial dela. -->
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Paula Oliveira Parfum · Prévia do site novo">
+<meta property="og:description" content="Cada perfume em cartaz. Prévia feita pela Ti Artes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rottaguide.com/paulaoliveira/paula/">
+<meta property="og:image" content="https://rottaguide.com/paulaoliveira/paula/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#123A2D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://acdn-us.mitiendanube.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Gloock&family=League+Gothic&display=swap" rel="stylesheet">
+<style>
+:root{--barra:30px;--ink:#17101A;--papel:#F5EEF2;--t:#EDE6A0;--f:#123A2D;--titulo:'Gloock',Georgia,serif;--cartaz:'League Gothic','Arial Narrow',sans-serif;--texto:'EB Garamond',Georgia,serif;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--ink);color:var(--papel);font:400 1.2rem/1.45 var(--texto);-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+.pular{position:fixed;left:12px;top:-80px;z-index:90;background:#fff;color:#000;padding:10px 14px}
+.pular:focus{top:40px}
+
+/* faixa de prévia */
+.previa{position:fixed;inset:0 0 auto 0;height:var(--barra);z-index:70;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:12px;font:400 15px/1 var(--texto);padding:0 44px;white-space:nowrap;overflow:hidden}
+.previa span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.previa button{position:absolute;right:0;top:0;height:30px;width:44px;font-size:18px}
+@media(max-width:640px){.previa{font-size:13px;justify-content:flex-start;padding:0 44px 0 12px}}
+
+/* cabeçalho */
+.topo{position:fixed;left:0;right:0;top:var(--barra);z-index:60;display:flex;align-items:center;justify-content:space-between;padding:10px clamp(14px,3vw,40px);color:var(--t);transition:color .3s,background .3s}
+.topo.solido{background:color-mix(in srgb,var(--fundo-topo,#17101A) 95%,transparent);color:var(--tinta-topo,#F5EEF2)}
+.marca{font:400 clamp(21px,2vw,27px)/1 var(--titulo);text-decoration:none}
+.menu{display:flex;gap:clamp(16px,2.6vw,38px);font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
+.menu a{text-decoration:none;padding:12px 0;background:linear-gradient(currentColor,currentColor) 0 calc(100% - 8px)/0 2px no-repeat;transition:background-size .3s}
+.menu a:hover{background-size:100% 2px}
+.saco{font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;min-height:44px;padding:0 2px}
+.abre-menu{display:none}
+@media(max-width:760px){.menu{display:none}.abre-menu{display:block}}
+
+/* cartaz */
+#cartazes{position:relative}
+.cartaz{position:sticky;top:0;height:100vh;height:100svh;min-height:600px;background:var(--f);color:var(--t);overflow:hidden;display:flex;flex-direction:column;padding:calc(var(--barra) + 68px) clamp(14px,3vw,40px) 16px;will-change:transform}
+.cartaz::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--sombra,0);pointer-events:none;z-index:5}
+.c-topo{display:flex;justify-content:space-between;align-items:baseline;font:400 clamp(21px,1.9vw,27px)/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
+.selo-e{display:inline-block;background:var(--t);color:var(--f);padding:5px 9px 3px}
+.c-palco{position:relative;flex:1 1 0;min-height:0;display:block;text-decoration:none;margin-top:6px}
+.c-nome{position:absolute;left:0;right:0;top:0;font:400 100px/.84 var(--titulo);text-align:center;letter-spacing:-.012em;transform:translateX(calc(var(--e,0)*7%));user-select:none}
+.ln{display:block;width:max-content;margin:0 auto;white-space:nowrap}
+.c-frasco{position:absolute;left:50%;bottom:-2%;height:88%;width:auto;max-width:none;transform:translate(-50%,calc(var(--e,0)*26%)) rotate(calc(var(--e,0)*-9deg));filter:drop-shadow(0 26px 38px rgba(0,0,0,.42));transform-origin:50% 90%}
+.c-baixo{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:24px;margin-top:10px;position:relative;z-index:3}
+.c-frase{font:italic 400 clamp(21px,2vw,29px)/1.16 var(--texto);max-width:30ch}
+.c-frase cite{font-style:normal;font-size:.72em;white-space:nowrap}
+.c-compra{display:flex;align-items:center;gap:20px;text-align:right}
+.preco{font:400 clamp(36px,3.5vw,50px)/1 var(--cartaz);letter-spacing:.02em;white-space:nowrap}
+.preco small{display:block;font:400 16px/1.15 var(--texto);letter-spacing:0;margin-top:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:6px 26px 3px;background:var(--t);color:var(--f);font:400 clamp(23px,2vw,28px)/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;white-space:nowrap;transition:transform .2s}
+.btn:hover{transform:translateY(-3px)}
+.btn.vazado{background:none;color:var(--t);box-shadow:inset 0 0 0 2px var(--t)}
+.c-credito{margin-top:12px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--t) 45%,transparent);font:400 clamp(17px,1.32vw,20px)/1.14 var(--cartaz);letter-spacing:.075em;text-transform:uppercase;text-align:center;position:relative;z-index:3}
+.c-credito i{font:italic 400 .86em/1 var(--texto);letter-spacing:0;text-transform:none;margin:0 .3em 0 .9em}
+.c-credito i:first-child{margin-left:0}
+.conta{font:400 1em/1 var(--cartaz)}
+@media(max-width:760px){
+  .cartaz{padding-top:calc(var(--barra) + 58px);padding-bottom:10px}
+  .c-frasco{height:84%}
+  .c-baixo{grid-template-columns:1fr;gap:10px}
+  .c-frase{font-size:20px;max-width:none;text-align:center;background:color-mix(in srgb,var(--f) 74%,transparent)}
+  .c-compra{justify-content:space-between;text-align:left}
+  .c-compra .btn{flex:1;padding:6px 10px 3px}
+  .c-credito{font-size:15px;letter-spacing:.05em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:9px;padding-top:7px}
+  .c-topo{font-size:20px}
+}
+@media(max-height:680px){.c-credito{display:none}}
+
+/* programação */
+.secao{position:relative;z-index:20;background:var(--ink);padding:clamp(64px,9vw,130px) clamp(14px,3vw,40px)}
+.sec-t{font:400 clamp(58px,10.5vw,170px)/.9 var(--titulo);letter-spacing:-.012em}
+.sec-p{max-width:40ch;margin-top:18px;font-size:clamp(21px,1.8vw,25px);line-height:1.25}
+.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 22px}
+.chip{min-height:46px;padding:5px 16px 2px;font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px #ffffff55}
+.chip[aria-pressed=true]{background:var(--papel);color:var(--ink);box-shadow:none}
+.mural{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,1vw,14px)}
+@media(max-width:1000px){.mural{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.mural{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mini{--n:6;position:relative;display:flex;flex-direction:column;aspect-ratio:3/4.35;background:var(--f);color:var(--t);overflow:hidden;text-decoration:none;container-type:inline-size;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.mini:hover{transform:translateY(-6px)}
+.mini h3{font:400 min(30cqw,calc(90cqw/(var(--n)*.62)))/.92 var(--titulo);padding:9cqw 5cqw 0;text-align:center;position:relative;z-index:1}
+.mini .im{position:absolute;left:0;right:0;bottom:11%;top:24%;display:grid;place-items:center}
+.mini .im img{height:100%;width:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.4));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.mini:hover .im img{transform:scale(1.06) rotate(-3deg)}
+.mini.foto .im{left:9%;right:9%;top:26%;bottom:15%}
+.mini.foto .im img{width:100%;height:100%;object-fit:cover;filter:none}
+.mini footer{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:0 5cqw 4cqw;font:400 max(19px,8cqw)/1 var(--cartaz);letter-spacing:.04em;text-transform:uppercase}
+.tarja{position:absolute;left:-12%;right:-12%;top:53%;transform:rotate(-7deg);background:var(--papel);color:#111;text-align:center;font:400 max(21px,9.4cqw)/1 var(--cartaz);letter-spacing:.06em;text-transform:uppercase;padding:2.4cqw 0 1.4cqw;z-index:2}
+.tarja.nova{background:var(--t);color:var(--f)}
+
+/* quem escreve */
+.quem{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);background:#E8E2F0;color:#20131F;position:relative;z-index:20}
+.quem figure{min-height:80vh;position:relative}
+.quem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.quem .tx{padding:clamp(40px,7vw,110px) clamp(18px,5vw,84px);display:flex;flex-direction:column;justify-content:center}
+.quem h2{font:400 clamp(50px,6.6vw,104px)/.94 var(--titulo)}
+.quem p{margin-top:22px;max-width:36ch;font-size:clamp(22px,1.9vw,27px);line-height:1.28}
+.quem ul{list-style:none;padding:0;margin-top:30px}
+.quem li{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:18px;border-top:1px solid #20131f33;padding:9px 0 7px;font-size:20px;align-items:baseline}
+.quem li b{font:400 25px/1 var(--cartaz);letter-spacing:.04em;text-transform:uppercase}
+@media(max-width:860px){.quem{grid-template-columns:1fr}.quem figure{min-height:112vw}}
+
+/* sob medida */
+.sob{background:#15110D;color:#E6C98F;--t:#E6C98F;--f:#15110D;position:relative;z-index:20;padding:clamp(64px,9vw,130px) clamp(14px,3vw,40px)}
+.sob h2{font:400 clamp(58px,10vw,164px)/.9 var(--titulo)}
+.sob .lead{max-width:34ch;font-size:clamp(23px,2.1vw,31px);line-height:1.2;margin-top:20px;font-style:italic}
+.linha{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:50px 0 34px;list-style:none;padding:0;counter-reset:p}
+.linha li{counter-increment:p;border-top:2px solid #E6C98F;padding:12px 16px 0 0;font-size:20px;line-height:1.2}
+.linha li::before{content:counter(p);display:block;font:400 clamp(44px,5vw,74px)/1 var(--cartaz)}
+.linha b{display:block;font:400 25px/1.05 var(--cartaz);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
+@media(max-width:860px){.linha{grid-template-columns:1fr}.linha li{display:grid;grid-template-columns:62px 1fr;padding:10px 0 12px}.linha li::before{grid-row:span 2}}
+.sob .fim{display:flex;flex-wrap:wrap;gap:22px;align-items:center}
+.dupla{display:grid;grid-template-columns:1fr 1fr;position:relative;z-index:20}
+@media(max-width:860px){.dupla{grid-template-columns:1fr}}
+.tile{--f:#D8C97F;--t:#2B2610;background:var(--f);color:var(--t);position:relative;min-height:74vh;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(20px,3vw,44px);overflow:hidden}
+.tile img{position:absolute;inset:0 0 auto 0;width:100%;height:58%;object-fit:cover}
+.tile h3{font:400 clamp(40px,4.6vw,72px)/.95 var(--titulo);position:relative}
+.tile p{max-width:36ch;margin:12px 0 18px;position:relative}
+.tile .btn{align-self:flex-start;position:relative}
+
+/* elenco */
+.elenco{position:relative;z-index:20;background:#F7A400;color:#2A0505;--t:#2A0505;--f:#F7A400;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:30px;padding:clamp(64px,9vw,130px) clamp(14px,3vw,40px);align-items:center}
+.elenco h2{font:400 clamp(58px,9.4vw,152px)/.9 var(--titulo)}
+.elenco ul{list-style:none;padding:0;margin:30px 0;font-size:clamp(23px,2vw,29px);line-height:1.2;max-width:30em}
+.elenco li{border-top:1.5px solid #2a050555;padding:10px 0 8px}
+.cel{justify-self:center;width:min(300px,76vw);aspect-ratio:9/18.6;border-radius:42px;background:#0d0a0f;padding:10px;box-shadow:0 30px 60px #0005}
+.tela{width:100%;height:100%;border-radius:33px;background:#123A2D url() center/cover;position:relative;overflow:hidden;color:#fff;display:flex;flex-direction:column;align-items:center;padding-top:46px}
+.hora{font:400 76px/1 var(--cartaz);letter-spacing:.02em}
+.dia{font-size:18px;margin-bottom:26px}
+.push{width:92%;background:#ffffffe6;color:#111;border-radius:18px;padding:11px 13px;font:400 17px/1.22 var(--texto)}
+.push b{display:block;font:500 15px/1.2 var(--texto);margin-bottom:2px;color:#444}
+.push+.push{margin-top:8px}
+@media(max-width:860px){.elenco{grid-template-columns:1fr}}
+
+/* rodapé */
+.rodape{position:relative;z-index:20;background:var(--ink);padding:40px clamp(14px,3vw,40px) 34px;display:flex;flex-wrap:wrap;gap:12px 34px;justify-content:space-between;font-size:18px}
+.rodape .marca{font-size:30px}
+.rodape nav{display:flex;flex-wrap:wrap;gap:6px 22px}
+
+/* detalhe */
+.det{background:var(--f);color:var(--t);min-height:100vh}
+.det-capa{position:relative;height:100svh;min-height:600px;padding:calc(var(--barra) + 70px) clamp(14px,3vw,40px) 0;overflow:hidden}
+.det-capa .c-palco{height:100%;margin:0}
+.det-capa .c-frasco{height:92%;bottom:-6%;view-transition-name:frasco}
+.det-corpo{display:grid;grid-template-columns:minmax(0,7fr) minmax(300px,4fr);gap:clamp(24px,5vw,80px);padding:clamp(34px,5vw,70px) clamp(14px,3vw,40px);align-items:start}
+.det-texto{font-size:clamp(23px,1.9vw,27px);line-height:1.34;max-width:34em}
+.det-frase{font:italic 400 clamp(32px,4.2vw,62px)/1.06 var(--texto);margin-bottom:26px}
+.caixa{position:sticky;top:calc(var(--barra) + 74px);box-shadow:inset 0 0 0 2px var(--t);padding:22px}
+.caixa .preco{font-size:58px}
+.caixa .preco small{font-size:18px}
+.caixa .btn{width:100%;margin-top:16px}
+.caixa p{font-size:18px;line-height:1.25;margin-top:12px}
+.frete{display:flex;gap:8px;margin-top:14px}
+.frete input{flex:1;min-width:0;height:48px;background:none;border:0;box-shadow:inset 0 0 0 1.5px var(--t);color:inherit;font:inherit;padding:0 12px}
+.frete input::placeholder{color:inherit;opacity:.72}
+.frete button{min-width:88px;font:400 21px/1 var(--cartaz);text-transform:uppercase;letter-spacing:.05em;box-shadow:inset 0 0 0 1.5px var(--t)}
+.piramide{padding:0 clamp(14px,3vw,40px) clamp(40px,6vw,80px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,3vw,50px)}
+.piramide div{border-top:2px solid var(--t);padding-top:10px}
+.piramide h3{font:italic 400 24px/1 var(--texto)}
+.piramide p{font:400 clamp(27px,2.8vw,42px)/1.04 var(--cartaz);letter-spacing:.03em;text-transform:uppercase;margin-top:8px}
+@media(max-width:760px){.piramide,.det-corpo{grid-template-columns:1fr}.caixa{position:static}}
+.galeria{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:0 clamp(14px,3vw,40px) clamp(40px,5vw,70px)}
+.galeria img{height:min(64vh,520px);width:auto;scroll-snap-align:center}
+.voltar{font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;display:inline-block;padding:clamp(20px,3vw,34px) clamp(14px,3vw,40px)}
+
+/* gavetas */
+dialog{border:0;padding:0;color:#20131F;background:#F5EEF2;font:400 21px/1.3 var(--texto);max-width:none}
+dialog::backdrop{background:#0009}
+.modal{width:min(480px,calc(100vw - 24px));margin:auto;padding:28px}
+.modal h2{font:400 clamp(33px,5vw,42px)/1 var(--titulo);margin-bottom:10px;padding-right:34px}
+.fechar{position:absolute;right:6px;top:6px;width:44px;height:44px;font-size:26px;line-height:1}
+.campo{display:block;margin-top:13px;font-size:18px}
+.campo input{display:block;width:100%;height:50px;margin-top:3px;padding:0 12px;font:inherit;border:0;box-shadow:inset 0 0 0 1.5px #20131f66;background:#fff;color:#20131F}
+.op{display:flex;gap:9px;align-items:flex-start;margin-top:10px;font-size:18px;line-height:1.2}
+.op input{width:22px;height:22px;margin-top:0;accent-color:#20131F;flex:none}
+.acao{display:flex;width:100%;align-items:center;justify-content:center;min-height:56px;margin-top:18px;background:#20131F;color:#F5EEF2;font:400 26px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;padding-top:4px;text-decoration:none}
+.miudo{font-size:16px;line-height:1.25;margin-top:10px;color:#20131Fcc}
+dialog.gaveta{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(440px,100vw);padding:0}
+.gav{display:flex;flex-direction:column;height:100%;padding:24px}
+.gav h2{font:400 40px/1 var(--titulo)}
+.itens{flex:1;overflow:auto;margin:16px 0;list-style:none;padding:0}
+.itens li{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;border-top:1px solid #20131f33;padding:9px 0}
+.itens img{width:64px;height:78px;object-fit:contain}
+.itens button{font-size:16px;text-decoration:underline;min-height:44px}
+.tot{display:flex;justify-content:space-between;font:400 34px/1 var(--cartaz);letter-spacing:.03em}
+ol.passos{padding-left:1.1em;margin-top:6px}ol.passos li{margin-top:5px}
+.intro{position:fixed;inset:0;z-index:80;display:flex;pointer-events:none}
+.intro i{flex:1;background:var(--c);animation:sobe .85s cubic-bezier(.76,0,.24,1) forwards;animation-delay:calc(var(--i)*65ms + .15s)}
+@keyframes sobe{to{transform:translateY(-101%)}}
+::view-transition-old(frasco),::view-transition-new(frasco){animation-duration:.5s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.intro{display:none}.c-nome,.c-frasco{transition:none}.mini,.mini img,.btn{transition:none!important}}
+</style>
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<div class="previa" id="previa"><span>Prévia feita pela Ti Artes · preços e estoque reais de 08/11 · filas e datas são exemplo</span><button aria-label="Fechar aviso" onclick="fechaPrevia()">×</button></div>
+<header class="topo" id="topo">
+  <a class="marca" href="#/">Paula Oliveira</a>
+  <nav class="menu" aria-label="Principal">
+    <a href="#/programacao">Programação</a><a href="#/quem">Quem escreve</a><a href="#/sob-medida">Sob medida</a><a href="#/atelie">Ateliê</a><a href="#/elenco">Elenco</a>
+  </nav>
+  <div style="display:flex;gap:18px;align-items:center"><button class="saco abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Sacola (0)</button></div>
+</header>
+<main id="conteudo"></main>
+<dialog id="dlg"></dialog>
+<dialog id="gav" class="gaveta"></dialog>
+
+<script src="../comum/dados-paula.js"></script>
+<script src="../comum/loja.js"></script>
+<script src="../comum/instalar.js"></script>
+<script>
+const M='paula', $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
+const R=Loja.dinheiro, reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ELENCO=['lord','carmem','gigi','eva50','sauvignon','olibano'];
+const img=(u,t=1024)=>u.startsWith('data:')||/\.(jpg|png|webp)$/.test(u)?u:(u+(t===1024?'-1024-1024.webp':'-'+t+'-0.webp'));
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fechaPrevia(){document.documentElement.style.setProperty('--barra','0px');$('#previa').remove()}
+
+const DIAS=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+function quando(iso){const d=new Date(iso);return DIAS[d.getDay()]+', '+d.getHours()+'h'}
+function falta(iso){let s=Math.max(0,(new Date(iso)-Date.now())/1e3);const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return (d?d+'d ':'')+String(h).padStart(2,'0')+'h '+String(m).padStart(2,'0')+'min'}
+function selo(p){return p.status==='disponivel'?'Em cartaz':p.status==='estreia'?'Estreia '+quando(p.estreia):'Lotação esgotada'}
+function acao(p,cls=''){
+  if(p.tipo==='servico'||p.tipo==='curso')return `<button class="btn ${cls}" onclick="conversa('${p.id}')">Quero conversar</button>`;
+  if(p.status==='disponivel')return `<button class="btn ${cls}" onclick="colocar('${p.id}')">Comprar</button>`;
+  return `<button class="btn ${cls}" onclick="fila('${p.id}')">${p.status==='estreia'?'Me avise da estreia':'Me avise quando voltar'}</button>`;
+}
+function linhasNome(n){const fixo={'Absoluto de Cacau & Café':['Absoluto de','Cacau & Café'],'Trufa de Conhaque':['Trufa de','Conhaque'],'O Caçador':['O Caçador'],'Srta. Magnólia':['Srta.','Magnólia'],'Perfume Sob Medida':['Sob Medida']};return fixo[n]||n.split(/\s(?=[A-ZÂÉÍÓÚ])/)}
+function nome(n){return linhasNome(n).map(l=>`<span class="ln">${esc(l)}</span>`).join('')}
+function foto(p){return p.recorte?img(p.recorte):img(p.fotos[0]||'')}
+function credito(p){if(!p.saida)return'';return `<i>saída</i>${esc(p.saida)}<i>coração</i>${esc(p.coracao)}<i>base</i>${esc(p.base)}`}
+function precoHTML(p){const parc=p.preco>=120?Loja.parcela(p.preco,4):'';return `${R(p.preco)}<small>${p.status==='disponivel'?parc:(p.status==='estreia'?'faltam <span class="conta" data-fim="'+p.estreia+'">'+falta(p.estreia)+'</span>':(p.fila||0)+' na fila')}</small>`}
+function linkPara(p){return `#/p/${p.id}`}
+
+function cartaz(p,i){
+  return `<section class="cartaz" data-id="${p.id}" style="--f:${p.fundo};--t:${p.tinta}" aria-label="${esc(p.nome)}">
+  <div class="c-topo"><span class="selo-e">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
+  <a class="c-palco" href="${linkPara(p)}" onclick="morfa(this)" aria-label="Ver ${esc(p.nome)}">
+    <h2 class="c-nome">${nome(p.nome)}</h2>
+    <img class="c-frasco" src="${foto(p)}" alt="" ${i?'':'fetchpriority="high"'} decoding="async">
+  </a>
+  <div class="c-baixo">
+    <blockquote class="c-frase">“${esc(p.frase)}”</blockquote>
+    <div class="c-compra"><div class="preco">${precoHTML(p)}</div>${acao(p)}</div>
+  </div>
+  <p class="c-credito">${credito(p)}</p>
+</section>`}
+
+let filtro={estado:'todos',para:'todos'};
+function mini(p){
+  const n=Math.max(...linhasNome(p.nome).map(l=>l.length));
+  const tem=p.recorte;
+  const tarja=p.status==='esgotado'?`<div class="tarja">Lotação esgotada</div>`:p.status==='estreia'?`<div class="tarja nova">Estreia ${quando(p.estreia)}</div>`:'';
+  return `<a class="mini ${tem?'':'foto'}" href="${linkPara(p)}" onclick="morfa(this)" style="--f:${p.fundo||'#222'};--t:${p.tinta||'#fff'};--n:${n}">
+    <h3>${nome(p.nome)}</h3><div class="im"><img src="${tem?img(p.recorte,640):img(p.fotos[0]||'',640)}" alt="" loading="lazy" decoding="async"></div>${tarja}
+    <footer><span>${esc(p.medida)}</span><span>${R(p.preco)}</span></footer></a>`}
+function mural(){
+  let l=Loja.produtos(M).filter(p=>p.tipo==='perfume'||p.tipo==='corpo');
+  if(filtro.estado!=='todos')l=l.filter(p=>p.status===filtro.estado);
+  if(filtro.para!=='todos')l=l.filter(p=>p.para===filtro.para);
+  l.sort((a,b)=>({disponivel:0,estreia:1,esgotado:2}[a.status]-{disponivel:0,estreia:1,esgotado:2}[b.status]));
+  return l.map(mini).join('')||'<p>Nenhum perfume com esse filtro. Tire um dos filtros para ver mais.</p>'
+}
+function chip(k,v,t){return `<button class="chip" aria-pressed="${filtro[k]===v}" onclick="filtra('${k}','${v}')">${t}</button>`}
+function filtros(){return chip('estado','todos','Todos')+chip('estado','disponivel','Em cartaz')+chip('estado','estreia','Estreias')+chip('estado','esgotado','Lotação esgotada')+'<span style="width:14px"></span>'+chip('para','ela','Para ela')+chip('para','ele','Para ele')}
+function filtra(k,v){filtro[k]=filtro[k]===v?'todos':v;$('#filtros').innerHTML=filtros();$('#mural').innerHTML=mural()}
+
+function home(){
+  const todos=Loja.produtos(M), novos=todos.filter(p=>p.destaque);
+  const lista=[...novos,...ELENCO.map(i=>todos.find(p=>p.id===i)).filter(Boolean)].slice(0,7);
+  const pa=todos.find(p=>p.id==='afrodite');
+  return `<div id="cartazes">${lista.map(cartaz).join('')}</div>
+  <section class="secao" id="programacao"><h2 class="sec-t">Programação</h2>
+    <p class="sec-p">Todos os perfumes da casa. O que está em cartaz sai agora. O resto volta em lote, e quem entra na fila sabe primeiro.</p>
+    <div class="filtros" id="filtros">${filtros()}</div><div class="mural" id="mural">${mural()}</div></section>
+  <section class="quem" id="quem"><figure><img src="${img(pa.fotos[1])}" alt="Paula Oliveira segurando um perfume na praia" loading="lazy"></figure>
+   <div class="tx"><h2>Primeiro vem a personagem</h2>
+    <p>Paula Oliveira é perfumista independente. Antes da fórmula, ela escolhe quem vai usar: Lord saiu de James Bond, Felina da Mulher-Gato, Meia Noite da Malévola, Carmem das latinas que dançam na vida.</p>
+    <ul><li><b>Lord</b><span>“A sedução combinada com inteligência e aquela pitada de perigo.”</span></li><li><b>Margot</b><span>“Troca o salto pelas botas, mas mantém o luxo na pele.”</span></li><li><b>O Caçador</b><span>“Terra escura, mata fechada e raízes.”</span></li></ul></div></section>
+  <section class="sob" id="sob-medida"><h2>Sob medida</h2><p class="lead">Fórmula trancada. Ninguém no mundo terá o mesmo cheiro.</p>
+   <ol class="linha"><li><b>Briefing</b>Reunião para entender sua ideia, rotina e o impacto que você quer causar.</li><li><b>WhatsApp</b>Canal direto para trocar referências a cada etapa.</li><li><b>Amostras</b>Você testa na pele, no seu dia a dia.</li><li><b>Ajustes</b>A fórmula é refinada com o que você sentiu.</li><li><b>Frasco</b>Quatro meses depois, o seu perfume.</li></ol>
+   <div class="fim"><div class="preco">R$ 1.750<small>4x de R$ 437,50 sem juros</small></div><button class="btn" onclick="conversa('sobmedida')">Marcar a primeira conversa</button></div></section>
+  <div class="dupla" id="atelie">
+   <article class="tile" style="--f:#D8C97F;--t:#2B2610"><img src="${img((todos.find(p=>p.id==='atelie-online')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>Ateliê de Perfumaria</h3><p>A Caixa-Ateliê chega na sua casa com 16 notas nobres, e você faz um perfume que não pertence a nenhuma marca. R$ 1.497.</p><button class="btn" onclick="fila('atelie-online')">Me avise da próxima turma</button></article>
+   <article class="tile" style="--f:#22302B;--t:#E7DFC8"><img src="${img((todos.find(p=>p.id==='negocios')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>O cheiro da sua empresa</h3><p>Consultórios, lojas, barbearias e hotéis. Uma fragrância criada do zero para o seu espaço, com o primeiro frasco de 200 ml incluído. R$ 1.750.</p><button class="btn" onclick="conversa('negocios')">Pedir um projeto</button></article></div>
+  <section class="elenco" id="elenco"><div><h2>Quem está no Elenco sabe antes</h2>
+   <ul><li>Aviso no celular na hora que o lote abre</li><li>Uma hora de vantagem sobre todo mundo</li><li>Você vota em qual perfume volta primeiro</li><li>Presente na semana do seu aniversário</li></ul>
+   <button class="btn" onclick="baixar()">Baixar o app</button></div>
+   <div class="cel" aria-hidden="true"><div class="tela"><div class="hora">19:58</div><div class="dia">sábado</div><div class="push"><b>Paula Oliveira · agora</b>Lord chega sábado, às 8. Fique pronta.</div><div class="push"><b>Paula Oliveira · agora</b>Você tem 1 hora antes de abrir para todo mundo.</div></div></div></section>
+  <footer class="rodape"><a class="marca" href="#/">Paula Oliveira Parfum</a><nav><a href="#/">Trocas e devoluções</a><a href="#/">Entrega</a><a href="#/">Privacidade</a><a href="#/">Fale com a Paula</a></nav><span>CNPJ e endereço da empresa entram aqui.</span></footer>`
+}
+
+function detalhe(id){
+  const p=Loja.produto(M,id); if(!p)return `<section class="secao"><h2 class="sec-t">Esse perfume saiu de cartaz</h2><p class="sec-p"><a href="#/programacao">Ver a programação</a></p></section>`;
+  const outros=Loja.produtos(M).filter(x=>x.id!==id&&x.tipo==='perfume'&&x.status==='disponivel').slice(0,4);
+  let h=(p.historia||'').trim(); if(h.length>=1490)h=h.slice(0,h.lastIndexOf('.')+1);
+  const fraseCurta=(p.frase||'').slice(0,28);
+  const texto=h.split(/\n+/).map(t=>t.trim()).filter(t=>t&&!t.startsWith(fraseCurta)).map(t=>t.length<52&&!/[.!?]$/.test(t)?`<h3 style="font:400 clamp(27px,2.3vw,34px)/1.05 var(--cartaz);letter-spacing:.04em;text-transform:uppercase;margin-top:1.2em">${esc(t)}</h3>`:`<p style="margin-top:.7em">${esc(t)}</p>`).join('');
+  return `<article class="det" style="--f:${p.fundo};--t:${p.tinta}">
+  <div class="det-capa"><div class="c-palco"><h1 class="c-nome">${nome(p.nome)}</h1><img class="c-frasco" src="${foto(p)}" alt="Frasco de ${esc(p.nome)}"></div></div>
+  <div class="det-corpo"><div class="det-texto"><p class="det-frase">“${esc(p.frase)}”</p>${texto}</div>
+   <aside class="caixa"><div class="c-topo" style="margin-bottom:12px"><span class="selo-e">${selo(p)}</span></div><div class="preco">${precoHTML(p)}</div>${acao(p)}
+    <p>${esc(p.medida)} · ${esc(p.familia)}</p>${p.status==='disponivel'?`<form class="frete" onsubmit="frete(event)"><input inputmode="numeric" placeholder="Seu CEP" aria-label="Seu CEP"><button>Frete</button></form><p id="fr"></p>`:`<p>Entre na fila e receba o aviso antes de abrir para todo mundo.</p>`}</aside></div>
+  ${p.saida?`<section class="piramide" aria-label="Notas"><div><h3>o que chega primeiro</h3><p>${esc(p.saida)}</p></div><div><h3>o que fica no meio</h3><p>${esc(p.coracao)}</p></div><div><h3>o que fica na pele</h3><p>${esc(p.base)}</p></div></section>`:''}
+  ${p.fotos.length?`<div class="galeria">${p.fotos.map(f=>`<img src="${img(f)}" alt="" loading="lazy">`).join('')}</div>`:''}
+  ${outros.length?`<section style="padding:0 clamp(14px,3vw,40px) 60px"><p style="font:400 26px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Também em cartaz</p><div class="mural">${outros.map(mini).join('')}</div></section>`:''}
+  <a class="voltar" href="#/programacao">← Voltar à programação</a></article>`
+}
+
+function morfa(a){const im=$('img',a);if(im)im.style.viewTransitionName='frasco'}
+function fita(){ /* cada linha do nome ocupa a largura toda; se ficar alto demais, encolhe tudo junto */
+  $$('.c-nome').forEach(h=>{
+    const palco=h.parentElement, W=palco.clientWidth, H=palco.clientHeight*(innerWidth<760?.56:.8), ln=$$('.ln',h);
+    h.style.fontSize='100px';let total=0;
+    const tam=ln.map(l=>{l.style.fontSize='100px';const w=l.getBoundingClientRect().width||1;const fs=100*W/w;total+=fs*.84;return fs});
+    const esc_=Math.min(1,H/total);
+    ln.forEach((l,i)=>{l.style.fontSize=(tam[i]*esc_).toFixed(1)+'px'});
+  });
+}
+
+let rodando=false,cts=[];
+function medir(){
+  rodando=false;
+  const vh=innerHeight,topo=$('#topo');let cor=null;
+  cts.forEach((c,i)=>{
+    const t=c.getBoundingClientRect().top;
+    if(t>vh||t<-vh){return}
+    const ent=Math.min(1,Math.max(0,t/vh));
+    if(!reduz)c.style.setProperty('--e',ent.toFixed(3));
+    const prox=cts[i+1];
+    if(prox){const q=1-Math.min(1,Math.max(0,prox.getBoundingClientRect().top/vh));c.style.setProperty('--sombra',reduz?0:(q*.62).toFixed(3))}
+    if(t<=70)cor=c.style.getPropertyValue('--t');
+  });
+  const fora=$$('.secao,.quem,.sob,.dupla,.elenco,.rodape').some(s=>{const r=s.getBoundingClientRect();return r.top<=64&&r.bottom>64});
+  const det=$('.det');
+  if(det){topo.style.setProperty('--fundo-topo',det.style.getPropertyValue('--f'));topo.style.setProperty('--tinta-topo',det.style.getPropertyValue('--t'));topo.style.color='';topo.style.setProperty('--t',det.style.getPropertyValue('--t'));topo.classList.toggle('solido',scrollY>40);return}
+  topo.style.removeProperty('--fundo-topo');topo.style.removeProperty('--tinta-topo');topo.style.removeProperty('--t');
+  topo.classList.toggle('solido',fora);
+  topo.style.color=fora?'':(cor||'');
+}
+function naRolagem(){if(!rodando){rodando=true;requestAnimationFrame(medir)}}
+addEventListener('scroll',naRolagem,{passive:true});
+addEventListener('resize',()=>{fita();naRolagem()});
+
+const LUGAR={programacao:'programacao',quem:'quem','sob-medida':'sob-medida',atelie:'atelie',elenco:'elenco'};
+function rota(){const h=location.hash.replace(/^#\/?/,'');const [a,b]=h.split('/');return {a:a||'',b}}
+let naHome=false,primeira=true;
+function desenha(){
+  const {a,b}=rota(), main=$('#conteudo');
+  const faz=()=>{
+    if(a==='p'){main.innerHTML=detalhe(b);naHome=false;scrollTo({top:0,behavior:'instant'})}
+    else{ if(!naHome){main.innerHTML=home();naHome=true}
+      if(LUGAR[a]){const el=document.getElementById(LUGAR[a]);if(el)requestAnimationFrame(()=>el.scrollIntoView({behavior:reduz?'auto':'smooth'}))}
+      else if(a==='')scrollTo({top:0,behavior:'instant'})
+    }
+    cts=$$('.cartaz');fita();medir();atualizaSaco();
+  };
+  if(document.startViewTransition&&!reduz&&primeira===false&&document.visibilityState==='visible'&&(a==='p'||!naHome)){const t=document.startViewTransition(faz);t.ready.catch(()=>{});t.finished.catch(()=>{})}else faz();
+  primeira=false;
+}
+addEventListener('hashchange',desenha);
+
+function atualizaSaco(){const n=Loja.sacola(M).reduce((s,i)=>s+i.qtd,0);$('#saco').textContent=`Sacola (${n})`}
+function colocar(id){Loja.colocar(M,id);atualizaSaco();abreSacola()}
+function abreSacola(){
+  const ps=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p);const total=ps.reduce((s,x)=>s+x.p.preco*x.qtd,0);
+  const g=$('#gav');g.innerHTML=`<div class="gav"><button class="fechar" aria-label="Fechar" onclick="gav.close()">×</button><h2>Sacola</h2>
+  ${ps.length?`<ul class="itens">${ps.map(x=>`<li><img src="${x.p.recorte?img(x.p.recorte,240):img(x.p.fotos[0],240)}" alt=""><div>${esc(x.p.nome)} · ${esc(x.p.medida)}<br>${x.qtd} × ${R(x.p.preco)}</div><button onclick="Loja.tirar(M,'${x.id}');abreSacola();atualizaSaco()">Tirar</button></li>`).join('')}</ul>
+  <div class="tot"><span>Total</span><span>${R(total)}</span></div><p class="miudo">${Loja.parcela(total,4)} ou Pix. O frete é calculado no próximo passo.</p><button class="acao" onclick="pagar()">Ir para o pagamento</button>`:`<div class="itens"><p style="margin-top:20px">Sua sacola está vazia. A programação tem ${Loja.produtos(M).filter(p=>p.status==='disponivel').length} perfumes em cartaz.</p></div><a class="acao" href="#/programacao" onclick="gav.close()">Ver a programação</a>`}</div>`;
+  if(!g.open)g.showModal()
+}
+function abre(html){const d=$('#dlg');d.innerHTML=`<div class="modal"><button class="fechar" aria-label="Fechar" onclick="dlg.close()">×</button>${html}</div>`;if(!d.open)d.showModal()}
+function abreMenu(){abre(`<ul style="list-style:none;padding:0;font:400 38px/1.3 var(--titulo)">${[['programacao','Programação'],['quem','Quem escreve'],['sob-medida','Sob medida'],['atelie','Ateliê'],['elenco','Elenco']].map(([a,t])=>`<li><a style="text-decoration:none;display:block;padding:4px 0" href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}</ul>`)}
+function pagar(){gav.close();abre(`<h2>Aqui entra o pagamento</h2><p>No site de verdade, este botão abre o pagamento da Nuvemshop que a Paula já usa: Pix, cartão, frete pelos Correios e nota fiscal.</p><button class="acao" onclick="dlg.close()">Entendi</button>`)}
+function conversa(id){const p=Loja.produto(M,id);abre(`<h2>${esc(p?p.nome:'Conversa')}</h2><p>No site de verdade, este botão abre o WhatsApp da Paula com a mensagem já escrita, e o pedido entra na ficha da pessoa.</p><button class="acao" onclick="dlg.close()">Entendi</button>`)}
+function fila(id){const p=Loja.produto(M,id);
+  abre(`<h2>${p.status==='estreia'?'Estreia de':'Fila de'} ${esc(p.nome)}</h2>
+  <p>${p.status==='estreia'?`Abre ${quando(p.estreia)}. Quem está na lista recebe o aviso antes.`:`Quando voltar, você recebe o aviso antes de abrir para todo mundo.`}</p>
+  <form onsubmit="entra(event,'${id}')"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">WhatsApp com DDD<input required name="wa" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999"></label><label class="campo">E-mail<input name="email" type="email" autocomplete="email"></label>
+  <label class="op"><input type="checkbox" required name="ok">Aceito receber este aviso e novidades da Paula Oliveira Parfum. Posso sair quando quiser.</label><button class="acao">Entrar na fila</button></form>`)}
+function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);const pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,email:f.email.value});
+  abre(`<h2>Você é a ${pos}ª da fila</h2><p>Avisamos no seu WhatsApp quando ${esc(p.nome)} voltar. Com o app no celular, o aviso chega na hora e você compra antes.</p><button class="acao" onclick="baixar()">Baixar o app</button>`);desenhaFilas()}
+function desenhaFilas(){if(naHome&&$('#mural'))$('#mural').innerHTML=mural()}
+function baixar(){const c=Instalar.conteudo(),s=Instalar.situacao();
+  abre(`<h2>${c.t}</h2>${c.p.length>1?`<ol class="passos">${c.p.map(x=>`<li>${x}</li>`).join('')}</ol>`:`<p>${c.p[0]}</p>`}${c.botao?`<button class="acao" onclick="Instalar.tocar().then(()=>dlg.close())">Baixar agora</button>`:''}${c.copiar?`<button class="acao" onclick="Instalar.copiarEndereco();this.textContent='Endereço copiado'">Copiar o endereço</button>`:''}`)}
+function frete(e){e.preventDefault();const v=e.target.querySelector('input').value.replace(/\D/g,'');$('#fr').textContent=v.length===8?'Exemplo para São Paulo/SP: PAC R$ 30,32 · SEDEX R$ 50,81':'O CEP tem 8 números.'}
+/* cada foto da loja existe em tamanhos diferentes: se um faltar, tenta os outros */
+const TAMS=['-1024-1024.webp','-640-0.webp','-480-0.webp','-320-0.webp','-240-0.webp'];
+addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;const u=i.src,k=TAMS.findIndex(t=>u.endsWith(t));if(k<0)return;const n=+(i.dataset.tent||0);if(n>=TAMS.length-1)return;i.dataset.tent=n+1;i.src=u.slice(0,-TAMS[k].length)+TAMS[(k+1)%TAMS.length]},true);
+const gav=$('#gav'),dlg=$('#dlg');
+[gav,dlg].forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+Loja.aoMudar(()=>{naHome=false;if(!dlg.open&&!gav.open)desenha()});
+setInterval(()=>$$('[data-fim]').forEach(e=>e.textContent=falta(e.dataset.fim)),30000);
+
+/* cortina de abertura: as cores dos cartazes sobem, uma vez por visita */
+try{ if(!reduz&&!sessionStorage.getItem('pp_cortina')&&!location.hash.startsWith('#/p/')){sessionStorage.setItem('pp_cortina','1');
+  const d=document.createElement('div');d.className='intro';d.setAttribute('aria-hidden','true');d.innerHTML=['#123A2D','#F7A400','#FFDC3C','#B4CE54','#1A4BA0','#0E2E39'].map((c,i)=>`<i style="--c:${c};--i:${i}"></i>`).join('');document.body.append(d);setTimeout(()=>d.remove(),1500)}}catch(e){}
+desenha();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fita);
+</script>
+</body>
+</html>
