@@ -178,6 +178,21 @@
     white-space: nowrap;
   }
 
+  /* ---------- convite do clube ---------- */
+  .clube-convite {
+    display: grid;
+    gap: 6px;
+    padding: 22px;
+    border-radius: 24px;
+    background: var(--led);
+    color: var(--cacau);
+    text-decoration: none;
+    box-shadow: 0 0 28px rgba(255,214,140,.28);
+  }
+  .clube-convite strong { font: 400 28px/1.1 var(--display); }
+  .clube-convite span:not(.rotulo) { color: #5a4035; }
+  .clube-convite .clube-acao { margin-top: 8px; font-weight: 700; color: var(--cacau) !important; }
+
   /* ---------- a máquina, com as fitas de LED ---------- */
   .maquina-area { position: relative; margin: 44px 0 0; padding: 46px 40px 0 20px; }
   .fitas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
@@ -452,6 +467,15 @@
       <div id="pedido"></div>
     </section>
 
+    <section class="bloco" aria-labelledby="t-clube">
+      <a class="clube-convite" id="clubeLink">
+        <span class="rotulo" style="color:var(--cacau)">Clube Glikilovers</span>
+        <strong id="t-clube">Cada cookie vale pontos</strong>
+        <span>Junte na máquina, na loja e no delivery. Troque por cookies, potinhos e caixas.</span>
+        <span class="clube-acao">Entrar no clube →</span>
+      </a>
+    </section>
+
     <section class="maquina-area" id="maquinaArea" aria-labelledby="t-maquina">
       <svg class="fitas" id="fitas" aria-hidden="true"></svg>
       <div class="maquina">
@@ -533,6 +557,7 @@ const CONFIG = {
   fotoTopo: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg",
   instagram: "https://instagram.com/glikisocookeria",
   grupoVip: "https://chat.whatsapp.com/GYfjm6gl9ni5Qy4bgsEXao",
+  clube: "clube/",
   avaliacao: "https://g.co/kgs/BSL7Dhp",
   maquina: {
     mapa: "https://www.google.com/maps/search/?api=1&query=Jockey+Plaza+Shopping+Curitiba",
@@ -690,6 +715,7 @@ function desenharRota() {
       links.push(ladrilho(icone.maquina, "Como comprar", "#maquinaArea", "abre-passos"));
     } else {
       nome = p.nome; classe = "p-fim";
+      links.push(`<a class="ladrilho largo" href="${CONFIG.clube}">${icone.estrela}Clube Glikilovers: pontos em cada cookie</a>`);
       links.push(ladrilho(icone.grupo, "Grupo VIP #glikilovers", CONFIG.grupoVip, "largo"));
       links.push(ladrilho(icone.estrela, "Avaliar no Google", CONFIG.avaliacao));
       links.push(ladrilho(icone.insta, "Instagram", CONFIG.instagram));
@@ -799,6 +825,7 @@ $("topoFoto").src = CONFIG.fotoTopo;
 $("mapaMaquina").href = CONFIG.maquina.mapa;
 $("marque").href = CONFIG.instagram;
 $("clube").href = CONFIG.grupoVip;
+$("clubeLink").href = CONFIG.clube;
 $("avaliar").href = CONFIG.avaliacao;
 $("insta").href = CONFIG.instagram;
 $("status").textContent = statusMaquina();

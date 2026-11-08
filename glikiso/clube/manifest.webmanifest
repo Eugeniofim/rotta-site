@@ -1,0 +1,19 @@
+{
+  "name": "Clube Glikilovers",
+  "short_name": "Glikilovers",
+  "description": "Junte pontos em cada cookie da Gliki Sô e troque por cookies.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2a1913",
+  "theme_color": "#2a1913",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg",
+      "sizes": "400x400",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

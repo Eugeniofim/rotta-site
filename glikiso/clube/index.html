@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clube Glikilovers · Gliki Sô</title>
+<meta name="description" content="Junte pontos em cada cookie da Gliki Sô e troque por cookies.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2a1913">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="apple-touch-icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../comum/estilo.css">
+<style>
+  body { background: var(--cacau); color: var(--creme); color-scheme: dark; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+  .demo {
+    display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; align-items: center;
+    padding: 8px 14px; background: var(--oliva); font-size: 13px;
+  }
+  .demo b { font: 500 11px/1 var(--rotulo); letter-spacing: .14em; text-transform: uppercase; }
+  .demo button, .demo a { background: none; border: 0; padding: 4px 0; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* ---------- entrar ---------- */
+  .entrar { padding: 34px 22px 40px; }
+  .entrar .logo { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--creme); margin-bottom: 22px; }
+  .entrar h1 { font: 400 40px/1.05 var(--display); margin: 8px 0 10px; }
+  .entrar .sub { color: var(--creme-2); margin: 0 0 22px; }
+  .aviso-codigo {
+    display: flex; gap: 12px; align-items: center;
+    padding: 14px 16px; margin-bottom: 20px;
+    border: 1.5px dashed var(--led); border-radius: 18px; color: var(--led);
+  }
+  .campo { display: block; margin-bottom: 14px; }
+  .campo span { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .campo input, .campo select {
+    width: 100%; min-height: 52px; padding: 12px 16px;
+    border-radius: 14px; border: 1.5px solid rgba(243,230,211,.22);
+    background: var(--cacau-2); color: var(--creme); font: 500 16px var(--texto);
+  }
+  .campo input:focus, .campo select:focus { outline: none; border-color: var(--led); }
+  .dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips label { flex: 1; }
+  .chips input { position: absolute; opacity: 0; pointer-events: none; }
+  .chips span {
+    display: block; text-align: center; padding: 12px 8px; border-radius: 999px;
+    border: 1.5px solid rgba(243,230,211,.22); font-weight: 600; font-size: 14px; cursor: pointer;
+  }
+  .chips input:checked + span { background: var(--creme); color: var(--cacau); border-color: var(--creme); }
+  .chips input:focus-visible + span { outline: 2px solid var(--led); outline-offset: 2px; }
+  .erro { color: #ffb4a8; font-size: 14px; min-height: 20px; margin: 4px 0 8px; }
+  .link-troca { background: none; border: 0; color: var(--led); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; padding: 12px 0; cursor: pointer; }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; min-height: 54px; padding: 14px 20px;
+    border-radius: 999px; border: 0; cursor: pointer;
+    font: 700 16px/1.2 var(--texto); text-decoration: none;
+    transition: transform .15s ease, filter .2s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-creme { background: var(--creme); color: var(--cacau); }
+  .btn-led { background: var(--led); color: var(--cacau); box-shadow: 0 0 22px rgba(255,214,140,.35); }
+  .btn-linha { background: transparent; color: var(--creme); border: 1.5px solid rgba(243,230,211,.35); }
+  .btn[disabled] { opacity: .45; cursor: default; }
+
+  /* ---------- app ---------- */
+  .topo-app { display: flex; align-items: center; gap: 12px; padding: 18px 20px 6px; }
+  .topo-app img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--creme); }
+  .topo-app p { margin: 0; font-size: 14px; color: var(--creme-2); line-height: 1.3; }
+  .topo-app strong { display: block; color: var(--creme); font-size: 16px; }
+  main { padding: 10px 20px 120px; }
+  .aba { animation: entra .25s ease; }
+  @keyframes entra { from { opacity: 0; transform: translateY(6px); } }
+  h2.titulo { font: 400 30px/1.1 var(--display); margin: 14px 0 16px; }
+
+  /* O cartão do clube: a fita de LED da parede vira a barra de pontos. */
+  .cartao {
+    position: relative; overflow: hidden;
+    padding: 22px 20px 20px; border-radius: 26px;
+    background: var(--cacau-2);
+    margin: 8px 0 14px;
+  }
+  .cartao::before {
+    content: ""; position: absolute; top: -40px; right: -50px;
+    width: 190px; height: 160px; background: var(--bordo);
+    border-bottom-left-radius: 100% 96%;
+  }
+  .cartao > * { position: relative; }
+  .cartao-topo { display: flex; justify-content: space-between; align-items: center; }
+  .faixa-atual { font: 500 12px/1 var(--rotulo); letter-spacing: .14em; text-transform: uppercase; background: var(--led); color: var(--cacau); padding: 6px 9px; border-radius: 6px; }
+  .pontos { font: 400 64px/1 var(--display); margin: 14px 0 2px; }
+  .pontos small { font: 500 14px var(--texto); color: var(--creme-2); margin-left: 4px; }
+  .falta { margin: 0 0 22px; color: var(--creme-2); font-size: 15px; }
+  .falta b { color: var(--creme); }
+  .trilha { position: relative; height: 3px; margin: 0 8px 54px; background: rgba(255,233,184,.14); border-radius: 3px; }
+  .trilha-luz { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--led); box-shadow: var(--brilho); border-radius: 3px; transition: width 1.2s cubic-bezier(.6,0,.2,1); }
+  .no { position: absolute; top: 50%; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; border-radius: 50%; background: var(--cacau-2); border: 2.5px solid rgba(255,233,184,.3); transition: all .4s .8s; }
+  .no.aceso { background: var(--led); border-color: var(--led); box-shadow: var(--brilho); }
+  .no span { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); font: 500 11px/1.1 var(--rotulo); letter-spacing: .08em; color: var(--creme-2); white-space: nowrap; text-align: center; }
+  .no:last-child span { left: auto; right: -4px; transform: none; text-align: right; }
+  .validade { margin: 0; font-size: 13px; color: var(--creme-2); display: flex; gap: 8px; align-items: center; }
+  .validade .ic { width: 16px; height: 16px; }
+
+  .acoes { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .acoes .btn { padding: 12px 12px; font-size: 15px; gap: 8px; white-space: nowrap; }
+
+  .bloco { padding: 18px; border-radius: 22px; background: var(--cacau-2); margin-bottom: 12px; }
+  .bloco h3 { font: 400 22px/1.15 var(--display); margin: 0 0 6px; }
+  .bloco p { margin: 0; color: var(--creme-2); }
+  .bloco.niver { background: var(--bordo); }
+  .bloco.niver p { color: #f6dfe2; }
+  .bloco.indica { background: var(--oliva); }
+  .bloco.indica p { color: #efe6d6; }
+  .como { display: grid; gap: 12px; margin-top: 12px; }
+  .como div { display: grid; grid-template-columns: 38px 1fr; gap: 10px; align-items: center; font-size: 15px; color: var(--creme-2); }
+  .como i { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--cacau-3); color: var(--led); font-style: normal; }
+
+  .lista { list-style: none; margin: 0; padding: 0; }
+  .lista li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(243,230,211,.1); font-size: 15px; }
+  .lista li:last-child { border-bottom: 0; }
+  .lista small { display: block; color: var(--creme-2); font-size: 13px; }
+  .mais { color: var(--led); font-weight: 700; white-space: nowrap; }
+  .menos { color: var(--rose); font-weight: 700; white-space: nowrap; }
+
+  /* prêmios */
+  .premio { display: grid; grid-template-columns: 22px 1fr auto; gap: 14px; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(243,230,211,.1); }
+  .premio .no { position: static; margin: 0; }
+  .premio h4 { margin: 0; font-size: 17px; }
+  .premio small { color: var(--creme-2); font: 500 12px var(--rotulo); letter-spacing: .1em; text-transform: uppercase; }
+  .premio button { min-height: 44px; padding: 10px 16px; border-radius: 999px; border: 0; font-weight: 700; cursor: pointer; background: var(--led); color: var(--cacau); }
+  .premio button[disabled] { background: transparent; color: var(--creme-2); border: 1.5px solid rgba(243,230,211,.2); cursor: default; font-weight: 600; font-size: 13px; }
+  .meu-premio { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px 16px; border-radius: 16px; border: 1.5px dashed var(--led); background: none; cursor: pointer; margin-bottom: 8px; }
+  .meu-premio b { font: 500 18px var(--rotulo); letter-spacing: .12em; color: var(--led); }
+
+  /* avisos */
+  .aviso { padding: 16px 0; border-bottom: 1px solid rgba(243,230,211,.1); }
+  .aviso h4 { margin: 0 0 4px; font-size: 17px; }
+  .aviso p { margin: 0 0 6px; color: var(--creme-2); }
+  .aviso small { color: var(--creme-2); font-size: 12px; }
+  .aviso.novo h4::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--led); box-shadow: var(--brilho); margin-right: 8px; vertical-align: middle; }
+
+  /* eu */
+  .meuqr { display: grid; place-items: center; gap: 10px; padding: 20px; border-radius: 22px; background: var(--creme); color: var(--cacau); text-align: center; margin-bottom: 12px; }
+  .meuqr b { font: 500 20px var(--rotulo); letter-spacing: .14em; }
+  .dados { list-style: none; padding: 0; margin: 0 0 12px; }
+  .dados li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(243,230,211,.1); }
+  .dados span { color: var(--creme-2); }
+
+  /* barra de abas */
+  .abas {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px; z-index: 5;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: rgba(42,25,19,.94); backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(243,230,211,.1);
+  }
+  .abas button { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 0; background: none; border: 0; color: var(--creme-2); font-size: 12px; font-weight: 600; cursor: pointer; position: relative; }
+  .abas button[aria-current="page"] { color: var(--led); }
+  .abas .ponto { position: absolute; top: 4px; left: calc(50% + 8px); width: 8px; height: 8px; border-radius: 50%; background: var(--led); box-shadow: var(--brilho); }
+
+  /* folha que sobe de baixo */
+  dialog.folha {
+    width: 100%; max-width: 480px; margin: auto auto 0; padding: 0;
+    border: 0; border-radius: 26px 26px 0 0;
+    background: var(--cacau-2); color: var(--creme);
+  }
+  dialog.folha::backdrop { background: rgba(10,5,3,.6); }
+  dialog.folha[open] { animation: sobe .28s cubic-bezier(.2,.8,.2,1); }
+  @keyframes sobe { from { transform: translateY(40px); opacity: 0; } }
+  .folha-corpo { padding: 14px 22px calc(26px + env(safe-area-inset-bottom)); }
+  .folha-alca { width: 44px; height: 5px; border-radius: 3px; background: rgba(243,230,211,.25); margin: 0 auto 14px; }
+  .folha h3 { font: 400 28px/1.1 var(--display); margin: 0 0 8px; }
+  .folha p { color: var(--creme-2); margin: 0 0 16px; }
+  .folha .codigo-campo { text-transform: uppercase; letter-spacing: .3em; text-align: center; font: 500 26px var(--rotulo); }
+  .folha .botoes { display: grid; gap: 10px; }
+  .grande { font: 400 84px/1 var(--display); color: var(--led); text-shadow: 0 0 18px rgba(255,214,140,.6); text-align: center; margin: 6px 0 4px; }
+  .centro { text-align: center; }
+  .qr-caixa { display: grid; place-items: center; gap: 8px; padding: 18px; background: #fff; border-radius: 20px; margin: 0 auto 16px; width: fit-content; color: var(--cacau); }
+  .qr-caixa b { font: 500 22px var(--rotulo); letter-spacing: .16em; }
+
+  .toast {
+    position: fixed; left: 50%; top: 16px; transform: translateX(-50%); z-index: 30;
+    width: calc(100% - 32px); max-width: 448px;
+    padding: 14px 16px; border-radius: 18px;
+    background: var(--creme); color: var(--cacau);
+    box-shadow: 0 12px 30px rgba(0,0,0,.45);
+    display: flex; gap: 12px; align-items: flex-start;
+    animation: desce .3s ease;
+  }
+  .toast img { width: 36px; height: 36px; border-radius: 10px; }
+  .toast b { display: block; }
+  @keyframes desce { from { transform: translate(-50%, -20px); opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="demo" id="demo">
+  <b>Protótipo</b>
+  <button type="button" id="simular">Simular compra na máquina</button>
+  <a href="../painel/" target="_blank" rel="noopener">Abrir o painel da Melissa</a>
+</div>
+
+<div class="app">
+  <!-- ---------- entrar no clube ---------- -->
+  <section class="entrar" id="telaEntrar" hidden>
+    <img class="logo" src="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg" alt="Logo Gliki Sô">
+    <p class="rotulo" style="color:var(--creme-2)">Gliki Sô Cookeria</p>
+    <h1>Clube Glikilovers</h1>
+    <p class="sub">Cada cookie vale pontos. Junte e troque por cookies, potinhos e caixas.</p>
+    <div class="aviso-codigo" id="avisoCodigo" hidden></div>
+
+    <form id="formNovo" novalidate>
+      <label class="campo"><span>Seu nome</span><input name="nome" autocomplete="given-name" required></label>
+      <label class="campo"><span>WhatsApp</span><input name="whats" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999" required></label>
+      <div class="campo">
+        <span>Aniversário (para ganhar presente)</span>
+        <div class="dupla">
+          <select name="dia" aria-label="Dia do aniversário"></select>
+          <select name="mes" aria-label="Mês do aniversário"></select>
+        </div>
+      </div>
+      <div class="campo">
+        <span>Onde você compra mais</span>
+        <div class="chips" id="chipsCidade"></div>
+      </div>
+      <p class="erro" id="erroNovo" role="alert"></p>
+      <button class="btn btn-led" type="submit">Entrar no clube</button>
+    </form>
+
+    <form id="formVolta" hidden novalidate>
+      <label class="campo"><span>WhatsApp do cadastro</span><input name="whats" inputmode="tel" autocomplete="tel" required></label>
+      <p class="erro" id="erroVolta" role="alert"></p>
+      <button class="btn btn-led" type="submit">Entrar</button>
+    </form>
+    <button class="link-troca" type="button" id="trocaForm">Já sou do clube</button>
+  </section>
+
+  <!-- ---------- o app ---------- -->
+  <div id="telaApp" hidden>
+    <header class="topo-app">
+      <img src="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg" alt="">
+      <p><strong id="ola"></strong>Clube Glikilovers</p>
+    </header>
+    <main id="conteudo"></main>
+    <nav class="abas" aria-label="Seções do clube">
+      <button type="button" data-aba="inicio"></button>
+      <button type="button" data-aba="premios"></button>
+      <button type="button" data-aba="avisos"></button>
+      <button type="button" data-aba="eu"></button>
+    </nav>
+  </div>
+</div>
+
+<dialog class="folha" id="folha"><div class="folha-corpo"><div class="folha-alca"></div><div id="folhaConteudo"></div></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="../comum/dados.js"></script>
+<script src="../comum/icones.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const C = window.Clube;
+const I = window.ICONE;
+const LOGO = "https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg";
+const LINK_CLUBE = new URL("./", location.href).href;
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+let codigoPendente = null;
+let indicacaoPendente = null;
+let abaAtual = "inicio";
+
+/* ---------- links que chegam pelo QR da etiqueta (#c=) ou pela indicação (#i=) ---------- */
+function lerLink() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("c")) codigoPendente = C.limpaCodigo(h.get("c"));
+  if (h.get("i")) indicacaoPendente = C.limpaCodigo(h.get("i"));
+  if (h.get("c") || h.get("i")) history.replaceState(null, "", location.pathname + location.search);
+}
+
+/* ---------- entrar ---------- */
+function montarEntrar() {
+  const f = $("formNovo");
+  f.dia.innerHTML = '<option value="">Dia</option>' + Array.from({ length: 31 }, (_, i) => `<option>${String(i + 1).padStart(2, "0")}</option>`).join("");
+  f.mes.innerHTML = '<option value="">Mês</option>' + MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, "0")}">${m}</option>`).join("");
+  $("chipsCidade").innerHTML = C.CIDADES.map((c, i) => `<label><input type="radio" name="cidade" value="${c}" ${i === 0 ? "checked" : ""}><span>${c}</span></label>`).join("");
+}
+function mostrarEntrar() {
+  $("telaApp").hidden = true;
+  $("telaEntrar").hidden = false;
+  const aviso = $("avisoCodigo");
+  if (codigoPendente) {
+    aviso.hidden = false;
+    aviso.innerHTML = `${I.ticket}<span>Seu código <b>${C.mostraCodigo(codigoPendente)}</b> já está guardado. Entre no clube para somar os pontos.</span>`;
+  } else if (indicacaoPendente) {
+    const d = C.ler();
+    const quem = d.membros.find((m) => m.indicacao === indicacaoPendente);
+    aviso.hidden = !quem;
+    if (quem) aviso.innerHTML = `${I.presente}<span>${quem.nome.split(" ")[0]} te convidou: você entra com <b>+${d.regras.bonusIndicacao} pontos</b>.</span>`;
+  } else aviso.hidden = true;
+}
+$("trocaForm").addEventListener("click", () => {
+  const voltando = $("formVolta").hidden;
+  $("formVolta").hidden = !voltando;
+  $("formNovo").hidden = voltando;
+  $("trocaForm").textContent = voltando ? "Quero entrar no clube" : "Já sou do clube";
+});
+$("formNovo").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = e.target;
+  const nome = f.nome.value.trim();
+  const whats = f.whats.value.trim();
+  if (nome.length < 2) return ($("erroNovo").textContent = "Escreva seu nome.");
+  if (C.soDigitos(whats).length < 10) return ($("erroNovo").textContent = "Confira o WhatsApp com DDD.");
+  const niver = f.dia.value && f.mes.value ? `${f.mes.value}-${f.dia.value}` : null;
+  const r = C.cadastrar({ nome, whats, niver, cidade: f.cidade.value, indicacao: indicacaoPendente });
+  C.entrarComo(r.membro.id);
+  indicacaoPendente = null;
+  abrirApp(r.novo ? "Bem-vinda ao clube" : null);
+});
+$("formVolta").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const m = C.porWhats(C.ler(), e.target.whats.value);
+  if (!m) return ($("erroVolta").textContent = "Não achei esse WhatsApp no clube. Confira o número ou entre como novo.");
+  C.entrarComo(m.id);
+  abrirApp();
+});
+
+/* ---------- o app ---------- */
+function eu() { const d = C.ler(); return { d, m: C.membro(d, C.eu()) }; }
+
+function abrirApp(boasVindas) {
+  const { m } = eu();
+  if (!m) return mostrarEntrar();
+  $("telaEntrar").hidden = true;
+  $("telaApp").hidden = false;
+  $("ola").textContent = "Oi, " + m.nome.split(" ")[0];
+  if (codigoPendente) { const c = codigoPendente; codigoPendente = null; somarCodigo(c); }
+  else if (boasVindas) toast(boasVindas, `Você já começa com ${C.ler().regras.bonusCadastro} pontos.`);
+  ir(abaAtual);
+}
+
+const ABAS = {
+  inicio: { nome: "Início", icone: I.casa },
+  premios: { nome: "Prêmios", icone: I.presente },
+  avisos: { nome: "Avisos", icone: I.sino },
+  eu: { nome: "Eu", icone: I.usuario }
+};
+function desenharAbas() {
+  const { d, m } = eu();
+  document.querySelectorAll(".abas button").forEach((b) => {
+    const a = ABAS[b.dataset.aba];
+    const novos = b.dataset.aba === "avisos" && avisosDe(d, m).some((x) => x.data > vistoAvisos());
+    b.innerHTML = a.icone + a.nome + (novos ? '<i class="ponto" aria-label="novo"></i>' : "");
+    b.setAttribute("aria-current", b.dataset.aba === abaAtual ? "page" : "false");
+  });
+}
+document.querySelectorAll(".abas button").forEach((b) => b.addEventListener("click", () => ir(b.dataset.aba)));
+
+function ir(aba) {
+  abaAtual = aba;
+  const { d, m } = eu();
+  if (!m) return mostrarEntrar();
+  const tela = { inicio: telaInicio, premios: telaPremios, avisos: telaAvisos, eu: telaEu }[aba];
+  $("conteudo").innerHTML = `<div class="aba">${tela(d, m)}</div>`;
+  if (aba === "avisos") guardarVisto();
+  desenharAbas();
+  ligarTela();
+  requestAnimationFrame(() => requestAnimationFrame(acenderCartao));
+  scrollTo(0, 0);
+}
+
+/* ---------- Início ---------- */
+function cartao(d, m) {
+  const { atual, proximo } = C.faixaDe(m.pontos, d.premios);
+  const teto = Math.max(...d.premios.map((p) => p.pontos));
+  const nos = [...d.premios].sort((a, b) => a.pontos - b.pontos).map((p) =>
+    `<i class="no" data-pts="${p.pontos}" style="left:${(p.pontos / teto) * 100}%"><span>${p.faixa}<br>${p.pontos}</span></i>`).join("");
+  const falta = proximo
+    ? `Faltam <b>${proximo.pontos - m.pontos} pontos</b> para ${proximo.nome}`
+    : `Você chegou ao topo. Troque por <b>${atual.nome}</b>`;
+  return `<div class="cartao">
+    <div class="cartao-topo"><p class="rotulo" style="color:var(--creme-2)">Seus pontos</p>${atual ? `<span class="faixa-atual">${atual.faixa}</span>` : ""}</div>
+    <p class="pontos">${m.pontos}<small>pontos</small></p>
+    <p class="falta">${falta}</p>
+    <div class="trilha" data-luz="${Math.min(100, (m.pontos / teto) * 100)}"><div class="trilha-luz"></div>${nos}</div>
+    <p class="validade">${I.relogio}Valem até ${C.dataBR(C.expiraEm(m, d.regras))}. Cada código novo renova o prazo.</p>
+  </div>`;
+}
+function acenderCartao() {
+  const t = document.querySelector(".trilha");
+  if (!t) return;
+  const luz = Number(t.dataset.luz);
+  t.querySelector(".trilha-luz").style.width = luz + "%";
+  const { m } = eu();
+  t.querySelectorAll(".no").forEach((n) => n.classList.toggle("aceso", m.pontos >= Number(n.dataset.pts)));
+}
+function telaInicio(d, m) {
+  const ultimos = m.extrato.slice(0, 4);
+  const ultimoAviso = avisosDe(d, m).slice(-1)[0];
+  return `${cartao(d, m)}
+    <div class="acoes">
+      <button class="btn btn-led" data-acao="codigo">${I.ticket}Adicionar código</button>
+      <button class="btn btn-linha" data-acao="meuqr">${I.qr}Meu QR</button>
+    </div>
+    ${C.aniversarioPerto(m) ? `<div class="bloco niver"><h3>Feliz aniversário, ${m.nome.split(" ")[0]}</h3><p>Seu presente: ${d.regras.presenteAniversario}. Mostre o seu QR na loja.</p></div>` : ""}
+    <div class="bloco">
+      <h3>Como ganhar pontos</h3>
+      <p>Cada cookie vem com uma etiqueta. Aponte a câmera do celular para o QR: +${d.regras.pontosPorCookie} pontos.</p>
+      <div class="como">
+        <div><i>${I.maquina}</i>Na máquina do Jockey Plaza</div>
+        <div><i>${I.loja}</i>No balcão, mostrando o seu QR</div>
+        <div><i>${I.sacola}</i>No delivery, a etiqueta vai na embalagem</div>
+      </div>
+    </div>
+    ${ultimoAviso ? `<div class="bloco" data-acao="ir-avisos" role="button" tabindex="0"><p class="rotulo" style="color:var(--led);margin-bottom:8px">Último aviso</p><h3>${ultimoAviso.titulo}</h3><p>${ultimoAviso.texto}</p></div>` : ""}
+    <div class="bloco">
+      <h3>Seus últimos pontos</h3>
+      <ul class="lista">${ultimos.map(linhaExtrato).join("")}</ul>
+    </div>`;
+}
+function linhaExtrato(e) {
+  const onde = e.canal ? C.CANAIS[e.canal] + " · " : "";
+  return `<li><span>${e.motivo}<small>${onde}${C.dataBR(e.data)}</small></span><span class="${e.pontos >= 0 ? "mais" : "menos"}">${e.pontos >= 0 ? "+" : ""}${e.pontos}</span></li>`;
+}
+
+/* ---------- Prêmios ---------- */
+function telaPremios(d, m) {
+  const meus = d.resgates.filter((r) => r.membro === m.id && !r.entregue);
+  const lista = [...d.premios].sort((a, b) => a.pontos - b.pontos).map((p) => {
+    const pode = m.pontos >= p.pontos;
+    return `<div class="premio">
+      <i class="no ${pode ? "aceso" : ""}"></i>
+      <div><small>${p.faixa} · ${p.pontos} pontos</small><h4>${p.nome}</h4></div>
+      ${pode ? `<button data-trocar="${p.id}">Trocar</button>` : `<button disabled>Faltam ${p.pontos - m.pontos}</button>`}
+    </div>`;
+  }).join("");
+  return `<h2 class="titulo">Prêmios</h2>
+    <p style="color:var(--creme-2);margin:-6px 0 8px">Você tem <b style="color:var(--led)">${m.pontos} pontos</b>.</p>
+    ${meus.length ? `<p class="rotulo" style="color:var(--led);margin:18px 0 10px">Para retirar</p>${meus.map((r) => `<button class="meu-premio" data-resgate="${r.codigo}"><span>${r.nome}<br><small style="color:var(--creme-2)">Trocado em ${C.dataBR(r.data)}</small></span><b>${C.mostraCodigo(r.codigo)}</b></button>`).join("")}` : ""}
+    <div>${lista}</div>
+    <div class="bloco indica" style="margin-top:22px">
+      <h3>Indique uma amiga</h3>
+      <p>Ela entra com +${d.regras.bonusIndicacao} pontos e você ganha +${d.regras.bonusIndicacao} quando ela comprar o primeiro cookie.</p>
+      <button class="btn btn-creme" style="margin-top:14px" data-acao="indicar">${I.compartilhar}Mandar convite</button>
+    </div>`;
+}
+
+/* ---------- Avisos ---------- */
+function avisosDe(d, m) {
+  return d.avisos.filter((a) => C.publico(d, a.publico).some((x) => x.id === m.id)).sort((a, b) => a.data - b.data);
+}
+function vistoAvisos() { try { return Number(localStorage.getItem("glk_visto_" + C.eu()) || 0); } catch (e) { return 0; } }
+function guardarVisto() { try { localStorage.setItem("glk_visto_" + C.eu(), String(Date.now())); } catch (e) {} }
+function telaAvisos(d, m) {
+  const visto = vistoAvisos();
+  const lista = avisosDe(d, m).reverse();
+  const permitido = "Notification" in window && Notification.permission === "granted";
+  return `<h2 class="titulo">Avisos</h2>
+    ${permitido ? "" : `<div class="bloco"><h3>Saiba primeiro</h3><p>Sabor novo, reposição na máquina e promoções direto no seu celular.</p>
+      <button class="btn btn-led" style="margin-top:14px" data-acao="ativar">${I.sino}Ativar avisos</button></div>`}
+    ${lista.length ? lista.map((a) => `<div class="aviso ${a.data > visto ? "novo" : ""}"><h4>${a.titulo}</h4><p>${a.texto}</p><small>${C.dataHoraBR(a.data)}</small></div>`).join("") : `<p style="color:var(--creme-2)">Nenhum aviso ainda.</p>`}`;
+}
+
+/* ---------- Eu ---------- */
+function telaEu(d, m) {
+  const [mm, dd] = (m.niver || "").split("-");
+  return `<h2 class="titulo">${m.nome}</h2>
+    <div class="meuqr">${qrSVG("GLIKI:" + m.id, 170)}<b>${m.id}</b><span>Mostre no balcão para somar pontos</span></div>
+    <ul class="dados">
+      <li><span>WhatsApp</span>${m.whats}</li>
+      <li><span>Cidade</span>${m.cidade}</li>
+      <li><span>Aniversário</span>${m.niver ? `${dd} de ${MESES[Number(mm) - 1]}` : "não informado"}</li>
+      <li><span>No clube desde</span>${C.dataBR(m.desde)}</li>
+      <li><span>Pontos ganhos no total</span>${m.total}</li>
+    </ul>
+    <div class="bloco"><h3>Todos os seus pontos</h3><ul class="lista">${m.extrato.map(linhaExtrato).join("")}</ul></div>
+    <button class="btn btn-linha" data-acao="sair">Sair do clube neste celular</button>`;
+}
+
+/* ---------- ações ---------- */
+function ligarTela() {
+  document.querySelectorAll("[data-acao]").forEach((el) => el.addEventListener("click", () => acao(el.dataset.acao)));
+  document.querySelectorAll("[data-trocar]").forEach((b) => b.addEventListener("click", () => confirmarTroca(b.dataset.trocar)));
+  document.querySelectorAll("[data-resgate]").forEach((b) => b.addEventListener("click", () => mostrarResgate(b.dataset.resgate)));
+}
+function acao(a) {
+  if (a === "codigo") return folhaCodigo();
+  if (a === "meuqr") { const { m } = eu(); return abrirFolha(`<h3>Meu QR</h3><p>Mostre no balcão: a loja soma os pontos da sua compra.</p><div class="qr-caixa">${qrSVG("GLIKI:" + m.id, 200)}<b>${m.id}</b></div><button class="btn btn-creme" data-fechar>Pronto</button>`); }
+  if (a === "ir-avisos") return ir("avisos");
+  if (a === "ativar") return ativarAvisos();
+  if (a === "indicar") return indicar();
+  if (a === "sair") { C.entrarComo(null); abaAtual = "inicio"; return mostrarEntrar(); }
+}
+
+function abrirFolha(html) {
+  $("folhaConteudo").innerHTML = html;
+  const f = $("folha");
+  if (!f.open) f.showModal();
+  f.querySelectorAll("[data-fechar]").forEach((b) => b.addEventListener("click", () => f.close()));
+  return f;
+}
+$("folha").addEventListener("click", (e) => { if (e.target === $("folha")) $("folha").close(); });
+
+function folhaCodigo(erro = "") {
+  abrirFolha(`<h3>Adicionar código</h3>
+    <p>As 6 letras estão na etiqueta do cookie, embaixo do QR.</p>
+    <form id="formCodigo" novalidate>
+      <label class="campo"><span class="rotulo" style="margin-bottom:8px">Código da etiqueta</span><input class="codigo-campo" name="codigo" maxlength="7" autocomplete="off" autocapitalize="characters" placeholder="ABC-123"></label>
+      <p class="erro" role="alert">${erro}</p>
+      <div class="botoes"><button class="btn btn-led" type="submit">Somar pontos</button><button class="btn btn-linha" type="button" data-fechar>Cancelar</button></div>
+    </form>`);
+  const f = $("formCodigo");
+  f.codigo.focus();
+  f.addEventListener("submit", (e) => { e.preventDefault(); somarCodigo(f.codigo.value); });
+}
+
+function somarCodigo(bruto) {
+  const { m } = eu();
+  const antes = m.pontos;
+  const r = C.usarCodigo(m.id, bruto);
+  if (!r.ok) return folhaCodigo(r.erro);
+  const d = C.ler();
+  const cruzou = d.premios.filter((p) => antes < p.pontos && r.saldo >= p.pontos).pop();
+  abrirFolha(`<p class="rotulo centro" style="color:var(--creme-2);margin-bottom:0">${C.CANAIS[r.canal]}</p>
+    <p class="grande">+${r.pontos}</p>
+    <p class="centro">Agora você tem <b style="color:var(--creme)">${r.saldo} pontos</b>.</p>
+    ${cruzou ? `<div class="bloco niver" style="margin-bottom:14px"><h3>Você liberou: ${cruzou.nome}</h3><p>Troque na aba Prêmios quando quiser.</p></div>` : ""}
+    <div class="botoes">${cruzou ? `<button class="btn btn-led" id="verPremios">Ver prêmios</button>` : ""}<button class="btn btn-creme" data-fechar>Pronto</button></div>`);
+  const v = $("verPremios");
+  if (v) v.addEventListener("click", () => { $("folha").close(); ir("premios"); });
+  ir(abaAtual);
+}
+
+function confirmarTroca(id) {
+  const { d } = eu();
+  const p = d.premios.find((x) => x.id === id);
+  abrirFolha(`<h3>Trocar por ${p.nome}?</h3><p>Saem ${p.pontos} pontos do seu saldo. Você recebe um código para retirar na loja.</p>
+    <div class="botoes"><button class="btn btn-led" id="okTroca">Trocar ${p.pontos} pontos</button><button class="btn btn-linha" data-fechar>Agora não</button></div>`);
+  $("okTroca").addEventListener("click", () => {
+    const r = C.trocar(C.eu(), id);
+    if (!r.ok) return abrirFolha(`<h3>Não deu</h3><p>${r.erro}</p><button class="btn btn-creme" data-fechar>Pronto</button>`);
+    ir("premios");
+    mostrarResgate(r.resgate.codigo);
+  });
+}
+function mostrarResgate(codigo) {
+  const { d } = eu();
+  const r = d.resgates.find((x) => x.codigo === codigo);
+  abrirFolha(`<h3>${r.nome}</h3><p>Mostre este código na loja para retirar. Vale por 30 dias.</p>
+    <div class="qr-caixa">${qrSVG("GLIKI-PREMIO:" + r.codigo, 190)}<b>${C.mostraCodigo(r.codigo)}</b></div>
+    <button class="btn btn-creme" data-fechar>Pronto</button>`);
+}
+
+function indicar() {
+  const { m } = eu();
+  const link = LINK_CLUBE + "#i=" + m.indicacao;
+  const texto = `Entra no Clube Glikilovers comigo: cada cookie da Gliki Sô vale pontos. Pelo meu convite você já começa com pontos extras: ${link}`;
+  if (navigator.share) navigator.share({ title: "Clube Glikilovers", text: texto }).catch(() => {});
+  else window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
+}
+
+/* ---------- avisos no celular ---------- */
+let registro = null;
+async function ativarAvisos() {
+  if (!("Notification" in window)) return toast("Este navegador não mostra avisos", "No iPhone, adicione o clube à tela de início primeiro.");
+  const p = await Notification.requestPermission();
+  if (p !== "granted") return toast("Avisos desligados", "Você pode ligar depois nos ajustes do navegador.");
+  await notificar("Avisos ligados", "Você vai saber primeiro dos sabores novos e da reposição na máquina.");
+  ir("avisos");
+}
+async function notificar(titulo, texto) {
+  try {
+    if (!registro && "serviceWorker" in navigator) registro = await navigator.serviceWorker.register("sw.js");
+    if (registro && Notification.permission === "granted") {
+      await navigator.serviceWorker.ready;
+      return registro.showNotification(titulo, { body: texto, icon: LOGO, badge: LOGO, tag: "glk-" + Date.now() });
+    }
+  } catch (e) {}
+  toast(titulo, texto);
+}
+function toast(titulo, texto) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.setAttribute("role", "status");
+  t.innerHTML = `<img src="${LOGO}" alt=""><div><b>${titulo}</b>${texto}</div>`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4500);
+}
+
+/* O painel manda um aviso → aqui ele aparece (mesmo aparelho, no protótipo). */
+let qtdAvisos = C.ler().avisos.length;
+addEventListener("storage", (e) => {
+  if (e.key !== C.CHAVE) return;
+  const { d, m } = eu();
+  if (!m) return;
+  const novos = d.avisos.slice(qtdAvisos);
+  qtdAvisos = d.avisos.length;
+  novos.filter((a) => C.publico(d, a.publico).some((x) => x.id === m.id)).forEach((a) => {
+    if ("Notification" in window && Notification.permission === "granted") notificar(a.titulo, a.texto);
+    else toast(a.titulo, a.texto);
+  });
+  ir(abaAtual);
+});
+
+/* ---------- demonstração ---------- */
+$("simular").addEventListener("click", () => {
+  const d = C.ler();
+  const livre = Object.entries(d.codigos).find(([, c]) => c.canal === "maquina" && !c.usadoPor);
+  if (!livre) return toast("Acabaram os códigos da máquina", "Gere mais no painel, em Códigos.");
+  codigoPendente = livre[0];
+  if (C.membro(d, C.eu())) { const c = codigoPendente; codigoPendente = null; somarCodigo(c); }
+  else mostrarEntrar();
+});
+
+/* ---------- começo ---------- */
+lerLink();
+montarEntrar();
+if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar();
+addEventListener("hashchange", () => { lerLink(); if (codigoPendente || indicacaoPendente) { if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar(); } });
+</script>
+</body>
+</html>

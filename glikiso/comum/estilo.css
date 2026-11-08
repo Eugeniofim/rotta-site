@@ -1,0 +1,32 @@
+/* Tokens da Gliki Sô — os mesmos da página de links. */
+:root {
+  --cacau: #2a1913;
+  --cacau-2: #3a2419;
+  --cacau-3: #4a3024;
+  --bordo: #6e1f2a;
+  --oliva: #6f7452;
+  --creme: #f3e6d3;
+  --creme-2: #d9c7ae;
+  --led: #ffe9b8;
+  --massa: #c98a4b;
+  --rose: #e9a9b2;
+  --zap: #25d366;
+  --display: "Gloock", Georgia, serif;
+  --rotulo: "Oswald", "Arial Narrow", sans-serif;
+  --texto: "Figtree", system-ui, sans-serif;
+  --brilho: 0 0 6px #ffd98a, 0 0 16px rgba(255,196,110,.55);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 400 16px/1.5 var(--texto); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+img, svg { display: block; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--led); outline-offset: 3px; border-radius: 8px; }
+.rotulo { font: 500 12px/1.2 var(--rotulo); letter-spacing: .16em; text-transform: uppercase; margin: 0; }
+.display { font-family: var(--display); font-weight: 400; }
+.ic { width: 20px; height: 20px; flex: none; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
