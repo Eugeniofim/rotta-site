@@ -7,3 +7,4 @@ Publicado pelo GitHub Pages (CNAME rottaguide.com).
 `ailton/` = o app do Ailton Guia Viena (rottaguide.com/ailton), cópia de `app-guia/ailton/`.
 `anirvana/` = protótipo do app do Espaço Anirvana (rottaguide.com/anirvana). O código fica em `anirvana/fonte/`; ver `anirvana/LEIA-ME.md`.
 `mariodalpra/` = só redireciona para https://guiabrasileiroemmunique.app (domínio do Mario, repo guiabrasileiroemmunique-app) desde 20/10/2026.
+`marsales/` = site do Marsales Studio (Jhennyfer Sales, nail design e Workshop Segurança desde já), rottaguide.com/marsales (painel: rottaguide.com/marsales/adm, abre o app da Jeny no claude.ai). Gerado por `build.sh` do projeto marsales-app (pasta `publicar/`).
