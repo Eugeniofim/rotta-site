@@ -296,22 +296,125 @@
   .insta { border: 1.5px solid rgba(243,230,211,.25); }
   .insta p { color: var(--creme-2); }
 
-  .todos h3 { margin: 22px 0 2px; }
-  .todos a {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 15px 2px;
-    border-bottom: 1px solid rgba(243,230,211,.14);
-    text-decoration: none;
-    font-weight: 500;
+  .nota { margin: 12px 4px 0; font-size: 13px; color: var(--creme-2); }
+
+  /* ---------- todos os links: a fita de LED vira a rota do litoral à capital ---------- */
+  .rota-sub { margin: 8px 0 26px; color: var(--creme-2); }
+  .rota { position: relative; padding-left: 38px; }
+  .rota-trilho {
+    position: absolute;
+    left: 10px; top: 10px; bottom: 26px;
+    width: 3px;
+    border-radius: 3px;
+    background: rgba(255,233,184,.12);
   }
-  .todos a::after { content: "→"; color: var(--led); }
-  .todos a:hover { color: var(--led); }
+  .rota-luz {
+    position: absolute;
+    left: 0; top: 0; width: 100%;
+    height: calc(var(--luz, 0) * 100%);
+    transition: height .25s ease-out;
+    border-radius: 3px;
+    background: var(--led);
+    box-shadow: 0 0 6px #ffd98a, 0 0 16px rgba(255,196,110,.55);
+  }
+  .parada { position: relative; padding-bottom: 34px; }
+  .parada::before {
+    content: "";
+    position: absolute;
+    left: -35px; top: 6px;
+    width: 19px; height: 19px;
+    border-radius: 50%;
+    background: var(--cacau);
+    border: 3px solid rgba(255,233,184,.22);
+    transition: background .3s, border-color .3s, box-shadow .3s;
+  }
+  .parada.acesa::before { background: var(--nome); border-color: var(--led); box-shadow: 0 0 10px #ffd98a; }
+  .parada h3 { font: 400 27px/1.1 var(--display); color: var(--nome); margin: 0 0 4px; }
+  .parada .rotulo { margin: 0 0 14px; }
+  .ladrilhos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ladrilho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: var(--cor);
+    color: var(--tinta);
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: transform .15s ease, filter .2s;
+  }
+  .ladrilho:hover { filter: brightness(1.06); }
+  .ladrilho:active { transform: scale(.97); }
+  .ladrilho svg { width: 20px; height: 20px; flex: none; }
+  .ladrilho.largo { grid-column: 1 / -1; }
+  .p-paranagua { --nome: var(--massa); --cor: var(--massa); --tinta: var(--cacau); }
+  .p-caioba { --nome: #b9bd94; --cor: var(--oliva); --tinta: #fffaf2; }
+  .p-curitiba { --nome: var(--creme); --cor: var(--creme); --tinta: var(--cacau); }
+  .p-maquina { --nome: var(--led); --cor: var(--led); --tinta: var(--cacau); }
+  .p-maquina .ladrilho { box-shadow: 0 0 18px rgba(255,214,140,.35); }
+  .p-fim { --nome: #e9a9b2; --cor: var(--bordo); --tinta: #fffaf2; padding-bottom: 0; }
+
+  /* ---------- WhatsApp sempre à mão ---------- */
+  .zap {
+    position: fixed;
+    z-index: 10;
+    right: max(16px, calc((100vw - 480px) / 2 + 16px));
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .zap-rotulo {
+    background: var(--creme);
+    color: var(--cacau);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35);
+    transition: opacity .3s, transform .3s;
+  }
+  .zap.recolhido .zap-rotulo { opacity: 0; transform: translateX(8px); pointer-events: none; }
+  .zap-bola {
+    display: grid;
+    place-items: center;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+  .zap-bola svg { width: 30px; height: 30px; }
+  .zap-escolha {
+    position: fixed;
+    z-index: 11;
+    right: max(16px, calc((100vw - 480px) / 2 + 16px));
+    bottom: calc(90px + env(safe-area-inset-bottom));
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 20px;
+    background: var(--cacau-2);
+    box-shadow: 0 12px 32px rgba(0,0,0,.5);
+  }
+  .zap-escolha[hidden] { display: none; }
+  .zap-escolha p { margin: 2px 4px 4px; font-size: 13px; color: var(--creme-2); }
+  .zap-escolha a {
+    display: flex; align-items: center; gap: 10px;
+    min-height: 48px; padding: 10px 16px;
+    border-radius: 14px;
+    background: #25d366; color: #06301a;
+    font-weight: 700; text-decoration: none;
+  }
+  .zap-escolha a svg { width: 20px; height: 20px; }
 
   footer {
-    padding: 36px 20px 44px;
+    padding: 36px 20px 110px;
     text-align: center;
     font: 400 12px/1.6 var(--rotulo);
     letter-spacing: .16em;
@@ -400,11 +503,24 @@
       </a>
     </section>
 
-    <section class="bloco todos" aria-labelledby="t-todos" style="padding-top:40px">
-      <h2 class="secao" id="t-todos">Todos os links</h2>
-      <div id="todos"></div>
+    <section class="bloco" aria-labelledby="t-todos" style="padding-top:48px">
+      <p class="rotulo">Todos os links</p>
+      <h2 class="secao" id="t-todos">Do litoral à capital</h2>
+      <p class="rota-sub">Siga a luz e escolha a sua Gliki.</p>
+      <div class="rota" id="rota">
+        <div class="rota-trilho" aria-hidden="true"><div class="rota-luz"></div></div>
+        <div id="paradas"></div>
+      </div>
     </section>
   </main>
+
+  <a class="zap" id="zap" target="_blank" rel="noopener">
+    <span class="zap-rotulo" id="zapRotulo"></span>
+    <span class="zap-bola" id="zapBola"></span>
+  </a>
+  <div class="zap-escolha" id="zapEscolha" hidden>
+    <p>Com qual Gliki você quer falar?</p>
+  </div>
 
   <footer>Gliki Sô Cookeria · Paranaguá · Curitiba · Caiobá</footer>
 </div>
@@ -431,7 +547,8 @@ const CONFIG = {
       whatsapp: "https://wa.me/message/ITSRMUQZQP64O1",
       endereco: "R. Hildebrando de Araújo, 1035 · Jardim Botânico",
       mapa: "R. Hildebrando de Araújo, 1035, Jardim Botânico, Curitiba - PR",
-      cupom: { codigo: "PRIMEIRACOMPRA", texto: "5% off no 1º pedido do delivery" }
+      cupom: { codigo: "PRIMEIRACOMPRA", texto: "5% off no 1º pedido do delivery" },
+      nota: "No delivery: 1% de cashback em todo pedido e entrega grátis a partir de R$ 150."
     },
     paranagua: {
       nome: "Paranaguá",
@@ -439,13 +556,22 @@ const CONFIG = {
       whatsapp: "https://wa.me/message/MN4TFKPZ2ZHAO1",
       endereco: "R. Manoel Corrêa, 622 · Costeira",
       mapa: "R. Manoel Corrêa, 622, Costeira, Paranaguá - PR",
-      aviso: "Compre 3 cookies e ganhe 1. As regras estão no cardápio."
+      aviso: "Compre 3 cookies e ganhe 1. As regras estão no cardápio.",
+      nota: "No delivery: 1% de cashback em todo pedido."
     },
     caioba: {
       nome: "Caiobá",
       aviso: "Endereço e horários de Caiobá estão nos destaques do nosso Instagram."
     }
   },
+  /* A rota de "Todos os links", na ordem em que a fita acende. */
+  rota: [
+    { cidade: "paranagua", desc: "Litoral" },
+    { cidade: "caioba", desc: "Na praia" },
+    { cidade: "curitiba", desc: "Jardim Botânico" },
+    { tipo: "maquina", nome: "Jockey Plaza", desc: "A máquina de cookies" },
+    { tipo: "fim", nome: "Perto da Gliki", desc: "De qualquer cidade" }
+  ],
   queridinhos: [
     { nome: "Ninho com Nutella", selo: "Mais pedido", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534310/d007d98a10332570-CD0E-46B0-9CFE-5500D1232C31.jpeg" },
     { nome: "Red Velvet com brigadeiro branco", selo: "Mais pedido", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg" },
@@ -458,7 +584,13 @@ const CONFIG = {
 const $ = (id) => document.getElementById(id);
 const icone = {
   whats: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>',
-  sacola: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>'
+  sacola: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
+  pino: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  talher: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3M17 21V3c-2 0-3.5 2.6-3.5 6.5S15 14 17 14"/></svg>',
+  insta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>',
+  estrela: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></svg>',
+  grupo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/></svg>',
+  maquina: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M8 6h5v9H8zM16 7v1M16 11v1M8 18.5h8"/></svg>'
 };
 const mapa = (q) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
 
@@ -492,6 +624,7 @@ function desenharPedido() {
   if (c.ifood) extras.push(`<a class="botao botao-linha" href="${c.ifood}" target="_blank" rel="noopener">iFood</a>`);
   if (c.whatsapp) extras.push(`<a class="botao botao-linha" href="${c.whatsapp}" target="_blank" rel="noopener">${icone.whats} WhatsApp</a>`);
   if (extras.length) html += `<div class="par ${extras.length === 1 ? "um" : ""}">${extras.join("")}</div>`;
+  if (c.nota) html += `<p class="nota">${c.nota}</p>`;
   if (c.cupom) {
     html += `<div class="oferta"><div><strong>${c.cupom.codigo}</strong>${c.cupom.texto}</div>
       <button type="button" id="copiar">Copiar código</button></div>`;
@@ -505,6 +638,7 @@ function desenharPedido() {
   $("verCardapio").href = c.delivery || CONFIG.instagram;
   $("verCardapio").textContent = c.delivery ? "Cardápio completo" : "Ver no Instagram";
   desenharVitrine();
+  desenharZap();
 
   const copiar = $("copiar");
   if (copiar) copiar.addEventListener("click", async () => {
@@ -534,28 +668,92 @@ function desenharVitrine() {
     </a>`).join("");
 }
 
-/* ---------- todos os links, sem precisar trocar de cidade ---------- */
-function desenharTodos() {
-  const grupos = Object.values(CONFIG.cidades).map((c) => {
-    const links = [];
-    if (c.delivery) links.push(["Delivery", c.delivery]);
-    if (c.ifood) links.push(["iFood", c.ifood]);
-    if (c.whatsapp) links.push(["WhatsApp", c.whatsapp]);
-    if (c.mapa) links.push(["Endereço no mapa", mapa(c.mapa)]);
-    if (!links.length) links.push([`${c.nome} no Instagram`, CONFIG.instagram]);
-    return [c.nome, links];
-  });
-  grupos.push(["Gliki Sô", [
-    ["Máquina no Jockey Plaza", CONFIG.maquina.mapa],
-    ["Grupo VIP #glikilovers", CONFIG.grupoVip],
-    ["Avaliar no Google", CONFIG.avaliacao],
-    ["Instagram", CONFIG.instagram]
-  ]]);
-  $("todos").innerHTML = grupos.map(([nome, links]) =>
-    `<h3 class="rotulo">${nome}</h3>` +
-    links.map(([texto, url]) => `<a href="${url}" target="_blank" rel="noopener">${texto}</a>`).join("")
-  ).join("");
+/* ---------- todos os links: uma parada por lugar, na ordem da fita ---------- */
+const ladrilho = (icon, texto, url, extra = "") =>
+  `<a class="ladrilho ${extra}" href="${url}"${url.startsWith("#") ? "" : ' target="_blank" rel="noopener"'}>${icon}${texto}</a>`;
+
+function desenharRota() {
+  $("paradas").innerHTML = CONFIG.rota.map((p) => {
+    let nome, classe, links = [];
+    if (p.cidade) {
+      const c = CONFIG.cidades[p.cidade];
+      nome = c.nome; classe = "p-" + p.cidade;
+      if (c.delivery) links.push(ladrilho(icone.sacola, "Delivery", c.delivery));
+      if (c.ifood) links.push(ladrilho(icone.talher, "iFood", c.ifood));
+      if (c.whatsapp) links.push(ladrilho(icone.whats, "WhatsApp", c.whatsapp));
+      if (c.mapa) links.push(ladrilho(icone.pino, "Mapa", mapa(c.mapa)));
+      if (!links.length) links.push(ladrilho(icone.insta, "Endereço e horário no Instagram", CONFIG.instagram, "largo"));
+      if (links.length % 2) links[links.length - 1] = links[links.length - 1].replace('class="ladrilho ', 'class="ladrilho largo ');
+    } else if (p.tipo === "maquina") {
+      nome = p.nome; classe = "p-maquina";
+      links.push(ladrilho(icone.pino, "Como chegar", CONFIG.maquina.mapa));
+      links.push(ladrilho(icone.maquina, "Como comprar", "#maquinaArea", "abre-passos"));
+    } else {
+      nome = p.nome; classe = "p-fim";
+      links.push(ladrilho(icone.grupo, "Grupo VIP #glikilovers", CONFIG.grupoVip, "largo"));
+      links.push(ladrilho(icone.estrela, "Avaliar no Google", CONFIG.avaliacao));
+      links.push(ladrilho(icone.insta, "Instagram", CONFIG.instagram));
+    }
+    return `<div class="parada ${classe}">
+      <h3>${nome}</h3>
+      <p class="rotulo">${p.desc}</p>
+      <div class="ladrilhos">${links.join("")}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".abre-passos").forEach((a) =>
+    a.addEventListener("click", () => { document.querySelector(".passos").open = true; })
+  );
 }
+
+/* A luz desce pela rota conforme a pessoa rola a página. */
+function acenderRota() {
+  const rota = $("rota");
+  const r = rota.getBoundingClientRect();
+  const calma = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const noFim = scrollY + innerHeight >= document.documentElement.scrollHeight - 40;
+  const luz = calma || noFim ? 1 : Math.min(1, Math.max(0, (innerHeight * 0.8 - r.top) / r.height));
+  rota.style.setProperty("--luz", luz);
+  const altura = luz * r.height;
+  rota.querySelectorAll(".parada").forEach((p) => p.classList.toggle("acesa", p.offsetTop + 8 <= altura));
+}
+let quadro = 0;
+addEventListener("scroll", () => {
+  if (quadro) return;
+  quadro = requestAnimationFrame(() => { quadro = 0; acenderRota(); });
+}, { passive: true });
+
+/* ---------- WhatsApp flutuante: fala com a cidade escolhida ---------- */
+function desenharZap() {
+  const zap = $("zap");
+  const c = CONFIG.cidades[cidadeAtual];
+  const escolha = $("zapEscolha");
+  $("zapBola").innerHTML = icone.whats;
+  escolha.hidden = true;
+  if (c.whatsapp) {
+    zap.href = c.whatsapp;
+    zap.setAttribute("aria-label", `Falar com a Gliki de ${c.nome} no WhatsApp`);
+    $("zapRotulo").textContent = `Fale com a Gliki · ${c.nome}`;
+  } else {
+    zap.href = "#zapEscolha";
+    zap.setAttribute("aria-label", "Falar com a Gliki no WhatsApp: escolher a cidade");
+    $("zapRotulo").textContent = "Fale com a Gliki";
+  }
+  escolha.innerHTML = '<p>Com qual Gliki você quer falar?</p>' + Object.values(CONFIG.cidades)
+    .filter((x) => x.whatsapp)
+    .map((x) => `<a href="${x.whatsapp}" target="_blank" rel="noopener">${icone.whats} ${x.nome}</a>`).join("");
+  zap.classList.remove("recolhido");
+  clearTimeout(desenharZap.espera);
+  desenharZap.espera = setTimeout(() => zap.classList.add("recolhido"), 5000);
+}
+$("zap").addEventListener("click", (e) => {
+  if (!CONFIG.cidades[cidadeAtual].whatsapp) {
+    e.preventDefault();
+    $("zapEscolha").hidden = !$("zapEscolha").hidden;
+  }
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#zap, #zapEscolha")) $("zapEscolha").hidden = true;
+});
 
 /* ---------- máquina ---------- */
 function statusMaquina() {
@@ -606,8 +804,9 @@ $("insta").href = CONFIG.instagram;
 $("status").textContent = statusMaquina();
 desenharCidades();
 desenharPedido();
-desenharTodos();
+desenharRota();
 desenharFitas();
+acenderRota();
 
 if ("IntersectionObserver" in window) {
   new IntersectionObserver((entradas, obs) => {
