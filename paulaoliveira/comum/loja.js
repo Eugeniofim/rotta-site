@@ -148,6 +148,14 @@
         if (item) item.qtd++; else s.sacola[marca].push({ id: id, qtd: 1 });
       });
     },
+    quantidade: function (marca, id, qtd) {
+      mexe(function (s) {
+        var item = s.sacola[marca].filter(function (i) { return i.id === id; })[0];
+        if (!item) return;
+        if (qtd < 1) s.sacola[marca] = s.sacola[marca].filter(function (i) { return i.id !== id; });
+        else item.qtd = qtd;
+      });
+    },
     tirar: function (marca, id) {
       mexe(function (s) { s.sacola[marca] = s.sacola[marca].filter(function (i) { return i.id !== id; }); });
     },

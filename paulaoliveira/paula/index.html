@@ -17,6 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#123A2D">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
 <link rel="apple-touch-icon" href="icone-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,13 +48,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .menu{display:flex;gap:clamp(16px,2.6vw,38px);font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
 .menu a{text-decoration:none;padding:12px 0;background:linear-gradient(currentColor,currentColor) 0 calc(100% - 8px)/0 2px no-repeat;transition:background-size .3s}
 .menu a:hover{background-size:100% 2px}
-.saco{font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;min-height:44px;padding:0 2px}
+.saco,.lnk{display:inline-flex;align-items:center;font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;min-height:44px;padding:0 2px;text-decoration:none}
 .abre-menu{display:none}
-@media(max-width:760px){.menu{display:none}.abre-menu{display:block}}
+@media(max-width:1180px){.menu{display:none}.abre-menu{display:inline-flex}}
 
 /* cartaz */
 #cartazes{position:relative}
-.cartaz{position:sticky;top:0;height:100vh;height:100svh;min-height:600px;background:var(--f);color:var(--t);overflow:hidden;display:flex;flex-direction:column;padding:calc(var(--barra) + 68px) clamp(14px,3vw,40px) 16px;will-change:transform}
+.cartaz{position:sticky;top:0;height:100vh;height:100svh;min-height:600px;background:var(--f);color:var(--t);overflow:hidden;display:flex;flex-direction:column;padding:calc(var(--barra) + 68px) clamp(14px,3vw,40px) calc(16px + var(--tab));will-change:transform}
 .cartaz::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--sombra,0);pointer-events:none;z-index:5}
 .c-topo{display:flex;justify-content:space-between;align-items:baseline;font:400 clamp(21px,1.9vw,27px)/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
 .selo-e{display:inline-block;background:var(--t);color:var(--f);padding:5px 9px 3px}
@@ -75,7 +76,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .c-credito i:first-child{margin-left:0}
 .conta{font:400 1em/1 var(--cartaz)}
 @media(max-width:760px){
-  .cartaz{padding-top:calc(var(--barra) + 58px);padding-bottom:10px}
+  .cartaz{padding-top:calc(var(--barra) + 58px);padding-bottom:calc(10px + var(--tab))}
   .c-frasco{height:84%}
   .c-baixo{grid-template-columns:1fr;gap:10px}
   .c-frase{font-size:20px;max-width:none;text-align:center;background:color-mix(in srgb,var(--f) 74%,transparent)}
@@ -90,14 +91,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .secao{position:relative;z-index:20;background:var(--ink);padding:clamp(64px,9vw,130px) clamp(14px,3vw,40px)}
 .sec-t{font:400 clamp(58px,10.5vw,170px)/.9 var(--titulo);letter-spacing:-.012em}
 .sec-p{max-width:40ch;margin-top:18px;font-size:clamp(21px,1.8vw,25px);line-height:1.25}
-.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 22px}
 .chip{min-height:46px;padding:5px 16px 2px;font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px #ffffff55}
 .chip[aria-pressed=true]{background:var(--papel);color:var(--ink);box-shadow:none}
 .mural{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,1vw,14px)}
 @media(max-width:1000px){.mural{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){.mural{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .mini{--n:6;position:relative;display:flex;flex-direction:column;aspect-ratio:3/4.35;background:var(--f);color:var(--t);overflow:hidden;text-decoration:none;container-type:inline-size;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
-.mini:hover{transform:translateY(-6px)}
 .mini h3{font:400 min(30cqw,calc(90cqw/(var(--n)*.62)))/.92 var(--titulo);padding:9cqw 5cqw 0;text-align:center;position:relative;z-index:1}
 .mini .im{position:absolute;left:0;right:0;bottom:11%;top:24%;display:grid;place-items:center}
 .mini .im img{height:100%;width:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.4));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
@@ -118,7 +117,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .quem ul{list-style:none;padding:0;margin-top:30px}
 .quem li{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:18px;border-top:1px solid #20131f33;padding:9px 0 7px;font-size:20px;align-items:baseline}
 .quem li b{font:400 25px/1 var(--cartaz);letter-spacing:.04em;text-transform:uppercase}
-@media(max-width:860px){.quem{grid-template-columns:1fr}.quem figure{min-height:112vw}}
+@media(max-width:860px){.quem{grid-template-columns:minmax(0,1fr)}.quem figure{min-height:112vw}}
 
 /* sob medida */
 .sob{background:#15110D;color:#E6C98F;--t:#E6C98F;--f:#15110D;position:relative;z-index:20;padding:clamp(64px,9vw,130px) clamp(14px,3vw,40px)}
@@ -131,7 +130,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 @media(max-width:860px){.linha{grid-template-columns:1fr}.linha li{display:grid;grid-template-columns:62px 1fr;padding:10px 0 12px}.linha li::before{grid-row:span 2}}
 .sob .fim{display:flex;flex-wrap:wrap;gap:22px;align-items:center}
 .dupla{display:grid;grid-template-columns:1fr 1fr;position:relative;z-index:20}
-@media(max-width:860px){.dupla{grid-template-columns:1fr}}
+@media(max-width:860px){.dupla{grid-template-columns:minmax(0,1fr)}}
 .tile{--f:#D8C97F;--t:#2B2610;background:var(--f);color:var(--t);position:relative;min-height:74vh;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(20px,3vw,44px);overflow:hidden}
 .tile img{position:absolute;inset:0 0 auto 0;width:100%;height:58%;object-fit:cover}
 .tile h3{font:400 clamp(40px,4.6vw,72px)/.95 var(--titulo);position:relative}
@@ -150,18 +149,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .push{width:92%;background:#ffffffe6;color:#111;border-radius:18px;padding:11px 13px;font:400 17px/1.22 var(--texto)}
 .push b{display:block;font:500 15px/1.2 var(--texto);margin-bottom:2px;color:#444}
 .push+.push{margin-top:8px}
-@media(max-width:860px){.elenco{grid-template-columns:1fr}}
+@media(max-width:860px){.elenco{grid-template-columns:minmax(0,1fr)}}
 
 /* rodapé */
-.rodape{position:relative;z-index:20;background:var(--ink);padding:40px clamp(14px,3vw,40px) 34px;display:flex;flex-wrap:wrap;gap:12px 34px;justify-content:space-between;font-size:18px}
-.rodape .marca{font-size:30px}
-.rodape nav{display:flex;flex-wrap:wrap;gap:6px 22px}
+
 
 /* detalhe */
 .det{background:var(--f);color:var(--t);min-height:100vh}
-.det-capa{position:relative;height:100svh;min-height:600px;padding:calc(var(--barra) + 70px) clamp(14px,3vw,40px) 0;overflow:hidden}
-.det-capa .c-palco{height:100%;margin:0}
-.det-capa .c-frasco{height:92%;bottom:-6%;view-transition-name:frasco}
+.det-capa{position:relative;height:100svh;min-height:600px;padding:calc(var(--barra) + 66px) clamp(14px,3vw,40px) 16px;overflow:hidden;display:flex;flex-direction:column}
+.det-capa .c-frasco{height:88%;bottom:-2%;view-transition-name:frasco}
 .det-corpo{display:grid;grid-template-columns:minmax(0,7fr) minmax(300px,4fr);gap:clamp(24px,5vw,80px);padding:clamp(34px,5vw,70px) clamp(14px,3vw,40px);align-items:start}
 .det-texto{font-size:clamp(23px,1.9vw,27px);line-height:1.34;max-width:34em}
 .det-frase{font:italic 400 clamp(32px,4.2vw,62px)/1.06 var(--texto);margin-bottom:26px}
@@ -178,7 +174,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .piramide div{border-top:2px solid var(--t);padding-top:10px}
 .piramide h3{font:italic 400 24px/1 var(--texto)}
 .piramide p{font:400 clamp(27px,2.8vw,42px)/1.04 var(--cartaz);letter-spacing:.03em;text-transform:uppercase;margin-top:8px}
-@media(max-width:760px){.piramide,.det-corpo{grid-template-columns:1fr}.caixa{position:static}}
+@media(max-width:760px){.piramide,.det-corpo{grid-template-columns:minmax(0,1fr)}.caixa{position:static}}
 .galeria{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:0 clamp(14px,3vw,40px) clamp(40px,5vw,70px)}
 .galeria img{height:min(64vh,520px);width:auto;scroll-snap-align:center}
 .voltar{font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;display:inline-block;padding:clamp(20px,3vw,34px) clamp(14px,3vw,40px)}
@@ -186,6 +182,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 /* gavetas */
 dialog{border:0;padding:0;color:#20131F;background:#F5EEF2;font:400 21px/1.3 var(--texto);max-width:none}
 dialog::backdrop{background:#0009}
+dialog#dlg{margin:auto}
+dialog#dlg[open]{animation:surge .3s cubic-bezier(.2,.8,.2,1)}
+dialog.gaveta[open]{animation:gaveta .34s cubic-bezier(.2,.8,.2,1)}
+.modal:focus,.gav:focus{outline:none}
+@keyframes surge{from{opacity:0;transform:translateY(18px)}}
+@keyframes gaveta{from{transform:translateX(100%)}}
+@media(max-width:560px){dialog#dlg{margin:auto 0 0;width:100%}.modal{width:100%;padding:24px 18px calc(22px + env(safe-area-inset-bottom))}dialog#dlg[open]{animation-name:lencol}}
+@keyframes lencol{from{transform:translateY(100%)}}
 .modal{width:min(480px,calc(100vw - 24px));margin:auto;padding:28px}
 .modal h2{font:400 clamp(33px,5vw,42px)/1 var(--titulo);margin-bottom:10px;padding-right:34px}
 .fechar{position:absolute;right:6px;top:6px;width:44px;height:44px;font-size:26px;line-height:1}
@@ -208,26 +212,263 @@ ol.passos{padding-left:1.1em;margin-top:6px}ol.passos li{margin-top:5px}
 .intro i{flex:1;background:var(--c);animation:sobe .85s cubic-bezier(.76,0,.24,1) forwards;animation-delay:calc(var(--i)*65ms + .15s)}
 @keyframes sobe{to{transform:translateY(-101%)}}
 ::view-transition-old(frasco),::view-transition-new(frasco){animation-duration:.5s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.intro{display:none}.c-nome,.c-frasco{transition:none}.mini,.mini img,.btn{transition:none!important}}
+
+/* ---------- v2: revisão de UX ---------- */
+:root{--tab:0px;--ease:cubic-bezier(.2,.8,.2,1)}
+html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+main:focus{outline:none}
+[id]{scroll-margin-top:calc(var(--barra) + 72px)}
+h1,h2,h3{text-wrap:balance}
+p,li,blockquote{text-wrap:pretty}
+.preco,.tot,.lp .v,.qtd b,.mini footer,.sl-c{font-variant-numeric:tabular-nums}
+.preco s,.mini s,.lp s{opacity:.7;font-size:.72em;margin-right:.18em}
+dialog{overscroll-behavior:contain}
+.btn,.acao,.chip{transition:transform .18s var(--ease),background-color .2s,color .2s,box-shadow .2s}
+.btn:active,.acao:active,.chip:active{transform:scale(.97)}
+.chip:hover{box-shadow:inset 0 0 0 1.5px #fff}
+.so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.direita{display:flex;gap:clamp(14px,1.6vw,26px);align-items:center}
+.lnk:hover,.saco:hover{text-decoration:underline;text-underline-offset:5px}
+@media(max-width:820px){.so-grande,.topo .saco{display:none}}
+
+/* barra de atalhos do celular */
+.abas{display:none}
+@media(max-width:820px){
+  :root{--tab:calc(60px + env(safe-area-inset-bottom))}
+  .abas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;height:var(--tab);padding-bottom:env(safe-area-inset-bottom);z-index:65;background:#120C14;color:#F5EEF2;border-top:1px solid #ffffff24}
+  .abas a,.abas button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:400 15.5px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;min-height:44px}
+  .abas svg{width:21px;height:21px}
+  .abas [aria-current=page]{color:#EDE6A0}
+  body.em-detalhe{--tab:0px}
+  body.em-detalhe .abas{display:none}
+}
+.bolinha{position:absolute;top:5px;left:calc(50% + 5px);min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#EDE6A0;color:#17101A;font:500 13px/18px var(--texto);text-align:center;letter-spacing:0}
+
+/* índice dos cartazes */
+.rail{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:55;display:flex;flex-direction:column;font:400 19px/1 var(--cartaz);letter-spacing:.06em;transition:opacity .3s}
+.rail a{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-height:30px;min-width:46px;padding:0 6px;text-decoration:none;opacity:.6;transition:opacity .2s}
+.rail a:hover,.rail a[aria-current=true]{opacity:1}
+.rail a::after{content:"";width:12px;height:2px;background:currentColor;transition:width .28s var(--ease)}
+.rail a[aria-current=true]::after{width:30px}
+.rail.fora{opacity:0;pointer-events:none;visibility:hidden}
+@media(max-width:1000px){.rail{display:none}}
+
+/* letreiro */
+.letreiro{position:relative;z-index:20;display:block;width:100%;background:#FFDC3C;color:#17101A;overflow:hidden;padding:19px 0 15px;font:400 clamp(28px,3.3vw,46px)/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.letreiro::before,.letreiro::after{content:"";position:absolute;left:0;right:0;height:8px;background:radial-gradient(circle at 8px 4px,#17101A 2.6px,transparent 3.1px) 0 0/24px 8px repeat-x}
+.letreiro::before{top:5px}.letreiro::after{bottom:5px}
+.l-fita{display:inline-flex;animation:fita 52s linear infinite}
+.letreiro:hover .l-fita,.letreiro[aria-pressed=true] .l-fita{animation-play-state:paused}
+.l-fita>span{display:inline-block;padding-right:.6em}
+.l-fita b{font-weight:400;font-family:var(--titulo);letter-spacing:0;text-transform:none;margin:0 .22em}
+@keyframes fita{to{transform:translateX(-50%)}}
+
+/* próximas sessões */
+.sl-t{font:400 24px/1 var(--cartaz);letter-spacing:.06em;text-transform:uppercase;margin:38px 0 10px}
+.sl{display:grid;grid-template-columns:150px minmax(0,1fr) 150px 130px auto;align-items:center;gap:18px;background:var(--f);color:var(--t);padding:10px 10px 10px 18px;margin-top:6px}
+.sl-d,.sl-l,.sl-c{font:400 22px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
+.sl-n{font:400 clamp(30px,3vw,44px)/1 var(--titulo);text-decoration:none}
+.sl-n small{font:400 .5em/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin-left:.3em}
+.sl .btn{min-height:50px}
+@media(max-width:760px){.sl{grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px}.sl-d{grid-column:1}.sl-n{grid-column:1}.sl-l{display:none}.sl-c{grid-column:1}.sl .btn{grid-column:2;grid-row:1/span 3}}
+
+/* barra de filtros */
+.barra-f{position:sticky;top:calc(var(--barra) + 64px);z-index:30;background:var(--ink);padding:12px 0 12px;margin-top:22px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;margin:0 calc(clamp(14px,3vw,40px)*-1);padding:2px clamp(14px,3vw,40px)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;scroll-snap-align:start}
+.sep{flex:none;width:1px;background:#ffffff33;margin:6px 5px}
+.sub-f{display:flex;align-items:center;gap:18px;margin-top:10px;font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
+.sub-f .res{margin-right:auto;white-space:nowrap}
+.sub-f select{background:#17101A;color:var(--papel);border:0;box-shadow:inset 0 0 0 1.5px #ffffff55;height:44px;padding:0 10px;font:inherit;letter-spacing:.05em;text-transform:uppercase}
+.vista{display:flex}
+.vista button{min-height:44px;padding:2px 12px 0;box-shadow:inset 0 0 0 1.5px #ffffff55;font:inherit;letter-spacing:.05em;text-transform:uppercase}
+.vista button[aria-pressed=true]{background:var(--papel);color:var(--ink)}
+@media(max-width:560px){.sub-f{gap:8px;font-size:19px}.sub-f select{max-width:108px;padding:0 6px}.vista button{padding:2px 9px 0}}
+@media(max-width:560px){.sec-t{font-size:15.2vw}}
+@media(max-width:380px){.c-topo{font-size:17px!important}.selo-e{white-space:nowrap}.sub-f{flex-wrap:wrap}.sub-f .res{width:100%}.quem li{grid-template-columns:minmax(0,1fr)}.direita{gap:8px}}
+.vazio{padding:40px 0;font-size:24px}
+.vazio button{text-decoration:underline;font-size:24px;min-height:44px}
+
+/* cartões do mural */
+.mini .cobre{position:absolute;inset:0;z-index:3}
+.mini .mais{position:absolute;right:4cqw;bottom:15cqw;z-index:4;width:44px;height:44px;display:grid;place-items:center;background:var(--t);color:var(--f);border-radius:50%;transition:transform .2s var(--ease)}
+.mini .mais svg{width:20px;height:20px}
+.mini .mais:hover{transform:scale(1.1)}
+.mini::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(280px circle at var(--mx,50%) var(--my,30%),#ffffff33,transparent 68%);opacity:0;transition:opacity .25s}
+@media(hover:hover) and (pointer:fine){
+  .mini{transform-style:preserve-3d}
+  .mini:hover{transform:perspective(900px) rotateX(calc(var(--ry,0)*1deg)) rotateY(calc(var(--rx,0)*1deg)) translateY(-6px)}
+  .mini:hover::after{opacity:1}
+}
+.js-rev .mini:not(.vis){opacity:0}
+.mini.vis{animation:entra .7s var(--ease) backwards;animation-delay:calc(var(--i,0)*55ms)}
+@keyframes entra{from{opacity:0;transform:translateY(28px)}}
+
+/* lista */
+.lista{list-style:none;padding:0;border-top:1px solid #ffffff33}
+.lp{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,3fr) 80px 180px 130px;gap:16px;align-items:center;padding:13px 10px 9px;text-decoration:none;border-bottom:1px solid #ffffff33;transition:background-color .18s,color .18s}
+.lp:hover,.lp:focus-visible{background:var(--f);color:var(--t)}
+.lp .n{font:400 clamp(28px,3.2vw,48px)/1 var(--titulo)}
+.lp .f,.lp .st,.lp .m,.lp .v{font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
+.lp .v{text-align:right}
+.lp img{display:none}
+@media(max-width:760px){.lp{grid-template-columns:48px minmax(0,1fr) auto;gap:2px 12px;padding:9px 2px 7px}.lp img{display:block;width:48px;height:62px;object-fit:contain;grid-row:span 2}.lp .n{font-size:27px;align-self:end}.lp .f,.lp .m{display:none}.lp .st{grid-column:2;font-size:17px;align-self:start}.lp .v{grid-row:1/span 2;grid-column:3}}
+.busca .lp{grid-template-columns:56px minmax(0,5fr) minmax(0,3fr) 80px 180px 120px}
+.busca .lp img{display:block;width:56px;height:68px;object-fit:contain}
+@media(max-width:760px){.busca .lp{grid-template-columns:48px minmax(0,1fr) auto}.busca .lp img{width:48px;height:62px}}
+#seguidor{position:fixed;left:0;top:0;width:240px;height:320px;object-fit:contain;pointer-events:none;z-index:45;opacity:0;transition:opacity .2s;filter:drop-shadow(0 18px 26px #0009)}
+#seguidor.on{opacity:1}
+
+/* detalhe */
+.migalha{font:400 20px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin-bottom:22px;grid-column:1/-1}
+.migalha a{text-decoration:none}
+.migalha a:hover{text-decoration:underline}
+.info{margin-top:16px;border-top:1px solid color-mix(in srgb,var(--t) 40%,transparent)}
+.info div{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;padding:9px 0 7px;border-bottom:1px solid color-mix(in srgb,var(--t) 40%,transparent);font-size:18px;line-height:1.22}
+.info dt{font:400 20px/1.05 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
+.info dd{margin:0}
+.share{display:flex;flex-wrap:wrap;gap:0 14px;margin-top:12px;font-size:18px}
+.share b{font:400 20px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;width:100%;margin-bottom:2px}
+.share a{min-height:44px;display:inline-flex;align-items:center}
+.fr-op{list-style:none;padding:0;margin-top:8px}
+.fr-op li{display:flex;justify-content:space-between;padding:3px 0}
+.caixa small{font-size:15.5px;opacity:.85}
+.bc{position:fixed;left:0;right:0;bottom:0;z-index:62;display:none;align-items:center;justify-content:space-between;gap:16px;padding:10px clamp(14px,3vw,40px) calc(10px + env(safe-area-inset-bottom));background:var(--f);color:var(--t);box-shadow:0 -1px 0 color-mix(in srgb,var(--t) 45%,transparent);transform:translateY(110%);transition:transform .3s var(--ease)}
+.bc.on{transform:none}
+.bc .preco{font-size:36px}
+.bc .preco small{font-size:15px}
+@media(max-width:760px){.bc{display:flex}.bc .btn{flex:1;min-height:52px}.det{padding-bottom:84px}}
+
+/* sacola */
+.itens li{grid-template-columns:64px minmax(0,1fr) auto}
+.qtd{display:flex;align-items:center;box-shadow:inset 0 0 0 1.5px #20131f55}
+.qtd button{width:38px;height:44px;font-size:22px;text-decoration:none;min-height:44px}
+.qtd b{min-width:20px;text-align:center;font-weight:500;font-size:18px}
+.gav-fim{border-top:2px solid #20131F;padding-top:8px}
+.dob summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:18px;text-decoration:underline;text-underline-offset:3px}
+.linha-f{display:flex;gap:8px;margin-bottom:8px}
+.linha-f input{flex:1;min-width:0;height:48px;padding:0 12px;font:inherit;font-size:19px;border:0;box-shadow:inset 0 0 0 1.5px #20131f66;background:#fff;color:#20131F}
+.linha-f button{min-width:96px;min-height:48px;font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px #20131F}
+.env{display:flex;align-items:center;gap:8px;font-size:18px;min-height:38px}
+.env input{accent-color:#20131F;width:20px;height:20px}
+.env b{margin-left:auto;font-weight:500}
+.soma{font-size:18px;margin:6px 0}
+.soma div{display:flex;justify-content:space-between}
+.erro{color:#8E1B1B;font-size:17px;margin-bottom:6px}
+.acao.vazada{background:none;color:#20131F;box-shadow:inset 0 0 0 1.5px #20131F}
+
+/* senha da fila */
+.ingresso{display:grid;grid-template-columns:104px minmax(0,1fr);background:var(--f);color:var(--t);margin:14px 0;-webkit-mask:radial-gradient(circle 10px at 104px 0,transparent 97%,#000) top/100% 51% no-repeat,radial-gradient(circle 10px at 104px 100%,transparent 97%,#000) bottom/100% 51% no-repeat;mask:radial-gradient(circle 10px at 104px 0,transparent 97%,#000) top/100% 51% no-repeat,radial-gradient(circle 10px at 104px 100%,transparent 97%,#000) bottom/100% 51% no-repeat}
+.ingresso .e{border-right:2px dashed color-mix(in srgb,var(--t) 55%,transparent);padding:16px 6px 12px;text-align:center}
+.ingresso small{display:block;font:400 16px/1 var(--cartaz);letter-spacing:.08em;text-transform:uppercase}
+.ingresso .e b{display:block;font:400 62px/1 var(--cartaz);font-variant-numeric:tabular-nums}
+.ingresso .d{padding:16px 16px 12px;min-width:0}
+.ingresso strong{display:block;font:400 clamp(30px,6vw,38px)/1 var(--titulo);margin:6px 0 8px}
+
+/* busca */
+dialog.busca{width:100vw;height:100dvh;max-height:none;margin:0;background:#17101A;color:var(--papel)}
+dialog.busca::backdrop{background:#17101A}
+.b-in{max-width:1240px;margin:auto;padding:calc(14px + env(safe-area-inset-top)) clamp(14px,3vw,40px) 40px}
+.b-top{display:flex;gap:14px;align-items:center;border-bottom:2px solid #ffffff55;transition:border-color .2s}
+.b-top:focus-within{border-color:#EDE6A0}
+.b-campo{flex:1;min-width:0;display:flex;align-items:center;gap:12px}
+.b-campo svg{width:26px;height:26px;color:#EDE6A0;flex:none}
+.b-campo input{flex:1;min-width:0;height:72px;background:none;border:0;color:inherit;font:400 clamp(25px,4vw,48px)/1 var(--titulo);outline:none}
+.b-campo input::placeholder{color:#ffffff85}
+.b-campo input::-webkit-search-cancel-button{display:none}
+.b-chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.b-n{font:400 22px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin:20px 0 8px}
+
+/* páginas */
+.pg{position:relative;z-index:20;background:#E8E2F0;color:#20131F;min-height:88svh;padding:calc(var(--barra) + 112px) clamp(14px,3vw,40px) 90px;--t:#20131F;--f:#E8E2F0}
+.pg h1{font:400 clamp(58px,10vw,150px)/.92 var(--titulo);max-width:13ch}
+.corpo{max-width:62ch;margin-top:30px;font-size:clamp(21px,1.6vw,24px);line-height:1.4}
+.corpo p+p,.corpo ul+p{margin-top:.8em}
+.corpo h2{font:400 clamp(28px,2.4vw,36px)/1.05 var(--cartaz);letter-spacing:.04em;text-transform:uppercase;margin-top:1.1em}
+.nota{display:inline-block;background:#20131F;color:#F5EEF2;padding:6px 11px 4px;font:400 20px/1.1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin-top:22px}
+.form-pg{max-width:520px;margin-top:22px}
+.campo textarea{display:block;width:100%;height:130px;margin-top:3px;padding:10px 12px;font:inherit;border:0;box-shadow:inset 0 0 0 1.5px #20131f66;background:#fff;color:#20131F;resize:vertical}
+.pg-dup{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:clamp(24px,6vw,90px);align-items:start}
+@media(max-width:860px){.pg-dup{grid-template-columns:minmax(0,1fr)}}
+.pg .btn{--t:#20131F;--f:#E8E2F0;margin-top:18px}
+.lista-redes{list-style:none;padding:0;margin-top:14px}
+.lista-redes a{display:inline-flex;align-items:center;min-height:44px}
+
+/* vídeo */
+.video{position:relative;display:block;width:100%;aspect-ratio:16/9;margin-top:28px;overflow:hidden;background:#000;border:0}
+.video img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.video:hover img{transform:scale(1.04)}
+.video .t{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;padding:30px 16px 12px;color:#fff;background:linear-gradient(transparent,#000c);font:400 clamp(21px,1.9vw,27px)/1.05 var(--cartaz);letter-spacing:.04em;text-transform:uppercase;text-align:left}
+.video svg{width:26px;height:26px;flex:none}
+.ig{display:inline-block;margin-top:18px;font-size:clamp(20px,1.7vw,24px)}
+
+/* rodapé */
+.rodape{position:relative;z-index:20;background:#0F0A11;color:var(--papel);padding:clamp(56px,7vw,100px) clamp(14px,3vw,40px) var(--tab);overflow:hidden}
+.r-topo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(30px,5vw,80px)}
+.news h2{font:400 clamp(38px,4.6vw,72px)/.96 var(--titulo)}
+.n-l{display:flex;margin-top:22px;max-width:480px;box-shadow:inset 0 0 0 1.5px #ffffff66}
+.n-l input{flex:1;min-width:0;height:56px;background:none;border:0;color:inherit;font:inherit;padding:0 16px}
+.n-l input::placeholder{color:#ffffff99}
+.n-l .btn{flex:none;--t:#EDE6A0;--f:#123A2D}
+.news p{margin-top:10px;font-size:18px;min-height:1.4em}
+.colunas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.colunas h3{font:400 22px/1 var(--cartaz);letter-spacing:.06em;text-transform:uppercase;color:#EDE6A0;margin-bottom:8px}
+.colunas a{display:flex;align-items:center;min-height:38px;text-decoration:none;font-size:20px}
+.colunas a:hover{text-decoration:underline;text-underline-offset:3px}
+.pagto{display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:space-between;margin-top:42px;padding-top:14px;border-top:1px solid #ffffff2b;font-size:17px}
+.gigante{font:400 15.1vw/1 var(--titulo);white-space:nowrap;margin:18px calc(clamp(14px,3vw,40px)*-1) .03em;color:#EDE6A0;text-align:center;user-select:none}
+@media(max-width:760px){.r-topo{grid-template-columns:minmax(0,1fr)}.colunas{grid-template-columns:1fr 1fr}}
+
+/* avisos */
+.wpp{position:fixed;right:14px;bottom:calc(var(--tab) + 14px);z-index:58;width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:#123A2D;color:#EDE6A0;box-shadow:0 8px 22px #0007;opacity:0;pointer-events:none;transition:opacity .25s,transform .2s var(--ease)}
+.wpp.on{opacity:1;pointer-events:auto}
+.wpp:hover{transform:scale(1.07)}
+.wpp svg{width:26px;height:26px}
+body.em-detalhe .wpp{display:none}
+@media(min-width:761px){body.em-detalhe .wpp{display:grid}}
+#toast{position:fixed;left:50%;bottom:calc(var(--tab) + 16px);transform:translate(-50%,20px);opacity:0;visibility:hidden;z-index:75;background:#F5EEF2;color:#20131F;padding:11px 18px 9px;font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;transition:transform .3s var(--ease),opacity .3s,visibility .3s}
+#toast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.voa{position:fixed;width:64px;height:84px;object-fit:contain;z-index:80;pointer-events:none}
+.cookies{position:fixed;left:14px;bottom:calc(var(--tab) + 14px);z-index:68;width:min(380px,calc(100vw - 28px));background:#F5EEF2;color:#20131F;padding:14px 16px;font:400 18px/1.25 var(--texto);box-shadow:0 12px 30px #0008}
+.cookies div{display:flex;gap:10px;margin-top:8px;justify-content:flex-end}
+.cookies button{min-height:44px;padding:2px 12px 0;font:400 20px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px #20131F}
+.cookies button:last-child{background:#20131F;color:#F5EEF2}
+
+@media(prefers-reduced-motion:reduce){dialog[open]{animation:none!important}.l-fita{animation:none}.mini.vis{animation:none}.video img,.bc,#toast{transition:none}*{scroll-behavior:auto!important}.intro{display:none}.c-nome,.c-frasco{transition:none}.mini,.mini img,.btn{transition:none!important}}
 </style>
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="previa" id="previa"><span>Prévia feita pela Ti Artes · preços e estoque reais de 08/11 · filas e datas são exemplo</span><button aria-label="Fechar aviso" onclick="fechaPrevia()">×</button></div>
 <header class="topo" id="topo">
-  <a class="marca" href="#/">Paula Oliveira</a>
+  <a class="marca" href="#/" translate="no">Paula Oliveira</a>
   <nav class="menu" aria-label="Principal">
-    <a href="#/programacao">Programação</a><a href="#/quem">Quem escreve</a><a href="#/sob-medida">Sob medida</a><a href="#/atelie">Ateliê</a><a href="#/elenco">Elenco</a>
+    <a href="#/programacao">Programação</a><a href="#/programacao?para=ela">Para ela</a><a href="#/programacao?para=ele">Para ele</a><a href="#/sob-medida">Sob medida</a><a href="#/atelie">Ateliê</a><a href="#/quem">Quem escreve</a><a href="#/elenco">Elenco</a>
   </nav>
-  <div style="display:flex;gap:18px;align-items:center"><button class="saco abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Sacola (0)</button></div>
+  <div class="direita"><button class="lnk so-grande" onclick="abreBusca()">Buscar</button><a class="lnk so-grande" href="#/conta">Conta</a><button class="lnk abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Sacola (<span class="n-saco">0</span>)</button></div>
 </header>
-<main id="conteudo"></main>
+<nav class="rail fora" id="rail" aria-label="Cartazes"></nav>
+<main id="conteudo" tabindex="-1"></main>
+<nav class="abas" aria-label="Atalhos">
+  <a href="#/" data-aba="inicio"><span data-ico="inicio"></span>Início</a>
+  <a href="#/programacao" data-aba="programacao"><span data-ico="filme"></span>Programação</a>
+  <button onclick="abreBusca()"><span data-ico="busca"></span>Buscar</button>
+  <a href="#/conta" data-aba="conta"><span data-ico="conta"></span>Conta</a>
+  <button class="alvo-saco" onclick="abreSacola()" aria-label="Abrir a sacola"><span data-ico="sacola"></span>Sacola<i class="bolinha n-saco" hidden>0</i></button>
+</nav>
+<button class="wpp" id="wpp" aria-label="Chamar no WhatsApp" onclick="conversa('sobmedida')" data-ico="whats"></button>
+<img id="seguidor" alt="" aria-hidden="true">
+<div id="toast" role="status" aria-live="polite"></div>
 <dialog id="dlg"></dialog>
 <dialog id="gav" class="gaveta"></dialog>
+<dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-paula.js"></script>
-<script src="../comum/loja.js"></script>
-<script src="../comum/instalar.js"></script>
+<script src="../comum/dados-paula.js?v=2"></script>
+<script src="../comum/loja.js?v=2"></script>
+<script src="../comum/instalar.js?v=2"></script>
+<script src="../comum/recursos.js?v=2"></script>
+<script src="../comum/paginas-paula.js?v=2"></script>
 <script>
 const M='paula', $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro, reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -249,7 +490,7 @@ function linhasNome(n){const fixo={'Absoluto de Cacau & Café':['Absoluto de','C
 function nome(n){return linhasNome(n).map(l=>`<span class="ln">${esc(l)}</span>`).join('')}
 function foto(p){return p.recorte?img(p.recorte):img(p.fotos[0]||'')}
 function credito(p){if(!p.saida)return'';return `<i>saída</i>${esc(p.saida)}<i>coração</i>${esc(p.coracao)}<i>base</i>${esc(p.base)}`}
-function precoHTML(p){const parc=p.preco>=120?Loja.parcela(p.preco,4):'';return `${R(p.preco)}<small>${p.status==='disponivel'?parc:(p.status==='estreia'?'faltam <span class="conta" data-fim="'+p.estreia+'">'+falta(p.estreia)+'</span>':(p.fila||0)+' na fila')}</small>`}
+function precoHTML(p){const parc=p.preco>=120?Loja.parcela(p.preco,4):'';return `${p.de?`<s>${R(p.de)}</s>`:''}${R(p.preco)}<small>${p.status==='disponivel'?parc:(p.status==='estreia'?'faltam <span class="conta" data-fim="'+p.estreia+'">'+falta(p.estreia)+'</span>':(p.fila||0)+' na fila')}</small>`}
 function linkPara(p){return `#/p/${p.id}`}
 
 function cartaz(p,i){
@@ -266,68 +507,162 @@ function cartaz(p,i){
   <p class="c-credito">${credito(p)}</p>
 </section>`}
 
-let filtro={estado:'todos',para:'todos'};
+const PADRAO={estado:'todos',para:'todos',fam:'todas',ordem:'padrao',vista:'cartazes'};
+let filtro={...PADRAO};
+const FAMS=[['floral','Floral'],['gourmand','Gourmand'],['amadeirado','Amadeirado'],['fresco','Fresco'],['oriental','Oriental']];
+function familiaG(p){const f=(p.familia||'').toLowerCase();if(/gourmand/.test(f))return 'gourmand';if(/orient/.test(f)&&!/flor/.test(f))return 'oriental';if(/floral|floriental|soliflore|botânico/.test(f))return 'floral';if(/cítrico|marinho/.test(f))return 'fresco';if(/amadeirado|couro|chipre/.test(f))return 'amadeirado';return ''}
+function tarja(p){return p.status==='esgotado'?`<div class="tarja">Lotação esgotada</div>`:p.status==='estreia'?`<div class="tarja nova">Estreia ${quando(p.estreia)}</div>`:''}
 function mini(p){
   const n=Math.max(...linhasNome(p.nome).map(l=>l.length));
   const tem=p.recorte;
-  const tarja=p.status==='esgotado'?`<div class="tarja">Lotação esgotada</div>`:p.status==='estreia'?`<div class="tarja nova">Estreia ${quando(p.estreia)}</div>`:'';
-  return `<a class="mini ${tem?'':'foto'}" href="${linkPara(p)}" onclick="morfa(this)" style="--f:${p.fundo||'#222'};--t:${p.tinta||'#fff'};--n:${n}">
-    <h3>${nome(p.nome)}</h3><div class="im"><img src="${tem?img(p.recorte,640):img(p.fotos[0]||'',640)}" alt="" loading="lazy" decoding="async"></div>${tarja}
-    <footer><span>${esc(p.medida)}</span><span>${R(p.preco)}</span></footer></a>`}
-function mural(){
+  const rapido=p.status==='disponivel'&&p.tipo!=='servico'&&p.tipo!=='curso';
+  return `<article class="mini ${tem?'':'foto'}" style="--f:${p.fundo||'#222'};--t:${p.tinta||'#fff'};--n:${n}">
+    <h3>${nome(p.nome)}</h3><div class="im"><img src="${tem?img(p.recorte,640):img(p.fotos[0]||'',640)}" alt="" loading="lazy" decoding="async"></div>${tarja(p)}
+    <footer><span>${esc(p.medida)}</span><span>${p.de?`<s>${R(p.de)}</s>`:''}${R(p.preco)}</span></footer>
+    <a class="cobre" href="${linkPara(p)}" onclick="morfa(this)" aria-label="${esc(p.nome)}, ${esc(selo(p))}, ${R(p.preco)}"></a>
+    ${rapido?`<button class="mais" aria-label="Colocar ${esc(p.nome)} na sacola" onclick="colocar('${p.id}',this,true)">${Rec.ico('mais')}</button>`:''}</article>`}
+function filtrados(){
   let l=Loja.produtos(M).filter(p=>p.tipo==='perfume'||p.tipo==='corpo');
   if(filtro.estado!=='todos')l=l.filter(p=>p.status===filtro.estado);
   if(filtro.para!=='todos')l=l.filter(p=>p.para===filtro.para);
-  l.sort((a,b)=>({disponivel:0,estreia:1,esgotado:2}[a.status]-{disponivel:0,estreia:1,esgotado:2}[b.status]));
-  return l.map(mini).join('')||'<p>Nenhum perfume com esse filtro. Tire um dos filtros para ver mais.</p>'
+  if(filtro.fam!=='todas')l=l.filter(p=>familiaG(p)===filtro.fam);
+  const ordem={disponivel:0,estreia:1,esgotado:2};
+  if(filtro.ordem==='menor')l.sort((a,b)=>a.preco-b.preco);
+  else if(filtro.ordem==='maior')l.sort((a,b)=>b.preco-a.preco);
+  else if(filtro.ordem==='nome')l.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+  else l.sort((a,b)=>ordem[a.status]-ordem[b.status]);
+  return l;
+}
+function lp(p){const f=foto(p);return `<li><a class="lp" href="${linkPara(p)}" data-foto="${f}" style="--f:${p.fundo||'#222'};--t:${p.tinta||'#fff'}"><img src="${p.recorte?img(p.recorte,240):img(p.fotos[0]||'',240)}" alt="" loading="lazy"><span class="n">${esc(p.nome)}</span><span class="f">${esc(p.familia||'')}</span><span class="m">${esc(p.medida)}</span><span class="st">${esc(selo(p))}</span><span class="v">${p.de?`<s>${R(p.de)}</s>`:''}${R(p.preco)}</span></a></li>`}
+function vitrine(){
+  const l=filtrados();
+  if(!l.length)return `<div class="vazio">Nenhum perfume com esses filtros. <button onclick="limpaFiltros()">Limpar os filtros</button></div>`;
+  return filtro.vista==='lista'?`<ul class="lista">${l.map(lp).join('')}</ul>`:`<div class="mural" id="mural">${l.map(mini).join('')}</div>`;
 }
 function chip(k,v,t){return `<button class="chip" aria-pressed="${filtro[k]===v}" onclick="filtra('${k}','${v}')">${t}</button>`}
-function filtros(){return chip('estado','todos','Todos')+chip('estado','disponivel','Em cartaz')+chip('estado','estreia','Estreias')+chip('estado','esgotado','Lotação esgotada')+'<span style="width:14px"></span>'+chip('para','ela','Para ela')+chip('para','ele','Para ele')}
-function filtra(k,v){filtro[k]=filtro[k]===v?'todos':v;$('#filtros').innerHTML=filtros();$('#mural').innerHTML=mural()}
-
+function barra(){
+  const n=filtrados().length;
+  return `<div class="chips">${chip('estado','todos','Todos')+chip('estado','disponivel','Em cartaz')+chip('estado','estreia','Estreias')+chip('estado','esgotado','Lotação esgotada')}<i class="sep"></i>${chip('para','ela','Para ela')+chip('para','ele','Para ele')}<i class="sep"></i>${FAMS.map(([k,t])=>chip('fam',k,t)).join('')}</div>
+  <div class="sub-f"><span class="res" aria-live="polite">${n} ${n===1?'perfume':'perfumes'}</span>
+    <label><span class="so-leitor">Ordenar por</span><select onchange="muda1('ordem',this.value)">${[['padrao','Disponíveis primeiro'],['menor','Menor preço'],['maior','Maior preço'],['nome','Nome']].map(([v,t])=>`<option value="${v}"${filtro.ordem===v?' selected':''}>${t}</option>`).join('')}</select></label>
+    <div class="vista" role="group" aria-label="Ver como"><button aria-pressed="${filtro.vista==='cartazes'}" onclick="muda1('vista','cartazes')">Cartazes</button><button aria-pressed="${filtro.vista==='lista'}" onclick="muda1('vista','lista')">Lista</button></div></div>`
+}
+function urlFiltro(){const q=new URLSearchParams();Object.keys(PADRAO).forEach(k=>{if(filtro[k]!==PADRAO[k])q.set(k,filtro[k])});const t=q.toString();return '#/programacao'+(t?'?'+t:'')}
+function redesenhaVitrine(){
+  const b=$('#barra-f'),v=$('#vitrine');if(!b||!v)return;
+  const x=$('.chips',b)?.scrollLeft||0;
+  b.innerHTML=barra();$('.chips',b).scrollLeft=x;v.innerHTML=vitrine();revela();
+  const dif=v.getBoundingClientRect().top-b.getBoundingClientRect().bottom;
+  if(dif<0)scrollBy({top:dif,behavior:'instant'});
+}
+function muda1(k,v){filtro[k]=v;history.replaceState(null,'',urlFiltro());redesenhaVitrine()}
+function filtra(k,v){muda1(k,filtro[k]===v?PADRAO[k]:v)}
+function limpaFiltros(){filtro={...PADRAO,vista:filtro.vista};history.replaceState(null,'',urlFiltro());redesenhaVitrine()}
+function proximas(){
+  const ls=Loja.estado().lancamentos.filter(l=>l.marca===M).map(l=>({l,p:Loja.produto(M,l.produto)})).filter(x=>x.p&&x.p.status==='estreia');
+  if(!ls.length)return '';
+  return `<p class="sl-t">Próximas sessões</p>${ls.map(({l,p})=>`<div class="sl" style="--f:${p.fundo};--t:${p.tinta}"><span class="sl-d">${quando(l.quando)}</span><a class="sl-n" href="${linkPara(p)}">${esc(p.nome)}<small>${esc(p.medida)}</small></a><span class="sl-l">${l.lote?`Lote de ${l.lote} frascos`:''}</span><span class="sl-c conta" data-fim="${l.quando}">${falta(l.quando)}</span><button class="btn" onclick="fila('${p.id}')">Me avise</button></div>`).join('')}`
+}
+function letreiro(t){
+  const es=t.filter(p=>p.status==='estreia').map(p=>`Estreia ${quando(p.estreia)}<b>${esc(p.nome)}</b>`);
+  const em=t.filter(p=>p.status==='disponivel'&&p.tipo==='perfume').map(p=>`Em cartaz<b>${esc(p.nome)}</b>`);
+  const fi=t.filter(p=>p.fila>=45).slice(0,5).map(p=>`${p.fila} na fila por<b>${esc(p.nome)}</b>`);
+  const f=[...es,...em,...fi].join(' · ')+' · ';
+  return `<button class="letreiro" aria-label="Pausar ou continuar o letreiro" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')!=='true')"><span class="l-fita" aria-hidden="true"><span>${f}</span><span>${f}</span></span></button>`
+}
+function rodape(){
+  return `<footer class="rodape"><div class="r-topo">
+   <form class="news" onsubmit="news(event)"><h2>Receba a programação antes de todo mundo</h2><div class="n-l"><label class="so-leitor" for="n-e">Seu e-mail</label><input id="n-e" type="email" required autocomplete="email" spellcheck="false" placeholder="seu@email.com…"><button class="btn">Assinar</button></div><p id="n-ok" aria-live="polite"></p></form>
+   <nav class="colunas" aria-label="Rodapé"><div><h3>Perfumes</h3><a href="#/programacao?para=ela">Para ela</a><a href="#/programacao?para=ele">Para ele</a><a href="#/sob-medida">Sob medida</a><a href="#/atelie">Ateliê e cursos</a></div>
+    <div><h3>A casa</h3><a href="#/quem">Quem escreve</a><a href="#/elenco">Elenco</a><a href="#/pg/contato">Fale com a Paula</a><a href="#/conta">Minha conta</a></div>
+    <div><h3>Ajuda</h3><a href="#/pg/trocas">Trocas e devoluções</a><a href="#/pg/entrega">Entrega</a><a href="#/pg/privacidade">Privacidade</a><a href="#/pg/termos">Termos de uso</a></div></nav></div>
+   <div class="pagto"><span>Pix · Visa · Mastercard · Elo · Amex · Boleto</span><span><a href="https://instagram.com/paulaoliveiraparfum" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/paulameretica" target="_blank" rel="noopener">Facebook</a> · <a href="https://www.youtube.com/@Paulaoliveiraparfum" target="_blank" rel="noopener">YouTube</a></span><span>CNPJ e endereço da empresa entram aqui. © 2026</span></div>
+   <div class="gigante" aria-hidden="true" translate="no">Paula Oliveira</div></footer>`
+}
 function home(){
   const todos=Loja.produtos(M), novos=todos.filter(p=>p.destaque);
-  const lista=[...novos,...ELENCO.map(i=>todos.find(p=>p.id===i)).filter(Boolean)].slice(0,7);
+  const lista=[...novos,...ELENCO.map(i=>todos.find(p=>p.id===i)).filter(Boolean)].slice(0,6);
   const pa=todos.find(p=>p.id==='afrodite');
   return `<div id="cartazes">${lista.map(cartaz).join('')}</div>
+  ${letreiro(todos)}
   <section class="secao" id="programacao"><h2 class="sec-t">Programação</h2>
     <p class="sec-p">Todos os perfumes da casa. O que está em cartaz sai agora. O resto volta em lote, e quem entra na fila sabe primeiro.</p>
-    <div class="filtros" id="filtros">${filtros()}</div><div class="mural" id="mural">${mural()}</div></section>
+    ${proximas()}
+    <div class="barra-f" id="barra-f">${barra()}</div><div id="vitrine">${vitrine()}</div></section>
   <section class="quem" id="quem"><figure><img src="${img(pa.fotos[1])}" alt="Paula Oliveira segurando um perfume na praia" loading="lazy"></figure>
    <div class="tx"><h2>Primeiro vem a personagem</h2>
     <p>Paula Oliveira é perfumista independente. Antes da fórmula, ela escolhe quem vai usar: Lord saiu de James Bond, Felina da Mulher-Gato, Meia Noite da Malévola, Carmem das latinas que dançam na vida.</p>
-    <ul><li><b>Lord</b><span>“A sedução combinada com inteligência e aquela pitada de perigo.”</span></li><li><b>Margot</b><span>“Troca o salto pelas botas, mas mantém o luxo na pele.”</span></li><li><b>O Caçador</b><span>“Terra escura, mata fechada e raízes.”</span></li></ul></div></section>
+    <ul><li><b>Lord</b><span>“A sedução combinada com inteligência e aquela pitada de perigo.”</span></li><li><b>Margot</b><span>“Troca o salto pelas botas, mas mantém o luxo na pele.”</span></li><li><b>O Caçador</b><span>“Terra escura, mata fechada e raízes.”</span></li></ul>
+    <button class="video" onclick="Rec.tocaVideo(this,'C8F4wWA9vHQ','A história do perfume masculino')" aria-label="Assistir: A história do perfume masculino, dos faraós à atualidade"><img src="https://i.ytimg.com/vi/C8F4wWA9vHQ/hqdefault.jpg" alt="" loading="lazy"><span class="t">${Rec.ico('play')}A história do perfume masculino, dos faraós à atualidade</span></button>
+    <a class="ig" href="https://instagram.com/paulaoliveiraparfum" target="_blank" rel="noopener">48,1 mil pessoas acompanham no Instagram</a></div></section>
   <section class="sob" id="sob-medida"><h2>Sob medida</h2><p class="lead">Fórmula trancada. Ninguém no mundo terá o mesmo cheiro.</p>
    <ol class="linha"><li><b>Briefing</b>Reunião para entender sua ideia, rotina e o impacto que você quer causar.</li><li><b>WhatsApp</b>Canal direto para trocar referências a cada etapa.</li><li><b>Amostras</b>Você testa na pele, no seu dia a dia.</li><li><b>Ajustes</b>A fórmula é refinada com o que você sentiu.</li><li><b>Frasco</b>Quatro meses depois, o seu perfume.</li></ol>
    <div class="fim"><div class="preco">R$ 1.750<small>4x de R$ 437,50 sem juros</small></div><button class="btn" onclick="conversa('sobmedida')">Marcar a primeira conversa</button></div></section>
   <div class="dupla" id="atelie">
-   <article class="tile" style="--f:#D8C97F;--t:#2B2610"><img src="${img((todos.find(p=>p.id==='atelie-online')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>Ateliê de Perfumaria</h3><p>A Caixa-Ateliê chega na sua casa com 16 notas nobres, e você faz um perfume que não pertence a nenhuma marca. R$ 1.497.</p><button class="btn" onclick="fila('atelie-online')">Me avise da próxima turma</button></article>
+   <article class="tile" style="--f:#D8C97F;--t:#2B2610"><img src="${img((todos.find(p=>p.id==='atelie-online')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>Ateliê de Perfumaria</h3><p>A Caixa-Ateliê chega na sua casa com 16 notas nobres, e você faz um perfume que não pertence a nenhuma marca. On-line por R$ 1.497 ou <a href="#/p/atelie-sp">presencial por R$ 1.190</a>.</p><button class="btn" onclick="fila('atelie-online')">Me avise da próxima turma</button></article>
    <article class="tile" style="--f:#22302B;--t:#E7DFC8"><img src="${img((todos.find(p=>p.id==='negocios')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>O cheiro da sua empresa</h3><p>Consultórios, lojas, barbearias e hotéis. Uma fragrância criada do zero para o seu espaço, com o primeiro frasco de 200 ml incluído. R$ 1.750.</p><button class="btn" onclick="conversa('negocios')">Pedir um projeto</button></article></div>
   <section class="elenco" id="elenco"><div><h2>Quem está no Elenco sabe antes</h2>
    <ul><li>Aviso no celular na hora que o lote abre</li><li>Uma hora de vantagem sobre todo mundo</li><li>Você vota em qual perfume volta primeiro</li><li>Presente na semana do seu aniversário</li></ul>
    <button class="btn" onclick="baixar()">Baixar o app</button></div>
    <div class="cel" aria-hidden="true"><div class="tela"><div class="hora">19:58</div><div class="dia">sábado</div><div class="push"><b>Paula Oliveira · agora</b>Lord chega sábado, às 8. Fique pronta.</div><div class="push"><b>Paula Oliveira · agora</b>Você tem 1 hora antes de abrir para todo mundo.</div></div></div></section>
-  <footer class="rodape"><a class="marca" href="#/">Paula Oliveira Parfum</a><nav><a href="#/">Trocas e devoluções</a><a href="#/">Entrega</a><a href="#/">Privacidade</a><a href="#/">Fale com a Paula</a></nav><span>CNPJ e endereço da empresa entram aqui.</span></footer>`
+  ${rodape()}`
 }
-
 function detalhe(id){
   const p=Loja.produto(M,id); if(!p)return `<section class="secao"><h2 class="sec-t">Esse perfume saiu de cartaz</h2><p class="sec-p"><a href="#/programacao">Ver a programação</a></p></section>`;
-  const outros=Loja.produtos(M).filter(x=>x.id!==id&&x.tipo==='perfume'&&x.status==='disponivel').slice(0,4);
+  const todos=Loja.produtos(M).filter(x=>x.id!==id&&x.tipo==='perfume'),fam=familiaG(p);
+  const mesma=todos.filter(x=>familiaG(x)===fam).sort((a,b)=>(a.status==='disponivel'?0:1)-(b.status==='disponivel'?0:1));
+  const outros=[...mesma,...todos.filter(x=>familiaG(x)!==fam&&x.status==='disponivel')].slice(0,4);
   let h=(p.historia||'').trim(); if(h.length>=1490)h=h.slice(0,h.lastIndexOf('.')+1);
   const fraseCurta=(p.frase||'').slice(0,28);
   const texto=h.split(/\n+/).map(t=>t.trim()).filter(t=>t&&!t.startsWith(fraseCurta)).map(t=>t.length<52&&!/[.!?]$/.test(t)?`<h3 style="font:400 clamp(27px,2.3vw,34px)/1.05 var(--cartaz);letter-spacing:.04em;text-transform:uppercase;margin-top:1.2em">${esc(t)}</h3>`:`<p style="margin-top:.7em">${esc(t)}</p>`).join('');
+  const url=location.href.split('#')[0]+linkPara(p), redes=Rec.redes(url,`${p.nome}, de Paula Oliveira`,foto(p));
+  const seg=p.para==='ele'?['ele','Para ele']:p.para==='ela'?['ela','Para ela']:null;
   return `<article class="det" style="--f:${p.fundo};--t:${p.tinta}">
-  <div class="det-capa"><div class="c-palco"><h1 class="c-nome">${nome(p.nome)}</h1><img class="c-frasco" src="${foto(p)}" alt="Frasco de ${esc(p.nome)}"></div></div>
-  <div class="det-corpo"><div class="det-texto"><p class="det-frase">“${esc(p.frase)}”</p>${texto}</div>
+  <div class="det-capa"><div class="c-topo"><span class="selo-e">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
+   <div class="c-palco"><h1 class="c-nome">${nome(p.nome)}</h1><img class="c-frasco" src="${foto(p)}" alt="Frasco de ${esc(p.nome)}" fetchpriority="high"></div>
+   <div class="c-baixo"><blockquote class="c-frase">“${esc(p.frase)}”</blockquote><div class="c-compra"><div class="preco">${precoHTML(p)}</div>${acao(p)}</div></div></div>
+  <div class="det-corpo"><nav class="migalha" aria-label="Você está em"><a href="#/">Início</a> / ${seg?`<a href="#/programacao?para=${seg[0]}">${seg[1]}</a>`:`<a href="#/programacao">Programação</a>`} / ${esc(p.nome)}</nav>
+   <div class="det-texto"><p class="det-frase">“${esc(p.frase)}”</p>${texto}</div>
    <aside class="caixa"><div class="c-topo" style="margin-bottom:12px"><span class="selo-e">${selo(p)}</span></div><div class="preco">${precoHTML(p)}</div>${acao(p)}
-    <p>${esc(p.medida)} · ${esc(p.familia)}</p>${p.status==='disponivel'?`<form class="frete" onsubmit="frete(event)"><input inputmode="numeric" placeholder="Seu CEP" aria-label="Seu CEP"><button>Frete</button></form><p id="fr"></p>`:`<p>Entre na fila e receba o aviso antes de abrir para todo mundo.</p>`}</aside></div>
+    <p>${esc(p.medida)} · ${esc(p.familia)}</p>${p.status==='disponivel'?`<form class="frete" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><div id="fr" aria-live="polite"></div>`:`<p>Entre na fila e receba o aviso antes de abrir para todo mundo.</p>`}
+    <dl class="info"><div><dt>Pagamento</dt><dd>Pix, cartão em até 4x sem juros ou boleto</dd></div><div><dt>Envio</dt><dd>Correios, em PAC ou SEDEX</dd></div><div><dt>Trocas</dt><dd><a href="#/pg/trocas">Como funciona</a></dd></div></dl>
+    <div class="share"><b>Compartilhar</b>${redes.map(r=>`<a href="${r.u}" target="_blank" rel="noopener">${r.n}</a>`).join('')}</div></aside></div>
   ${p.saida?`<section class="piramide" aria-label="Notas"><div><h3>o que chega primeiro</h3><p>${esc(p.saida)}</p></div><div><h3>o que fica no meio</h3><p>${esc(p.coracao)}</p></div><div><h3>o que fica na pele</h3><p>${esc(p.base)}</p></div></section>`:''}
   ${p.fotos.length?`<div class="galeria">${p.fotos.map(f=>`<img src="${img(f)}" alt="" loading="lazy">`).join('')}</div>`:''}
-  ${outros.length?`<section style="padding:0 clamp(14px,3vw,40px) 60px"><p style="font:400 26px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Também em cartaz</p><div class="mural">${outros.map(mini).join('')}</div></section>`:''}
-  <a class="voltar" href="#/programacao">← Voltar à programação</a></article>`
+  ${outros.length?`<section style="padding:0 clamp(14px,3vw,40px) 60px"><p style="font:400 26px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Se você gostou deste</p><div class="mural">${outros.map(mini).join('')}</div></section>`:''}
+  <a class="voltar" href="#/programacao">← Voltar à programação</a>
+  <div class="bc" id="bc"><div class="preco">${precoHTML(p)}</div>${acao(p)}</div></article>${rodape()}`
 }
 
-function morfa(a){const im=$('img',a);if(im)im.style.viewTransitionName='frasco'}
+function pagina(slug){
+  if(slug==='contato')return contato();
+  const pg=PAGINAS_PAULA[slug];
+  if(!pg)return `<section class="pg"><h1>Página não encontrada</h1><p class="corpo"><a href="#/">Voltar ao início</a></p></section>${rodape()}`;
+  return `<article class="pg"><h1>${esc(pg.t)}</h1>${pg.rascunho?'<p class="nota">Rascunho para a Paula revisar</p>':''}<div class="corpo">${pg.b.map(b=>`<p>${esc(b.x)}</p>`).join('')}</div></article>${rodape()}`
+}
+function contato(){
+  return `<section class="pg"><h1>Fale com a Paula</h1><div class="pg-dup"><form class="form-pg" onsubmit="enviaContato(event)"><label class="campo">Nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><label class="campo">Telefone<input name="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999…" oninput="Rec.mascaraTel(this)"></label><label class="campo">Mensagem<textarea required name="msg"></textarea></label><button class="acao">Enviar mensagem</button><p id="ct-ok" class="miudo" aria-live="polite"></p></form>
+   <div class="corpo"><p>Para perfume sob medida e projetos de empresa, o caminho mais rápido é o WhatsApp.</p><button class="btn" onclick="conversa('sobmedida')">Chamar no WhatsApp</button><ul class="lista-redes"><li><a href="https://instagram.com/paulaoliveiraparfum" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/paulameretica" target="_blank" rel="noopener">Facebook</a></li><li><a href="https://www.youtube.com/@Paulaoliveiraparfum" target="_blank" rel="noopener">YouTube</a></li></ul></div></div></section>${rodape()}`
+}
+function contaHTML(){
+  const c=Rec.conta(M);
+  if(!c)return `<section class="pg"><h1>Entrar</h1><p class="corpo">Digite seu e-mail e enviamos um código de acesso. Sem senha para lembrar.</p><form class="form-pg" onsubmit="entrar(event)"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Receber o código</button><p class="miudo">Nesta prévia, o botão entra direto.</p></form></section>${rodape()}`;
+  const minhas=Loja.estado().espera.filter(e=>e.marca===M&&e.meu);
+  return `<section class="pg"><h1>Olá, ${esc(c.nome.split(' ')[0])}</h1><div class="corpo" style="max-width:560px"><h2>Suas senhas</h2>${minhas.length?minhas.map(e=>{const p=Loja.produto(M,e.produto);return p?ingresso(p,e.senha||''):''}).join(''):'<p>Você ainda não entrou em nenhuma fila. <a href="#/programacao">Ver a programação</a></p>'}<h2>Seus pedidos</h2><p>Quando você comprar, seus pedidos aparecem aqui com o código de rastreio.</p><button class="acao vazada" onclick="sair()">Sair da conta</button></div></section>${rodape()}`
+}
+function ingresso(p,pos){return `<div class="ingresso" style="--f:${p.fundo||'#123A2D'};--t:${p.tinta||'#EDE6A0'}"><div class="e"><small>Senha</small><b>${pos}</b></div><div class="d"><small>Paula Oliveira Parfum</small><strong>${esc(p.nome)}</strong><small>${esc(p.medida)} · ${p.status==='estreia'?'Estreia '+quando(p.estreia):'Volta em lote'}</small></div></div>`}
+function news(e){e.preventDefault();e.target.querySelector('input').value='';$('#n-ok').textContent='Pronto. A próxima programação chega no seu e-mail.'}
+function enviaContato(e){e.preventDefault();e.target.reset();$('#ct-ok').textContent='Mensagem enviada. A resposta chega no seu e-mail. (Nesta prévia, nada é enviado.)'}
+function entrar(e){e.preventDefault();const f=e.target;Rec.entrar(M,{nome:f.nome.value.trim(),email:f.email.value.trim()});desenha(true);scrollTo({top:0,behavior:'instant'})}
+function sair(){Rec.sair(M);desenha(true);scrollTo({top:0,behavior:'instant'})}
+function morfa(a){const b=a.closest('.mini')||a,im=$('img',b);if(im)im.style.viewTransitionName='frasco'}
+let obs=null;
+function revela(){
+  if(reduz||!('IntersectionObserver' in window))return;
+  document.documentElement.classList.add('js-rev');
+  obs=obs||new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}}),{rootMargin:'0px 0px -5% 0px'});
+  $$('.mini:not(.vis)').forEach((m,i)=>{m.style.setProperty('--i',i%4);obs.observe(m)});
+}
 function fita(){ /* cada linha do nome ocupa a largura toda; se ficar alto demais, encolhe tudo junto */
   $$('.c-nome').forEach(h=>{
     const palco=h.parentElement, W=palco.clientWidth, H=palco.clientHeight*(innerWidth<760?.56:.8), ln=$$('.ln',h);
@@ -341,9 +676,10 @@ function fita(){ /* cada linha do nome ocupa a largura toda; se ficar alto demai
 let rodando=false,cts=[];
 function medir(){
   rodando=false;
-  const vh=innerHeight,topo=$('#topo');let cor=null;
+  const vh=innerHeight,topo=$('#topo');let cor=null,atual=0;
   cts.forEach((c,i)=>{
     const t=c.getBoundingClientRect().top;
+    if(t<=vh*.5)atual=i;
     if(t>vh||t<-vh){return}
     const ent=Math.min(1,Math.max(0,t/vh));
     if(!reduz)c.style.setProperty('--e',ent.toFixed(3));
@@ -351,70 +687,133 @@ function medir(){
     if(prox){const q=1-Math.min(1,Math.max(0,prox.getBoundingClientRect().top/vh));c.style.setProperty('--sombra',reduz?0:(q*.62).toFixed(3))}
     if(t<=70)cor=c.style.getPropertyValue('--t');
   });
-  const fora=$$('.secao,.quem,.sob,.dupla,.elenco,.rodape').some(s=>{const r=s.getBoundingClientRect();return r.top<=64&&r.bottom>64});
+  const fora=$$('.letreiro,.secao,.quem,.sob,.dupla,.elenco,.rodape,.pg').some(s=>{const r=s.getBoundingClientRect();return r.top<=64&&r.bottom>64});
+  const r=$('#rail'),le=$('.letreiro');r.classList.toggle('fora',fora||!cts.length||(le&&le.getBoundingClientRect().top<vh*.82));
+  if(cts.length){r.style.color=cor||'';$$('a',r).forEach((a,i)=>a.setAttribute('aria-current',i===atual&&!fora))}
+  $('#wpp').classList.toggle('on',fora||!cts.length);
   const det=$('.det');
-  if(det){topo.style.setProperty('--fundo-topo',det.style.getPropertyValue('--f'));topo.style.setProperty('--tinta-topo',det.style.getPropertyValue('--t'));topo.style.color='';topo.style.setProperty('--t',det.style.getPropertyValue('--t'));topo.classList.toggle('solido',scrollY>40);return}
+  if(det){const cp=$('.det-capa');$('#bc').classList.toggle('on',cp.getBoundingClientRect().bottom<90);topo.style.setProperty('--fundo-topo',det.style.getPropertyValue('--f'));topo.style.setProperty('--tinta-topo',det.style.getPropertyValue('--t'));topo.style.color='';topo.style.setProperty('--t',det.style.getPropertyValue('--t'));topo.classList.toggle('solido',scrollY>40);return}
   topo.style.removeProperty('--fundo-topo');topo.style.removeProperty('--tinta-topo');topo.style.removeProperty('--t');
   topo.classList.toggle('solido',fora);
   topo.style.color=fora?'':(cor||'');
 }
+function desenhaRail(){
+  const r=$('#rail');
+  r.innerHTML=cts.map((c,i)=>`<a href="#" onclick="event.preventDefault();irCartaz(${i})" aria-label="Cartaz ${i+1}: ${esc(c.getAttribute('aria-label'))}">${String(i+1).padStart(2,'0')}</a>`).join('');
+}
+function irCartaz(i){const base=$('#cartazes').offsetTop,h=cts[0].offsetHeight;scrollTo({top:base+i*h,behavior:reduz?'instant':'smooth'})}
 function naRolagem(){if(!rodando){rodando=true;requestAnimationFrame(medir)}}
 addEventListener('scroll',naRolagem,{passive:true});
 addEventListener('resize',()=>{fita();naRolagem()});
 
 const LUGAR={programacao:'programacao',quem:'quem','sob-medida':'sob-medida',atelie:'atelie',elenco:'elenco'};
-function rota(){const h=location.hash.replace(/^#\/?/,'');const [a,b]=h.split('/');return {a:a||'',b}}
-let naHome=false,primeira=true;
-function desenha(){
-  const {a,b}=rota(), main=$('#conteudo');
+function rota(){const h=location.hash.replace(/^#\/?/,'');const [cam,qs]=h.split('?');const [a,b]=cam.split('/');return {a:a||'',b,qs:qs||''}}
+let naHome=false,primeira=true,semAviso=false;
+function aplicaFiltroURL(qs){const q=new URLSearchParams(qs);Object.keys(PADRAO).forEach(k=>filtro[k]=q.get(k)||PADRAO[k])}
+function tituloDe(a,b){const base='Paula Oliveira Parfum';if(a==='p'){const p=Loja.produto(M,b);return p?`${p.nome} · ${base}`:base}if(a==='conta')return `Minha conta · ${base}`;if(a==='pg'){const t=b==='contato'?'Fale com a Paula':(PAGINAS_PAULA[b]||{}).t;return t?`${t} · ${base}`:base}if(a==='programacao')return `Programação · ${base}`;return `${base} · Perfumista independente`}
+function desenha(fica=false){
+  const {a,b,qs}=rota(), main=$('#conteudo'), interna=a==='p'||a==='pg'||a==='conta';
+  if(a==='programacao')aplicaFiltroURL(qs);
   const faz=()=>{
-    if(a==='p'){main.innerHTML=detalhe(b);naHome=false;scrollTo({top:0,behavior:'instant'})}
-    else{ if(!naHome){main.innerHTML=home();naHome=true}
-      if(LUGAR[a]){const el=document.getElementById(LUGAR[a]);if(el)requestAnimationFrame(()=>el.scrollIntoView({behavior:reduz?'auto':'smooth'}))}
-      else if(a==='')scrollTo({top:0,behavior:'instant'})
+    document.body.classList.toggle('em-detalhe',a==='p');
+    if(interna){
+      main.innerHTML=a==='p'?detalhe(b):a==='pg'?pagina(b):contaHTML();naHome=false;
+      if(!fica){scrollTo({top:0,behavior:'instant'});main.focus({preventScroll:true})}
+    }else{
+      if(!naHome){main.innerHTML=home();naHome=true}else if(a==='programacao')redesenhaVitrine();
+      if(!fica){
+        if(LUGAR[a]){const el=document.getElementById(LUGAR[a]);if(el)requestAnimationFrame(()=>{const longe=Math.abs(el.getBoundingClientRect().top)>innerHeight*2.2;el.scrollIntoView({behavior:reduz||longe?'instant':'smooth'})})}
+        else if(a==='')scrollTo({top:0,behavior:'instant'})
+      }
     }
-    cts=$$('.cartaz');fita();medir();atualizaSaco();
+    document.title=tituloDe(a,b);
+    cts=$$('.cartaz');desenhaRail();revela();fita();medir();atualizaSaco();atualizaAbas(a);
   };
-  if(document.startViewTransition&&!reduz&&primeira===false&&document.visibilityState==='visible'&&(a==='p'||!naHome)){const t=document.startViewTransition(faz);t.ready.catch(()=>{});t.finished.catch(()=>{})}else faz();
+  if(!fica&&document.startViewTransition&&!reduz&&primeira===false&&document.visibilityState==='visible'&&(a==='p'||!naHome)){const t=document.startViewTransition(faz);t.ready.catch(()=>{});t.finished.catch(()=>{})}else faz();
   primeira=false;
 }
-addEventListener('hashchange',desenha);
-
-function atualizaSaco(){const n=Loja.sacola(M).reduce((s,i)=>s+i.qtd,0);$('#saco').textContent=`Sacola (${n})`}
-function colocar(id){Loja.colocar(M,id);atualizaSaco();abreSacola()}
+addEventListener('hashchange',()=>desenha());
+function atualizaAbas(a){const k=a===''?'inicio':a;$$('.abas [data-aba]').forEach(e=>{if(e.dataset.aba===k)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')})}
+function semAvisar(f){semAviso=true;try{f()}finally{semAviso=false}}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2400)}
+function voa(el,src){if(reduz||!el)return;const alvo=$(innerWidth<=820?'.alvo-saco':'#saco');if(!alvo)return;const a=el.getBoundingClientRect(),b=alvo.getBoundingClientRect(),i=new Image();i.src=src;i.alt='';i.className='voa';i.style.left=a.left+'px';i.style.top=a.top+'px';document.body.append(i);i.animate([{transform:'none',opacity:1},{transform:`translate(${b.left-a.left}px,${b.top-a.top}px) scale(.3)`,opacity:.25}],{duration:640,easing:'cubic-bezier(.5,0,.2,1)'}).onfinish=()=>i.remove()}
+function atualizaSaco(){const n=Loja.sacola(M).reduce((s,i)=>s+i.qtd,0);$$('.n-saco').forEach(e=>{e.textContent=n;if(e.classList.contains('bolinha'))e.hidden=!n})}
+function colocar(id,el,rapido){semAvisar(()=>Loja.colocar(M,id));atualizaSaco();if(rapido){const p=Loja.produto(M,id);voa(el,foto(p));toast(`${p.nome} na sacola`)}else abreSacola()}
+const bolsa={cep:'',opcoes:null,envio:null,cupom:null,erro:''};
+function muda(id,d){const it=Loja.sacola(M).find(i=>i.id===id);if(!it)return;semAvisar(()=>Loja.quantidade(M,id,it.qtd+d));abreSacola();atualizaSaco()}
+function aplicaCupom(e){e.preventDefault();const c=Rec.cupom(M,e.target.querySelector('input').value);bolsa.cupom=c;bolsa.erro=c?'':'Esse cupom não existe. Confira as letras e tente de novo.';abreSacola()}
+function calcFrete(e){e.preventDefault();const v=e.target.querySelector('input').value,o=Rec.frete(v);bolsa.cep=v;bolsa.opcoes=o;bolsa.envio=o?o[0]:null;bolsa.erro=o?'':'O CEP tem 8 números. Confira e tente de novo.';abreSacola()}
+function escolheEnvio(id){bolsa.envio=bolsa.opcoes.find(o=>o.id===id);abreSacola()}
 function abreSacola(){
-  const ps=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p);const total=ps.reduce((s,x)=>s+x.p.preco*x.qtd,0);
-  const g=$('#gav');g.innerHTML=`<div class="gav"><button class="fechar" aria-label="Fechar" onclick="gav.close()">×</button><h2>Sacola</h2>
-  ${ps.length?`<ul class="itens">${ps.map(x=>`<li><img src="${x.p.recorte?img(x.p.recorte,240):img(x.p.fotos[0],240)}" alt=""><div>${esc(x.p.nome)} · ${esc(x.p.medida)}<br>${x.qtd} × ${R(x.p.preco)}</div><button onclick="Loja.tirar(M,'${x.id}');abreSacola();atualizaSaco()">Tirar</button></li>`).join('')}</ul>
-  <div class="tot"><span>Total</span><span>${R(total)}</span></div><p class="miudo">${Loja.parcela(total,4)} ou Pix. O frete é calculado no próximo passo.</p><button class="acao" onclick="pagar()">Ir para o pagamento</button>`:`<div class="itens"><p style="margin-top:20px">Sua sacola está vazia. A programação tem ${Loja.produtos(M).filter(p=>p.status==='disponivel').length} perfumes em cartaz.</p></div><a class="acao" href="#/programacao" onclick="gav.close()">Ver a programação</a>`}</div>`;
-  if(!g.open)g.showModal()
+  const foco=document.activeElement&&document.activeElement.dataset?document.activeElement.dataset.f:null;
+  const ps=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),sub=ps.reduce((s,x)=>s+x.p.preco*x.qtd,0);
+  const desc=bolsa.cupom?Math.round(sub*bolsa.cupom.pct)/100:0,env=bolsa.envio?bolsa.envio.valor:0,total=sub-desc+env;
+  const g=$('#gav');g.innerHTML=`<div class="gav" tabindex="-1" autofocus><button class="fechar" aria-label="Fechar" onclick="gav.close()">×</button><h2>Sacola</h2>
+  ${ps.length?`<ul class="itens">${ps.map(x=>`<li><img src="${x.p.recorte?img(x.p.recorte,240):img(x.p.fotos[0],240)}" alt=""><div>${esc(x.p.nome)} · ${esc(x.p.medida)}<br>${R(x.p.preco)}</div><div class="qtd"><button data-f="m${x.id}" aria-label="Tirar um ${esc(x.p.nome)}" onclick="muda('${x.id}',-1)">−</button><b aria-live="polite">${x.qtd}</b><button data-f="p${x.id}" aria-label="Colocar mais um ${esc(x.p.nome)}" onclick="muda('${x.id}',1)">+</button></div></li>`).join('')}</ul>
+  <div class="gav-fim">${bolsa.erro?`<p class="erro" role="alert">${bolsa.erro}</p>`:''}
+   <form class="linha-f" onsubmit="calcFrete(event)"><input inputmode="numeric" name="cep" autocomplete="postal-code" aria-label="CEP para calcular o frete" placeholder="CEP para o frete…" value="${esc(bolsa.cep)}" oninput="Rec.mascaraCep(this)"><button>Calcular</button></form>
+   ${bolsa.opcoes?bolsa.opcoes.map(o=>`<label class="env"><input type="radio" name="env" ${bolsa.envio&&bolsa.envio.id===o.id?'checked':''} onchange="escolheEnvio('${o.id}')">${o.nome}<b>${R(o.valor)}</b></label>`).join('')+'<p class="miudo" style="margin-top:0">Valores de exemplo para São Paulo/SP.</p>':''}
+   <details class="dob" ${bolsa.cupom?'open':''}><summary>Tenho um cupom</summary><form class="linha-f" onsubmit="aplicaCupom(event)"><input name="cupom" autocomplete="off" spellcheck="false" aria-label="Código do cupom" placeholder="Para testar: ELENCO10…" value="${bolsa.cupom?bolsa.cupom.codigo:''}"><button>Aplicar</button></form></details>
+   <div class="soma"><div><span>Subtotal</span><span>${R(sub)}</span></div>${desc?`<div><span>Cupom ${bolsa.cupom.codigo}</span><span>−${R(desc)}</span></div>`:''}${env?`<div><span>Frete</span><span>${R(env)}</span></div>`:''}</div>
+   <div class="tot"><span>Total</span><span>${R(total)}</span></div><p class="miudo">${Loja.parcela(total,4)} ou Pix.</p><button class="acao" onclick="pagar()">Ir para o pagamento</button></div>`:`<div class="itens"><p style="margin-top:20px">Sua sacola está vazia. A programação tem ${Loja.produtos(M).filter(p=>p.status==='disponivel').length} perfumes em cartaz.</p></div><a class="acao" href="#/programacao" onclick="gav.close()">Ver a programação</a>`}</div>`;
+  if(!g.open)g.showModal();
+  if(foco){const f=g.querySelector(`[data-f="${foco}"]`);if(f)f.focus()}
 }
-function abre(html){const d=$('#dlg');d.innerHTML=`<div class="modal"><button class="fechar" aria-label="Fechar" onclick="dlg.close()">×</button>${html}</div>`;if(!d.open)d.showModal()}
-function abreMenu(){abre(`<ul style="list-style:none;padding:0;font:400 38px/1.3 var(--titulo)">${[['programacao','Programação'],['quem','Quem escreve'],['sob-medida','Sob medida'],['atelie','Ateliê'],['elenco','Elenco']].map(([a,t])=>`<li><a style="text-decoration:none;display:block;padding:4px 0" href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}</ul>`)}
+function abreBusca(){
+  const b=$('#bus'),q=Rec.notas(Loja.produtos(M),9);
+  b.innerHTML=`<div class="b-in"><div class="b-top"><label class="b-campo">${Rec.ico('busca')}<span class="so-leitor">Buscar</span><input id="b-q" type="search" placeholder="Nome ou nota: baunilha…" autocomplete="off" spellcheck="false" oninput="buscaViva(this.value)"></label><button class="lnk" onclick="bus.close()">Fechar</button></div><div class="b-chips">${q.map(n=>`<button class="chip" onclick="poeBusca('${n}')">${n}</button>`).join('')}</div><div id="b-res"></div></div>`;
+  if(!b.open)b.showModal();
+  if(matchMedia('(pointer:fine)').matches)$('#b-q').focus();
+  buscaViva('');
+}
+function poeBusca(n){$('#b-q').value=n;buscaViva(n)}
+function buscaViva(v){
+  const r=$('#b-res'),todos=Loja.produtos(M);
+  if(!v.trim()){const l=todos.filter(p=>p.status==='disponivel'&&p.tipo==='perfume');r.innerHTML=`<p class="b-n">Em cartaz agora</p><ul class="lista">${l.map(lp).join('')}</ul>`;return}
+  const l=Rec.buscar(todos,v);
+  r.innerHTML=l.length?`<p class="b-n" aria-live="polite">${l.length} ${l.length===1?'resultado':'resultados'}</p><ul class="lista">${l.map(lp).join('')}</ul>`:`<p class="b-n" aria-live="polite">Nada com “${esc(v)}”</p><p>Tente uma nota, como baunilha, couro ou jasmim, ou <a href="#/programacao">veja a programação inteira</a>.</p>`;
+}
+function abre(html){const d=$('#dlg');d.innerHTML=`<div class="modal" tabindex="-1" autofocus><button class="fechar" aria-label="Fechar" onclick="dlg.close()">×</button>${html}</div>`;if(!d.open)d.showModal()}
+function abreMenu(){abre(`<ul style="list-style:none;padding:0;font:400 34px/1.2 var(--titulo)">${[['programacao','Programação'],['programacao?para=ela','Para ela'],['programacao?para=ele','Para ele'],['sob-medida','Sob medida'],['atelie','Ateliê e cursos'],['quem','Quem escreve'],['elenco','Elenco'],['pg/contato','Fale com a Paula'],['conta','Minha conta']].map(([a,t])=>`<li><a style="text-decoration:none;display:block;padding:5px 0" href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}</ul>`)}
 function pagar(){gav.close();abre(`<h2>Aqui entra o pagamento</h2><p>No site de verdade, este botão abre o pagamento da Nuvemshop que a Paula já usa: Pix, cartão, frete pelos Correios e nota fiscal.</p><button class="acao" onclick="dlg.close()">Entendi</button>`)}
 function conversa(id){const p=Loja.produto(M,id);abre(`<h2>${esc(p?p.nome:'Conversa')}</h2><p>No site de verdade, este botão abre o WhatsApp da Paula com a mensagem já escrita, e o pedido entra na ficha da pessoa.</p><button class="acao" onclick="dlg.close()">Entendi</button>`)}
 function fila(id){const p=Loja.produto(M,id);
   abre(`<h2>${p.status==='estreia'?'Estreia de':'Fila de'} ${esc(p.nome)}</h2>
   <p>${p.status==='estreia'?`Abre ${quando(p.estreia)}. Quem está na lista recebe o aviso antes.`:`Quando voltar, você recebe o aviso antes de abrir para todo mundo.`}</p>
-  <form onsubmit="entra(event,'${id}')"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">WhatsApp com DDD<input required name="wa" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999"></label><label class="campo">E-mail<input name="email" type="email" autocomplete="email"></label>
-  <label class="op"><input type="checkbox" required name="ok">Aceito receber este aviso e novidades da Paula Oliveira Parfum. Posso sair quando quiser.</label><button class="acao">Entrar na fila</button></form>`)}
-function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);const pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,email:f.email.value});
-  abre(`<h2>Você é a ${pos}ª da fila</h2><p>Avisamos no seu WhatsApp quando ${esc(p.nome)} voltar. Com o app no celular, o aviso chega na hora e você compra antes.</p><button class="acao" onclick="baixar()">Baixar o app</button>`);desenhaFilas()}
-function desenhaFilas(){if(naHome&&$('#mural'))$('#mural').innerHTML=mural()}
+  <form onsubmit="entra(event,'${id}')"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">WhatsApp com DDD<input required name="wa" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999…" oninput="Rec.mascaraTel(this)"></label>
+  <label class="op"><input type="checkbox" required name="ok">Aceito receber este aviso e novidades da Paula Oliveira Parfum. Posso sair quando quiser.</label><button class="acao">Pegar minha senha</button></form>`)}
+function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);let pos=0;
+  semAvisar(()=>{pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,meu:true});Loja.mexe(s=>{if(s.espera[0])s.espera[0].senha=pos})});
+  const url=location.href.split('#')[0]+linkPara(p),txt=`Peguei a senha ${pos} para ${p.nome}, da Paula Oliveira.`;
+  abre(`<h2>Sua senha está guardada</h2>${ingresso(Loja.produto(M,id),pos)}<p>Avisamos no seu WhatsApp quando ${esc(p.nome)} ${p.status==='estreia'?'estrear':'voltar'}, antes de abrir para todo mundo.</p><a class="acao" href="${Rec.redes(url,txt)[0].u}" target="_blank" rel="noopener">Mandar para uma amiga</a><button class="acao vazada" onclick="baixar()">Baixar o app</button>`);desenhaFilas()}
+function desenhaFilas(){if(naHome&&$('#vitrine')){$('#vitrine').innerHTML=vitrine();revela()}}
 function baixar(){const c=Instalar.conteudo(),s=Instalar.situacao();
   abre(`<h2>${c.t}</h2>${c.p.length>1?`<ol class="passos">${c.p.map(x=>`<li>${x}</li>`).join('')}</ol>`:`<p>${c.p[0]}</p>`}${c.botao?`<button class="acao" onclick="Instalar.tocar().then(()=>dlg.close())">Baixar agora</button>`:''}${c.copiar?`<button class="acao" onclick="Instalar.copiarEndereco();this.textContent='Endereço copiado'">Copiar o endereço</button>`:''}`)}
-function frete(e){e.preventDefault();const v=e.target.querySelector('input').value.replace(/\D/g,'');$('#fr').textContent=v.length===8?'Exemplo para São Paulo/SP: PAC R$ 30,32 · SEDEX R$ 50,81':'O CEP tem 8 números.'}
+function frete(e){e.preventDefault();const o=Rec.frete(e.target.querySelector('input').value);$('#fr').innerHTML=o?`<ul class="fr-op">${o.map(x=>`<li><span>${x.nome}</span><b style="font-weight:500">${R(x.valor)}</b></li>`).join('')}</ul><small>Valores de exemplo para São Paulo/SP.</small>`:'<p>O CEP tem 8 números. Confira e tente de novo.</p>'}
 /* cada foto da loja existe em tamanhos diferentes: se um faltar, tenta os outros */
 const TAMS=['-1024-1024.webp','-640-0.webp','-480-0.webp','-320-0.webp','-240-0.webp'];
 addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;const u=i.src,k=TAMS.findIndex(t=>u.endsWith(t));if(k<0)return;const n=+(i.dataset.tent||0);if(n>=TAMS.length-1)return;i.dataset.tent=n+1;i.src=u.slice(0,-TAMS[k].length)+TAMS[(k+1)%TAMS.length]},true);
-const gav=$('#gav'),dlg=$('#dlg');
+const gav=$('#gav'),dlg=$('#dlg'),bus=$('#bus');
 [gav,dlg].forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
-Loja.aoMudar(()=>{naHome=false;if(!dlg.open&&!gav.open)desenha()});
+bus.addEventListener('click',e=>{if(e.target.closest('a'))bus.close()});
+Loja.aoMudar(()=>{if(semAviso)return;naHome=false;if(!dlg.open&&!gav.open){const y=scrollY;desenha(true);scrollTo({top:y,behavior:'instant'})}});
+if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!reduz){
+  let ax=0,ay=0,sx=0,sy=0,seguindo=false;const sg=$('#seguidor');
+  const segue=()=>{sx+=(ax-sx)*.16;sy+=(ay-sy)*.16;sg.style.transform=`translate(${sx+26}px,${sy-160}px)`;if(sg.classList.contains('on'))requestAnimationFrame(segue);else seguindo=false};
+  document.addEventListener('pointermove',e=>{
+    const m=e.target.closest&&e.target.closest('.mini');
+    if(m){const r=m.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;m.style.setProperty('--mx',(x*100).toFixed(1)+'%');m.style.setProperty('--my',(y*100).toFixed(1)+'%');m.style.setProperty('--rx',((x-.5)*6).toFixed(2));m.style.setProperty('--ry',((.5-y)*6).toFixed(2))}
+    const l=e.target.closest&&e.target.closest('main .lp');
+    if(l){ax=e.clientX;ay=e.clientY;if(sg.dataset.u!==l.dataset.foto){sg.dataset.u=l.dataset.foto;sg.src=l.dataset.foto}if(!seguindo){sx=ax;sy=ay;seguindo=true;sg.classList.add('on');requestAnimationFrame(segue)}}else sg.classList.remove('on');
+  },{passive:true});
+}
 setInterval(()=>$$('[data-fim]').forEach(e=>e.textContent=falta(e.dataset.fim)),30000);
 
 /* cortina de abertura: as cores dos cartazes sobem, uma vez por visita */
 try{ if(!reduz&&!sessionStorage.getItem('pp_cortina')&&!location.hash.startsWith('#/p/')){sessionStorage.setItem('pp_cortina','1');
   const d=document.createElement('div');d.className='intro';d.setAttribute('aria-hidden','true');d.innerHTML=['#123A2D','#F7A400','#FFDC3C','#B4CE54','#1A4BA0','#0E2E39'].map((c,i)=>`<i style="--c:${c};--i:${i}"></i>`).join('');document.body.append(d);setTimeout(()=>d.remove(),1500)}}catch(e){}
+Rec.hidrataIcones();
+Rec.mostraCookies();
 desenha();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fita);
 </script>

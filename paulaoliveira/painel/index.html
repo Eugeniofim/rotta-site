@@ -6,6 +6,7 @@
 <title>Painel da Paula · Prévia</title>
 <!-- Prévia: fora do Google. Tirar quando virar o site oficial dela. -->
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../paula/icone-192.png">
 <meta property="og:title" content="Painel da Paula · Prévia">
 <meta property="og:description" content="Vitrine, lotes, clientes e avisos das duas marcas, num lugar só.">
 <meta property="og:type" content="website">
@@ -130,9 +131,9 @@ dialog.lado{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(480px,100v
 <dialog id="dlg" class="lado"></dialog>
 <div class="aviso" id="aviso" role="status"></div>
 
-<script src="../comum/dados-paula.js"></script>
-<script src="../comum/dados-fada.js"></script>
-<script src="../comum/loja.js"></script>
+<script src="../comum/dados-paula.js?v=2"></script>
+<script src="../comum/dados-fada.js?v=2"></script>
+<script src="../comum/loja.js?v=2"></script>
 <script>
 const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro,esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
