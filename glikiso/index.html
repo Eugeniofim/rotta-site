@@ -442,6 +442,24 @@
     text-transform: uppercase;
     color: rgba(243,230,211,.5);
   }
+  footer p { margin: 0; }
+  /* Entrada da equipe: fica no fim, discreta, para não competir com os links do cliente. */
+  .adm {
+    display: inline-flex; align-items: center; gap: 10px;
+    min-height: 44px; margin-top: 18px; padding: 8px 18px 8px 14px;
+    border: 1px solid rgba(243,230,211,.22); border-radius: 999px;
+    color: rgba(243,230,211,.72); text-decoration: none;
+    letter-spacing: .14em;
+    transition: color .2s, border-color .2s, box-shadow .2s;
+  }
+  .adm svg { width: 16px; height: 16px; flex: none; }
+  .adm b { font-weight: 600; color: var(--creme); }
+  .adm small { font-size: 11px; letter-spacing: .12em; opacity: .8; }
+  .adm:hover, .adm:focus-visible {
+    color: var(--led); border-color: var(--led);
+    box-shadow: 0 0 14px rgba(255,233,184,.25);
+    outline: none;
+  }
 
   @media (min-width: 481px) {
     body { padding: 24px 0; }
@@ -552,7 +570,13 @@
     <p>Com qual Gliki você quer falar?</p>
   </div>
 
-  <footer>Gliki Sô Cookeria · Paranaguá · Curitiba · Caiobá</footer>
+  <footer>
+    <p>Gliki Sô Cookeria · Paranaguá · Curitiba · Caiobá</p>
+    <a class="adm" id="admLink" aria-label="ADM: painel da loja, só para a equipe">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <b>ADM</b><small>Painel da loja</small>
+    </a>
+  </footer>
 </div>
 
 <script>
@@ -564,6 +588,7 @@ const CONFIG = {
   instagram: "https://instagram.com/glikisocookeria",
   grupoVip: "https://chat.whatsapp.com/GYfjm6gl9ni5Qy4bgsEXao",
   clube: "clube/",
+  painel: "painel/",
   avaliacao: "https://g.co/kgs/BSL7Dhp",
   maquina: {
     mapa: "https://www.google.com/maps/search/?api=1&query=Jockey+Plaza+Shopping+Curitiba",
@@ -832,6 +857,7 @@ $("mapaMaquina").href = CONFIG.maquina.mapa;
 $("marque").href = CONFIG.instagram;
 $("clube").href = CONFIG.grupoVip;
 $("clubeLink").href = CONFIG.clube;
+$("admLink").href = CONFIG.painel;
 $("avaliar").href = CONFIG.avaliacao;
 $("insta").href = CONFIG.instagram;
 $("status").textContent = statusMaquina();
