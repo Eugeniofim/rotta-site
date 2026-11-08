@@ -468,7 +468,7 @@ window.CAT_FADA=[
 "preco": 599.0,
 "status": "mare",
 "fotos": [
-"https://dcdn-us.mitiendanube.com/stores/001/903/584/products/design-sem-nome-31-8d0eaa66ff657c235c169914355615061-4a50676df86125e2c116991435635961",
+"https://dcdn-us.mitiendanube.com/stores/001/903/584/products/design-sem-nome-31-8d0eaa66ff657c235c169914355615061-4a50676df86125e2c116991435635961-640-0.png",
 "https://dcdn-us.mitiendanube.com/stores/001/903/584/products/lirio-44e947971f3b5ea02417083120434637",
 "https://dcdn-us.mitiendanube.com/stores/001/903/584/products/lirio-1-bd534b36a896b3ca8d17083120436201",
 "https://dcdn-us.mitiendanube.com/stores/001/903/584/products/lirio-3-5b77935aedcc684db817083120427748",
@@ -524,7 +524,7 @@ window.CAT_FADA=[
 "preco": 219.0,
 "status": "mare",
 "fotos": [
-"https://dcdn-us.mitiendanube.com/stores/001/903/584/products/leite-622d98a47db6aafff917002231419318"
+"https://dcdn-us.mitiendanube.com/stores/001/903/584/products/leite-622d98a47db6aafff917002231419318-640-0.png"
 ],
 "historia": "Leite corporal encantado assim como o canto das sereias. Perfumado com framboesa, magnólia, íris e fava tonka. Floral, frutal e mágico! EDIÇÃO LIMITADA"
 },
