@@ -50,7 +50,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .direita{display:flex;gap:18px;align-items:center}
 .saco,.abre-menu,.lnk{display:inline-flex;align-items:center;font-weight:500;font-size:16px;min-height:44px;text-decoration:none}
 .abre-menu{display:none}
-@media(max-width:1100px){.menu{display:none}.abre-menu{display:inline-flex}}
+@media(max-width:1200px){.menu{display:none}.abre-menu{display:inline-flex}}
 
 /* medidor de profundidade */
 .medidor{position:fixed;right:clamp(10px,1.6vw,24px);top:50%;transform:translateY(-50%);z-index:50;height:46vh;width:2px;background:color-mix(in srgb,var(--cor-topo,var(--mar)) 32%,transparent);color:var(--cor-topo,var(--mar));transition:opacity .4s}
@@ -70,16 +70,23 @@ main{position:relative;z-index:1}
 .z.escuro{color:var(--mar)}
 
 /* superfície */
-.sup{height:100vh;height:100svh;min-height:620px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:calc(var(--barra) + 40px) 16px 40px;color:var(--mar)}
-.tit{position:relative;font:400 clamp(66px,13.4vw,214px)/.88 var(--conto);letter-spacing:-.018em}
+.sup-wrap{position:relative;height:calc(100svh + 115vh)}
+.sup{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:safe center;text-align:center;padding:calc(var(--barra) + 74px) 16px 22px;color:var(--mar)}
+.sup-baixo{display:flex;flex-direction:column;align-items:center}
+.sup-acoes{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 22px}
+@media(min-aspect-ratio:4/3){.sup p{max-width:none!important}}
+@media(max-height:700px){.mergulhar{min-height:50px!important}}
+@media(max-height:540px),(prefers-reduced-motion:reduce){.sup-wrap{height:auto}.sup{position:relative;height:auto;min-height:100svh}}
+.tit{position:relative;font:400 clamp(56px,min(13.4vw,24svh),214px)/.88 var(--conto);letter-spacing:-.018em}
 .tit .l{display:block}
 .tit em.l{font-style:italic}
 .c-ar{display:block;color:var(--mar)}
 .c-agua{display:none;position:absolute;inset:0;color:#0C3070;opacity:.94}
 .agua .c-agua{display:block}
 .c-agua .l{transform-origin:50% 0}
-@media(max-width:640px){.tit{font-size:21.5vw}}
-.sup p{font-size:clamp(19px,1.7vw,24px);margin:24px auto 26px;max-width:31ch;line-height:1.3;font-weight:500}
+@media(max-height:700px){.tit{font-size:clamp(56px,min(13.4vw,22.5svh),214px)}}
+@media(max-width:640px){.tit{font-size:min(21.5vw,15svh)}}
+.sup p{font-size:clamp(18px,min(1.7vw,3.2svh),24px);margin:clamp(10px,2svh,24px) auto clamp(12px,2.2svh,26px);max-width:31ch;line-height:1.3;font-weight:500}
 .mergulhar{display:inline-flex;align-items:center;gap:10px;min-height:58px;padding:0 32px;background:var(--mar);color:var(--espuma);border-radius:40px;font:500 19px/1 var(--tx);text-decoration:none;transition:transform .25s}
 .mergulhar:hover{transform:translateY(5px)}
 
@@ -370,7 +377,7 @@ dialog.busca::backdrop{background:#061433}
 .lista-redes{list-style:none;padding:0}
 .lista-redes a{display:inline-flex;align-items:center;min-height:44px}
 
-.ver-tudo{display:inline-flex;align-items:center;min-height:44px;margin-top:8px;font-weight:500}
+.ver-tudo{display:inline-flex;align-items:center;min-height:44px;font-weight:500}
 .chips-t{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
 .b-chip[aria-pressed=true]{background:var(--espuma);color:var(--mar);box-shadow:none}
 .sub-t{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;font:400 14px/1 var(--mono)}
@@ -409,17 +416,38 @@ body.em-detalhe .wpp{display:none}
 .cookies button{min-height:44px;padding:0 14px;border-radius:24px;font:500 15px/1 var(--tx);box-shadow:inset 0 0 0 1.5px var(--mar)}
 .cookies button:last-child{background:var(--mar);color:var(--espuma)}
 
-@media(prefers-reduced-motion:reduce){dialog[open]{animation:none!important}.bb{display:none}.bc,#toast{transition:none}.vigia,.mergulhar,.pil,.respostas button{transition:none!important}}
+/* ---------- v3: rolagem e menu ---------- */
+#peixes{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.flut{display:block;width:100%}
+.js-rev .rv:not(.vis)>:not(.pil){opacity:0;transform:translateY(34px)}
+.rv>:not(.pil){transition:opacity .95s var(--ease),transform .95s var(--ease)}
+.rv>:nth-child(2){transition-delay:.09s}
+.rv>:nth-child(3){transition-delay:.18s}
+.rv>:nth-child(4){transition-delay:.27s}
+.menu a{background:linear-gradient(currentColor,currentColor) 0 calc(100% - 7px)/0 2px no-repeat;transition:background-size .3s var(--ease)}
+.menu a:hover{text-decoration:none;background-size:100% 2px}
+.menu a[aria-current=true]{background-size:100% 2px}
+.topo.solido .menu a{background-image:linear-gradient(var(--ouro),var(--ouro))}
+.topo .saco{gap:8px;padding:0 17px;min-height:42px;border-radius:22px;background:var(--mar);color:var(--espuma);transition:background-color .35s,color .35s}
+.topo .saco b{font-weight:600}
+.topo .saco:hover{text-decoration:none}
+.topo.solido .saco{background:var(--ouro);color:#201505}
+a.ic-som{color:inherit}
+.menu a{white-space:nowrap}
+@media(max-width:1360px){.menu{gap:16px;font-size:15px}.menu a:first-child{display:none}}
+
+@media(prefers-reduced-motion:reduce){dialog[open]{animation:none!important}.bb{display:none}#peixes{display:none}.rv>*{transition:none!important}.bc,#toast{transition:none}.vigia,.mergulhar,.pil,.respostas button{transition:none!important}}
 </style>
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <canvas id="agua" aria-hidden="true"></canvas>
+<canvas id="peixes" aria-hidden="true"></canvas>
 <div class="previa" id="previa"><span>Prévia feita pela Ti Artes · preços e estoque reais de 08/11 · filas e datas são exemplo</span><button aria-label="Fechar aviso" onclick="fechaPrevia()">×</button></div>
 <header class="topo" id="topo">
   <a class="marca" href="#/" translate="no"><img src="https://d1a9qnv764bsoo.cloudfront.net/stores/001/903/584/themes/common/logo-897714601-1640642747-bee96cc36d7d1e814d181d7a502d16351640642748-320-0.webp" alt="">Fada Marinha</a>
   <nav class="menu" aria-label="Principal"><a href="#/tudo">O mar inteiro</a><a href="#/perfumes">Perfumes</a><a href="#/pocoes">Cabelo e corpo</a><a href="#/oraculo">Qual sereia é você</a><a href="#/cardume">Cardume</a><a href="#/pg/quem-somos">Quem somos</a></nav>
-  <div class="direita"><button class="ic-som" id="som" aria-pressed="false" aria-label="Ligar o som do mar" onclick="alternaSom()" data-ico="somoff"></button><button class="lnk so-grande" onclick="abreBusca()">Buscar</button><a class="lnk so-grande" href="#/conta">Conta</a><button class="abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Caixinha (<span class="n-saco">0</span>)</button></div>
+  <div class="direita"><button class="ic-som" id="som" aria-pressed="false" aria-label="Ligar o som do mar" onclick="alternaSom()" data-ico="somoff"></button><button class="ic-som so-grande" aria-label="Buscar" onclick="abreBusca()" data-ico="busca"></button><a class="ic-som so-grande" href="#/conta" aria-label="Minha conta" data-ico="conta"></a><button class="abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Caixinha <b class="n-saco">0</b></button></div>
 </header>
 <div class="medidor" id="medidor"><b></b><div id="ticks"></div><button id="metros" aria-label="Escolher a profundidade" onclick="if(innerWidth<=820)abreProf()">0 m</button></div>
 <main id="conteudo" tabindex="-1"></main>
@@ -436,11 +464,11 @@ body.em-detalhe .wpp{display:none}
 <dialog id="gav" class="gaveta"></dialog>
 <dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-fada.js?v=2"></script>
-<script src="../comum/loja.js?v=2"></script>
-<script src="../comum/instalar.js?v=2"></script>
-<script src="../comum/recursos.js?v=2"></script>
-<script src="../comum/paginas-fada.js?v=2"></script>
+<script src="../comum/dados-fada.js?v=3"></script>
+<script src="../comum/loja.js?v=3"></script>
+<script src="../comum/instalar.js?v=3"></script>
+<script src="../comum/recursos.js?v=3"></script>
+<script src="../comum/paginas-fada.js?v=3"></script>
 <script>
 const M='fada',$=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro,reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -460,7 +488,7 @@ function precoLinha(p){return `<span class="nb">${p.de?`<s>${R(p.de)}</s>`:''}${
 function morfa(a){const i=$('img',a);if(i)i.style.viewTransitionName='foto'}
 function bolha(p){
   const pct=p.de?Math.round((1-p.preco/p.de)*100):0;
-  return `<article class="bolha">${pct?`<span class="desc">−${pct}%</span>`:''}<a class="t" href="#/p/${p.id}" onclick="morfa(this)" aria-label="${esc(p.nome)}, ${R(p.preco)}, ${estado(p)}"><span class="vigia"><img src="${img(p.fotos[0]||'')}" alt="" loading="lazy" decoding="async"></span><h3>${esc(p.nome)}</h3></a>
+  return `<article class="bolha">${pct?`<span class="desc">−${pct}%</span>`:''}<a class="t" href="#/p/${p.id}" onclick="morfa(this)" aria-label="${esc(p.nome)}, ${R(p.preco)}, ${estado(p)}"><span class="flut"><span class="vigia"><img src="${img(p.fotos[0]||'')}" alt="" loading="lazy" decoding="async"></span></span><h3>${esc(p.nome)}</h3></a>
   <div class="inf">${esc(p.medida)} · ${precoLinha(p)}</div><div class="est">${estado(p)}${p.status!=='disponivel'&&p.fila?` · ${p.fila} esperando`:''}</div>${acao(p,true)}</article>`
 }
 function zona(k,tom,id,metros,nivel){
@@ -495,8 +523,8 @@ function home(){
   const promo=t.filter(p=>p.de);
   const cab=t.filter(p=>p.tipo==='cabelo'&&!p.de).sort((a,b)=>(a.status==='disponivel'?0:1)-(b.status==='disponivel'?0:1)),cor=t.filter(p=>p.tipo==='corpo');
   const [n,fx,sub]=ZONAS_FADA.fundo, fundo=t.filter(p=>p.zona==='fundo'&&p.status!=='estreia');
-  return `<section class="sup" data-nivel="0" data-metros="0" data-nome="Superfície">
-    <h1 class="tit" aria-label="Sinta o perfume do oceano"><span class="c-ar" aria-hidden="true"><span class="l">Sinta o</span><em class="l">perfume</em><span class="l">do oceano</span></span><span class="c-agua" aria-hidden="true"><span class="l">Sinta o</span><em class="l">perfume</em><span class="l">do oceano</span></span></h1><p>Feito com flores raras e alma marinha para sereias reais</p><a class="mergulhar" href="#/mergulho">Mergulhar ↓</a><a class="ver-tudo" href="#/tudo">ou veja o mar inteiro</a></section>
+  return `<section class="sup-wrap" data-nivel="0" data-metros="0" data-nome="Superfície"><div class="sup">
+    <h1 class="tit" aria-label="Sinta o perfume do oceano"><span class="c-ar" aria-hidden="true"><span class="l">Sinta o</span><em class="l">perfume</em><span class="l">do oceano</span></span><span class="c-agua" aria-hidden="true"><span class="l">Sinta o</span><em class="l">perfume</em><span class="l">do oceano</span></span></h1><div class="sup-baixo" id="sup-baixo"><p>Feito com flores raras e alma marinha para sereias reais</p><div class="sup-acoes"><a class="mergulhar" href="#/mergulho">Mergulhar ↓</a><a class="ver-tudo" href="#/tudo">ou veja o mar inteiro</a></div></div></div></section>
   <section class="z escuro" id="mergulho" data-nivel=".07" data-metros="5" data-nome="Bem-vinda"><div class="bem"><div><h2>Bem-vinda ao seu oceano particular</h2><p>Você não chegou até aqui por acaso; o mar sempre reconhece as suas sereias. Há sete anos, das praias da Ilha do Mel, a Fada faz perfumaria botânica para despertar a força feminina, a liberdade e o magnetismo que já habitam em você.</p><ul class="vers"><li>Coração floral.</li><li>Alma oceânica.</li><li>Raiz botânica.</li><li>Espírito livre.</li></ul><a class="mais-h" href="#/pg/quem-somos">Conheça a história da Fada</a></div><figure><img src="${img(quer('coffee').fotos[3],1024)}" alt="Mulher de costas olhando o mar" loading="lazy"></figure></div></section>
   ${zona('clara','escuro','perfumes',10,.15)}
   <section class="z escuro oraculo" id="oraculo" data-nivel=".26" data-metros="30" data-nome="Oráculo"><h2>Qual sereia é você?</h2><p class="sub">Três perguntas e o mar escolhe o seu perfume.</p><div class="pergunta" id="pergunta">${oraculoHTML()}</div></section>
@@ -568,54 +596,77 @@ function enviaContato(e){e.preventDefault();e.target.reset();$('#ct-ok').textCon
 function entrar(e){e.preventDefault();const f=e.target;Rec.entrar(M,{nome:f.nome.value.trim(),email:f.email.value.trim()});desenha(true);scrollTo({top:0,behavior:'instant'})}
 function sair(){Rec.sair(M);desenha(true);scrollTo({top:0,behavior:'instant'})}
 /* água: um único desenho no fundo da página inteira */
-const FS=`precision mediump float;uniform vec2 R;uniform float T,N,L;uniform vec3 P;
+const FS=`precision mediump float;uniform vec2 R;uniform float T,N,L,S,V;uniform vec3 P;
 vec3 c0=vec3(.749,.937,.918),c1=vec3(.341,.776,.788),c2=vec3(.075,.533,.635),c3=vec3(.043,.31,.525),c4=vec3(.039,.118,.29),c5=vec3(.02,.039,.133);
 vec3 ramp(float x){if(x<.12)return mix(c0,c1,x/.12);if(x<.32)return mix(c1,c2,(x-.12)/.2);if(x<.55)return mix(c2,c3,(x-.32)/.23);if(x<.8)return mix(c3,c4,(x-.55)/.25);return mix(c4,c5,clamp((x-.8)/.2,0.,1.));}
 float cau(vec2 uv,float t){vec2 p=mod(uv*6.28318,6.28318)-250.,i=p;float c=1.,a=.005;for(int n=0;n<4;n++){float q=t*(1.-(3.5/float(n+1)));i=p+vec2(cos(q-i.x)+sin(q+i.y),sin(q-i.y)+cos(q+i.x));c+=1./length(vec2(p.x/(sin(i.x+q)/a),p.y/(cos(i.y+q)/a)));}c/=4.;c=1.17-pow(c,1.4);return pow(abs(c),8.);}
 float rd(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+float bol(vec2 p,float e,float d,float m,float k){vec2 q=p*e;q.y-=d;vec2 g=floor(q),f=fract(q)-.5;float r=rd(g+k);if(r<m)return 0.;float a=rd(g+k+3.7)*6.283,rr=.1+.22*rd(g+k+7.1);vec2 c=vec2(cos(a),sin(a))*.16+vec2(sin(T*1.4+r*50.)*.07,0.);float x=length(f-c);return smoothstep(rr,rr-.035,x)*smoothstep(rr-.09,rr-.035,x)*.75+smoothstep(rr*.32,0.,length(f-c-vec2(-rr*.38,rr*.38)))*.9;}
 void main(){vec2 uv=gl_FragCoord.xy/R,p=uv;float as=R.x/R.y;p.x*=as;
 float onda=L+.012*sin(p.x*5.+T*.8)+.007*sin(p.x*11.-T*1.1)+.004*sin(p.x*23.+T*1.7);
 float prof=clamp(N+(1.-uv.y)*.06,0.,1.);vec3 c=ramp(prof);
 float ra=pow(max(0.,sin(p.x*3.2+uv.y*1.5+T*.12)*.5+.5),3.)*(1.-smoothstep(.0,.58,N))*uv.y;c+=vec3(.55,.75,.7)*ra*.2;
 float k=1.-smoothstep(.1,.64,N);if(k>.01)c+=vec3(.82,1.,.95)*cau(p*1.25+vec2(0.,N*3.),T*.32)*k*.36;
 float pl=smoothstep(.56,.96,N);if(pl>.0){vec2 q=p*vec2(58.,58.)+vec2(0.,T*.5);vec2 g=floor(q);float r=rd(g);float b=step(.988,r)*(.3+.5*sin(T*(.6+r*2.4)+r*40.));c+=vec3(.72,.9,1.)*b*smoothstep(.3,.0,length(fract(q)-.5))*pl;}
+if(uv.y<=onda){float mb=mix(.955,.62,V);c+=vec3(.82,.97,1.)*(bol(p,7.,T*.22+S*1.9,mb,0.)*.9+bol(p,13.,T*.34+S*3.1,mb+.01,11.)*.55)*(.22+.75*V);}
 if(P.z>.004){vec2 dp=p-P.xy;float rr=length(dp);float wv=sin(rr*58.-T*8.)*exp(-rr*6.5)*P.z;c+=vec3(.8,1.,.96)*wv*.2*(1.-smoothstep(.6,1.,N)*.5);c+=vec3(.75,.95,1.)*exp(-rr*rr*46.)*P.z*.09;}
 if(uv.y>onda){float h=(uv.y-onda)/(1.-onda+.001);vec3 ceu=mix(vec3(1.,.9,.77),vec3(.985,.97,.92),h);float s=smoothstep(.62,.0,distance(vec2(p.x-as*.5,(uv.y-onda)*1.15),vec2(0.,.05)));ceu+=vec3(.2,.13,.0)*s;c=ceu;}
 c=mix(c,vec3(1.),smoothstep(.0055,.0,abs(uv.y-onda))*.9);gl_FragColor=vec4(c,1.);}`;
 let gl,U={},nivelAtual=0,linha=.62,pede=true,px=0,py=0,pz=0;
 let tit=null,titA=null,titB=null,titL=[],titY=0,titX=0,titW=0,titH=0;
-function preparaTitulo(){tit=$('.tit');titA=tit?$('.c-ar',tit):null;titB=tit?$('.c-agua',tit):null;titL=tit?$$('.c-agua .l',tit):[];if(tit){const r=tit.getBoundingClientRect();titY=r.top+scrollY;titX=r.left;titW=r.width;titH=r.height}}
+let supW=null,supB=null,pino=1,linha0=.6,pinado=false,progresso=0,mergulhou=false,qual=1,vel=0,velAlvo=0,dsF=0,ultY=0,MX=-999,MY=-999,alvoC=null;
+function preparaTitulo(){
+  tit=$('.tit');titA=tit?$('.c-ar',tit):null;titB=tit?$('.c-agua',tit):null;titL=tit?$$('.c-agua .l',tit):[];
+  supW=$('.sup-wrap');supB=$('#sup-baixo');
+  if(!tit)return;
+  const sp=$('.sup');pinado=!reduz&&getComputedStyle(sp).position==='sticky';pino=Math.max(1,supW.offsetHeight-innerHeight);
+  if(scrollY<5){const r=tit.getBoundingClientRect();linha0=Math.min(.72,Math.max(.32,1-(r.top+r.height*.52)/innerHeight))}
+}
 function aguaY(x,T){const vw=innerWidth,vh=innerHeight,q=(x/vw)*(vw/vh);const o=linha+.012*Math.sin(q*5+T*.8)+.007*Math.sin(q*11-T*1.1)+.004*Math.sin(q*23+T*1.7);return vh*(1-o)}
 function cortaTitulo(T){
-  if(!titA||scrollY>innerHeight*1.15)return;
-  const y0=titY-scrollY,n=20,pt=[];
-  for(let i=0;i<=n;i++){const x=titW*i/n;pt.push(x.toFixed(1)+'px '+(aguaY(titX+x,T)-y0).toFixed(1)+'px')}
-  const ye=pt[0].split(' ')[1],yd=pt[n].split(' ')[1],W=titW+80;
+  if(!titA||scrollY>pino+innerHeight*.2)return;
+  const r=tit.getBoundingClientRect(),y0=r.top,w=r.width,n=20,pt=[];
+  for(let i=0;i<=n;i++){const x=w*i/n;pt.push(x.toFixed(1)+'px '+(aguaY(r.left+x,T)-y0).toFixed(1)+'px')}
+  const ye=pt[0].split(' ')[1],yd=pt[n].split(' ')[1],W=w+80;
   titA.style.clipPath=`polygon(-80px -500px,${W}px -500px,${W}px ${yd},${pt.slice().reverse().join(',')},-80px ${ye})`;
-  titB.style.clipPath=`polygon(-80px ${ye},${pt.join(',')},${W}px ${yd},${W}px ${titH+500}px,-80px ${titH+500}px)`;
-  if(!reduz){const k=innerWidth<820?.6:1;titL.forEach((e,i)=>{e.style.transform=`translateX(${(Math.sin(T*1.1+i*1.7)*5*k).toFixed(2)}px) skewX(${(Math.sin(T*.9+i)*1.4).toFixed(2)}deg)`})}
+  titB.style.clipPath=`polygon(-80px ${ye},${pt.join(',')},${W}px ${yd},${W}px ${r.height+500}px,-80px ${r.height+500}px)`;
+  if(!reduz){const k=(innerWidth<820?.6:1)*(1+progresso*1.7);titL.forEach((e,i)=>{e.style.transform=`translateX(${(Math.sin(T*1.1+i*1.7)*5*k).toFixed(2)}px) skewX(${(Math.sin(T*.9+i)*1.4*k).toFixed(2)}deg)`})}
 }
+function heroi(det){
+  if(det||!tit){linha=det?2:.6;return}
+  if(!pinado){linha=linha0+(scrollY/innerHeight)*.95;progresso=0;return}
+  const p=Math.min(1,Math.max(0,scrollY/pino)),e=p*p*(3-2*p);progresso=p;
+  linha=linha0+e*(1.34-linha0);
+  const q=Math.max(0,(p-.6)/.4);
+  tit.style.transform=q?`translateY(${(-q*24).toFixed(2)}vh)`:'';
+  tit.style.opacity=q?(1-q).toFixed(3):'';
+  if(supB){const k=Math.min(1,p/.18);supB.style.opacity=(1-k).toFixed(3);supB.style.transform=k?`translateY(${(k*22).toFixed(1)}px)`:'';supB.style.visibility=k>=1?'hidden':''}
+  if(p>.5&&!mergulhou){mergulhou=true;if(SOM&&SOM.on)for(let i=0;i<8;i++)setTimeout(somBolha,i*55)}else if(p<.2)mergulhou=false;
+}
+let fN=0,fS=0,baixou=0;
+function medeFrame(ms){if(ms>400)return;fN++;fS+=ms;if(fN<90)return;const m=fS/fN;fN=0;fS=0;if(m>(innerWidth<820?46:26)&&baixou<2){baixou++;qual*=.8;CF.b.length=Math.ceil(CF.b.length*.6);if(window.tamAgua)tamAgua()}}
 (function(){const cv=$('#agua');gl=cv.getContext('webgl',{antialias:false,alpha:false,powerPreference:'low-power'});if(!gl)return;
  document.documentElement.classList.add('agua');
  const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o));return o};
  const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
  gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);const a=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
- ['R','T','N','L','P'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
- function tam(){const q=innerWidth<820?.55:Math.min(1,1500/innerWidth);cv.width=Math.round(innerWidth*q);cv.height=Math.round(innerHeight*q);gl.viewport(0,0,cv.width,cv.height);pede=true}
- addEventListener('resize',tam);tam();
- let ult=0;function pinta(t){const T=reduz?12:t/1000;gl.uniform2f(U.R,cv.width,cv.height);gl.uniform1f(U.T,T);gl.uniform1f(U.N,nivelAtual);gl.uniform1f(U.L,linha);gl.uniform3f(U.P,px,py,pz);pz*=.965;gl.drawArrays(gl.TRIANGLES,0,3);cortaTitulo(T)}
- function quadro(t){requestAnimationFrame(quadro);if(document.hidden)return;if(reduz&&!pede)return;if(t-ult<(innerWidth<820?33:16))return;ult=t;pede=false;pinta(t)}
- if(!reduz){const toque=e=>{px=e.clientX/innerHeight;py=1-e.clientY/innerHeight};addEventListener('pointermove',e=>{toque(e);pz=Math.min(1,pz+.14)},{passive:true});addEventListener('pointerdown',e=>{toque(e);pz=1},{passive:true})}
+ ['R','T','N','L','P','S','V'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
+ function tam(){const q=(innerWidth<820?.55:Math.min(1,1500/innerWidth))*qual;cv.width=Math.round(innerWidth*q);cv.height=Math.round(innerHeight*q);gl.viewport(0,0,cv.width,cv.height);pede=true}
+ addEventListener('resize',tam);tam();window.tamAgua=tam;
+ let ult=0;function pinta(t){const T=reduz?12:t/1000;gl.uniform2f(U.R,cv.width,cv.height);gl.uniform1f(U.T,T);gl.uniform1f(U.N,nivelAtual);gl.uniform1f(U.L,linha);vel+=(velAlvo-vel)*.14;velAlvo*=.88;gl.uniform1f(U.S,scrollY/innerHeight);gl.uniform1f(U.V,reduz?0:Math.max(vel,progresso>.12&&progresso<1?Math.sin(Math.PI*progresso)*.75:0));gl.uniform3f(U.P,px,py,pz);pz*=.965;gl.drawArrays(gl.TRIANGLES,0,3);cortaTitulo(T)}
+ function quadro(t){requestAnimationFrame(quadro);if(document.hidden){ult=t;return}if(reduz&&!pede)return;if(t-ult<(innerWidth<820?33:16))return;const dt=Math.min(3,(t-ult)/16.67);medeFrame(t-ult);ult=t;pede=false;pinta(t);nada(dt)}
+ if(!reduz){const toque=e=>{px=e.clientX/innerHeight;py=1-e.clientY/innerHeight;MX=e.clientX;MY=e.clientY};addEventListener('pointermove',e=>{toque(e);pz=Math.min(1,pz+.14)},{passive:true});addEventListener('pointerdown',e=>{toque(e);pz=1},{passive:true})}
  window.pintaJa=()=>pinta(performance.now());pinta(0);requestAnimationFrame(quadro)})();
 let marcos=[];
-function medeMarcos(){marcos=$$('[data-nivel]').map(s=>({y:s.getBoundingClientRect().top+scrollY,n:+s.dataset.nivel,m:+s.dataset.metros,nome:s.dataset.nome})).sort((a,b)=>a.y-b.y);preparaTitulo();desenhaTicks()}
+function medeMarcos(){marcos=$$('[data-nivel]').map(s=>({y:s.getBoundingClientRect().top+scrollY,n:+s.dataset.nivel,m:+s.dataset.metros,nome:s.dataset.nome})).sort((a,b)=>a.y-b.y);preparaTitulo();medeFlutua();desenhaTicks()}
 const rotM=m=>(m?'−'+m.toLocaleString('pt-BR'):'0')+' m';
 function desenhaTicks(){const t=$('#ticks');if($('.det,.pag')){t.innerHTML='';return}const tot=Math.max(1,document.documentElement.scrollHeight-innerHeight);t.innerHTML=marcos.map(m=>`<button class="tick" style="top:${(100*Math.min(1,m.y/tot)).toFixed(1)}%" aria-label="Ir para ${esc(m.nome)}, ${rotM(m.m)}" onclick="vaiPara(${Math.round(m.y)})"><span>${esc(m.nome)}<small>${rotM(m.m)}</small></span></button>`).join('')}
 function vaiPara(y){scrollTo({top:Math.max(0,y-(y?70:0)),behavior:reduz?'instant':'smooth'})}
 function abreProf(){abre(`<h2>Para onde?</h2><ul class="lista-menu" style="font-size:28px">${marcos.map(m=>`<li><a href="#" onclick="event.preventDefault();dlg.close();vaiPara(${Math.round(m.y)})">${esc(m.nome)} <small style="font:400 14px var(--mono)">${rotM(m.m)}</small></a></li>`).join('')}</ul>`)}
 function rolou(){
   const vh=innerHeight,y=scrollY+vh*.42,det=$('.det,.pag');
-  linha=det?2:.6+(scrollY/vh)*.95;
+  const dy=scrollY-ultY;ultY=scrollY;dsF+=dy;velAlvo=Math.min(1,Math.abs(dy)/(vh*.06));
+  heroi(det);
   let a=marcos[0],b=marcos[marcos.length-1];
   if(!a)return;
   if(y>=b.y)a=b;
@@ -629,7 +680,43 @@ function rolou(){
   document.documentElement.style.setProperty('--cor-topo',emCima?'#0A1E4A':'#F7F3E6');
   $('#medidor').style.display=det?'none':'';
   const d=$('.det');if(d){const c=$('.det-tx>.pil');$('#bc').classList.toggle('on',!!c&&c.getBoundingClientRect().bottom<70)}
+  movimento(vh);
   ajustaSom();
+}
+let flut=[];
+function medeFlutua(){flut=$$('.bolhas .flut,.bem figure').map((e,i)=>{e.style.transform='';const r=e.getBoundingClientRect();return {e,y:r.top+scrollY,h:r.height,k:[18,42,10,30][i%4]*(innerWidth<820?.5:1)}})}
+const ESPIA={perfumes:'perfumes',recife:'perfumes',aberto:'perfumes',fundo:'perfumes',oraculo:'oraculo',pocoes:'pocoes',cardume:'cardume'};
+function movimento(vh){
+  if(!reduz){const c0=scrollY+vh/2;for(const f of flut){const c=(f.y+f.h/2-c0)/(vh/2+f.h/2);if(c>1.05||c<-1.05)continue;f.e.style.transform=`translate3d(0,${((c-1)*f.k*.5).toFixed(1)}px,0) scale(${(1-.07*c*c).toFixed(3)})`}}
+  let at='';for(const id in ESPIA){const e=document.getElementById(id);if(!e)continue;const r=e.getBoundingClientRect();if(r.top<=vh*.4&&r.bottom>vh*.4)at=ESPIA[id]}
+  $$('.menu a').forEach(a=>a.setAttribute('aria-current',a.getAttribute('href')==='#/'+at?'true':'false'));
+  const cel=$('.card .cel');alvoC=null;if(cel){const r=cel.getBoundingClientRect();if(r.top<vh&&r.bottom>0)alvoC={x:r.left+r.width/2,y:r.top+r.height/2}}
+}
+let obsF=null;
+function revelaF(){if(reduz||!('IntersectionObserver' in window))return;document.documentElement.classList.add('js-rev');obsF=obsF||new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obsF.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});$$('.cab,.bem>div,.linhas,.card>div:first-child').forEach(e=>{if(!e.classList.contains('vis')){e.classList.add('rv');obsF.observe(e)}})}
+/* cardume: peixinhos que nadam juntos, fogem do dedo e rodeiam o celular na seção Cardume */
+const CF={c:null,x:null,b:[],d:1,sujo:false};
+function telaPeixes(){CF.d=Math.min(1.5,devicePixelRatio||1);CF.c.width=innerWidth*CF.d|0;CF.c.height=innerHeight*CF.d|0}
+function iniciaPeixes(){if(reduz)return;CF.c=$('#peixes');CF.x=CF.c.getContext('2d');telaPeixes();addEventListener('resize',telaPeixes);const n=innerWidth<820?34:90;CF.b=Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*2,t:Math.random()*6.28,s:.7+Math.random()*.7,p:.2+Math.random()*.4}))}
+const sm=(a,b,x)=>{const k=Math.min(1,Math.max(0,(x-a)/(b-a)));return k*k*(3-2*k)};
+function nada(dt){
+  if(!CF.x)return;
+  const N=nivelAtual,W=innerWidth,H=innerHeight,fator=$('.det,.pag')?.65:1,al=sm(.1,.24,N)*(1-sm(.97,1,N))*fator,x=CF.x,B=CF.b,n=B.length,ds=dsF;dsF=0;
+  if(al<.01){if(CF.sujo){x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,CF.c.width,CF.c.height);CF.sujo=false}return}
+  for(let i=0;i<n;i++){const a=B[i];let cx=0,cy=0,ax=0,ay=0,sx=0,sy=0,c=0;
+    for(let j=0;j<n;j++){if(i===j)continue;const b=B[j],dx=b.x-a.x,dy=b.y-a.y,d=dx*dx+dy*dy;if(d<4900){cx+=b.x;cy+=b.y;ax+=b.vx;ay+=b.vy;c++;if(d<324){sx-=dx;sy-=dy}}}
+    let fx=sx*.045,fy=sy*.045;if(c){fx+=(cx/c-a.x)*.0025+(ax/c-a.vx)*.045;fy+=(cy/c-a.y)*.0025+(ay/c-a.vy)*.045}
+    const mx=a.x-MX,my=a.y-MY,md=Math.hypot(mx,my)+1;if(md<150){const k=(1-md/150)*.9/md;fx+=mx*k;fy+=my*k}
+    if(alvoC){const ox=alvoC.x-a.x,oy=alvoC.y-a.y,d=Math.hypot(ox,oy)+1;fx+=(ox/d)*.035-(oy/d)*.05;fy+=(oy/d)*.035+(ox/d)*.05}
+    a.vx+=fx*dt;a.vy+=fy*dt;const v=Math.hypot(a.vx,a.vy)||1,nv=Math.min(2.4*a.s+vel*2.2,Math.max(1.1*a.s,v));a.vx*=nv/v;a.vy*=nv/v;
+    a.x+=a.vx*dt;a.y+=a.vy*dt-ds*a.p;a.t+=.22*dt*(1+nv*.3);
+    if(a.x<-40)a.x=W+40;else if(a.x>W+40)a.x=-40;if(a.y<-40)a.y=H+40;else if(a.y>H+40)a.y=-40}
+  const cl=sm(.42,.62,N),d=CF.d;x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,CF.c.width,CF.c.height);CF.sujo=true;
+  x.fillStyle=`rgba(${10+186*cl|0},${30+205*cl|0},${74+181*cl|0},${(.42+.1*cl)*al})`;
+  x.beginPath();
+  for(let i=0;i<n;i++){const a=B[i],an=Math.atan2(a.vy,a.vx),co=Math.cos(an),si=Math.sin(an),L=8.5*a.s,w=Math.sin(a.t)*L*.4,X=(u,v)=>(a.x+u*co-v*si)*d,Y=(u,v)=>(a.y+u*si+v*co)*d;
+    x.moveTo(X(L*1.1,0),Y(L*1.1,0));x.quadraticCurveTo(X(L*.2,-L*.52),Y(L*.2,-L*.52),X(-L*.7,0),Y(-L*.7,0));x.quadraticCurveTo(X(L*.2,L*.52),Y(L*.2,L*.52),X(L*1.1,0),Y(L*1.1,0));x.moveTo(X(-L*.55,0),Y(-L*.55,0));x.lineTo(X(-L*1.45,-L*.5+w),Y(-L*1.45,-L*.5+w));x.lineTo(X(-L*1.45,L*.5+w),Y(-L*1.45,L*.5+w));x.closePath()}
+  x.fill();
 }
 addEventListener('scroll',rolou,{passive:true});addEventListener('resize',()=>{medeMarcos();rolou()});
 
@@ -642,7 +729,7 @@ function desenha(fica=false){const {a,b}=rota(),main=$('#conteudo'),interna=a===
   if(interna){main.innerHTML=a==='p'?detalhe(b):a==='pg'?pagina(b):a==='tudo'?tudoHTML():contaHTML();naHome=false;if(!fica){scrollTo({top:0,behavior:'instant'});main.focus({preventScroll:true})}}
   else{if(!naHome){main.innerHTML=home();naHome=true}
    if(!fica){if(LUGAR[a]){const e=document.getElementById(LUGAR[a]);if(e)requestAnimationFrame(()=>{const longe=Math.abs(e.getBoundingClientRect().top)>innerHeight*2.4;e.scrollIntoView({behavior:reduz||longe?'instant':'smooth'})})}else if(a==='')scrollTo({top:0,behavior:'instant'})}}
-  document.title=tituloDe(a,b);medeMarcos();rolou();atualizaSaco();atualizaAbas(a)};
+  document.title=tituloDe(a,b);medeMarcos();rolou();atualizaSaco();atualizaAbas(a);revelaF()};
  if(!fica&&document.startViewTransition&&!reduz&&!primeira&&document.visibilityState==='visible'&&(a==='p'||!naHome)){const t=document.startViewTransition(faz);t.ready.catch(()=>{});t.finished.catch(()=>{})}else faz();primeira=false}
 addEventListener('hashchange',()=>desenha());
 function atualizaAbas(a){const k=a===''?'inicio':a==='tudo'?'perfumes':a;$$('.abas [data-aba]').forEach(e=>{if(e.dataset.aba===k)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')})}
@@ -698,7 +785,7 @@ function criaSom(){
 }
 function somBolha(){const A=SOM.A,o=A.createOscillator(),g=A.createGain(),t=A.currentTime,f=300+Math.random()*560,d=.05+Math.random()*.1;o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.9,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05+.07*nivelAtual,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(SOM.m);o.start(t);o.stop(t+d+.02)}
 function agendaBolha(){clearTimeout(SOM.t);if(!SOM.on)return;SOM.t=setTimeout(()=>{if(SOM.on&&nivelAtual>.12&&!document.hidden)somBolha();agendaBolha()},500+Math.random()*3200*(1.25-nivelAtual))}
-function ajustaSom(){if(!SOM||!SOM.on)return;const t=SOM.A.currentTime,N=nivelAtual,s=(a,b,x)=>{const k=Math.min(1,Math.max(0,(x-a)/(b-a)));return k*k*(3-2*k)};SOM.g1.gain.setTargetAtTime(.34*(1-s(.04,.62,N)),t,.4);SOM.lp.frequency.setTargetAtTime(2400-1900*s(0,.5,N),t,.4);SOM.g2.gain.setTargetAtTime(.75*s(.12,.8,N),t,.5)}
+function ajustaSom(){if(!SOM||!SOM.on)return;const t=SOM.A.currentTime,N=Math.max(nivelAtual,progresso*.22),s=(a,b,x)=>{const k=Math.min(1,Math.max(0,(x-a)/(b-a)));return k*k*(3-2*k)};SOM.g1.gain.setTargetAtTime(.34*(1-s(.04,.62,N)),t,.4);SOM.lp.frequency.setTargetAtTime(2400-1900*s(0,.5,N),t,.4);SOM.g2.gain.setTargetAtTime(.75*s(.12,.8,N),t,.5)}
 function alternaSom(){
  if(!SOM)SOM=criaSom();if(!SOM)return;
  const b=$('#som'),t=SOM.A.currentTime;SOM.on=!SOM.on;
@@ -726,6 +813,7 @@ Loja.aoMudar(()=>{if(semAviso)return;naHome=false;if(!dlg.open&&!gav.open){const
 setInterval(()=>$$('[data-fim]').forEach(e=>e.textContent=falta(e.dataset.fim)),30000);
 Rec.hidrataIcones();
 Rec.mostraCookies();
+iniciaPeixes();
 desenha();
 addEventListener('load',()=>{medeMarcos();rolou()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{medeMarcos();rolou()});

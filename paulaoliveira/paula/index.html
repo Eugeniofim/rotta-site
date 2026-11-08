@@ -435,6 +435,30 @@ body.em-detalhe .wpp{display:none}
 .cookies button{min-height:44px;padding:2px 12px 0;font:400 20px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px #20131F}
 .cookies button:last-child{background:#20131F;color:#F5EEF2}
 
+/* ---------- v3: cada cor com uma função ---------- */
+.topo{--nav:#F5EEF2;--a:#FFDC3C;--fa:#17101A}
+.menu{color:var(--nav);align-items:center;gap:clamp(13px,1.9vw,28px)}
+.menu a{background-image:linear-gradient(var(--a),var(--a));background-position:0 calc(100% - 7px);background-size:0 3px}
+.menu a:hover,.menu a[aria-current=true]{background-size:100% 3px}
+.menu .m2{font:italic 400 23px/1 var(--texto);letter-spacing:0;text-transform:none;padding:10px 0 11px}
+.menu .fio{width:1px;height:20px;background:currentColor;opacity:.4}
+.menu a{white-space:nowrap}
+.ico-b{width:44px;height:44px;display:grid;place-items:center;color:var(--nav);transition:color .2s}
+.ico-b svg{width:22px;height:22px}
+.ico-b:hover{color:var(--a)}
+.abre-menu{color:var(--nav)}
+.topo .saco{gap:9px;padding:2px 17px 0;min-height:42px;background:var(--a);color:var(--fa);transition:background-color .3s,color .3s;-webkit-mask:radial-gradient(circle 6px at 0 50%,transparent 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 6px at 100% 50%,transparent 97%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 6px at 0 50%,transparent 97%,#000) left/51% 100% no-repeat,radial-gradient(circle 6px at 100% 50%,transparent 97%,#000) right/51% 100% no-repeat}
+.topo .saco b{font-weight:400}
+.topo .saco:hover{text-decoration:none}
+.selo-e{background:var(--a,var(--t))}
+.selo-e.s-esgotado{background:none;color:var(--t);box-shadow:inset 0 0 0 1.5px var(--t)}
+.btn{background:var(--a,var(--t))}
+.c-credito i{color:var(--a,inherit)}
+.mini .mais{background:var(--a,var(--t))}
+.rail a[aria-current=true]{color:var(--a)}
+.chip[aria-pressed=true],.vista button[aria-pressed=true]{background:#FFDC3C;color:var(--ink)}
+.abas [aria-current=page]{color:#FFDC3C}
+
 @media(prefers-reduced-motion:reduce){dialog[open]{animation:none!important}.l-fita{animation:none}.mini.vis{animation:none}.video img,.bc,#toast{transition:none}*{scroll-behavior:auto!important}.intro{display:none}.c-nome,.c-frasco{transition:none}.mini,.mini img,.btn{transition:none!important}}
 </style>
 </head>
@@ -444,9 +468,9 @@ body.em-detalhe .wpp{display:none}
 <header class="topo" id="topo">
   <a class="marca" href="#/" translate="no">Paula Oliveira</a>
   <nav class="menu" aria-label="Principal">
-    <a href="#/programacao">Programação</a><a href="#/programacao?para=ela">Para ela</a><a href="#/programacao?para=ele">Para ele</a><a href="#/sob-medida">Sob medida</a><a href="#/atelie">Ateliê</a><a href="#/quem">Quem escreve</a><a href="#/elenco">Elenco</a>
+    <a data-n="programacao" href="#/programacao">Programação</a><a class="m2" data-n="programacao" data-p="ela" href="#/programacao?para=ela">para ela</a><a class="m2" data-n="programacao" data-p="ele" href="#/programacao?para=ele">para ele</a><i class="fio"></i><a data-n="sob-medida" href="#/sob-medida">Sob medida</a><a data-n="atelie" href="#/atelie">Ateliê</a><i class="fio"></i><a class="m2" data-n="quem" href="#/quem">Quem escreve</a><a class="m2" data-n="elenco" href="#/elenco">Elenco</a>
   </nav>
-  <div class="direita"><button class="lnk so-grande" onclick="abreBusca()">Buscar</button><a class="lnk so-grande" href="#/conta">Conta</a><button class="lnk abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Sacola (<span class="n-saco">0</span>)</button></div>
+  <div class="direita"><button class="ico-b so-grande" aria-label="Buscar" onclick="abreBusca()" data-ico="busca"></button><a class="ico-b so-grande" href="#/conta" aria-label="Minha conta" data-ico="conta"></a><button class="lnk abre-menu" onclick="abreMenu()">Menu</button><button class="saco" id="saco" onclick="abreSacola()">Sacola <b class="n-saco">0</b></button></div>
 </header>
 <nav class="rail fora" id="rail" aria-label="Cartazes"></nav>
 <main id="conteudo" tabindex="-1"></main>
@@ -464,11 +488,11 @@ body.em-detalhe .wpp{display:none}
 <dialog id="gav" class="gaveta"></dialog>
 <dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-paula.js?v=2"></script>
-<script src="../comum/loja.js?v=2"></script>
-<script src="../comum/instalar.js?v=2"></script>
-<script src="../comum/recursos.js?v=2"></script>
-<script src="../comum/paginas-paula.js?v=2"></script>
+<script src="../comum/dados-paula.js?v=3"></script>
+<script src="../comum/loja.js?v=3"></script>
+<script src="../comum/instalar.js?v=3"></script>
+<script src="../comum/recursos.js?v=3"></script>
+<script src="../comum/paginas-paula.js?v=3"></script>
 <script>
 const M='paula', $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro, reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -494,8 +518,8 @@ function precoHTML(p){const parc=p.preco>=120?Loja.parcela(p.preco,4):'';return 
 function linkPara(p){return `#/p/${p.id}`}
 
 function cartaz(p,i){
-  return `<section class="cartaz" data-id="${p.id}" style="--f:${p.fundo};--t:${p.tinta}" aria-label="${esc(p.nome)}">
-  <div class="c-topo"><span class="selo-e">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
+  return `<section class="cartaz" data-id="${p.id}" style="--f:${p.fundo};--t:${p.tinta};--a:${p.acento||p.tinta}" aria-label="${esc(p.nome)}">
+  <div class="c-topo"><span class="selo-e s-${p.status}">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
   <a class="c-palco" href="${linkPara(p)}" onclick="morfa(this)" aria-label="Ver ${esc(p.nome)}">
     <h2 class="c-nome">${nome(p.nome)}</h2>
     <img class="c-frasco" src="${foto(p)}" alt="" ${i?'':'fetchpriority="high"'} decoding="async">
@@ -516,7 +540,7 @@ function mini(p){
   const n=Math.max(...linhasNome(p.nome).map(l=>l.length));
   const tem=p.recorte;
   const rapido=p.status==='disponivel'&&p.tipo!=='servico'&&p.tipo!=='curso';
-  return `<article class="mini ${tem?'':'foto'}" style="--f:${p.fundo||'#222'};--t:${p.tinta||'#fff'};--n:${n}">
+  return `<article class="mini ${tem?'':'foto'}" style="--f:${p.fundo||'#222'};--t:${p.tinta||'#fff'};--a:${p.acento||p.tinta||'#fff'};--n:${n}">
     <h3>${nome(p.nome)}</h3><div class="im"><img src="${tem?img(p.recorte,640):img(p.fotos[0]||'',640)}" alt="" loading="lazy" decoding="async"></div>${tarja(p)}
     <footer><span>${esc(p.medida)}</span><span>${p.de?`<s>${R(p.de)}</s>`:''}${R(p.preco)}</span></footer>
     <a class="cobre" href="${linkPara(p)}" onclick="morfa(this)" aria-label="${esc(p.nome)}, ${esc(selo(p))}, ${R(p.preco)}"></a>
@@ -561,7 +585,7 @@ function limpaFiltros(){filtro={...PADRAO,vista:filtro.vista};history.replaceSta
 function proximas(){
   const ls=Loja.estado().lancamentos.filter(l=>l.marca===M).map(l=>({l,p:Loja.produto(M,l.produto)})).filter(x=>x.p&&x.p.status==='estreia');
   if(!ls.length)return '';
-  return `<p class="sl-t">Próximas sessões</p>${ls.map(({l,p})=>`<div class="sl" style="--f:${p.fundo};--t:${p.tinta}"><span class="sl-d">${quando(l.quando)}</span><a class="sl-n" href="${linkPara(p)}">${esc(p.nome)}<small>${esc(p.medida)}</small></a><span class="sl-l">${l.lote?`Lote de ${l.lote} frascos`:''}</span><span class="sl-c conta" data-fim="${l.quando}">${falta(l.quando)}</span><button class="btn" onclick="fila('${p.id}')">Me avise</button></div>`).join('')}`
+  return `<p class="sl-t">Próximas sessões</p>${ls.map(({l,p})=>`<div class="sl" style="--f:${p.fundo};--t:${p.tinta};--a:${p.acento||p.tinta}"><span class="sl-d">${quando(l.quando)}</span><a class="sl-n" href="${linkPara(p)}">${esc(p.nome)}<small>${esc(p.medida)}</small></a><span class="sl-l">${l.lote?`Lote de ${l.lote} frascos`:''}</span><span class="sl-c conta" data-fim="${l.quando}">${falta(l.quando)}</span><button class="btn" onclick="fila('${p.id}')">Me avise</button></div>`).join('')}`
 }
 function letreiro(t){
   const es=t.filter(p=>p.status==='estreia').map(p=>`Estreia ${quando(p.estreia)}<b>${esc(p.nome)}</b>`);
@@ -617,13 +641,13 @@ function detalhe(id){
   const texto=h.split(/\n+/).map(t=>t.trim()).filter(t=>t&&!t.startsWith(fraseCurta)).map(t=>t.length<52&&!/[.!?]$/.test(t)?`<h3 style="font:400 clamp(27px,2.3vw,34px)/1.05 var(--cartaz);letter-spacing:.04em;text-transform:uppercase;margin-top:1.2em">${esc(t)}</h3>`:`<p style="margin-top:.7em">${esc(t)}</p>`).join('');
   const url=location.href.split('#')[0]+linkPara(p), redes=Rec.redes(url,`${p.nome}, de Paula Oliveira`,foto(p));
   const seg=p.para==='ele'?['ele','Para ele']:p.para==='ela'?['ela','Para ela']:null;
-  return `<article class="det" style="--f:${p.fundo};--t:${p.tinta}">
-  <div class="det-capa"><div class="c-topo"><span class="selo-e">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
+  return `<article class="det" style="--f:${p.fundo};--t:${p.tinta};--a:${p.acento||p.tinta}">
+  <div class="det-capa"><div class="c-topo"><span class="selo-e s-${p.status}">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
    <div class="c-palco"><h1 class="c-nome">${nome(p.nome)}</h1><img class="c-frasco" src="${foto(p)}" alt="Frasco de ${esc(p.nome)}" fetchpriority="high"></div>
    <div class="c-baixo"><blockquote class="c-frase">“${esc(p.frase)}”</blockquote><div class="c-compra"><div class="preco">${precoHTML(p)}</div>${acao(p)}</div></div></div>
   <div class="det-corpo"><nav class="migalha" aria-label="Você está em"><a href="#/">Início</a> / ${seg?`<a href="#/programacao?para=${seg[0]}">${seg[1]}</a>`:`<a href="#/programacao">Programação</a>`} / ${esc(p.nome)}</nav>
    <div class="det-texto"><p class="det-frase">“${esc(p.frase)}”</p>${texto}</div>
-   <aside class="caixa"><div class="c-topo" style="margin-bottom:12px"><span class="selo-e">${selo(p)}</span></div><div class="preco">${precoHTML(p)}</div>${acao(p)}
+   <aside class="caixa"><div class="c-topo" style="margin-bottom:12px"><span class="selo-e s-${p.status}">${selo(p)}</span></div><div class="preco">${precoHTML(p)}</div>${acao(p)}
     <p>${esc(p.medida)} · ${esc(p.familia)}</p>${p.status==='disponivel'?`<form class="frete" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><div id="fr" aria-live="polite"></div>`:`<p>Entre na fila e receba o aviso antes de abrir para todo mundo.</p>`}
     <dl class="info"><div><dt>Pagamento</dt><dd>Pix, cartão em até 4x sem juros ou boleto</dd></div><div><dt>Envio</dt><dd>Correios, em PAC ou SEDEX</dd></div><div><dt>Trocas</dt><dd><a href="#/pg/trocas">Como funciona</a></dd></div></dl>
     <div class="share"><b>Compartilhar</b>${redes.map(r=>`<a href="${r.u}" target="_blank" rel="noopener">${r.n}</a>`).join('')}</div></aside></div>
@@ -674,9 +698,17 @@ function fita(){ /* cada linha do nome ocupa a largura toda; se ficar alto demai
 }
 
 let rodando=false,cts=[];
+function lumi(h){const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2]}
+function navDe(f){if(!f)return '#F5EEF2';const l=lumi(f);return (1.05/(l+.05))>=((l+.05)/.057)?'#FFFFFF':'#17101A'}
+function pintaTopo(topo,a,f){topo.style.setProperty('--a',a);topo.style.setProperty('--fa',f);topo.style.setProperty('--nav',navDe(f))}
+function espia(){
+  const y=innerHeight*.4;let at='';
+  ['programacao','quem','sob-medida','atelie','elenco'].forEach(id=>{const e=document.getElementById(id);if(!e)return;const r=e.getBoundingClientRect();if(r.top<=y&&r.bottom>y)at=id});
+  $$('.menu [data-n]').forEach(l=>{const prog=at==='programacao'&&l.dataset.n==='programacao';const on=prog?(l.dataset.p?l.dataset.p===filtro.para:filtro.para==='todos'):l.dataset.n===at;l.setAttribute('aria-current',on?'true':'false')});
+}
 function medir(){
   rodando=false;
-  const vh=innerHeight,topo=$('#topo');let cor=null,atual=0;
+  const vh=innerHeight,topo=$('#topo');let cor=null,acc=null,fun=null,atual=0;
   cts.forEach((c,i)=>{
     const t=c.getBoundingClientRect().top;
     if(t<=vh*.5)atual=i;
@@ -685,17 +717,19 @@ function medir(){
     if(!reduz)c.style.setProperty('--e',ent.toFixed(3));
     const prox=cts[i+1];
     if(prox){const q=1-Math.min(1,Math.max(0,prox.getBoundingClientRect().top/vh));c.style.setProperty('--sombra',reduz?0:(q*.62).toFixed(3))}
-    if(t<=70)cor=c.style.getPropertyValue('--t');
+    if(t<=70){cor=c.style.getPropertyValue('--t');acc=c.style.getPropertyValue('--a');fun=c.style.getPropertyValue('--f')}
   });
   const fora=$$('.letreiro,.secao,.quem,.sob,.dupla,.elenco,.rodape,.pg').some(s=>{const r=s.getBoundingClientRect();return r.top<=64&&r.bottom>64});
   const r=$('#rail'),le=$('.letreiro');r.classList.toggle('fora',fora||!cts.length||(le&&le.getBoundingClientRect().top<vh*.82));
-  if(cts.length){r.style.color=cor||'';$$('a',r).forEach((a,i)=>a.setAttribute('aria-current',i===atual&&!fora))}
+  if(cts.length){r.style.color=cor||'';r.style.setProperty('--a',acc||'#FFDC3C');$$('a',r).forEach((a,i)=>a.setAttribute('aria-current',i===atual&&!fora))}
   $('#wpp').classList.toggle('on',fora||!cts.length);
+  espia();
   const det=$('.det');
-  if(det){const cp=$('.det-capa');$('#bc').classList.toggle('on',cp.getBoundingClientRect().bottom<90);topo.style.setProperty('--fundo-topo',det.style.getPropertyValue('--f'));topo.style.setProperty('--tinta-topo',det.style.getPropertyValue('--t'));topo.style.color='';topo.style.setProperty('--t',det.style.getPropertyValue('--t'));topo.classList.toggle('solido',scrollY>40);return}
+  if(det){const cp=$('.det-capa');$('#bc').classList.toggle('on',cp.getBoundingClientRect().bottom<90);const f=det.style.getPropertyValue('--f');topo.style.setProperty('--fundo-topo',f);topo.style.setProperty('--tinta-topo',det.style.getPropertyValue('--t'));topo.style.color='';topo.style.setProperty('--t',det.style.getPropertyValue('--t'));pintaTopo(topo,det.style.getPropertyValue('--a'),f);topo.classList.toggle('solido',scrollY>40);return}
   topo.style.removeProperty('--fundo-topo');topo.style.removeProperty('--tinta-topo');topo.style.removeProperty('--t');
   topo.classList.toggle('solido',fora);
   topo.style.color=fora?'':(cor||'');
+  if(fora||!acc)pintaTopo(topo,'#FFDC3C','#17101A');else pintaTopo(topo,acc,fun);
 }
 function desenhaRail(){
   const r=$('#rail');
