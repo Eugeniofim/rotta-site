@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Agente de atendimento humanizado para imobiliárias. Responde no WhatsApp em segundos, 24 horas, com os imóveis da sua carteira. Faça o teste.">
+<meta name="description" content="Agente de atendimento humanizado para imobiliárias. Responde no WhatsApp e no Instagram em segundos, 24 horas, com os imóveis da sua carteira. Faça o teste.">
 <meta name="theme-color" content="#070C12">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Milla · Agente de atendimento humanizado para imobiliárias">
-<meta property="og:description" content="Agente de atendimento humanizado para imobiliárias. Responde no WhatsApp em segundos, 24 horas, com os imóveis da sua carteira. Faça o teste.">
+<meta property="og:description" content="Agente de atendimento humanizado para imobiliárias. Responde no WhatsApp e no Instagram em segundos, 24 horas, com os imóveis da sua carteira. Faça o teste.">
 <meta property="og:url" content="https://rottaguide.com/milla/">
 <meta property="og:image" content="https://rottaguide.com/milla/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
@@ -146,29 +146,8 @@ main { position: relative; z-index: 1 }
 .bloco { display: grid; gap: 16px; justify-items: start; margin-bottom: 44px }
 
 /* painel */
-.palco-painel { perspective: 1600px; margin-top: -8vh }
+.palco-painel { perspective: 1600px }
 .painel { transform-origin: 50% 0; background: var(--papel); border: 1px solid var(--linha); border-radius: 22px 22px 22px 5px; box-shadow: 0 50px 90px -40px rgba(10,17,24,.42); overflow: hidden; color: var(--tinta) }
-.painel-top { display: flex; align-items: center; gap: 22px; padding: 14px 20px; border-bottom: 1px solid var(--linha); font-size: 15px; overflow: hidden }
-.painel-top svg { height: 20px; width: auto; flex: none }
-.painel-top span { color: var(--dim); white-space: nowrap }
-.painel-top span.on { color: var(--tinta); font-weight: 600 }
-.painel-grade { display: grid; grid-template-columns: 270px minmax(0, 1fr) 300px }
-.painel-grade > div { padding: 16px; min-width: 0 }
-.painel-grade > div + div { border-left: 1px solid var(--linha) }
-.lead-l { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 11px 10px; border-radius: 12px 12px 12px 3px; font-size: 15px }
-.lead-l.on { background: var(--claro) }
-.lead-l b { font-weight: 600 }
-.lead-l small { color: var(--dim); font-size: 13.5px; grid-column: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-.lead-l i { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--dim); grid-row: 1; grid-column: 2 }
-.conv { display: grid; gap: 9px; align-content: start }
-.conv .b { background: var(--claro); color: var(--tinta); font-size: 15.5px }
-.conv .b.m { background: var(--tinta); color: var(--marfim) }
-.ficha { display: grid; gap: 12px; align-content: start; font-size: 15px }
-.ficha h3 { font-size: 16px; font-weight: 600 }
-.ficha div { display: grid; gap: 1px }
-.ficha dt { color: var(--dim); font-size: 13.5px }
-.ficha dd { font-weight: 500 }
-.pedido { background: var(--janela); padding: 11px 13px; border-radius: 12px 12px 12px 3px; font-weight: 600 }
 
 /* não é chatbot */
 .par { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100% }
@@ -248,7 +227,11 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .rodape p + p { margin-top: 8px }
 
 /* venda: planos no herói, faixa da promoção, vídeos e oferta fixa */
-#planos, #videos, #conta, #funcoes { scroll-margin-top: 78px }
+#planos, #videos, #conta, #funcoes, #painel { scroll-margin-top: 78px }
+.crm-abas { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px }
+.crm-abas button { font: inherit; font-size: 16px; font-weight: 600; color: var(--tinta); background: var(--papel); border: 1px solid var(--linha); padding: 9px 17px; border-radius: 12px 12px 12px 3px; cursor: pointer }
+.crm-abas button[aria-selected="true"] { background: var(--tinta); color: var(--marfim); border-color: var(--tinta) }
+.painel img { display: block; width: 100%; height: auto }
 .nav-dir a.vender { color: var(--janela); font-weight: 600 }
 .hero-planos { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; width: 100% }
 .bilhete { flex: 0 1 200px; display: grid; gap: 1px; text-decoration: none; padding: 13px 17px 12px; background: rgba(13,20,28,.88); border: 1px solid var(--linha-noite); border-radius: 16px 16px 16px 4px; color: var(--marfim); transition: border-color .2s, transform .2s }
@@ -258,7 +241,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .bilhete small { font-size: 14.5px; color: #D6DDE3 }
 .promo-linha { flex: 1 1 200px; max-width: 17em; margin-left: 10px; font-size: 16px; line-height: 1.3 }
 .promo-linha b { color: var(--janela); font-weight: 600 }
-@media (min-width: 901px) { .hero-in { gap: 20px } .hero .d1 { font-size: clamp(50px, 6.9vw, 104px) } }
+@media (min-width: 901px) { .hero-in { gap: 20px } .hero .d1 { font-size: clamp(50px, 6.9vw, 104px) } .hero .miuda { max-width: 46em } }
 .promo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 18px 48px; background: var(--janela); color: var(--tinta); padding: 34px 38px; border-radius: 26px 26px 26px 5px }
 .promo-esq { display: grid; gap: 6px }
 .promo-rot { font-family: var(--mono); font-weight: 500; font-size: 15px }
@@ -311,12 +294,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   .batida { min-height: 150vh }
   .batida-in { grid-template-columns: minmax(0, 1fr); gap: 24px }
   .conversa { padding: 14px }
-  .palco-painel { margin-top: 0 }
-  .painel-grade { grid-template-columns: minmax(0, 1fr) }
-  .painel-grade > div:first-child { display: none }
-  .painel-grade > div + div { border-left: 0; border-top: 1px solid var(--linha) }
-  .painel-grade > div:nth-child(2) { border-top: 0 }
-  .painel-top { gap: 14px }
+  .crm-abas button { font-size: 15px; padding: 8px 13px }
   .par, .planos { grid-template-columns: minmax(0, 1fr) }
   .lin { grid-template-columns: minmax(0, 1fr) }
   .lin .pl { grid-column: 1; grid-row: auto; text-align: left }
@@ -339,6 +317,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     <a class="nav-marca" href="#topo" aria-label="Milla, início"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -126.9 2804.3 824.3"><g transform="translate(0 -112.2) scale(8.243)"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></g><g transform="translate(914.3 0)"><path d="M45.9996337890625 660.0V0.0H239.33599853515625L402.6676025390625 514.9971923828125H404.6676025390625L565.9991455078125 0.0H750.3352661132812V660.0H631.3333740234375V128.00213623046875H629.3333740234375L457.33477783203125 660.0H337.666748046875L167.00152587890625 127.6688232421875H165.00152587890625V660.0Z M823.3330078125 660.0V137.9996337890625H950.0018310546875V660.0Z M1018.3330078125 660.0V-30.0006103515625H1145.0018310546875V660.0Z M1213.3330078125 660.0V-30.0006103515625H1340.0018310546875V660.0Z M1542.9999389648438 673.6666870117188Q1502.6666259765625 673.6666870117188 1467.4999084472656 659.3333740234375Q1432.3331909179688 645.0000610351562 1410.4997863769531 613.6667175292969Q1388.6663818359375 582.3333740234375 1388.6663818359375 530.9999389648438Q1388.6663818359375 483.99981689453125 1406.6664428710938 454.3330993652344Q1424.66650390625 424.6663818359375 1455.8332214355469 406.3330383300781Q1486.9999389648438 387.99969482421875 1525.6665649414062 378.1663818359375Q1564.3331909179688 368.33306884765625 1604.9996337890625 361.33306884765625Q1659.3328247070312 351.6663818359375 1685.9994506835938 345.8330383300781Q1712.6660766601562 339.99969482421875 1721.6661071777344 331.4997253417969Q1730.6661376953125 322.999755859375 1730.6661376953125 307.66650390625Q1730.6661376953125 268.6671142578125 1703.6664733886719 248.00079345703125Q1676.6668090820312 227.33447265625 1635.0005493164062 227.33447265625Q1609.3341064453125 227.33447265625 1584.0009765625 237.00103759765625Q1558.6678466796875 246.6676025390625 1541.8346862792969 269.6674499511719Q1525.0015258789062 292.66729736328125 1524.0016479492188 333.00048828125L1409.66650390625 322.00054931640625Q1410.6663208007812 264.6668701171875 1431.1663513183594 226.33334350585938Q1451.6663818359375 187.99981689453125 1485.3332214355469 165.66641235351562Q1519.0000610351562 143.3330078125 1558.8336181640625 133.66632080078125Q1598.6671752929688 123.9996337890625 1638.3340454101562 123.9996337890625Q1707.3346557617188 123.9996337890625 1755.5014953613281 149.83319091796875Q1803.6683349609375 175.666748046875 1829.0016174316406 226.00039672851562Q1854.3348999023438 276.33404541015625 1854.3348999023438 350.66766357421875V446.66754150390625Q1854.668212890625 482.000732421875 1854.8348693847656 517.8339233398438Q1855.0015258789062 553.6671142578125 1855.1681823730469 589.1669616699219Q1855.3348388671875 624.6668090820312 1855.3348388671875 660.0H1742.66650390625Q1744.3330688476562 619.3336181640625 1745.6663208007812 579.1671447753906Q1746.9995727539062 539.0006713867188 1748.3328247070312 494.66754150390625H1741.3328857421875Q1735.6663208007812 544.3339233398438 1709.3330383300781 585.0003967285156Q1682.999755859375 625.6668701171875 1640.6664733886719 649.6667785644531Q1598.3331909179688 673.6666870117188 1542.9999389648438 673.6666870117188ZM1589.001220703125 576.9987182617188Q1613.0007934570312 576.9987182617188 1637.6671447753906 567.3322448730469Q1662.33349609375 557.665771484375 1683.1666259765625 537.6660766601562Q1703.999755859375 517.6663818359375 1716.9996337890625 486.6666564941406Q1729.99951171875 455.66693115234375 1730.6661376953125 413.6671142578125L1730.9994506835938 390.333740234375L1757.6661376953125 384.667236328125Q1747.9995727539062 399.00048828125 1726.3330993652344 407.1671447753906Q1704.6666259765625 415.33380126953125 1677.1669006347656 420.0004577636719Q1649.6671752929688 424.6671142578125 1621.6674499511719 429.6670837402344Q1593.667724609375 434.66705322265625 1569.66796875 443.8336181640625Q1545.668212890625 453.00018310546875 1530.8350219726562 468.83331298828125Q1516.0018310546875 484.66644287109375 1516.0018310546875 512.332763671875Q1516.0018310546875 542.6658325195312 1536.0017395019531 559.832275390625Q1556.0016479492188 576.9987182617188 1589.001220703125 576.9987182617188Z" fill="#FFF4E0"/><path transform="translate(800.5 -60.0) scale(1.72)" d="M26 8H74A18 18 0 0 1 92 26V64A18 18 0 0 1 74 82H26L8 92V26A18 18 0 0 1 26 8Z" fill="#FFB52E"/></g></svg></a>
     <nav class="nav-dir" aria-label="Principal">
       <a class="vender" href="#planos">Planos</a>
+      <a href="#painel">Painel</a>
       <a href="#videos">Vídeos</a>
       <a href="#funcoes">O que ela faz</a>
       <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">Testar agora</a>
@@ -356,7 +335,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
         <span class="simbolo-reserva"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></svg></span>
         <p class="rot" data-entra>Agente de atendimento humanizado para imobiliárias</p>
         <h1 class="d1" data-entra>Sua imobiliária dorme.<br>A&nbsp;Milla&nbsp;não.</h1>
-        <p class="lead" data-entra>Ela atende seu cliente no WhatsApp em segundos, a qualquer hora, com os imóveis da sua carteira. Quando ele quer visitar, ela chama o corretor.</p>
+        <p class="lead" data-entra>Ela atende seu cliente no WhatsApp e no Instagram em segundos, a qualquer hora, com os imóveis da sua carteira. Quando ele quer visitar, ela chama o corretor.</p>
         <div class="hero-acao" data-entra>
           <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
           <span class="hero-num"><b>(41) 96349-3440</b><span class="online">online agora · mande um oi</span></span>
@@ -366,7 +345,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <a class="bilhete" href="#planos"><b>Premium</b><span class="num">R$ 6.400</span><small>+ R$ 460 por mês</small></a>
           <p class="promo-linha">Nos 20 primeiros contratos: <b>R$&nbsp;460 por mês</b> durante todo o contrato.</p>
         </div>
-        <p class="miuda" data-entra>Demonstração ao vivo, com imóveis reais de uma imobiliária do litoral do Paraná.</p>
+        <p class="miuda" data-entra>Demonstração ao vivo no WhatsApp, com imóveis reais de uma imobiliária do litoral do Paraná. Instagram com aprovação da Meta em análise.</p>
       </div>
     </div>
 
@@ -432,32 +411,22 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 
   <section class="claro" id="painel">
     <div class="w">
+      <div class="bloco">
+        <h2 class="d2">O CRM da sua equipe.</h2>
+        <p class="lead">Cada conversa vira uma ficha. Sua equipe acompanha clientes, visitas e imóveis num lugar só, no computador e no celular.</p>
+      </div>
+      <div class="crm-abas" role="tablist" aria-label="Telas do painel">
+        <button type="button" role="tab" aria-selected="true" data-tela="conversas">Conversas</button>
+        <button type="button" role="tab" aria-selected="false" data-tela="clientes">Clientes</button>
+        <button type="button" role="tab" aria-selected="false" data-tela="imoveis">Imóveis</button>
+        <button type="button" role="tab" aria-selected="false" data-tela="equipe">Equipe</button>
+      </div>
       <div class="palco-painel">
-        <div class="painel" id="painel3d" role="img" aria-label="Exemplo do painel da Milla: lista de conversas, conversa aberta e ficha do cliente">
-          <div class="painel-top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#07131F"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#07131F"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#07131F"/></svg><span class="on">Conversas</span><span>Fichas</span><span>Imóveis</span><span>Equipe</span></div>
-          <div class="painel-grade">
-            <div>
-              <div class="lead-l on"><b>Carla</b><i>03:12</i><small>Quer visitar sábado de manhã</small></div>
-              <div class="lead-l"><b>Rafael</b><i>02:26</i><small>Apartamento, 2 quartos, compra</small></div>
-              <div class="lead-l"><b>Júlia</b><i>23:48</i><small>Casa para o Natal, 6 pessoas</small></div>
-              <div class="lead-l"><b>Marcos</b><i>22:05</i><small>Aluguel anual, centro</small></div>
-            </div>
-            <div class="conv">
-              <div class="b">Posso ver sábado de manhã?<small>03:12</small></div>
-              <div class="b m">Anotei sábado de manhã e já avisei a equipe. Assim que confirmarem, te aviso por aqui.<small>03:12</small></div>
-              <div class="b">Perfeito, obrigada!<small>03:13</small></div>
-            </div>
-            <dl class="ficha">
-              <h3>Ficha da Carla</h3>
-              <div><dt>Procura</dt><dd>Casa de temporada, 3 quartos</dd></div>
-              <div><dt>Quando</dt><dd>Natal, 6 pessoas</dd></div>
-              <div><dt>Valor</dt><dd>Até R$ 800 por diária</dd></div>
-              <p class="pedido">Visita pedida: sábado de manhã</p>
-            </dl>
-          </div>
+        <div class="painel" id="painel3d">
+          <picture><source id="crmCel" media="(max-width: 900px)" srcset="painel/cel-conversas.jpg" width="780" height="1688"><img id="crmFoto" src="painel/pc-conversas.jpg" width="1600" height="1000" alt="Painel da Milla: tela de conversas, com a lista de clientes e a conversa aberta"></picture>
         </div>
       </div>
-      <p class="nota" style="margin-top:14px">Tela de exemplo, com dados fictícios.</p>
+      <p class="nota" style="margin-top:14px">Telas de exemplo, com dados fictícios. Na sua imobiliária, o painel vem com a sua marca.</p>
     </div>
 
     <div class="w" style="margin-top:104px">
@@ -487,7 +456,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
         <p class="promo-dir">A principal plataforma do mercado tem mensalidade média de <b class="num">R$&nbsp;2.500</b>.* Aqui são <b class="num">R$&nbsp;2.040</b> a menos, todo mês.</p>
       </div>
 
-      <div class="bloco" style="margin-top:64px"><h2 class="d2">Dois planos, a mesma mensalidade.</h2><p class="rot">WhatsApp oficial · Empresa verificada pela Meta · Tech Provider</p></div>
+      <div class="bloco" style="margin-top:64px"><h2 class="d2">Dois planos, a mesma mensalidade.</h2><p class="rot">WhatsApp e Instagram oficiais · Empresa verificada pela Meta · Tech Provider</p></div>
       <div class="planos">
         <article class="plano">
           <h3>Pro</h3>
@@ -497,7 +466,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
             <p class="mensal-nota">promoção dos 20 primeiros, durante todo o contrato</p>
           </div>
           <ul>
-            <li>Atende no WhatsApp oficial, 24 horas</li>
+            <li>Atende no WhatsApp e no Instagram, 24 horas***</li>
             <li>Mostra seus imóveis com preço, foto e link</li>
             <li>Entende áudio e foto</li>
             <li>Monta a ficha de cada cliente</li>
@@ -505,7 +474,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
             <li>Corretor assume no mesmo número</li>
             <li>Painel com conversas e fichas</li>
             <li>Imóvel novo entra sozinho</li>
-            <li>Instagram e o seu número junto com a equipe, quando a Meta liberar</li>
+            <li>Seu número junto com a equipe, quando a Meta liberar</li>
           </ul>
           <a class="btn" href="https://wa.me/5541991566444?text=Ol%C3%A1%21%20Quero%20contratar%20a%20Milla%20no%20plano%20Pro." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Quero o Pro</a>
         </article>
@@ -530,7 +499,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
         </article>
       </div>
       <p class="nota" style="margin-top:16px">A mensalidade cobre a inteligência artificial, as mensagens do atendimento dentro da franquia mensal e os ajustes da Milla. Acima da franquia, o excedente é cobrado à parte. Também fica de fora a mensagem para chamar de volta quem sumiu: a Meta cobra cerca de R$ 0,35 por pessoa. Com o seu número fixo, não há custo de linha. Um número novo custa R$ 29,90 por mês.</p>
-      <p class="nota" style="margin-top:8px">* Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes. ** Depende de o seu sistema permitir a ligação com outros programas.</p>
+      <p class="nota" style="margin-top:8px">* Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes. ** Depende de o seu sistema permitir a ligação com outros programas. *** O Instagram entra assim que a Meta concluir a aprovação, que está em análise.</p>
     </div>
   </section>
 
@@ -563,7 +532,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     <div class="w">
       <div class="bloco">
         <h2 class="d2">Feita para caber na conta da sua imobiliária.</h2>
-        <p class="lead">Atendimento 24 horas no WhatsApp oficial, do tamanho de uma imobiliária pequena ou média. Você sabe quanto vai pagar antes de começar.</p>
+        <p class="lead">Atendimento 24 horas no WhatsApp e no Instagram, do tamanho de uma imobiliária pequena ou média. Você sabe quanto vai pagar antes de começar.</p>
       </div>
       <h3 class="d3" style="margin-bottom:22px">Quanto custa em 12 meses</h3>
       <div class="barras" id="barras">
@@ -645,6 +614,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     <div class="w">
       <div class="bloco" style="margin-bottom:12px"><h2 class="d2">Perguntas.</h2></div>
       <details><summary>Como funciona a promoção?</summary><p>É o nosso lançamento. Os 20 primeiros contratos da Milla pagam R$ 460 por mês durante todo o contrato, no Pro ou no Premium. A implantação é paga uma vez.</p></details>
+      <details><summary>Ela atende no Instagram também?</summary><p>Sim. A mesma Milla responde no WhatsApp e no direct do Instagram, e tudo cai no mesmo painel. O Instagram entra assim que a Meta concluir a aprovação, que está em análise.</p></details>
       <details><summary>A Milla substitui o corretor?</summary><p>Não. Ela faz o primeiro atendimento e organiza o pedido. Quem fecha é o corretor, e ele assume a conversa quando quiser.</p></details>
       <details><summary>Ela pode inventar imóvel ou prometer o que não deve?</summary><p>Ela só oferece o que está na sua carteira. Horário de visita, aceitar pet, fiador e condomínio ela anota e passa para a equipe confirmar.</p></details>
       <details><summary>Preciso trocar meu número?</summary><p>Você pode usar o seu número fixo ou um número novo, por R$ 29,90 por mês. Usar o número ao mesmo tempo no celular da equipe depende de uma aprovação da Meta que está em análise. O número continua sendo seu.</p></details>
@@ -704,6 +674,18 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   /* um vídeo por vez; os controles só aparecem depois do Assistir, para não cobrir a capa */
   document.querySelectorAll("video").forEach(function (v, _, todos) {
     v.addEventListener("play", function () { todos.forEach(function (o) { if (o !== v) o.pause(); }); });
+  });
+  /* as telas do painel */
+  var ALT = { conversas: "tela de conversas, com a lista de clientes e a conversa aberta", clientes: "tela de clientes, com o que a Milla anotou de cada um", imoveis: "tela de imóveis", equipe: "tela da equipe que recebe os avisos" };
+  document.querySelectorAll(".crm-abas button").forEach(function (b, _, todas) {
+    b.addEventListener("click", function () {
+      var t = b.dataset.tela;
+      todas.forEach(function (o) { o.setAttribute("aria-selected", o === b ? "true" : "false"); });
+      document.getElementById("crmCel").srcset = "painel/cel-" + t + ".jpg";
+      var foto = document.getElementById("crmFoto");
+      foto.src = "painel/pc-" + t + ".jpg";
+      foto.alt = "Painel da Milla: " + ALT[t];
+    });
   });
   document.querySelectorAll(".vid-play").forEach(function (b) {
     b.addEventListener("click", function () {
