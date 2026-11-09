@@ -254,11 +254,63 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .rodape a { color: var(--marfim) }
 .rodape p + p { margin-top: 8px }
 
+/* venda: planos no herói, faixa da promoção, vídeos e oferta fixa */
+#planos, #videos, #conta { scroll-margin-top: 78px }
+.nav-dir a.vender { color: var(--janela); font-weight: 600 }
+.hero-planos { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; width: 100% }
+.bilhete { flex: 0 1 200px; display: grid; gap: 1px; text-decoration: none; padding: 13px 17px 12px; background: rgba(13,20,28,.88); border: 1px solid var(--linha-noite); border-radius: 16px 16px 16px 4px; color: var(--marfim); transition: border-color .2s, transform .2s }
+.bilhete:hover { border-color: var(--janela); transform: translateY(-2px) }
+.bilhete b { font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--janela) }
+.bilhete span { font-family: var(--display); font-weight: 600; font-size: 31px; letter-spacing: -.03em; line-height: 1.08 }
+.bilhete small { font-size: 14.5px; color: #D6DDE3 }
+.promo-linha { flex: 1 1 200px; max-width: 14em; margin-left: 10px; font-size: 16px; line-height: 1.3 }
+.promo-linha b { color: var(--janela); font-weight: 600 }
+@media (min-width: 901px) { .hero-in { gap: 20px } .hero .d1 { font-size: clamp(50px, 6.9vw, 104px) } }
+.promo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 18px 48px; background: var(--janela); color: var(--tinta); padding: 34px 38px; border-radius: 26px 26px 26px 5px }
+.promo-esq { display: grid; gap: 6px }
+.promo-rot { font-family: var(--mono); font-weight: 500; font-size: 15px }
+.promo-t { margin: 0; font-family: var(--display); font-weight: 600; font-size: clamp(60px, 9.4vw, 136px); line-height: .94; letter-spacing: -.045em; white-space: nowrap }
+.promo-t span { font-size: .3em; letter-spacing: -.02em }
+.promo-dir { font-size: clamp(20px, 2vw, 27px); line-height: 1.22; font-weight: 500; max-width: 15em; padding-bottom: 6px }
+.promo-dir b { font-weight: 700 }
+.plano { grid-template-rows: auto auto 1fr auto }
+.valores { display: grid; gap: 14px }
+.mensal { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 3vw, 40px); letter-spacing: -.03em; line-height: 1; color: var(--tinta); background: var(--janela); justify-self: start; padding: 9px 15px 10px; border-radius: 13px 13px 13px 3px }
+.mensal span { font-family: var(--corpo); font-size: 16px; letter-spacing: 0; font-weight: 500 }
+.mensal-nota { margin-top: -8px; font-size: 15px; font-weight: 500 }
+.plano li b { font-weight: 600 }
+.plano .btn { justify-self: stretch }
+.vid-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px) minmax(0, 300px); gap: 24px 20px; align-items: end }
+.vid-txt { display: grid; gap: 16px; align-self: center; padding-right: 20px }
+.vid { margin: 0; display: grid; gap: 10px }
+.vid-caixa { position: relative }
+.vid video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; background: var(--noite); border-radius: 22px 22px 22px 5px }
+.vid-play { position: absolute; left: 12px; right: 12px; bottom: 12px; border: 0; cursor: pointer; font-family: inherit; padding: 13px 20px }
+.vid-play[hidden] { display: none }
+.vid figcaption { display: flex; justify-content: space-between; gap: 12px; font-size: 15.5px }
+.vid figcaption b { font-weight: 600 }
+.vid figcaption span { font-family: var(--mono); font-size: 13.5px; color: var(--dim) }
+.fim-planos { justify-self: start; color: var(--janela); font-weight: 600; font-size: 17px; text-underline-offset: 4px }
+.oferta-fixa { position: fixed; z-index: 18; right: max(24px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 18px; padding: 10px 10px 10px 18px; background: rgba(7,12,18,.95); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--linha-noite); border-radius: 18px 18px 18px 4px; color: var(--marfim); opacity: 0; visibility: hidden; transform: translateY(14px); transition: opacity .3s, transform .3s, visibility .3s }
+.oferta-fixa.on { opacity: 1; visibility: visible; transform: none }
+.oferta-fixa p { font-size: 15.5px; line-height: 1.28 }
+.oferta-fixa b { color: var(--janela); font-weight: 600 }
+.oferta-fixa span { display: block; font-size: 13.5px; color: var(--dim-noite); font-family: var(--mono) }
+.oferta-fixa .btn { font-size: 15.5px; padding: 11px 17px; white-space: nowrap }
+
 @media (max-width: 900px) {
+  .hero-planos { display: none }
+  .promo { padding: 24px 22px }
+  .vid-grade { grid-template-columns: minmax(0, 1fr) }
+  .vid { max-width: 360px; width: 100%; justify-self: center }
+  .vid-txt { padding-right: 0 }
+  .oferta-fixa { left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); justify-content: space-between; gap: 10px; padding: 8px 8px 8px 13px }
+  .oferta-fixa p { font-size: 14px }
+  .oferta-fixa span { font-size: 12px }
   body { font-size: 16.5px }
   .w { padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)) }
   #veu { background: linear-gradient(180deg, rgba(7,12,18,0) 26%, rgba(7,12,18,.74) 58%, rgba(7,12,18,.86) 100%) }
-  .nav-dir a:not(.teste) { display: none }
+  .nav-dir a:not(.teste):not(.vender) { display: none }
   .nav-marca { padding: 9px 11px } .nav-marca svg { height: 22px }
   .hero { align-items: flex-end; padding-block: 38vh 30px }
   .hero-in { gap: 16px }
@@ -281,7 +333,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   .rodape { grid-template-columns: minmax(0, 1fr) }
   .relogio { display: none }
 }
-@media (prefers-reduced-motion: reduce) { .btn { transition: none } .btn:hover { transform: none } }
+@media (prefers-reduced-motion: reduce) { .btn, .bilhete, .oferta-fixa { transition: none } .btn:hover, .bilhete:hover { transform: none } }
 </style>
 </head>
 <body>
@@ -294,8 +346,9 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   <div class="w">
     <a class="nav-marca" href="#topo" aria-label="Milla, início"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -126.9 2804.3 824.3"><g transform="translate(0 -112.2) scale(8.243)"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></g><g transform="translate(914.3 0)"><path d="M45.9996337890625 660.0V0.0H239.33599853515625L402.6676025390625 514.9971923828125H404.6676025390625L565.9991455078125 0.0H750.3352661132812V660.0H631.3333740234375V128.00213623046875H629.3333740234375L457.33477783203125 660.0H337.666748046875L167.00152587890625 127.6688232421875H165.00152587890625V660.0Z M823.3330078125 660.0V137.9996337890625H950.0018310546875V660.0Z M1018.3330078125 660.0V-30.0006103515625H1145.0018310546875V660.0Z M1213.3330078125 660.0V-30.0006103515625H1340.0018310546875V660.0Z M1542.9999389648438 673.6666870117188Q1502.6666259765625 673.6666870117188 1467.4999084472656 659.3333740234375Q1432.3331909179688 645.0000610351562 1410.4997863769531 613.6667175292969Q1388.6663818359375 582.3333740234375 1388.6663818359375 530.9999389648438Q1388.6663818359375 483.99981689453125 1406.6664428710938 454.3330993652344Q1424.66650390625 424.6663818359375 1455.8332214355469 406.3330383300781Q1486.9999389648438 387.99969482421875 1525.6665649414062 378.1663818359375Q1564.3331909179688 368.33306884765625 1604.9996337890625 361.33306884765625Q1659.3328247070312 351.6663818359375 1685.9994506835938 345.8330383300781Q1712.6660766601562 339.99969482421875 1721.6661071777344 331.4997253417969Q1730.6661376953125 322.999755859375 1730.6661376953125 307.66650390625Q1730.6661376953125 268.6671142578125 1703.6664733886719 248.00079345703125Q1676.6668090820312 227.33447265625 1635.0005493164062 227.33447265625Q1609.3341064453125 227.33447265625 1584.0009765625 237.00103759765625Q1558.6678466796875 246.6676025390625 1541.8346862792969 269.6674499511719Q1525.0015258789062 292.66729736328125 1524.0016479492188 333.00048828125L1409.66650390625 322.00054931640625Q1410.6663208007812 264.6668701171875 1431.1663513183594 226.33334350585938Q1451.6663818359375 187.99981689453125 1485.3332214355469 165.66641235351562Q1519.0000610351562 143.3330078125 1558.8336181640625 133.66632080078125Q1598.6671752929688 123.9996337890625 1638.3340454101562 123.9996337890625Q1707.3346557617188 123.9996337890625 1755.5014953613281 149.83319091796875Q1803.6683349609375 175.666748046875 1829.0016174316406 226.00039672851562Q1854.3348999023438 276.33404541015625 1854.3348999023438 350.66766357421875V446.66754150390625Q1854.668212890625 482.000732421875 1854.8348693847656 517.8339233398438Q1855.0015258789062 553.6671142578125 1855.1681823730469 589.1669616699219Q1855.3348388671875 624.6668090820312 1855.3348388671875 660.0H1742.66650390625Q1744.3330688476562 619.3336181640625 1745.6663208007812 579.1671447753906Q1746.9995727539062 539.0006713867188 1748.3328247070312 494.66754150390625H1741.3328857421875Q1735.6663208007812 544.3339233398438 1709.3330383300781 585.0003967285156Q1682.999755859375 625.6668701171875 1640.6664733886719 649.6667785644531Q1598.3331909179688 673.6666870117188 1542.9999389648438 673.6666870117188ZM1589.001220703125 576.9987182617188Q1613.0007934570312 576.9987182617188 1637.6671447753906 567.3322448730469Q1662.33349609375 557.665771484375 1683.1666259765625 537.6660766601562Q1703.999755859375 517.6663818359375 1716.9996337890625 486.6666564941406Q1729.99951171875 455.66693115234375 1730.6661376953125 413.6671142578125L1730.9994506835938 390.333740234375L1757.6661376953125 384.667236328125Q1747.9995727539062 399.00048828125 1726.3330993652344 407.1671447753906Q1704.6666259765625 415.33380126953125 1677.1669006347656 420.0004577636719Q1649.6671752929688 424.6671142578125 1621.6674499511719 429.6670837402344Q1593.667724609375 434.66705322265625 1569.66796875 443.8336181640625Q1545.668212890625 453.00018310546875 1530.8350219726562 468.83331298828125Q1516.0018310546875 484.66644287109375 1516.0018310546875 512.332763671875Q1516.0018310546875 542.6658325195312 1536.0017395019531 559.832275390625Q1556.0016479492188 576.9987182617188 1589.001220703125 576.9987182617188Z" fill="#FFF4E0"/><path transform="translate(800.5 -60.0) scale(1.72)" d="M26 8H74A18 18 0 0 1 92 26V64A18 18 0 0 1 74 82H26L8 92V26A18 18 0 0 1 26 8Z" fill="#FFB52E"/></g></svg></a>
     <nav class="nav-dir" aria-label="Principal">
+      <a class="vender" href="#planos">Planos</a>
+      <a href="#videos">Vídeos</a>
       <a href="#conta">Milla e Laís</a>
-      <a href="#planos">Planos</a>
       <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">Testar agora</a>
     </nav>
   </div>
@@ -310,11 +363,16 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <div class="hero-in">
         <span class="simbolo-reserva"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></svg></span>
         <p class="rot" data-entra>Agente de atendimento humanizado para imobiliárias</p>
-        <h1 class="d1" data-entra>Sua imobiliária dorme. A&nbsp;Milla&nbsp;não.</h1>
+        <h1 class="d1" data-entra>Sua imobiliária dorme.<br>A&nbsp;Milla&nbsp;não.</h1>
         <p class="lead" data-entra>Ela atende seu cliente no WhatsApp em segundos, a qualquer hora, com os imóveis da sua carteira. Quando ele quer visitar, ela chama o corretor.</p>
         <div class="hero-acao" data-entra>
           <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
           <span class="hero-num"><b>(41) 96349-3440</b><span class="online">online agora · mande um oi</span></span>
+        </div>
+        <div class="hero-planos" data-entra>
+          <a class="bilhete" href="#planos"><b>Pro</b><span class="num">R$ 3.500</span><small>+ R$ 460 por mês</small></a>
+          <a class="bilhete" href="#planos"><b>Premium</b><span class="num">R$ 5.000</span><small>+ R$ 460 por mês</small></a>
+          <p class="promo-linha">Promoção: <b>R$&nbsp;460 por mês</b> nos 20 primeiros contratos.</p>
         </div>
         <p class="miuda" data-entra>Demonstração ao vivo, com imóveis reais de uma imobiliária do litoral do Paraná.</p>
       </div>
@@ -427,6 +485,88 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     </div>
   </section>
 
+  <section class="claro" id="planos" style="padding-top:24px">
+    <div class="w">
+      <div class="promo">
+        <div class="promo-esq">
+          <span class="promo-rot">Promoção dos 20 primeiros contratos</span>
+          <h2 class="promo-t num">R$ 460 <span>por mês</span></h2>
+        </div>
+        <p class="promo-dir">A média de mercado é de <b class="num">R$&nbsp;1.500</b> por mês de atendimento.*</p>
+      </div>
+
+      <div class="bloco" style="margin-top:64px"><h2 class="d2">Dois planos, a mesma mensalidade.</h2></div>
+      <div class="planos">
+        <article class="plano">
+          <h3>Pro</h3>
+          <div class="valores">
+            <p class="preco num">R$ 3.500<small>de implantação, uma vez</small></p>
+            <p class="mensal num">+ R$ 460 <span>por mês</span></p>
+            <p class="mensal-nota">promoção dos 20 primeiros contratos</p>
+          </div>
+          <ul>
+            <li>Atende no WhatsApp oficial, 24 horas</li>
+            <li>Mostra seus imóveis com preço, foto e link</li>
+            <li>Entende áudio e foto</li>
+            <li>Monta a ficha de cada cliente</li>
+            <li>Pedido de visita que o corretor só confirma</li>
+            <li>Corretor assume no mesmo número</li>
+            <li>Painel com conversas e fichas</li>
+            <li>Imóvel novo entra sozinho</li>
+            <li>Instagram e o seu número junto com a equipe, quando a Meta liberar</li>
+          </ul>
+          <a class="btn" href="https://wa.me/5541991566444?text=Ol%C3%A1%21%20Quero%20contratar%20a%20Milla%20no%20plano%20Pro." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Quero o Pro</a>
+        </article>
+        <article class="plano forte">
+          <h3>Premium</h3>
+          <div class="valores">
+            <p class="preco num">R$ 5.000<small>de implantação, uma vez</small></p>
+            <p class="mensal num">+ R$ 460 <span>por mês</span></p>
+            <p class="mensal-nota">promoção dos 20 primeiros contratos</p>
+          </div>
+          <ul>
+            <li><b>Tudo do Pro, e mais:</b></li>
+            <li>Resposta em segundos a quem vem dos portais</li>
+            <li>Chama de volta quem sumiu</li>
+            <li>Relatório do mês</li>
+            <li>Conversa com os proprietários</li>
+            <li>Pedido de conserto do inquilino</li>
+            <li>Segunda via de boleto**</li>
+            <li>Ficha direto no seu sistema**</li>
+          </ul>
+          <a class="btn" href="https://wa.me/5541991566444?text=Ol%C3%A1%21%20Quero%20contratar%20a%20Milla%20no%20plano%20Premium." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Quero o Premium</a>
+        </article>
+      </div>
+      <p class="nota" style="margin-top:16px">A mensalidade cobre a inteligência artificial, as mensagens do atendimento e os ajustes da Milla. Fica de fora só a mensagem para chamar de volta quem sumiu: a Meta cobra cerca de R$ 0,35 por pessoa. Com o seu número fixo, não há custo de linha. Um número novo custa R$ 29,90 por mês.</p>
+      <p class="nota" style="margin-top:8px">* Estimativa do studio Ti Artes. ** Depende de o seu sistema permitir a ligação com outros programas.</p>
+    </div>
+  </section>
+
+  <!--VIDEOS-->
+  <section class="claro" id="videos" style="padding-top:40px">
+    <div class="w vid-grade">
+      <div class="vid-txt">
+        <h2 class="d2">Veja em vídeo.</h2>
+        <p class="lead">O que a Milla faz e quanto custa, em menos de dois minutos. E quem está por trás dela.</p>
+      </div>
+      <figure class="vid">
+        <div class="vid-caixa">
+          <video playsinline preload="none" width="720" height="1280" poster="video/milla.jpg" aria-label="Vídeo: a Milla e os planos Pro e Premium"><source src="video/milla.mp4" type="video/mp4"></video>
+          <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla e dos planos"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
+        </div>
+        <figcaption><b>A Milla e os planos</b><span class="num">1:40</span></figcaption>
+      </figure>
+      <figure class="vid">
+        <div class="vid-caixa">
+          <video playsinline preload="none" width="720" height="1280" poster="video/ti-artes.jpg" aria-label="Vídeo: quem é o studio Ti Artes"><source src="video/ti-artes.mp4" type="video/mp4"></video>
+          <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo do studio Ti Artes"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
+        </div>
+        <figcaption><b>Quem faz: studio Ti Artes</b><span class="num">0:41</span></figcaption>
+      </figure>
+    </div>
+  </section>
+  <!--/VIDEOS-->
+
   <section class="claro" id="conta" style="padding-bottom:64px">
     <div class="w">
       <div class="bloco">
@@ -446,7 +586,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   <section class="faixa">
     <div class="w faixa-in">
       <div class="gigante num" id="gigante">R$ 19.480</div>
-      <p>a menos no primeiro ano com o Premium, comparado à média publicada da Laís. Em dois anos, R$ 43.960.</p>
+      <p>a menos no primeiro ano com o Premium na promoção, comparado à média publicada da Laís. Em dois anos, R$ 43.960.</p>
     </div>
   </section>
 
@@ -462,7 +602,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           </tbody>
         </table>
       </div>
-      <p class="nota" style="margin-top:16px">* A Lastro não publica preço. R$ 2.500 por mês é a média por cliente divulgada pela imprensa em setembro de 2025, e nessa conta entram imobiliárias grandes. Uma imobiliária menor pode pagar menos: mesmo pela metade da média, seriam R$ 15.000 no ano. Peça uma proposta da Laís para comparar com o seu caso.</p>
+      <p class="nota" style="margin-top:16px">Valores da Milla com a mensalidade de R$ 460 da promoção dos 20 primeiros contratos. * A Lastro não publica preço. R$ 2.500 por mês é a média por cliente divulgada pela imprensa em setembro de 2025, e nessa conta entram imobiliárias grandes. Uma imobiliária menor pode pagar menos: mesmo pela metade da média, seriam R$ 15.000 no ano. Peça uma proposta da Laís para comparar com o seu caso.</p>
 
       <div class="bloco" style="margin-top:96px;margin-bottom:0">
         <h2 class="d2">Função por função.</h2>
@@ -516,29 +656,13 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <ul><li>Sua imobiliária é pequena ou média</li><li>Quer saber quanto vai pagar antes de começar</li><li>Quer falar direto com quem montou o atendimento</li></ul>
         </div>
       </div>
+      <p style="margin-top:28px"><a class="btn" href="#planos">Ver os planos Pro e Premium</a></p>
     </div>
   </section>
 
-  <section class="claro" id="planos" style="padding-top:24px">
+  <section class="claro" style="padding-top:24px">
     <div class="w">
-      <div class="bloco">
-        <h2 class="d2">Dois planos, a mesma mensalidade.</h2>
-      </div>
-      <div class="planos">
-        <div class="plano">
-          <h3>Pro</h3>
-          <p class="preco num">R$ 3.500<small>de implantação, uma vez, mais R$ 460 por mês</small></p>
-          <ul><li>As 8 funções prontas hoje</li><li>Imóvel novo entra sozinho</li><li>Instagram e o seu número junto com a equipe, quando a Meta liberar</li></ul>
-        </div>
-        <div class="plano forte">
-          <h3>Premium</h3>
-          <p class="preco num">R$ 5.000<small>de implantação, uma vez, mais os mesmos R$ 460 por mês</small></p>
-          <ul><li>Tudo do Pro</li><li>Clientes dos portais, relatório do mês e chamar de volta quem sumiu</li><li>Proprietários, conserto do inquilino e segunda via de boleto</li></ul>
-        </div>
-      </div>
-      <p class="nota" style="margin-top:16px">A mensalidade cobre a inteligência artificial, as mensagens do atendimento e os ajustes da Milla. Fica de fora só a mensagem para chamar de volta quem sumiu: a Meta cobra cerca de R$ 0,35 por pessoa. Com o seu número fixo, não há custo de linha. Um número novo custa R$ 29,90 por mês.</p>
-
-      <div class="bloco" style="margin-top:96px;margin-bottom:12px"><h2 class="d2">Perguntas.</h2></div>
+      <div class="bloco" style="margin-bottom:12px"><h2 class="d2">Perguntas.</h2></div>
       <details><summary>A Milla substitui o corretor?</summary><p>Não. Ela faz o primeiro atendimento e organiza o pedido. Quem fecha é o corretor, e ele assume a conversa quando quiser.</p></details>
       <details><summary>Ela pode inventar imóvel ou prometer o que não deve?</summary><p>Ela só oferece o que está na sua carteira. Horário de visita, aceitar pet, fiador e condomínio ela anota e passa para a equipe confirmar.</p></details>
       <details><summary>Preciso trocar meu número?</summary><p>Você pode usar o seu número fixo ou um número novo, por R$ 29,90 por mês. Usar o número ao mesmo tempo no celular da equipe depende de uma aprovação da Meta que está em análise. O número continua sendo seu.</p></details>
@@ -557,6 +681,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <div class="qr"><svg viewBox="0 0 33 33" role="img" aria-label="Código QR para abrir a conversa com a Milla no WhatsApp"><path fill="#0A1118" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM20 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM29 0h1v1h-1zM30 0h1v1h-1zM31 0h1v1h-1zM32 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM21 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM8 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM32 8h1v1h-1zM0 9h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM25 9h1v1h-1zM29 9h1v1h-1zM30 9h1v1h-1zM31 9h1v1h-1zM32 9h1v1h-1zM0 10h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM18 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM29 10h1v1h-1zM31 10h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM13 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM31 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM6 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM22 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM26 12h1v1h-1zM29 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM30 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM15 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM23 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM3 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM23 17h1v1h-1zM29 17h1v1h-1zM30 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM3 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM0 19h1v1h-1zM1 19h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM29 20h1v1h-1zM32 20h1v1h-1zM0 21h1v1h-1zM1 21h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM16 21h1v1h-1zM19 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM31 21h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM7 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM16 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM31 22h1v1h-1zM2 23h1v1h-1zM3 23h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM11 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM31 23h1v1h-1zM32 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM31 24h1v1h-1zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM17 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM0 26h1v1h-1zM1 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM15 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM16 28h1v1h-1zM19 28h1v1h-1zM22 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h1v1h-1zM3 29h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM10 29h1v1h-1zM11 29h1v1h-1zM14 29h1v1h-1zM18 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM29 29h1v1h-1zM30 29h1v1h-1zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM10 30h1v1h-1zM11 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM15 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM20 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM14 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM21 31h1v1h-1zM22 31h1v1h-1zM23 31h1v1h-1zM24 31h1v1h-1zM25 31h1v1h-1zM26 31h1v1h-1zM29 31h1v1h-1zM0 32h1v1h-1zM1 32h1v1h-1zM2 32h1v1h-1zM3 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM14 32h1v1h-1zM16 32h1v1h-1zM17 32h1v1h-1zM18 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM25 32h1v1h-1zM26 32h1v1h-1zM29 32h1v1h-1zM32 32h1v1h-1z"/></svg></div>
           <span class="qr-txt">No computador? Aponte a câmera do celular.</span>
         </div>
+        <a class="fim-planos" href="#planos">Ver os planos Pro e Premium</a>
       </div>
     </div>
   </section>
@@ -576,6 +701,36 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   </div>
 </footer>
 
+<aside class="oferta-fixa" id="ofertaFixa" aria-label="Planos da Milla">
+  <p><b class="num">R$ 460 por mês</b> nos 20 primeiros contratos<span class="num">Pro R$ 3.500 · Premium R$ 5.000</span></p>
+  <a class="btn" href="#planos">Ver planos</a>
+</aside>
+
+<script>
+/* a oferta fixa aparece quando o herói sai da tela e some onde os planos já estão à vista */
+(function () {
+  var barra = document.getElementById("ofertaFixa"), vendo = new Set();
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (itens) {
+      itens.forEach(function (i) { if (i.isIntersecting) vendo.add(i.target); else vendo.delete(i.target); });
+      barra.classList.toggle("on", vendo.size === 0);
+    }, { threshold: .12 });
+    /* no celular o preço do herói ficaria abaixo da dobra: lá a oferta fixa já começa visível */
+    var telaGrande = window.matchMedia("(min-width: 901px)").matches;
+    document.querySelectorAll((telaGrande ? ".hero, " : "") + "#planos, #videos, #fim, footer").forEach(function (el) { io.observe(el); });
+  }
+  /* um vídeo por vez; os controles só aparecem depois do Assistir, para não cobrir a capa */
+  document.querySelectorAll("video").forEach(function (v, _, todos) {
+    v.addEventListener("play", function () { todos.forEach(function (o) { if (o !== v) o.pause(); }); });
+  });
+  document.querySelectorAll(".vid-play").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.parentNode.querySelector("video");
+      b.hidden = true; v.controls = true; v.play();
+    });
+  });
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.0/dist/lenis.min.js"></script>
