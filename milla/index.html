@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Agente de atendimento humanizado para imobiliárias. Responde no WhatsApp em segundos, 24 horas, com os imóveis da sua carteira. Faça o teste.">
+<meta name="theme-color" content="#070C12">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Milla · Agente de atendimento humanizado para imobiliárias">
+<meta property="og:description" content="Agente de atendimento humanizado para imobiliárias. Responde no WhatsApp em segundos, 24 horas, com os imóveis da sua carteira. Faça o teste.">
+<meta property="og:url" content="https://rottaguide.com/milla/">
+<meta property="og:image" content="https://rottaguide.com/milla/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Milla, agente de atendimento humanizado. Ela não dorme.">
+<meta property="og:site_name" content="Milla">
+<meta property="og:locale" content="pt_BR">
+<link rel="canonical" href="https://rottaguide.com/milla/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Milla · Agente de atendimento humanizado para imobiliárias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: uma noite em rolagem sobre uma matriz 3D de janelas; amanhece e a página vira uma ficha técnica clara. Uma cor só: a luz da janela. */
+:root {
+  --noite: #070C12;
+  --noite-2: #101820;
+  --marfim: #F6F3EC;
+  --dim-noite: #9AA7B3;
+  --linha-noite: rgba(246,243,236,.14);
+  --claro: #F3F5F6;
+  --papel: #FFFFFF;
+  --tinta: #0A1118;
+  --dim: #55616D;
+  --linha: #D8DEE3;
+  --janela: #FFB52E;
+  --display: "Bricolage Grotesque", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --corpo: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --balao: 22px 22px 22px 4px;
+  --balao-p: 14px 14px 14px 3px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html.lenis, html.lenis body { height: auto }
+.lenis.lenis-smooth { scroll-behavior: auto !important }
+.lenis.lenis-stopped { overflow: hidden }
+body { margin: 0; background: var(--noite); color: var(--marfim); font-family: var(--corpo); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: clip }
+html { overflow-x: clip }
+h1, h2, h3, p, ul, dl, dd { margin: 0; padding: 0 }
+ul { list-style: none }
+a { color: inherit }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--janela); outline-offset: 3px; border-radius: 6px }
+.w { width: 100%; max-width: 1280px; margin-inline: auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)) }
+.num { font-variant-numeric: tabular-nums }
+.rot { font-family: var(--mono); font-size: 13px; letter-spacing: .04em; color: var(--dim-noite) }
+.d1 { font-family: var(--display); font-weight: 600; font-size: clamp(50px, 8.1vw, 124px); line-height: .96; letter-spacing: -.04em; text-wrap: balance }
+.d2 { font-family: var(--display); font-weight: 600; font-size: clamp(36px, 5.1vw, 74px); line-height: 1; letter-spacing: -.033em; text-wrap: balance }
+.d3 { font-family: var(--display); font-weight: 600; font-size: clamp(25px, 2.5vw, 34px); line-height: 1.12; letter-spacing: -.02em; text-wrap: balance }
+.lead { font-size: clamp(18px, 1.5vw, 21px); line-height: 1.45; max-width: 34em }
+
+/* cena */
+#cena { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0 }
+#veu { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, rgba(7,12,18,.9) 0%, rgba(7,12,18,.72) 34%, rgba(7,12,18,0) 62%) }
+.sem3d #cena, .sem3d #veu { display: none }
+.sem3d #noite { background: linear-gradient(180deg, #070C12 0%, #070C12 70%, #F3F5F6 100%) }
+.simbolo-reserva { display: none }
+.sem3d .simbolo-reserva { display: block; width: min(260px, 54vw); height: auto; margin-bottom: 28px }
+main { position: relative; z-index: 1 }
+
+/* navegação: cápsula escura que lê bem sobre noite e dia */
+.nav { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 20; padding-top: 14px; pointer-events: none }
+.nav .w { display: flex; justify-content: space-between; align-items: center; gap: 12px }
+.nav-marca, .nav-dir { pointer-events: auto; display: flex; align-items: center; background: rgba(7,12,18,.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--linha-noite); border-radius: 14px 14px 14px 3px }
+.nav-marca { padding: 10px 14px 10px 12px; color: var(--marfim); text-decoration: none }
+.nav-marca svg { height: 26px; width: auto; display: block }
+.nav-dir { padding: 5px; gap: 2px }
+.nav-dir a { text-decoration: none; font-size: 15px; font-weight: 500; padding: 8px 13px; border-radius: 10px; color: var(--marfim) }
+.nav-dir a:hover { background: rgba(246,243,236,.1) }
+.nav-dir a.teste { background: var(--janela); color: var(--tinta); font-weight: 600; border-radius: 10px 10px 10px 3px }
+.nav-dir a.teste:hover { background: #FFC354 }
+
+/* relógio da noite */
+.relogio { position: fixed; z-index: 15; left: max(24px, env(safe-area-inset-left, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 12px; font-family: var(--mono); pointer-events: none; opacity: 0 }
+.relogio b { font-weight: 500; font-size: 22px; letter-spacing: .01em; font-variant-numeric: tabular-nums }
+.relogio i { font-style: normal; font-size: 13px; color: inherit; opacity: .72; display: inline-flex; align-items: center; gap: 7px }
+.relogio i::before, .online::before { content: ""; width: 7px; height: 7px; border-radius: 2px 2px 2px .5px; background: var(--janela); box-shadow: 0 0 12px var(--janela) }
+
+/* botões */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 11px; background: var(--janela); color: var(--tinta); text-decoration: none; font-weight: 600; font-size: 18px; padding: 17px 25px 17px 21px; border-radius: 16px 16px 16px 4px; transition: background .2s, transform .2s }
+.btn:hover { background: #FFC354; transform: translateY(-2px) }
+.btn svg { width: 23px; height: 23px; flex: none }
+
+/* herói */
+.hero { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; padding-block: 104px 84px }
+.hero-in { display: grid; gap: 26px; justify-items: start; max-width: 780px }
+.hero .rot { color: var(--janela) }
+.hero-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 22px }
+.hero-num { display: grid; gap: 2px; font-size: 15px; color: var(--dim-noite) }
+.hero-num b { color: var(--marfim); font-family: var(--mono); font-weight: 500; font-size: 18px }
+.online { display: inline-flex; align-items: center; gap: 8px }
+.miuda { font-size: 14.5px; color: var(--dim-noite); max-width: 32em }
+
+/* batidas da noite */
+.ponte { min-height: 110vh; display: flex; align-items: center; justify-content: center; text-align: center }
+.ponte .d2 { max-width: 13em }
+.batida { min-height: 140vh; display: flex; align-items: center; padding-block: 12vh }
+.batida-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: 40px 72px; align-items: center; width: 100% }
+.batida-txt { display: grid; gap: 18px; justify-items: start }
+.hora { font-family: var(--mono); font-weight: 500; font-size: 15px; color: var(--tinta); background: var(--janela); padding: 4px 11px; border-radius: 9px 9px 9px 2px }
+.batida .lead { color: #E4E9EE; text-shadow: 0 1px 16px rgba(7,12,18,.95), 0 0 3px rgba(7,12,18,.6) }
+.batida .d2 { text-shadow: 0 2px 26px rgba(7,12,18,.85) }
+.batida.dia { min-height: 130vh; color: var(--tinta) }
+.batida.dia .lead { color: #3B4752; text-shadow: 0 0 10px var(--claro), 0 0 4px var(--claro), 0 0 2px var(--claro) }
+.batida.dia .d1 { text-shadow: 0 0 22px var(--claro), 0 0 6px var(--claro) }
+.batida.dia .batida-in { grid-template-columns: minmax(0, 1fr) }
+.batida.dia .batida-txt { max-width: 780px }
+
+/* conversa */
+.conversa { display: grid; gap: 10px; background: rgba(13,20,28,.86); border: 1px solid var(--linha-noite); border-radius: var(--balao); padding: 20px }
+.conversa .rot { justify-self: center; font-size: 12px }
+.b { max-width: 88%; padding: 11px 15px 9px; font-size: 16.5px; line-height: 1.38; border-radius: 16px 16px 16px 3px; background: #1C2731; justify-self: start }
+.b.m { justify-self: end; background: var(--marfim); color: var(--tinta); border-radius: 16px 16px 3px 16px }
+.b small { display: block; text-align: right; font-family: var(--mono); font-size: 11.5px; opacity: .62; margin-top: 3px }
+.onda { display: flex; align-items: center; gap: 10px; min-width: 220px }
+.onda svg { width: 15px; height: 15px; flex: none }
+.onda span { flex: 1; height: 22px; background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 5px); -webkit-mask: linear-gradient(90deg, #000 40%, rgba(0,0,0,.35) 40%); mask: linear-gradient(90deg, #000 40%, rgba(0,0,0,.35) 40%); opacity: .9 }
+.onda em { font-style: normal; font-family: var(--mono); font-size: 12.5px }
+.imovel { justify-self: end; width: 88%; display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 12px; align-items: center; background: var(--marfim); color: var(--tinta); padding: 9px; border-radius: 14px 14px 3px 14px; font-size: 15px; line-height: 1.3 }
+.imovel i { aspect-ratio: 1; border-radius: 9px 9px 9px 2px; background: linear-gradient(160deg, #F7C36A 0%, #E77E3C 55%, #27415A 56%, #16293A 100%) }
+.imovel b { display: block; font-size: 15.5px }
+.alerta { display: grid; gap: 11px; background: var(--janela); color: var(--tinta); border-radius: var(--balao); padding: 16px; margin-top: 8px }
+.alerta b { font-size: 17px }
+.alerta .btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px }
+.alerta .btns span { text-align: center; font-weight: 600; font-size: 14.5px; background: rgba(10,17,24,.1); padding: 9px 3px; border-radius: 9px }
+.alerta .btns span:first-child { background: var(--tinta); color: var(--marfim) }
+.exemplo { font-family: var(--mono); font-size: 12px; color: var(--dim-noite); justify-self: center }
+
+/* a partir daqui a página é clara e opaca */
+.claro { position: relative; background: var(--claro); color: var(--tinta); padding-block: 40px 96px; overflow-x: clip }
+.claro .rot { color: var(--dim) }
+.claro .lead { color: var(--dim) }
+.bloco { display: grid; gap: 16px; justify-items: start; margin-bottom: 44px }
+
+/* painel */
+.palco-painel { perspective: 1600px; margin-top: -8vh }
+.painel { transform-origin: 50% 0; background: var(--papel); border: 1px solid var(--linha); border-radius: 22px 22px 22px 5px; box-shadow: 0 50px 90px -40px rgba(10,17,24,.42); overflow: hidden; color: var(--tinta) }
+.painel-top { display: flex; align-items: center; gap: 22px; padding: 14px 20px; border-bottom: 1px solid var(--linha); font-size: 15px; overflow: hidden }
+.painel-top svg { height: 20px; width: auto; flex: none }
+.painel-top span { color: var(--dim); white-space: nowrap }
+.painel-top span.on { color: var(--tinta); font-weight: 600 }
+.painel-grade { display: grid; grid-template-columns: 270px minmax(0, 1fr) 300px }
+.painel-grade > div { padding: 16px; min-width: 0 }
+.painel-grade > div + div { border-left: 1px solid var(--linha) }
+.lead-l { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 11px 10px; border-radius: 12px 12px 12px 3px; font-size: 15px }
+.lead-l.on { background: var(--claro) }
+.lead-l b { font-weight: 600 }
+.lead-l small { color: var(--dim); font-size: 13.5px; grid-column: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.lead-l i { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--dim); grid-row: 1; grid-column: 2 }
+.conv { display: grid; gap: 9px; align-content: start }
+.conv .b { background: var(--claro); color: var(--tinta); font-size: 15.5px }
+.conv .b.m { background: var(--tinta); color: var(--marfim) }
+.ficha { display: grid; gap: 12px; align-content: start; font-size: 15px }
+.ficha h3 { font-size: 16px; font-weight: 600 }
+.ficha div { display: grid; gap: 1px }
+.ficha dt { color: var(--dim); font-size: 13.5px }
+.ficha dd { font-weight: 500 }
+.pedido { background: var(--janela); padding: 11px 13px; border-radius: 12px 12px 12px 3px; font-weight: 600 }
+
+/* não é chatbot */
+.par { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100% }
+.caso { background: var(--papel); border: 1px solid var(--linha); border-radius: var(--balao); padding: 26px; display: grid; gap: 14px; align-content: start }
+.caso.bom { background: var(--tinta); border-color: var(--tinta); color: var(--marfim) }
+.caso .rot { font-size: 13px }
+.caso.bom .rot { color: var(--janela) }
+.caso .fala { font-family: var(--display); font-weight: 500; font-size: clamp(22px, 2.3vw, 31px); line-height: 1.16; letter-spacing: -.015em }
+.caso ul { display: grid; gap: 9px; font-size: 16.5px; color: var(--dim) }
+.caso.bom ul { color: #D6DDE3 }
+.caso li { padding-left: 21px; position: relative }
+.caso li::before { content: ""; position: absolute; left: 0; top: .55em; width: 9px; height: 9px; border-radius: 3px 3px 3px 1px; background: var(--linha) }
+.caso.bom li::before { background: var(--janela) }
+s { text-decoration-color: var(--janela); text-decoration-thickness: .09em }
+
+/* conta */
+.barras { display: grid; gap: 22px; width: 100%; padding-top: 4px }
+.linha-b { display: grid; gap: 8px }
+.linha-b header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 2px 14px }
+.linha-b header b { font-size: 18px; font-weight: 600 }
+.linha-b header span { color: var(--dim); font-size: 15px }
+.linha-b strong { font-family: var(--display); font-weight: 600; font-size: 25px; letter-spacing: -.02em; white-space: nowrap }
+.trilho { height: 20px; background: rgba(10,17,24,.06); border-radius: 6px 6px 6px 2px; overflow: hidden }
+.trilho i { display: block; height: 100%; background: var(--tinta); border-radius: inherit; transform-origin: 0 50% }
+.trilho i.m { background: var(--janela) }
+.nota { color: var(--dim); font-size: 14.5px; max-width: 66em }
+.faixa { background: var(--janela); color: var(--tinta); padding-block: 84px }
+.faixa-in { display: grid; gap: 8px }
+.faixa .gigante { font-family: var(--display); font-weight: 600; font-size: clamp(66px, 17vw, 262px); line-height: .92; letter-spacing: -.05em; white-space: nowrap }
+.faixa p { font-size: clamp(20px, 2vw, 28px); line-height: 1.25; max-width: 28em; font-weight: 500 }
+.tabela { overflow-x: auto; width: 100% }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 17px }
+th, td { padding: 13px 0; border-bottom: 1px solid var(--linha); text-align: right; white-space: nowrap }
+th:first-child { text-align: left; font-weight: 500 }
+thead th { font-family: var(--mono); font-size: 13px; font-weight: 400; color: var(--dim) }
+
+/* função por função */
+.contas { display: flex; flex-wrap: wrap; gap: 8px }
+.ch { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; padding: 6px 13px 6px 11px; border-radius: 11px 11px 11px 3px; background: var(--papel); border: 1px solid var(--linha); text-decoration: none }
+.ch i { width: 11px; height: 11px; border-radius: 4px 4px 4px 1px; flex: none }
+.ok { background: var(--janela) } .imp { background: var(--tinta) } .dep { background: #AEB8C2 }
+.grupo { width: 100%; display: grid; gap: 4px; margin-top: 38px; scroll-margin-top: 90px }
+.grupo-t { display: flex; align-items: center; gap: 11px; padding-bottom: 12px; border-bottom: 2px solid var(--tinta) }
+.grupo-t i { width: 15px; height: 15px; border-radius: 5px 5px 5px 1px }
+.grupo-t em { font-style: normal; color: var(--dim); font-size: 15.5px; margin-left: auto; text-align: right }
+.lin { display: grid; grid-template-columns: minmax(0, 1fr) 124px 150px; gap: 3px 22px; padding: 15px 0; border-bottom: 1px solid var(--linha); align-items: baseline }
+.lin h4 { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3 }
+.lin p { grid-column: 1; color: var(--dim); font-size: 16px; line-height: 1.42; max-width: 42em }
+.lin .pl, .lin .la { grid-row: 1; font-family: var(--mono); font-size: 13px; white-space: nowrap }
+.lin .pl { grid-column: 2 } .lin .la { grid-column: 3; text-align: right; color: var(--dim) }
+.lin .la b { color: var(--tinta); font-weight: 500 }
+
+/* escolher, planos, dúvidas */
+.planos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100% }
+.plano { padding: 30px; border-radius: 26px 26px 26px 5px; display: grid; gap: 18px; align-content: start; background: var(--papel); border: 1px solid var(--linha) }
+.plano.forte { background: var(--tinta); color: var(--marfim); border-color: var(--tinta) }
+.plano h3 { font-family: var(--display); font-weight: 600; font-size: 33px; letter-spacing: -.025em }
+.preco { font-family: var(--display); font-weight: 600; font-size: clamp(44px, 5vw, 66px); letter-spacing: -.04em; line-height: 1 }
+.preco small { display: block; font-family: var(--corpo); font-size: 16px; letter-spacing: 0; font-weight: 500; margin-top: 8px; color: var(--dim); line-height: 1.35 }
+.plano.forte .preco small { color: #BCC6CF }
+.plano ul { display: grid; gap: 9px; font-size: 16.5px }
+.plano li { padding-left: 22px; position: relative }
+.plano li::before { content: ""; position: absolute; left: 0; top: .5em; width: 10px; height: 10px; border-radius: 3px 3px 3px 1px; background: var(--janela) }
+details { border-bottom: 1px solid var(--linha); width: 100% }
+summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 18px; align-items: baseline; font-size: 20px; font-weight: 600; padding: 18px 0; line-height: 1.3 }
+summary::-webkit-details-marker { display: none }
+summary::after { content: "+"; font-family: var(--mono); font-weight: 400; font-size: 22px; color: var(--dim) }
+details[open] summary::after { content: "–" }
+details p { padding-bottom: 20px; color: var(--dim); max-width: 44em }
+
+/* final */
+.final { min-height: 118vh; display: flex; align-items: flex-end; padding-block: 16vh 44px; text-align: left }
+.final-in { width: 100% }
+.final-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 22px }
+.final-txt { display: grid; gap: 22px; justify-items: start }
+.numero { font-family: var(--display); font-weight: 600; font-size: clamp(38px, 6vw, 88px); letter-spacing: -.035em; line-height: 1; white-space: nowrap }
+.qr { background: var(--marfim); padding: 9px; border-radius: 14px 14px 14px 3px; width: 86px; flex: none }
+.qr-txt { font-size: 14.5px; line-height: 1.3; color: var(--dim-noite); max-width: 10em }
+.qr svg { width: 100%; height: auto; display: block }
+footer { position: relative; z-index: 1; background: var(--noite); padding-block: 36px 40px; color: var(--dim-noite); font-size: 14.5px; border-top: 1px solid var(--linha-noite) }
+.rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 26px 60px }
+.rodape svg { height: 26px; width: auto; display: block; margin-bottom: 12px }
+.rodape a { color: var(--marfim) }
+.rodape p + p { margin-top: 8px }
+
+@media (max-width: 900px) {
+  body { font-size: 16.5px }
+  .w { padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)) }
+  #veu { background: linear-gradient(180deg, rgba(7,12,18,0) 26%, rgba(7,12,18,.74) 58%, rgba(7,12,18,.86) 100%) }
+  .nav-dir a:not(.teste) { display: none }
+  .nav-marca { padding: 9px 11px } .nav-marca svg { height: 22px }
+  .hero { align-items: flex-end; padding-block: 38vh 30px }
+  .hero-in { gap: 16px }
+  .d1 { font-size: clamp(46px, 13.2vw, 80px) }
+  .batida { min-height: 150vh }
+  .batida-in { grid-template-columns: minmax(0, 1fr); gap: 24px }
+  .conversa { padding: 14px }
+  .palco-painel { margin-top: 0 }
+  .painel-grade { grid-template-columns: minmax(0, 1fr) }
+  .painel-grade > div:first-child { display: none }
+  .painel-grade > div + div { border-left: 0; border-top: 1px solid var(--linha) }
+  .painel-grade > div:nth-child(2) { border-top: 0 }
+  .painel-top { gap: 14px }
+  .par, .planos { grid-template-columns: minmax(0, 1fr) }
+  .lin { grid-template-columns: minmax(0, 1fr) auto }
+  .lin .pl { grid-column: 1; grid-row: auto }
+  .lin .la { grid-column: 2; grid-row: auto; align-self: end }
+  .grupo-t { flex-wrap: wrap } .grupo-t em { margin-left: 0; flex-basis: 100%; text-align: left }
+  .qr, .qr-txt { display: none }
+  .rodape { grid-template-columns: minmax(0, 1fr) }
+  .relogio { display: none }
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none } .btn:hover { transform: none } }
+</style>
+</head>
+<body>
+
+
+<canvas id="cena" aria-hidden="true"></canvas>
+<div id="veu" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="w">
+    <a class="nav-marca" href="#topo" aria-label="Milla, início"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -126.9 2804.3 824.3"><g transform="translate(0 -112.2) scale(8.243)"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></g><g transform="translate(914.3 0)"><path d="M45.9996337890625 660.0V0.0H239.33599853515625L402.6676025390625 514.9971923828125H404.6676025390625L565.9991455078125 0.0H750.3352661132812V660.0H631.3333740234375V128.00213623046875H629.3333740234375L457.33477783203125 660.0H337.666748046875L167.00152587890625 127.6688232421875H165.00152587890625V660.0Z M823.3330078125 660.0V137.9996337890625H950.0018310546875V660.0Z M1018.3330078125 660.0V-30.0006103515625H1145.0018310546875V660.0Z M1213.3330078125 660.0V-30.0006103515625H1340.0018310546875V660.0Z M1542.9999389648438 673.6666870117188Q1502.6666259765625 673.6666870117188 1467.4999084472656 659.3333740234375Q1432.3331909179688 645.0000610351562 1410.4997863769531 613.6667175292969Q1388.6663818359375 582.3333740234375 1388.6663818359375 530.9999389648438Q1388.6663818359375 483.99981689453125 1406.6664428710938 454.3330993652344Q1424.66650390625 424.6663818359375 1455.8332214355469 406.3330383300781Q1486.9999389648438 387.99969482421875 1525.6665649414062 378.1663818359375Q1564.3331909179688 368.33306884765625 1604.9996337890625 361.33306884765625Q1659.3328247070312 351.6663818359375 1685.9994506835938 345.8330383300781Q1712.6660766601562 339.99969482421875 1721.6661071777344 331.4997253417969Q1730.6661376953125 322.999755859375 1730.6661376953125 307.66650390625Q1730.6661376953125 268.6671142578125 1703.6664733886719 248.00079345703125Q1676.6668090820312 227.33447265625 1635.0005493164062 227.33447265625Q1609.3341064453125 227.33447265625 1584.0009765625 237.00103759765625Q1558.6678466796875 246.6676025390625 1541.8346862792969 269.6674499511719Q1525.0015258789062 292.66729736328125 1524.0016479492188 333.00048828125L1409.66650390625 322.00054931640625Q1410.6663208007812 264.6668701171875 1431.1663513183594 226.33334350585938Q1451.6663818359375 187.99981689453125 1485.3332214355469 165.66641235351562Q1519.0000610351562 143.3330078125 1558.8336181640625 133.66632080078125Q1598.6671752929688 123.9996337890625 1638.3340454101562 123.9996337890625Q1707.3346557617188 123.9996337890625 1755.5014953613281 149.83319091796875Q1803.6683349609375 175.666748046875 1829.0016174316406 226.00039672851562Q1854.3348999023438 276.33404541015625 1854.3348999023438 350.66766357421875V446.66754150390625Q1854.668212890625 482.000732421875 1854.8348693847656 517.8339233398438Q1855.0015258789062 553.6671142578125 1855.1681823730469 589.1669616699219Q1855.3348388671875 624.6668090820312 1855.3348388671875 660.0H1742.66650390625Q1744.3330688476562 619.3336181640625 1745.6663208007812 579.1671447753906Q1746.9995727539062 539.0006713867188 1748.3328247070312 494.66754150390625H1741.3328857421875Q1735.6663208007812 544.3339233398438 1709.3330383300781 585.0003967285156Q1682.999755859375 625.6668701171875 1640.6664733886719 649.6667785644531Q1598.3331909179688 673.6666870117188 1542.9999389648438 673.6666870117188ZM1589.001220703125 576.9987182617188Q1613.0007934570312 576.9987182617188 1637.6671447753906 567.3322448730469Q1662.33349609375 557.665771484375 1683.1666259765625 537.6660766601562Q1703.999755859375 517.6663818359375 1716.9996337890625 486.6666564941406Q1729.99951171875 455.66693115234375 1730.6661376953125 413.6671142578125L1730.9994506835938 390.333740234375L1757.6661376953125 384.667236328125Q1747.9995727539062 399.00048828125 1726.3330993652344 407.1671447753906Q1704.6666259765625 415.33380126953125 1677.1669006347656 420.0004577636719Q1649.6671752929688 424.6671142578125 1621.6674499511719 429.6670837402344Q1593.667724609375 434.66705322265625 1569.66796875 443.8336181640625Q1545.668212890625 453.00018310546875 1530.8350219726562 468.83331298828125Q1516.0018310546875 484.66644287109375 1516.0018310546875 512.332763671875Q1516.0018310546875 542.6658325195312 1536.0017395019531 559.832275390625Q1556.0016479492188 576.9987182617188 1589.001220703125 576.9987182617188Z" fill="#FFF4E0"/><path transform="translate(800.5 -60.0) scale(1.72)" d="M26 8H74A18 18 0 0 1 92 26V64A18 18 0 0 1 74 82H26L8 92V26A18 18 0 0 1 26 8Z" fill="#FFB52E"/></g></svg></a>
+    <nav class="nav-dir" aria-label="Principal">
+      <a href="#conta">Milla e Laís</a>
+      <a href="#planos">Planos</a>
+      <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">Testar agora</a>
+    </nav>
+  </div>
+</header>
+
+<div class="relogio" aria-hidden="true"><b id="hora">23:40</b><i>Milla online</i></div>
+
+<main id="topo">
+  <section id="noite">
+
+    <div class="hero w">
+      <div class="hero-in">
+        <span class="simbolo-reserva"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></svg></span>
+        <p class="rot" data-entra>Agente de atendimento humanizado para imobiliárias</p>
+        <h1 class="d1" data-entra>Sua imobiliária dorme. A&nbsp;Milla&nbsp;não.</h1>
+        <p class="lead" data-entra>Ela atende seu cliente no WhatsApp em segundos, a qualquer hora, com os imóveis da sua carteira. Quando ele quer visitar, ela chama o corretor.</p>
+        <div class="hero-acao" data-entra>
+          <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
+          <span class="hero-num"><b>(41) 96349-3440</b><span class="online">online agora · mande um oi</span></span>
+        </div>
+        <p class="miuda" data-entra>Demonstração ao vivo, com imóveis reais de uma imobiliária do litoral do Paraná.</p>
+      </div>
+    </div>
+
+    <div class="ponte batida-s w"><h2 class="d2" data-ponte>Cada ponto aceso é uma conversa atendida.</h2></div>
+
+    <div class="batida w" data-hora="23:48">
+      <div class="batida-in">
+        <div class="batida-txt">
+          <span class="hora">23:48</span>
+          <h2 class="d2">O corretor foi pra casa. O cliente chegou agora.</h2>
+          <p class="lead">Quem procura imóvel à noite manda a mesma pergunta para várias imobiliárias. Ela responde em segundos e mostra o que você tem de verdade: preço, foto e link.</p>
+        </div>
+        <div class="conversa">
+          <div class="b" data-surge>Boa noite! Vocês têm casa pra 6 pessoas no Natal?<small>23:48</small></div>
+          <div class="b m" data-surge>Boa noite! Sou a Milla, agente virtual daqui. Separei 3 casas para 6 pessoas no Natal. A primeira fica a duas quadras do mar.<small>23:48</small></div>
+          <div class="imovel" data-surge><i></i><span><b>Casa com piscina</b>3 quartos · até 6 pessoas<br>R$ 780 por diária</span></div>
+          <span class="exemplo" data-surge>conversa de exemplo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="batida w" data-hora="02:26">
+      <div class="batida-in">
+        <div class="batida-txt">
+          <span class="hora">02:26</span>
+          <h2 class="d2">Chegou um áudio.</h2>
+          <p class="lead">Ela ouve áudio, olha foto e responde por escrito. O cliente fala do jeito dele, a qualquer hora.</p>
+        </div>
+        <div class="conversa">
+          <div class="b" data-surge><div class="onda"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9.5-5.5z"/></svg><span></span><em>0:14</em></div><small>02:26</small></div>
+          <div class="b m" data-surge>Entendi: apartamento de 2 quartos para comprar, até R$ 450 mil, perto do centro. Tenho 2 opções. Quer ver as fotos?<small>02:26</small></div>
+          <span class="exemplo" data-surge>conversa de exemplo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="batida w" data-hora="03:12">
+      <div class="batida-in">
+        <div class="batida-txt">
+          <span class="hora">03:12</span>
+          <h2 class="d2">Ele quer visitar.</h2>
+          <p class="lead">Ela anota o pedido e avisa o corretor no WhatsApp dele. Quem confirma é a sua equipe, com um toque.</p>
+        </div>
+        <div class="conversa">
+          <div class="b" data-surge>Posso ver sábado de manhã?<small>03:12</small></div>
+          <div class="b m" data-surge>Anotei sábado de manhã e já avisei a equipe. Assim que confirmarem, te aviso por aqui.<small>03:12</small></div>
+          <div class="alerta" data-surge><b>Pedido de visita · sábado de manhã</b><span>No WhatsApp do corretor</span><div class="btns"><span>Confirmar</span><span>Outro horário</span><span>Eu assumo</span></div></div>
+          <span class="exemplo" data-surge>conversa de exemplo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="batida dia w" data-hora="06:10">
+      <div class="batida-in">
+        <div class="batida-txt">
+          <span class="hora">06:10</span>
+          <h2 class="d1">Bom dia. Está tudo anotado.</h2>
+          <p class="lead">Sua equipe chega e encontra as conversas e as fichas no painel. Se o corretor assumir, ela fica quieta e o cliente não repete nada.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="claro" id="painel">
+    <div class="w">
+      <div class="palco-painel">
+        <div class="painel" id="painel3d" role="img" aria-label="Exemplo do painel da Milla: lista de conversas, conversa aberta e ficha do cliente">
+          <div class="painel-top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#07131F"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#07131F"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#07131F"/></svg><span class="on">Conversas</span><span>Fichas</span><span>Imóveis</span><span>Equipe</span></div>
+          <div class="painel-grade">
+            <div>
+              <div class="lead-l on"><b>Carla</b><i>03:12</i><small>Quer visitar sábado de manhã</small></div>
+              <div class="lead-l"><b>Rafael</b><i>02:26</i><small>Apartamento, 2 quartos, compra</small></div>
+              <div class="lead-l"><b>Júlia</b><i>23:48</i><small>Casa para o Natal, 6 pessoas</small></div>
+              <div class="lead-l"><b>Marcos</b><i>22:05</i><small>Aluguel anual, centro</small></div>
+            </div>
+            <div class="conv">
+              <div class="b">Posso ver sábado de manhã?<small>03:12</small></div>
+              <div class="b m">Anotei sábado de manhã e já avisei a equipe. Assim que confirmarem, te aviso por aqui.<small>03:12</small></div>
+              <div class="b">Perfeito, obrigada!<small>03:13</small></div>
+            </div>
+            <dl class="ficha">
+              <h3>Ficha da Carla</h3>
+              <div><dt>Procura</dt><dd>Casa de temporada, 3 quartos</dd></div>
+              <div><dt>Quando</dt><dd>Natal, 6 pessoas</dd></div>
+              <div><dt>Valor</dt><dd>Até R$ 800 por diária</dd></div>
+              <p class="pedido">Visita pedida: sábado de manhã</p>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <p class="nota" style="margin-top:14px">Tela de exemplo, com dados fictícios.</p>
+    </div>
+
+    <div class="w" style="margin-top:104px">
+      <div class="bloco"><h2 class="d2">Não é <s>chatbot</s>.</h2></div>
+      <div class="par">
+        <div class="caso">
+          <span class="rot">Chatbot de menu</span>
+          <p class="fala">Digite 1 para comprar. Digite 2 para alugar. Opção inválida.</p>
+          <ul><li>O cliente escreve à noite e espera até de manhã</li><li>O corretor repete as mesmas respostas o dia inteiro</li><li>O contato se perde em conversas soltas</li></ul>
+        </div>
+        <div class="caso bom">
+          <span class="rot">Milla</span>
+          <p class="fala">Oi! Sou a Milla. É pra morar ou pra passar uma temporada?</p>
+          <ul><li>Resposta em segundos, a qualquer hora</li><li>O corretor recebe o cliente pronto para visitar</li><li>Cada conversa vira uma ficha no painel</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="claro" id="conta" style="padding-bottom:64px">
+    <div class="w">
+      <div class="bloco">
+        <span class="rot">Estudo comparativo · novembro de 2026</span>
+        <h2 class="d2">Milla e Laís, lado a lado.</h2>
+        <p class="lead">A Laís, da Lastro, é a inteligência artificial mais usada pelas imobiliárias do Brasil, com cerca de 1.000 clientes. Ela abriu esse caminho e faz um trabalho sério. A Milla é a concorrente menor, feita em Curitiba, para quem quer esse atendimento com mensalidade fixa.</p>
+      </div>
+      <h3 class="d3" style="margin-bottom:22px">Quanto custa em 12 meses</h3>
+      <div class="barras" id="barras">
+        <div class="linha-b"><header><div><b>Laís</b> <span>R$ 2.500 por mês, média publicada*</span></div><strong class="num">R$ 30.000</strong></header><div class="trilho"><i style="width:100%"></i></div></div>
+        <div class="linha-b"><header><div><b>Milla Premium</b> <span>R$ 5.000 uma vez, mais R$ 460 por mês</span></div><strong class="num">R$ 10.520</strong></header><div class="trilho"><i class="m" style="width:35.07%"></i></div></div>
+        <div class="linha-b"><header><div><b>Milla Pro</b> <span>R$ 3.500 uma vez, mais R$ 460 por mês</span></div><strong class="num">R$ 9.020</strong></header><div class="trilho"><i class="m" style="width:30.07%"></i></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faixa">
+    <div class="w faixa-in">
+      <div class="gigante num" id="gigante">R$ 19.480</div>
+      <p>a menos no primeiro ano com o Premium, comparado à média publicada da Laís. Em dois anos, R$ 43.960.</p>
+    </div>
+  </section>
+
+  <section class="claro" style="padding-top:56px">
+    <div class="w">
+      <div class="tabela">
+        <table>
+          <thead><tr><th scope="col"></th><th scope="col">1 ano</th><th scope="col">2 anos</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Laís*</th><td>R$ 30.000</td><td>R$ 60.000</td></tr>
+            <tr><th scope="row">Milla Premium</th><td>R$ 10.520</td><td>R$ 16.040</td></tr>
+            <tr><th scope="row">Milla Pro</th><td>R$ 9.020</td><td>R$ 14.540</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="nota" style="margin-top:16px">* A Lastro não publica preço. R$ 2.500 por mês é a média por cliente divulgada pela imprensa em setembro de 2025, e nessa conta entram imobiliárias grandes. Uma imobiliária menor pode pagar menos: mesmo pela metade da média, seriam R$ 15.000 no ano. Peça uma proposta da Laís para comparar com o seu caso.</p>
+
+      <div class="bloco" style="margin-top:96px;margin-bottom:0">
+        <h2 class="d2">Função por função.</h2>
+        <nav class="contas" aria-label="Resumo das funções">
+          <a class="ch" href="#pronto"><i class="ok"></i>8 prontas hoje</a>
+          <a class="ch" href="#implantacao"><i class="imp"></i>6 na implantação</a>
+          <a class="ch" href="#depende"><i class="dep"></i>4 dependem de terceiros</a>
+        </nav>
+      </div>
+
+      <div class="grupo" id="pronto">
+        <div class="grupo-t"><i class="ok"></i><h3 class="d3">Pronto hoje</h3></div>
+        <div class="lin"><h4>Atende no WhatsApp oficial, 24 horas</h4><p>Responde na hora, de dia, de noite e no fim de semana.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Mostra os seus imóveis com preço, foto e link</h4><p>Ela só oferece o que existe na sua carteira.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Descobre o que o cliente procura e monta a ficha</h4><p>Compra, aluguel ou temporada, bairro, valor, quartos, datas e número de pessoas.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Pedido de visita que a equipe só confirma</h4><p>O corretor recebe no WhatsApp dele, com os botões Confirmar, Outro horário e Eu assumo.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Corretor assume no mesmo número</h4><p>Pelo painel ou pelo botão Eu assumo. Ela fica quieta e o cliente não repete nada.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Painel com conversas e fichas</h4><p>Conversas, clientes, imóveis e equipe, no computador e no celular.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Anúncio do Facebook e Instagram que abre o WhatsApp</h4><p>Quem toca no anúncio cai direto na Milla, a qualquer hora.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Entende áudio e foto</h4><p>O cliente manda áudio ou foto. Ela ouve, olha e responde por escrito.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+      </div>
+
+      <div class="grupo" id="implantacao">
+        <div class="grupo-t"><i class="imp"></i><h3 class="d3">Na implantação</h3><em>feito para você, em até 3 semanas</em></div>
+        <div class="lin"><h4>Imóvel novo no site entra sozinho</h4><p>Atualização automática todos os dias, direto do seu site.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Cliente dos portais recebe a primeira mensagem em segundos</h4><p>Zap, VivaReal, OLX, Imovelweb e Chaves na Mão, nos portais onde você anuncia.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Números e relatório do mês</h4><p>De onde vêm os clientes, a que horas escrevem e quantos pediram visita.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Chamar de volta quem sumiu</h4><p>Mensagem aprovada pela Meta para quem parou de responder. A Meta cobra cerca de R$ 0,35 por pessoa.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Falar com os proprietários</h4><p>Pergunta se o imóvel continua disponível e se o preço mudou, e avisa a equipe.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Pedido de conserto do inquilino</h4><p>Anota o problema e avisa a equipe no WhatsApp.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+      </div>
+
+      <div class="grupo" id="depende">
+        <div class="grupo-t"><i class="dep"></i><h3 class="d3">Depende de terceiros</h3><em>da Meta ou do seu sistema</em></div>
+        <div class="lin"><h4>Atendimento no direct do Instagram</h4><p>Pronto do nosso lado. Falta a aprovação da Meta, que está em análise.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Seu número atual junto com a equipe</h4><p>O número continua no celular da equipe e ela responde quando ninguém responde. Depende da mesma aprovação da Meta.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>não informa</b></span></div>
+        <div class="lin"><h4>Segunda via de boleto</h4><p>Depende de o seu sistema de cobrança ter uma ligação aberta para outros programas.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Ficha direto no seu sistema</h4><p>Quem fez o seu sistema precisa criar uma entrada para ela.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+      </div>
+
+      <div class="bloco" style="margin-top:104px">
+        <h2 class="d2">Qual escolher.</h2>
+      </div>
+      <div class="par">
+        <div class="caso">
+          <span class="rot">A Laís pode ser melhor se</span>
+          <ul><li>Você tem uma rede grande, com muitas lojas</li><li>Precisa de muitas integrações já prontas (ela informa 230)</li><li>Quer uma plataforma com captação, marketing e gestão no mesmo contrato</li></ul>
+        </div>
+        <div class="caso bom">
+          <span class="rot">A Milla é para você se</span>
+          <ul><li>Sua imobiliária é pequena ou média</li><li>Quer saber quanto vai pagar antes de começar</li><li>Quer falar direto com quem montou o atendimento</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="claro" id="planos" style="padding-top:24px">
+    <div class="w">
+      <div class="bloco">
+        <h2 class="d2">Dois planos, a mesma mensalidade.</h2>
+      </div>
+      <div class="planos">
+        <div class="plano">
+          <h3>Pro</h3>
+          <p class="preco num">R$ 3.500<small>de implantação, uma vez, mais R$ 460 por mês</small></p>
+          <ul><li>As 8 funções prontas hoje</li><li>Imóvel novo entra sozinho</li><li>Instagram e o seu número junto com a equipe, quando a Meta liberar</li></ul>
+        </div>
+        <div class="plano forte">
+          <h3>Premium</h3>
+          <p class="preco num">R$ 5.000<small>de implantação, uma vez, mais os mesmos R$ 460 por mês</small></p>
+          <ul><li>Tudo do Pro</li><li>Clientes dos portais, relatório do mês e chamar de volta quem sumiu</li><li>Proprietários, conserto do inquilino e segunda via de boleto</li></ul>
+        </div>
+      </div>
+      <p class="nota" style="margin-top:16px">A mensalidade cobre a inteligência artificial, as mensagens do atendimento e os ajustes da Milla. Fica de fora só a mensagem para chamar de volta quem sumiu: a Meta cobra cerca de R$ 0,35 por pessoa. Com o seu número fixo, não há custo de linha. Um número novo custa R$ 29,90 por mês.</p>
+
+      <div class="bloco" style="margin-top:96px;margin-bottom:12px"><h2 class="d2">Perguntas.</h2></div>
+      <details><summary>A Milla substitui o corretor?</summary><p>Não. Ela faz o primeiro atendimento e organiza o pedido. Quem fecha é o corretor, e ele assume a conversa quando quiser.</p></details>
+      <details><summary>Ela pode inventar imóvel ou prometer o que não deve?</summary><p>Ela só oferece o que está na sua carteira. Horário de visita, aceitar pet, fiador e condomínio ela anota e passa para a equipe confirmar.</p></details>
+      <details><summary>Preciso trocar meu número?</summary><p>Você pode usar o seu número fixo ou um número novo, por R$ 29,90 por mês. Usar o número ao mesmo tempo no celular da equipe depende de uma aprovação da Meta que está em análise. O número continua sendo seu.</p></details>
+      <details><summary>Ela pode ter outro nome?</summary><p>Pode. Milla é o nome da demonstração. Na sua imobiliária, ela se apresenta com o nome e o jeito de falar que você escolher.</p></details>
+      <details><summary>Quem paga a inteligência artificial?</summary><p>Já está na mensalidade. Você não precisa abrir conta em nenhum serviço de IA.</p></details>
+    </div>
+  </section>
+
+  <section class="final w" id="fim">
+    <div class="final-in">
+      <div class="final-txt">
+        <h2 class="d1">Mande um oi. Ela responde.</h2>
+        <a class="numero num" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">(41) 96349-3440</a>
+        <div class="final-acao">
+          <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
+          <div class="qr"><svg viewBox="0 0 33 33" role="img" aria-label="Código QR para abrir a conversa com a Milla no WhatsApp"><path fill="#0A1118" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM20 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM29 0h1v1h-1zM30 0h1v1h-1zM31 0h1v1h-1zM32 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM21 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM8 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM32 8h1v1h-1zM0 9h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM25 9h1v1h-1zM29 9h1v1h-1zM30 9h1v1h-1zM31 9h1v1h-1zM32 9h1v1h-1zM0 10h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM18 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM29 10h1v1h-1zM31 10h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM13 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM31 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM6 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM22 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM26 12h1v1h-1zM29 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM30 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM15 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM23 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM3 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM23 17h1v1h-1zM29 17h1v1h-1zM30 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM3 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM0 19h1v1h-1zM1 19h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM29 20h1v1h-1zM32 20h1v1h-1zM0 21h1v1h-1zM1 21h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM16 21h1v1h-1zM19 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM31 21h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM7 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM16 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM31 22h1v1h-1zM2 23h1v1h-1zM3 23h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM11 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM31 23h1v1h-1zM32 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM31 24h1v1h-1zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM17 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM0 26h1v1h-1zM1 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM15 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM16 28h1v1h-1zM19 28h1v1h-1zM22 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h1v1h-1zM3 29h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM10 29h1v1h-1zM11 29h1v1h-1zM14 29h1v1h-1zM18 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM29 29h1v1h-1zM30 29h1v1h-1zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM10 30h1v1h-1zM11 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM15 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM20 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM14 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM21 31h1v1h-1zM22 31h1v1h-1zM23 31h1v1h-1zM24 31h1v1h-1zM25 31h1v1h-1zM26 31h1v1h-1zM29 31h1v1h-1zM0 32h1v1h-1zM1 32h1v1h-1zM2 32h1v1h-1zM3 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM14 32h1v1h-1zM16 32h1v1h-1zM17 32h1v1h-1zM18 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM25 32h1v1h-1zM26 32h1v1h-1zM29 32h1v1h-1zM32 32h1v1h-1z"/></svg></div>
+          <span class="qr-txt">No computador? Aponte a câmera do celular.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="w rodape">
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -126.9 2804.3 824.3"><g transform="translate(0 -112.2) scale(8.243)"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></g><g transform="translate(914.3 0)"><path d="M45.9996337890625 660.0V0.0H239.33599853515625L402.6676025390625 514.9971923828125H404.6676025390625L565.9991455078125 0.0H750.3352661132812V660.0H631.3333740234375V128.00213623046875H629.3333740234375L457.33477783203125 660.0H337.666748046875L167.00152587890625 127.6688232421875H165.00152587890625V660.0Z M823.3330078125 660.0V137.9996337890625H950.0018310546875V660.0Z M1018.3330078125 660.0V-30.0006103515625H1145.0018310546875V660.0Z M1213.3330078125 660.0V-30.0006103515625H1340.0018310546875V660.0Z M1542.9999389648438 673.6666870117188Q1502.6666259765625 673.6666870117188 1467.4999084472656 659.3333740234375Q1432.3331909179688 645.0000610351562 1410.4997863769531 613.6667175292969Q1388.6663818359375 582.3333740234375 1388.6663818359375 530.9999389648438Q1388.6663818359375 483.99981689453125 1406.6664428710938 454.3330993652344Q1424.66650390625 424.6663818359375 1455.8332214355469 406.3330383300781Q1486.9999389648438 387.99969482421875 1525.6665649414062 378.1663818359375Q1564.3331909179688 368.33306884765625 1604.9996337890625 361.33306884765625Q1659.3328247070312 351.6663818359375 1685.9994506835938 345.8330383300781Q1712.6660766601562 339.99969482421875 1721.6661071777344 331.4997253417969Q1730.6661376953125 322.999755859375 1730.6661376953125 307.66650390625Q1730.6661376953125 268.6671142578125 1703.6664733886719 248.00079345703125Q1676.6668090820312 227.33447265625 1635.0005493164062 227.33447265625Q1609.3341064453125 227.33447265625 1584.0009765625 237.00103759765625Q1558.6678466796875 246.6676025390625 1541.8346862792969 269.6674499511719Q1525.0015258789062 292.66729736328125 1524.0016479492188 333.00048828125L1409.66650390625 322.00054931640625Q1410.6663208007812 264.6668701171875 1431.1663513183594 226.33334350585938Q1451.6663818359375 187.99981689453125 1485.3332214355469 165.66641235351562Q1519.0000610351562 143.3330078125 1558.8336181640625 133.66632080078125Q1598.6671752929688 123.9996337890625 1638.3340454101562 123.9996337890625Q1707.3346557617188 123.9996337890625 1755.5014953613281 149.83319091796875Q1803.6683349609375 175.666748046875 1829.0016174316406 226.00039672851562Q1854.3348999023438 276.33404541015625 1854.3348999023438 350.66766357421875V446.66754150390625Q1854.668212890625 482.000732421875 1854.8348693847656 517.8339233398438Q1855.0015258789062 553.6671142578125 1855.1681823730469 589.1669616699219Q1855.3348388671875 624.6668090820312 1855.3348388671875 660.0H1742.66650390625Q1744.3330688476562 619.3336181640625 1745.6663208007812 579.1671447753906Q1746.9995727539062 539.0006713867188 1748.3328247070312 494.66754150390625H1741.3328857421875Q1735.6663208007812 544.3339233398438 1709.3330383300781 585.0003967285156Q1682.999755859375 625.6668701171875 1640.6664733886719 649.6667785644531Q1598.3331909179688 673.6666870117188 1542.9999389648438 673.6666870117188ZM1589.001220703125 576.9987182617188Q1613.0007934570312 576.9987182617188 1637.6671447753906 567.3322448730469Q1662.33349609375 557.665771484375 1683.1666259765625 537.6660766601562Q1703.999755859375 517.6663818359375 1716.9996337890625 486.6666564941406Q1729.99951171875 455.66693115234375 1730.6661376953125 413.6671142578125L1730.9994506835938 390.333740234375L1757.6661376953125 384.667236328125Q1747.9995727539062 399.00048828125 1726.3330993652344 407.1671447753906Q1704.6666259765625 415.33380126953125 1677.1669006347656 420.0004577636719Q1649.6671752929688 424.6671142578125 1621.6674499511719 429.6670837402344Q1593.667724609375 434.66705322265625 1569.66796875 443.8336181640625Q1545.668212890625 453.00018310546875 1530.8350219726562 468.83331298828125Q1516.0018310546875 484.66644287109375 1516.0018310546875 512.332763671875Q1516.0018310546875 542.6658325195312 1536.0017395019531 559.832275390625Q1556.0016479492188 576.9987182617188 1589.001220703125 576.9987182617188Z" fill="#FFF4E0"/><path transform="translate(800.5 -60.0) scale(1.72)" d="M26 8H74A18 18 0 0 1 92 26V64A18 18 0 0 1 74 82H26L8 92V26A18 18 0 0 1 26 8Z" fill="#FFB52E"/></g></svg>
+      <p>Uma criação do studio Ti Artes, Curitiba.</p>
+      <p>+55 41 99156-6444 · @estudio_ti_artes</p>
+      <p>Empresa verificada pela Meta · Tech Provider</p>
+    </div>
+    <div>
+      <p>Informações da Laís conferidas em novembro de 2026 no <a href="https://lais.ai/" target="_blank" rel="noopener">site da Laís</a> e em reportagens de setembro de 2025 (<a href="https://portas.com.br/noticias/ia-para-imobiliarias-recebe-aporte-da-dona-do-ifood/" target="_blank" rel="noopener">Portas</a>, <a href="https://startups.com.br/negocios/proptechs/proptech-lastro-levanta-serie-a-de-r-85m-liderada-pela-prosus/" target="_blank" rel="noopener">Startups</a>). Laís e Lastro são marcas de seus donos, e este estudo não tem ligação com a empresa.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.0/dist/lenis.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.170.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.170.0/examples/jsm/"}}</script>
+<script>setTimeout(function () { if (!window.__milla) document.documentElement.classList.add("sem3d"); }, 5000);</script>
+<script type="module">
+// A cena da Milla: uma única matriz de milhares de pequenos blocos.
+// Eles formam a marca (a janela acesa), caem no chão, viram uma cidade abstrata e acendem em onda: cada bloco aceso é uma conversa.
+// Tudo é posição calculada na placa de vídeo a partir de poucos números ligados à rolagem.
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const VIDRACAS = {"te": "M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z", "td": "M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z", "bd": "M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z", "be": "M8 48.5H46.5V82H26L8 92Z"};
+const Q = new URLSearchParams(location.search);
+const SO3D = Q.has('so3d');                     // só para gerar as artes
+const U_FIXO = Q.has('u') ? +Q.get('u') : null;
+const CALMO = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CELULAR = matchMedia('(max-width: 900px)').matches || /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const suave = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const amortece = (de, para, forca, dt) => de + (para - de) * (1 - Math.pow(1 - forca, dt * 60));
+
+function iniciar() {
+  const canvas = document.getElementById('cena');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' }); }
+  catch (e) { document.documentElement.classList.add('sem3d'); return null; }
+  let dpr = Math.min(devicePixelRatio || 1, CELULAR ? 1.5 : 2);
+  renderer.setPixelRatio(dpr);
+  renderer.toneMapping = THREE.NoToneMapping;      // a cor da marca sai exata
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  const cor = (h) => new THREE.Color(h);
+  const NOITE = cor('#070C12'), CLARO = cor('#F3F5F6');
+  const scene = new THREE.Scene();
+  const fundo = NOITE.clone();
+  scene.background = fundo;
+  const camera = new THREE.PerspectiveCamera(30, 1, 1, 900);
+
+  // --- amostra a marca num canvas pequeno: cada pixel aceso vira um bloco
+  const LADO = CELULAR ? 36 : 50, LARG_MARCA = 36, PASSO = LARG_MARCA / LADO, CENTRO_Y = 16;
+  const am = document.createElement('canvas'); am.width = am.height = LADO;
+  const c2 = am.getContext('2d', { willReadFrequently: true });
+  c2.scale(LADO / 100, LADO / 100);
+  for (const k in VIDRACAS) { c2.fillStyle = k === 'td' ? '#0f0' : '#f00'; c2.fill(new Path2D(VIDRACAS[k])); }
+  const px = c2.getImageData(0, 0, LADO, LADO).data;
+  const marca = [];
+  for (let y = 0; y < LADO; y++) for (let x = 0; x < LADO; x++) {
+    const i = (y * LADO + x) * 4, r = px[i], g = px[i + 1];
+    if (r + g < 150) continue;
+    marca.push({ x: (x + .5 - LADO * .5) * PASSO + .0, y: CENTRO_Y + ((LADO * .49) - (y + .5)) * PASSO, acesa: g > r ? 1 : 0 });
+  }
+
+  // --- o chão: uma grade, com a marca pousando no miolo
+  const NX = CELULAR ? 74 : 124, NZ = CELULAR ? 48 : 74;
+  const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+  const ruido = (x, z) => {
+    const ix = Math.floor(x), iz = Math.floor(z); let fx = x - ix, fz = z - iz;
+    fx = fx * fx * (3 - 2 * fx); fz = fz * fz * (3 - 2 * fz);
+    const l = (a, b, t) => a + (b - a) * t;
+    return l(l(hash(ix, iz), hash(ix + 1, iz), fx), l(hash(ix, iz + 1), hash(ix + 1, iz + 1), fx), fz);
+  };
+  const celulas = [];
+  for (let ix = 0; ix < NX; ix++) for (let iz = 0; iz < NZ; iz++) {
+    const x = ix - NX / 2 + .5, z = iz - NZ / 2 + .5, r = Math.hypot(x, z * 1.5);
+    let h = Math.pow(ruido(x * .085 + 9, z * .085 + 3) * .7 + ruido(x * .24, z * .24) * .3, 2.4) * 2.2 * (1 - .55 * clamp(r / 62));
+    if (hash(x, z) > .975) h += .28 * hash(z, x) + .14;
+    celulas.push({ x, z, r, h: Math.round(clamp(h) * 16) / 16 });
+  }
+  celulas.sort((a, b) => a.r - b.r);
+  const noMiolo = celulas.slice(0, marca.length).sort((a, b) => a.x - b.x || a.z - b.z);
+  const resto = celulas.slice(marca.length);
+  marca.sort((a, b) => a.x - b.x || b.y - a.y);
+  const rMax = celulas[celulas.length - 1].r;
+
+  const n = celulas.length;
+  const aGrid = new Float32Array(n * 2), aSym = new Float32Array(n * 3), aA = new Float32Array(n * 4), aB = new Float32Array(n * 2);
+  const grava = (i, c, m) => {
+    aGrid[i * 2] = c.x; aGrid[i * 2 + 1] = c.z;
+    if (m) { aSym[i * 3] = m.x; aSym[i * 3 + 1] = m.y; }
+    const rnd = hash(c.x * 1.3, c.z * .7);
+    const acende = hash(c.z + 3, c.x - 5) < .3;
+    aA[i * 4] = m ? 1 : 0; aA[i * 4 + 1] = m ? m.acesa : 0; aA[i * 4 + 2] = c.h;
+    aA[i * 4 + 3] = acende ? clamp(c.r / rMax) * .96 + rnd * .08 : 9;
+    aB[i * 2] = rnd; aB[i * 2 + 1] = .5 + clamp(c.r / rMax) * .4;
+  };
+  noMiolo.forEach((c, i) => grava(i, c, marca[i]));
+  resto.forEach((c, i) => grava(i + noMiolo.length, c, null));
+
+  const base = CELULAR ? new THREE.BoxGeometry(1, 1, 1) : new RoundedBoxGeometry(1, 1, 1, 2, .14);
+  const geo = new THREE.InstancedBufferGeometry();
+  geo.index = base.index; geo.setAttribute('position', base.attributes.position); geo.setAttribute('normal', base.attributes.normal);
+  geo.setAttribute('aGrid', new THREE.InstancedBufferAttribute(aGrid, 2));
+  geo.setAttribute('aSym', new THREE.InstancedBufferAttribute(aSym, 3));
+  geo.setAttribute('aA', new THREE.InstancedBufferAttribute(aA, 4));
+  geo.setAttribute('aB', new THREE.InstancedBufferAttribute(aB, 2));
+  geo.instanceCount = n;
+
+  const U = {
+    uForm: { value: 0 }, uCity: { value: 0 }, uWave: { value: 0 }, uDay: { value: 0 }, uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(999, 999) },
+    uBg: { value: fundo }, uAcesa: { value: new THREE.Color('#FFB52E') }, uMarfim: { value: new THREE.Color('#F6F3EC') },
+    uAscende: { value: 1 },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: U,
+    vertexShader: /* glsl */`
+      precision highp float;
+      attribute vec2 aGrid; attribute vec3 aSym; attribute vec4 aA; attribute vec2 aB;
+      uniform float uForm, uCity, uTime; uniform vec2 uMouse;
+      varying vec3 vN; varying vec3 vW; varying float vTopo, vF, vPane, vT, vRnd, vNaMarca;
+      float ease(float x){ return x*x*x*(x*(x*6.-15.)+10.); }
+      void main(){
+        float naMarca = aA.x, rnd = aB.x;
+        float t = clamp(uForm*1.4 - rnd*.4, 0., 1.);
+        float f = naMarca > .5 ? ease(t) : 1.;
+        float grow = naMarca > .5 ? 1. : smoothstep(aB.y, aB.y+.24, uForm);
+
+        vec3 s = aSym;
+        vec2 dm = s.xy - uMouse;
+        s.z += sin(uTime*.9 + s.x*.21 + s.y*.16)*.24 + exp(-dot(dm,dm)*.03)*3.2;
+        vec3 g = vec3(aGrid.x, 0., aGrid.y);
+        vec3 c = mix(s, g, f);
+        c.y += sin(f*3.14159)*(3.+rnd*11.);
+
+        float h = .1 + aA.z*8.5*uCity;
+        vec3 esc = mix(vec3(.5,.5,.5), vec3(.7,h,.7), f) * vec3(grow, grow > .001 ? 1. : 0., grow);
+        vec3 p = position * esc;
+
+        float a = sin(f*3.14159)*(rnd-.5)*5.;
+        float ca = cos(a), sa = sin(a);
+        p.xz = mat2(ca,-sa,sa,ca)*p.xz;
+        vec3 n = normal; n.xz = mat2(ca,-sa,sa,ca)*n.xz;
+
+        c.y += h*.5*f;
+        vec3 w = c + p;
+        vN = n; vW = w; vF = f; vPane = aA.y; vT = aA.w; vRnd = rnd; vNaMarca = naMarca;
+        vTopo = mix(position.z, position.y, f) + .5;
+        gl_Position = projectionMatrix * viewMatrix * vec4(w, 1.);
+      }`,
+    fragmentShader: /* glsl */`
+      precision highp float;
+      uniform float uWave, uDay, uTime, uAscende, uForm; uniform vec3 uBg, uAcesa, uMarfim;
+      varying vec3 vN; varying vec3 vW; varying float vTopo, vF, vPane, vT, vRnd, vNaMarca;
+      void main(){
+        vec3 N = normalize(vN);
+        float d = max(dot(N, normalize(vec3(-.45,.78,.55))), 0.);
+        vec3 pedraN = vec3(.017,.027,.04), pedraD = vec3(.93,.94,.95);
+        vec3 pedra = mix(pedraN*(.45+1.7*d), pedraD*(.72+.33*d), uDay);
+        vec3 marca = uMarfim*(.3+.34*d);
+        vec3 col = mix(marca, pedra, smoothstep(.0,.5,vF));
+
+        float onda = vT > 5. ? 0. : smoothstep(vT, vT+.035, uWave);
+        float janela = vPane*(1.-smoothstep(.0,.3,vF))*uAscende;
+        float on = max(onda, janela);
+        float pisca = .92+.08*sin(uTime*1.7+vRnd*60.);
+        float tampa = smoothstep(.9,.99,vTopo);
+        float andar = smoothstep(.72,.8,fract(vW.y*1.15))*smoothstep(.0,.25,vF)*(1.-tampa);
+        float forca = tampa + andar*.62 + (1.-tampa)*.05;
+        vec3 luz = uAcesa*(1.+.12*tampa)*pisca;
+        luz = mix(luz, uAcesa, uDay);
+        col = mix(col, luz, on*clamp(forca,0.,1.));
+
+        float borda = vF*smoothstep(20.*BORDA, 43.*BORDA, length(vW.xz*vec2(.62,1.)));
+        col = mix(col, uBg, clamp(borda,0.,1.));
+        gl_FragColor = vec4(col, 1.);
+      }`.replace(/BORDA/g, CELULAR ? '.72' : '1.'),
+  });
+  const malha = new THREE.Mesh(geo, mat);
+  malha.frustumCulled = false;
+  scene.add(malha);
+
+  // --- acabamento
+  const alvo = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: CELULAR ? 0 : 4 });
+  const composer = new EffectComposer(renderer, alvo);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .55, .7, .5);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+  const grao = new ShaderPass({
+    uniforms: { tDiffuse: { value: null }, uT: { value: 0 }, uG: { value: .045 } },
+    vertexShader: 'varying vec2 vU; void main(){ vU=uv; gl_Position=vec4(position.xy,0.,1.); }',
+    fragmentShader: `precision mediump float; uniform sampler2D tDiffuse; uniform float uT,uG; varying vec2 vU;
+      float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233))+uT)*43758.5453); }
+      void main(){ vec4 c=texture2D(tDiffuse,vU); c.rgb+=(h(vU*vec2(1.7,2.3))-.5)*uG; gl_FragColor=c; }`,
+  });
+  composer.addPass(grao);
+
+  // --- câmera: a primeira pose depende da tela; o resto é um trilho
+  let heroP = new THREE.Vector3(), heroL = new THREE.Vector3(), fatorDist = 1, trilhoP, trilhoL;
+  const KP = [[-58, 70, 92], [-44, 40, 66], [34, 21, 58], [78, 58, 72], [0, 176, 58]];
+  const KL = [[0, 0, -6], [6, 2, -6], [20, 3, -14], [10, 0, -6], [0, 0, -5]];
+  function medir() {
+    const w = innerWidth, h = innerHeight, asp = w / h;
+    renderer.setSize(w, h, false); composer.setPixelRatio(dpr); composer.setSize(w, h);
+    bloom.setSize(Math.max(256, w / (CELULAR ? 3 : 2)), Math.max(256, h / (CELULAR ? 3 : 2)));
+    camera.aspect = asp; camera.updateProjectionMatrix();
+    const tan = Math.tan(THREE.MathUtils.degToRad(15));
+    const D = Math.max(112, LARG_MARCA / (.56 * 2 * tan * asp));
+    const altV = 2 * D * tan, largV = altV * asp;
+    const dx = asp > 1.05 ? -.235 * largV : 0, dy = Q.has('dy') ? +Q.get('dy') * altV : (asp > 1.05 ? 0 : -.27 * altV);
+    heroP.set(dx, CENTRO_Y + dy, D); heroL.set(dx, CENTRO_Y + dy, 0);
+    fatorDist = clamp(1.5 / asp, 1, 1.9);
+    trilhoP = new THREE.CatmullRomCurve3([heroP.clone(), ...KP.map(k => new THREE.Vector3(k[0] * fatorDist, k[1] * fatorDist, k[2] * fatorDist))], false, 'centripetal');
+    trilhoL = new THREE.CatmullRomCurve3([heroL.clone(), ...KL.map(k => new THREE.Vector3(...k))], false, 'centripetal');
+  }
+  medir();
+  addEventListener('resize', () => { medir(); desenhaUmaVez(); });
+
+  // --- ponteiro: mexe nos blocos e, de leve, na câmera
+  const ray = new THREE.Raycaster(), plano = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), v = new THREE.Vector3();
+  const pont = { x: 0, y: 0, sx: 0, sy: 0 };
+  addEventListener('pointermove', (e) => { pont.x = e.clientX / innerWidth * 2 - 1; pont.y = -(e.clientY / innerHeight * 2 - 1); }, { passive: true });
+
+  // --- o estado, atualizado pela rolagem
+  const estado = { u: U_FIXO ?? 0, alvoU: U_FIXO ?? 0, fim: 0, ativo: true };
+  const pos = new THREE.Vector3(), olho = new THREE.Vector3();
+
+  function aplica(u, fim) {
+    const forma = suave(.015, .2, u), cidade = suave(.2, .42, u), onda = suave(.2, .8, u) * 1.14, dia = suave(.8, .91, u);
+    U.uForm.value = forma * (1 - fim);
+    U.uCity.value = cidade * (1 - fim);
+    U.uWave.value = onda * (1 - fim);
+    U.uDay.value = fim > 0 ? 0 : dia;
+    U.uAscende.value = 1;
+    fundo.copy(NOITE).lerp(CLARO, U.uDay.value);
+    bloom.strength = (CELULAR ? .45 : .55) * (1 - U.uDay.value);
+    grao.uniforms.uG.value = .045 * (1 - U.uDay.value * .8);
+    trilhoP.getPoint(clamp(u), pos); trilhoL.getPoint(clamp(u), olho);
+    if (fim > 0) { pos.lerp(heroCentro(), Math.min(fim * 1.4, 1)); olho.lerp(alvoCentro(), Math.min(fim * 1.4, 1)); }
+    camera.position.copy(pos);
+    const k = (1 - clamp(u / .2)) * 3 + .8;
+    camera.position.x += pont.sx * k; camera.position.y += pont.sy * k * .7;
+    camera.lookAt(olho);
+  }
+  const cFinal = new THREE.Vector3(), lFinal = new THREE.Vector3();
+  function heroCentro() {
+    const asp = camera.aspect, tan = Math.tan(THREE.MathUtils.degToRad(15));
+    const D = Math.max(100, LARG_MARCA / (.46 * 2 * tan * asp)), altV = 2 * D * tan, largV = altV * asp;
+    return cFinal.set(asp > 1.05 ? -.235 * largV : 0, CENTRO_Y + (asp > 1.05 ? -.04 * altV : -.31 * altV), D);
+  }
+  function alvoCentro() { return lFinal.set(cFinal.x, cFinal.y, 0); }
+
+  const relogio = new THREE.Clock();
+  let quadros = 0, soma = 0, nivel = 0;
+  function quadro() {
+    requestAnimationFrame(quadro);
+    if (!estado.ativo || document.hidden) { relogio.getDelta(); return; }
+    const dt = Math.min(relogio.getDelta(), .05);
+    U.uTime.value += dt;
+    grao.uniforms.uT.value = (grao.uniforms.uT.value + dt) % 10;
+    estado.u = U_FIXO ?? amortece(estado.u, estado.alvoU, .085, dt);
+    pont.sx = amortece(pont.sx, pont.x, .05, dt); pont.sy = amortece(pont.sy, pont.y, .05, dt);
+    // ponteiro sobre o plano da marca
+    if (estado.u < .05 || estado.fim > .5) {
+      ray.setFromCamera({ x: pont.x, y: pont.y }, camera);
+      if (ray.ray.intersectPlane(plano, v)) U.uMouse.value.set(amortece(U.uMouse.value.x, v.x, .12, dt), amortece(U.uMouse.value.y, v.y, .12, dt));
+    }
+    aplica(estado.u, estado.fim);
+    composer.render(dt);
+
+    // se a máquina sofrer, abre mão de resolução e depois do brilho
+    if (dt > 0) { quadros++; soma += dt; }
+    if (quadros >= 50) {
+      const media = soma / quadros; quadros = 0; soma = 0;
+      if (media > .03 && nivel < 3) {
+        nivel++;
+        if (nivel < 3) { dpr = Math.max(.75, dpr * .75); medir(); }
+        else bloom.enabled = false;
+      }
+    }
+  }
+  function desenhaUmaVez() { aplica(estado.u, estado.fim); composer.render(0); }
+  return { estado, quadro, desenhaUmaVez, U };
+}
+
+const cena = iniciar();
+window.__milla = true;
+if (SO3D) { document.querySelectorAll('main,header,footer,#veu,.relogio').forEach(e => { e.style.display = 'none'; }); }
+if (cena && (CALMO || U_FIXO !== null)) { cena.estado.u = cena.estado.alvoU = U_FIXO ?? .62; cena.desenhaUmaVez(); }
+if (cena && !CALMO) cena.quadro();
+if (!cena) document.documentElement.classList.add('sem3d');
+
+if (window.gsap && window.ScrollTrigger && !CALMO && !SO3D) {
+  gsap.registerPlugin(ScrollTrigger);
+  const lenis = new Lenis({ lerp: .11, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', (e) => { const al = document.querySelector(a.getAttribute('href')); if (al) { e.preventDefault(); lenis.scrollTo(al, { offset: -70, duration: 1.4 }); } }));
+
+  // entrada do herói
+  gsap.from('[data-entra]', { y: 34, autoAlpha: 0, duration: 1.15, ease: 'power3.out', stagger: .09, delay: .15 });
+
+  const noite = document.getElementById('noite');
+  ScrollTrigger.create({ trigger: noite, start: 'top top', end: 'bottom bottom', onUpdate: (s) => { if (cena) cena.estado.alvoU = s.progress; atualizaRelogio(s.progress); } });
+
+  // o herói sai conforme a rolagem
+  gsap.to('.hero-in', { y: -90, autoAlpha: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: '70% top', scrub: true } });
+
+  // a frase-ponte
+  gsap.timeline({ scrollTrigger: { trigger: '.ponte', start: 'top bottom', end: 'bottom top', scrub: true } })
+    .fromTo('[data-ponte]', { autoAlpha: 0, y: 60, scale: .96 }, { autoAlpha: 1, y: 0, scale: 1, duration: .32, ease: 'none' }, .1)
+    .to('[data-ponte]', { autoAlpha: 0, y: -60, duration: .26, ease: 'none' }, .68).set({}, {}, 1);
+
+  // cada batida da noite: entra, as falas surgem em ordem, sai
+  document.querySelectorAll('.batida').forEach((b) => {
+    const dentro = b.querySelector('.batida-in');
+    const tl = gsap.timeline({ scrollTrigger: { trigger: b, start: 'top bottom', end: 'bottom top', scrub: true } });
+    tl.fromTo(dentro, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: .26, ease: 'none' }, .06);
+    b.querySelectorAll('[data-surge]').forEach((el, i) => tl.fromTo(el, { autoAlpha: 0, y: 24, scale: .97 }, { autoAlpha: 1, y: 0, scale: 1, duration: .08, ease: 'none' }, .24 + i * .075));
+    if (!b.classList.contains('dia')) tl.to(dentro, { autoAlpha: 0, y: -80, duration: .22, ease: 'none' }, .76);
+    tl.set({}, {}, 1);
+  });
+
+  // relógio: horas nas batidas, interpolando entre elas
+  const elHora = document.getElementById('hora'), elRel = document.querySelector('.relogio');
+  let marcos = [];
+  const min = (h) => { const [a, b] = h.split(':').map(Number); return (a < 12 ? a + 24 : a) * 60 + b; };
+  function mapeia() {
+    const tot = noite.offsetHeight - innerHeight;
+    marcos = [[0, min('23:40')], ...[...noite.querySelectorAll('[data-hora]')].map(b => [clamp((b.offsetTop + b.offsetHeight / 2 - innerHeight / 2) / tot), min(b.dataset.hora)])];
+  }
+  function atualizaRelogio(u) {
+    let m = marcos[marcos.length - 1][1];
+    for (let i = 0; i < marcos.length - 1; i++) if (u <= marcos[i + 1][0]) { const [a, ma] = marcos[i], [b, mb] = marcos[i + 1]; m = ma + (mb - ma) * clamp((u - a) / (b - a)); break; }
+    const t = Math.round(m) % 1440;
+    elHora.textContent = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+    const dia = suave(.8, .91, u);
+    elRel.style.opacity = suave(.03, .08, u) * (1 - suave(.96, 1, u));
+    elRel.style.color = dia > .5 ? '#0A1118' : '#F6F3EC';
+    veu.style.opacity = 1 - dia;
+  }
+  const veu = document.getElementById('veu');
+  mapeia(); addEventListener('resize', mapeia); ScrollTrigger.addEventListener('refresh', mapeia);
+
+  // painel inclinado que deita conforme a rolagem
+  gsap.fromTo('#painel3d', { rotateX: CELULAR ? 20 : 34, rotateZ: CELULAR ? 0 : -5, scale: CELULAR ? .96 : .86, y: 60 }, { rotateX: 0, rotateZ: 0, scale: 1, y: 0, ease: 'none', scrollTrigger: { trigger: '#painel3d', start: 'top 95%', end: 'top 22%', scrub: true } });
+
+  // barras e o número grande
+  gsap.utils.toArray('#barras .trilho i').forEach((b, i) => gsap.from(b, { scaleX: 0, ease: 'none', scrollTrigger: { trigger: b, start: 'top 92%', end: 'top 55%', scrub: true } }));
+  const gig = document.getElementById('gigante'), cont = { v: 0 };
+  gsap.to(cont, { v: 19480, ease: 'none', scrollTrigger: { trigger: '.faixa', start: 'top 85%', end: 'top 25%', scrub: true }, onUpdate: () => { gig.textContent = 'R$ ' + Math.round(cont.v).toLocaleString('pt-BR'); } });
+
+  // só desenha quando a cena aparece; no fim, os blocos voltam a formar a marca
+  if (cena) {
+    const fim = document.getElementById('fim');
+    ScrollTrigger.create({ trigger: '#painel', start: 'top top', endTrigger: fim, end: 'top bottom', onToggle: (s) => { cena.estado.ativo = !s.isActive; } });
+    ScrollTrigger.create({ trigger: fim, start: 'top 90%', end: 'top 12%', scrub: true, onUpdate: (s) => { cena.estado.fim = .001 + s.progress * .999; veu.style.opacity = s.progress; }, onLeaveBack: () => { cena.estado.fim = 0; } });
+    gsap.from('.final-in', { autoAlpha: 0, y: 60, ease: 'none', scrollTrigger: { trigger: fim, start: 'top 45%', end: 'top 5%', scrub: true } });
+  }
+  addEventListener('load', () => ScrollTrigger.refresh());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+}
+
+</script>
+
+</body>
+</html>
