@@ -199,11 +199,6 @@ s { text-decoration-color: var(--janela); text-decoration-thickness: .09em }
 .faixa-in { display: grid; gap: 8px }
 .faixa .gigante { font-family: var(--display); font-weight: 600; font-size: clamp(66px, 17vw, 262px); line-height: .92; letter-spacing: -.05em; white-space: nowrap }
 .faixa p { font-size: clamp(20px, 2vw, 28px); line-height: 1.25; max-width: 28em; font-weight: 500 }
-.tabela { overflow-x: auto; width: 100% }
-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 17px }
-th, td { padding: 13px 0; border-bottom: 1px solid var(--linha); text-align: right; white-space: nowrap }
-th:first-child { text-align: left; font-weight: 500 }
-thead th { font-family: var(--mono); font-size: 13px; font-weight: 400; color: var(--dim) }
 
 /* função por função */
 .contas { display: flex; flex-wrap: wrap; gap: 8px }
@@ -214,12 +209,10 @@ thead th { font-family: var(--mono); font-size: 13px; font-weight: 400; color: v
 .grupo-t { display: flex; align-items: center; gap: 11px; padding-bottom: 12px; border-bottom: 2px solid var(--tinta) }
 .grupo-t i { width: 15px; height: 15px; border-radius: 5px 5px 5px 1px }
 .grupo-t em { font-style: normal; color: var(--dim); font-size: 15.5px; margin-left: auto; text-align: right }
-.lin { display: grid; grid-template-columns: minmax(0, 1fr) 124px 150px; gap: 3px 22px; padding: 15px 0; border-bottom: 1px solid var(--linha); align-items: baseline }
+.lin { display: grid; grid-template-columns: minmax(0, 1fr) 124px; gap: 3px 22px; padding: 15px 0; border-bottom: 1px solid var(--linha); align-items: baseline }
 .lin h4 { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3 }
 .lin p { grid-column: 1; color: var(--dim); font-size: 16px; line-height: 1.42; max-width: 42em }
-.lin .pl, .lin .la { grid-row: 1; font-family: var(--mono); font-size: 13px; white-space: nowrap }
-.lin .pl { grid-column: 2 } .lin .la { grid-column: 3; text-align: right; color: var(--dim) }
-.lin .la b { color: var(--tinta); font-weight: 500 }
+.lin .pl { grid-row: 1; grid-column: 2; text-align: right; font-family: var(--mono); font-size: 13px; white-space: nowrap }
 
 /* escolher, planos, dúvidas */
 .planos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100% }
@@ -255,7 +248,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .rodape p + p { margin-top: 8px }
 
 /* venda: planos no herói, faixa da promoção, vídeos e oferta fixa */
-#planos, #videos, #conta { scroll-margin-top: 78px }
+#planos, #videos, #conta, #funcoes { scroll-margin-top: 78px }
 .nav-dir a.vender { color: var(--janela); font-weight: 600 }
 .hero-planos { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; width: 100% }
 .bilhete { flex: 0 1 200px; display: grid; gap: 1px; text-decoration: none; padding: 13px 17px 12px; background: rgba(13,20,28,.88); border: 1px solid var(--linha-noite); border-radius: 16px 16px 16px 4px; color: var(--marfim); transition: border-color .2s, transform .2s }
@@ -325,9 +318,8 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   .painel-grade > div:nth-child(2) { border-top: 0 }
   .painel-top { gap: 14px }
   .par, .planos { grid-template-columns: minmax(0, 1fr) }
-  .lin { grid-template-columns: minmax(0, 1fr) auto }
-  .lin .pl { grid-column: 1; grid-row: auto }
-  .lin .la { grid-column: 2; grid-row: auto; align-self: end }
+  .lin { grid-template-columns: minmax(0, 1fr) }
+  .lin .pl { grid-column: 1; grid-row: auto; text-align: left }
   .grupo-t { flex-wrap: wrap } .grupo-t em { margin-left: 0; flex-basis: 100%; text-align: left }
   .qr, .qr-txt { display: none }
   .rodape { grid-template-columns: minmax(0, 1fr) }
@@ -348,7 +340,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     <nav class="nav-dir" aria-label="Principal">
       <a class="vender" href="#planos">Planos</a>
       <a href="#videos">Vídeos</a>
-      <a href="#conta">Milla e Laís</a>
+      <a href="#funcoes">O que ela faz</a>
       <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">Testar agora</a>
     </nav>
   </div>
@@ -492,10 +484,10 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <span class="promo-rot">Promoção dos 20 primeiros contratos, válida durante todo o contrato</span>
           <h2 class="promo-t num">R$ 460 <span>por mês</span></h2>
         </div>
-        <p class="promo-dir">A média publicada da Laís é de <b class="num">R$&nbsp;2.500</b> por mês.* São <b class="num">R$&nbsp;2.040</b> a menos na mensalidade.</p>
+        <p class="promo-dir">A principal plataforma do mercado tem mensalidade média de <b class="num">R$&nbsp;2.500</b>.* Aqui são <b class="num">R$&nbsp;2.040</b> a menos, todo mês.</p>
       </div>
 
-      <div class="bloco" style="margin-top:64px"><h2 class="d2">Dois planos, a mesma mensalidade.</h2></div>
+      <div class="bloco" style="margin-top:64px"><h2 class="d2">Dois planos, a mesma mensalidade.</h2><p class="rot">WhatsApp oficial · Empresa verificada pela Meta · Tech Provider</p></div>
       <div class="planos">
         <article class="plano">
           <h3>Pro</h3>
@@ -537,8 +529,8 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <a class="btn" href="https://wa.me/5541991566444?text=Ol%C3%A1%21%20Quero%20contratar%20a%20Milla%20no%20plano%20Premium." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Quero o Premium</a>
         </article>
       </div>
-      <p class="nota" style="margin-top:16px">A mensalidade cobre a inteligência artificial, as mensagens do atendimento e os ajustes da Milla. Fica de fora só a mensagem para chamar de volta quem sumiu: a Meta cobra cerca de R$ 0,35 por pessoa. Com o seu número fixo, não há custo de linha. Um número novo custa R$ 29,90 por mês.</p>
-      <p class="nota" style="margin-top:8px">* A Lastro não publica preço. R$ 2.500 por mês é a média por cliente divulgada pela imprensa em setembro de 2025, e nessa conta entram imobiliárias grandes. <a href="#conta">Veja o estudo completo</a>. ** Depende de o seu sistema permitir a ligação com outros programas.</p>
+      <p class="nota" style="margin-top:16px">A mensalidade cobre a inteligência artificial, as mensagens do atendimento dentro da franquia mensal e os ajustes da Milla. Acima da franquia, o excedente é cobrado à parte. Também fica de fora a mensagem para chamar de volta quem sumiu: a Meta cobra cerca de R$ 0,35 por pessoa. Com o seu número fixo, não há custo de linha. Um número novo custa R$ 29,90 por mês.</p>
+      <p class="nota" style="margin-top:8px">* Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes. ** Depende de o seu sistema permitir a ligação com outros programas.</p>
     </div>
   </section>
 
@@ -547,14 +539,14 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     <div class="w vid-grade">
       <div class="vid-txt">
         <h2 class="d2">Veja em vídeo.</h2>
-        <p class="lead">O que a Milla faz e quanto custa, em menos de dois minutos. E quem está por trás dela.</p>
+        <p class="lead">O que a Milla faz e quanto custa, em pouco mais de um minuto. E quem está por trás dela.</p>
       </div>
       <figure class="vid">
         <div class="vid-caixa">
           <video playsinline preload="none" width="720" height="1280" poster="video/milla.jpg" aria-label="Vídeo: a Milla e os planos Pro e Premium"><source src="video/milla.mp4" type="video/mp4"></video>
           <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla e dos planos"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
         </div>
-        <figcaption><b>A Milla e os planos</b><span class="num">1:40</span></figcaption>
+        <figcaption><b>A Milla e os planos</b><span class="num">1:20</span></figcaption>
       </figure>
       <figure class="vid">
         <div class="vid-caixa">
@@ -570,15 +562,14 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   <section class="claro" id="conta" style="padding-bottom:64px">
     <div class="w">
       <div class="bloco">
-        <span class="rot">Estudo comparativo · novembro de 2026</span>
-        <h2 class="d2">Milla e Laís, lado a lado.</h2>
-        <p class="lead">A Laís, da Lastro, é a inteligência artificial mais usada pelas imobiliárias do Brasil, com cerca de 1.000 clientes. Ela abriu esse caminho e faz um trabalho sério. A Milla é a concorrente menor, feita em Curitiba, para quem quer esse atendimento com mensalidade fixa.</p>
+        <h2 class="d2">Feita para caber na conta da sua imobiliária.</h2>
+        <p class="lead">Atendimento 24 horas no WhatsApp oficial, do tamanho de uma imobiliária pequena ou média. Você sabe quanto vai pagar antes de começar.</p>
       </div>
       <h3 class="d3" style="margin-bottom:22px">Quanto custa em 12 meses</h3>
       <div class="barras" id="barras">
-        <div class="linha-b"><header><div><b>Laís</b> <span>R$ 2.500 por mês, média publicada*</span></div><strong class="num">R$ 30.000</strong></header><div class="trilho"><i style="width:100%"></i></div></div>
-        <div class="linha-b"><header><div><b>Milla Premium</b> <span>R$ 5.000 uma vez, mais R$ 460 por mês</span></div><strong class="num">R$ 10.520</strong></header><div class="trilho"><i class="m" style="width:35.07%"></i></div></div>
         <div class="linha-b"><header><div><b>Milla Pro</b> <span>R$ 3.500 uma vez, mais R$ 460 por mês</span></div><strong class="num">R$ 9.020</strong></header><div class="trilho"><i class="m" style="width:30.07%"></i></div></div>
+        <div class="linha-b"><header><div><b>Milla Premium</b> <span>R$ 5.000 uma vez, mais R$ 460 por mês</span></div><strong class="num">R$ 10.520</strong></header><div class="trilho"><i class="m" style="width:35.07%"></i></div></div>
+        <div class="linha-b"><header><div><b>Principal plataforma do mercado</b> <span>R$ 2.500 por mês, em média*</span></div><strong class="num">R$ 30.000</strong></header><div class="trilho"><i style="width:100%"></i></div></div>
       </div>
     </div>
   </section>
@@ -586,26 +577,16 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   <section class="faixa">
     <div class="w faixa-in">
       <div class="gigante num" id="gigante">R$ 19.480</div>
-      <p>a menos no primeiro ano com o Premium na promoção, comparado à média publicada da Laís. Em dois anos, R$ 43.960.</p>
+      <p>a menos no primeiro ano com o Premium na promoção, comparado à mensalidade média da principal plataforma do mercado.* Em dois anos, R$ 43.960.</p>
     </div>
   </section>
 
   <section class="claro" style="padding-top:56px">
     <div class="w">
-      <div class="tabela">
-        <table>
-          <thead><tr><th scope="col"></th><th scope="col">1 ano</th><th scope="col">2 anos</th></tr></thead>
-          <tbody>
-            <tr><th scope="row">Laís*</th><td>R$ 30.000</td><td>R$ 60.000</td></tr>
-            <tr><th scope="row">Milla Premium</th><td>R$ 10.520</td><td>R$ 16.040</td></tr>
-            <tr><th scope="row">Milla Pro</th><td>R$ 9.020</td><td>R$ 14.540</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="nota" style="margin-top:16px">Valores da Milla com a mensalidade de R$ 460 da promoção dos 20 primeiros contratos, que vale durante todo o contrato. * A Lastro não publica preço. R$ 2.500 por mês é a média por cliente divulgada pela imprensa em setembro de 2025, e nessa conta entram imobiliárias grandes. Uma imobiliária menor pode pagar menos: mesmo pela metade da média, seriam R$ 15.000 no ano. Peça uma proposta da Laís para comparar com o seu caso.</p>
+      <p class="nota">Valores da Milla com a mensalidade de R$ 460 da promoção dos 20 primeiros contratos, que vale durante todo o contrato. * Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes.</p>
 
-      <div class="bloco" style="margin-top:96px;margin-bottom:0">
-        <h2 class="d2">Função por função.</h2>
+      <div class="bloco" id="funcoes" style="margin-top:96px;margin-bottom:0">
+        <h2 class="d2">Tudo o que a Milla faz.</h2>
         <nav class="contas" aria-label="Resumo das funções">
           <a class="ch" href="#pronto"><i class="ok"></i>8 prontas hoje</a>
           <a class="ch" href="#implantacao"><i class="imp"></i>6 na implantação</a>
@@ -615,45 +596,45 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 
       <div class="grupo" id="pronto">
         <div class="grupo-t"><i class="ok"></i><h3 class="d3">Pronto hoje</h3></div>
-        <div class="lin"><h4>Atende no WhatsApp oficial, 24 horas</h4><p>Responde na hora, de dia, de noite e no fim de semana.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Mostra os seus imóveis com preço, foto e link</h4><p>Ela só oferece o que existe na sua carteira.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Descobre o que o cliente procura e monta a ficha</h4><p>Compra, aluguel ou temporada, bairro, valor, quartos, datas e número de pessoas.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Pedido de visita que a equipe só confirma</h4><p>O corretor recebe no WhatsApp dele, com os botões Confirmar, Outro horário e Eu assumo.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Corretor assume no mesmo número</h4><p>Pelo painel ou pelo botão Eu assumo. Ela fica quieta e o cliente não repete nada.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Painel com conversas e fichas</h4><p>Conversas, clientes, imóveis e equipe, no computador e no celular.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Anúncio do Facebook e Instagram que abre o WhatsApp</h4><p>Quem toca no anúncio cai direto na Milla, a qualquer hora.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Entende áudio e foto</h4><p>O cliente manda áudio ou foto. Ela ouve, olha e responde por escrito.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Atende no WhatsApp oficial, 24 horas</h4><p>Responde na hora, de dia, de noite e no fim de semana.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Mostra os seus imóveis com preço, foto e link</h4><p>Ela só oferece o que existe na sua carteira.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Descobre o que o cliente procura e monta a ficha</h4><p>Compra, aluguel ou temporada, bairro, valor, quartos, datas e número de pessoas.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Pedido de visita que a equipe só confirma</h4><p>O corretor recebe no WhatsApp dele, com os botões Confirmar, Outro horário e Eu assumo.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Corretor assume no mesmo número</h4><p>Pelo painel ou pelo botão Eu assumo. Ela fica quieta e o cliente não repete nada.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Painel com conversas e fichas</h4><p>Conversas, clientes, imóveis e equipe, no computador e no celular.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Anúncio do Facebook e Instagram que abre o WhatsApp</h4><p>Quem toca no anúncio cai direto na Milla, a qualquer hora.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Entende áudio e foto</h4><p>O cliente manda áudio ou foto. Ela ouve, olha e responde por escrito.</p><span class="pl">Pro e Premium</span></div>
       </div>
 
       <div class="grupo" id="implantacao">
         <div class="grupo-t"><i class="imp"></i><h3 class="d3">Na implantação</h3><em>feito para você, em até 10 dias</em></div>
-        <div class="lin"><h4>Imóvel novo no site entra sozinho</h4><p>Atualização automática todos os dias, direto do seu site.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Cliente dos portais recebe a primeira mensagem em segundos</h4><p>Zap, VivaReal, OLX, Imovelweb e Chaves na Mão, nos portais onde você anuncia.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Números e relatório do mês</h4><p>De onde vêm os clientes, a que horas escrevem e quantos pediram visita.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Chamar de volta quem sumiu</h4><p>Mensagem aprovada pela Meta para quem parou de responder. A Meta cobra cerca de R$ 0,35 por pessoa.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Falar com os proprietários</h4><p>Pergunta se o imóvel continua disponível e se o preço mudou, e avisa a equipe.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Pedido de conserto do inquilino</h4><p>Anota o problema e avisa a equipe no WhatsApp.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Imóvel novo no site entra sozinho</h4><p>Atualização automática todos os dias, direto do seu site.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Cliente dos portais recebe a primeira mensagem em segundos</h4><p>Zap, VivaReal, OLX, Imovelweb e Chaves na Mão, nos portais onde você anuncia.</p><span class="pl">Só no Premium</span></div>
+        <div class="lin"><h4>Números e relatório do mês</h4><p>De onde vêm os clientes, a que horas escrevem e quantos pediram visita.</p><span class="pl">Só no Premium</span></div>
+        <div class="lin"><h4>Chamar de volta quem sumiu</h4><p>Mensagem aprovada pela Meta para quem parou de responder. A Meta cobra cerca de R$ 0,35 por pessoa.</p><span class="pl">Só no Premium</span></div>
+        <div class="lin"><h4>Falar com os proprietários</h4><p>Pergunta se o imóvel continua disponível e se o preço mudou, e avisa a equipe.</p><span class="pl">Só no Premium</span></div>
+        <div class="lin"><h4>Pedido de conserto do inquilino</h4><p>Anota o problema e avisa a equipe no WhatsApp.</p><span class="pl">Só no Premium</span></div>
       </div>
 
       <div class="grupo" id="depende">
         <div class="grupo-t"><i class="dep"></i><h3 class="d3">Depende de terceiros</h3><em>da Meta ou do seu sistema</em></div>
-        <div class="lin"><h4>Atendimento no direct do Instagram</h4><p>Pronto do nosso lado. Falta a aprovação da Meta, que está em análise.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Seu número atual junto com a equipe</h4><p>O número continua no celular da equipe e ela responde quando ninguém responde. Depende da mesma aprovação da Meta.</p><span class="pl">Pro e Premium</span><span class="la">Laís: <b>não informa</b></span></div>
-        <div class="lin"><h4>Segunda via de boleto</h4><p>Depende de o seu sistema de cobrança ter uma ligação aberta para outros programas.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
-        <div class="lin"><h4>Ficha direto no seu sistema</h4><p>Quem fez o seu sistema precisa criar uma entrada para ela.</p><span class="pl">Só no Premium</span><span class="la">Laís: <b>tem</b></span></div>
+        <div class="lin"><h4>Atendimento no direct do Instagram</h4><p>Pronto do nosso lado. Falta a aprovação da Meta, que está em análise.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Seu número atual junto com a equipe</h4><p>O número continua no celular da equipe e ela responde quando ninguém responde. Depende da mesma aprovação da Meta.</p><span class="pl">Pro e Premium</span></div>
+        <div class="lin"><h4>Segunda via de boleto</h4><p>Depende de o seu sistema de cobrança ter uma ligação aberta para outros programas.</p><span class="pl">Só no Premium</span></div>
+        <div class="lin"><h4>Ficha direto no seu sistema</h4><p>Quem fez o seu sistema precisa criar uma entrada para ela.</p><span class="pl">Só no Premium</span></div>
       </div>
 
       <div class="bloco" style="margin-top:104px">
-        <h2 class="d2">Qual escolher.</h2>
+        <h2 class="d2">Qual plano é o seu.</h2>
       </div>
       <div class="par">
         <div class="caso">
-          <span class="rot">A Laís pode ser melhor se</span>
-          <ul><li>Você tem uma rede grande, com muitas lojas</li><li>Precisa de muitas integrações já prontas (ela informa 230)</li><li>Quer uma plataforma com captação, marketing e gestão no mesmo contrato</li></ul>
+          <span class="rot">O Pro é para você se</span>
+          <ul><li>Quer atender todo cliente que chama no WhatsApp, a qualquer hora</li><li>Quer o corretor recebendo o cliente pronto para visitar</li><li>Quer falar direto com quem montou o atendimento</li></ul>
         </div>
         <div class="caso bom">
-          <span class="rot">A Milla é para você se</span>
-          <ul><li>Sua imobiliária é pequena ou média</li><li>Quer saber quanto vai pagar antes de começar</li><li>Quer falar direto com quem montou o atendimento</li></ul>
+          <span class="rot">O Premium é para você se</span>
+          <ul><li>Anuncia em portais e quer responder em segundos</li><li>Administra aluguel, com inquilinos e proprietários</li><li>Quer o relatório do mês e chamar de volta quem sumiu</li></ul>
         </div>
       </div>
       <p style="margin-top:28px"><a class="btn" href="#planos">Ver os planos Pro e Premium</a></p>
@@ -663,12 +644,12 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   <section class="claro" style="padding-top:24px">
     <div class="w">
       <div class="bloco" style="margin-bottom:12px"><h2 class="d2">Perguntas.</h2></div>
-      <details><summary>Como funciona a promoção?</summary><p>Os 20 primeiros contratos da Milla pagam R$ 460 por mês durante todo o contrato, no Pro ou no Premium. A implantação é paga uma vez.</p></details>
+      <details><summary>Como funciona a promoção?</summary><p>É o nosso lançamento. Os 20 primeiros contratos da Milla pagam R$ 460 por mês durante todo o contrato, no Pro ou no Premium. A implantação é paga uma vez.</p></details>
       <details><summary>A Milla substitui o corretor?</summary><p>Não. Ela faz o primeiro atendimento e organiza o pedido. Quem fecha é o corretor, e ele assume a conversa quando quiser.</p></details>
       <details><summary>Ela pode inventar imóvel ou prometer o que não deve?</summary><p>Ela só oferece o que está na sua carteira. Horário de visita, aceitar pet, fiador e condomínio ela anota e passa para a equipe confirmar.</p></details>
       <details><summary>Preciso trocar meu número?</summary><p>Você pode usar o seu número fixo ou um número novo, por R$ 29,90 por mês. Usar o número ao mesmo tempo no celular da equipe depende de uma aprovação da Meta que está em análise. O número continua sendo seu.</p></details>
       <details><summary>Ela pode ter outro nome?</summary><p>Pode. Milla é o nome da demonstração. Na sua imobiliária, ela se apresenta com o nome e o jeito de falar que você escolher.</p></details>
-      <details><summary>Quem paga a inteligência artificial?</summary><p>Já está na mensalidade. Você não precisa abrir conta em nenhum serviço de IA.</p></details>
+      <details><summary>Quem paga a inteligência artificial?</summary><p>Já está na mensalidade, dentro da franquia mensal. Você não precisa abrir conta em nenhum serviço de IA.</p></details>
     </div>
   </section>
 
@@ -697,7 +678,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <p>Empresa verificada pela Meta · Tech Provider</p>
     </div>
     <div>
-      <p>Informações da Laís conferidas em novembro de 2026 no <a href="https://lais.ai/" target="_blank" rel="noopener">site da Laís</a> e em reportagens de setembro de 2025 (<a href="https://portas.com.br/noticias/ia-para-imobiliarias-recebe-aporte-da-dona-do-ifood/" target="_blank" rel="noopener">Portas</a>, <a href="https://startups.com.br/negocios/proptechs/proptech-lastro-levanta-serie-a-de-r-85m-liderada-pela-prosus/" target="_blank" rel="noopener">Startups</a>). Laís e Lastro são marcas de seus donos, e este estudo não tem ligação com a empresa.</p>
+      <p>Preços em reais. A mensalidade de R$ 460 vale para os 20 primeiros contratos, durante todo o contrato, dentro da franquia mensal. A implantação é paga uma vez.</p>
     </div>
   </div>
 </footer>
