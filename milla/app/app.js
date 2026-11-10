@@ -36,7 +36,7 @@ const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
 /* ---------- estado ---------- */
 const S = { neg: '', q: '', bairro: '', leadFiltro: 'abertos', rotaAnterior: '', senhaNova: false, entrarMsg: '' };
 const LD = { lista: [], carregou: false, buscando: false, erro: '' };
-const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: false, cfg: { modo: 'todos', prazoMin: 10 } };
+const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: false, cfg: { modo: 'todos', prazoMin: 10, fds: 'segura' } };
 /* rodízio por produto (10/11/2026): a vez gira em venda, locação e temporada; cada pessoa pode ter os seus */
 const EQ_PRODUTOS = [['venda', 'Venda'], ['aluguel', 'Locação'], ['temporada', 'Temporada']];
 const eqProds = x => (Array.isArray(x && x.produtos) && x.produtos.length ? x.produtos : EQ_PRODUTOS.map(p => p[0]));
@@ -254,7 +254,8 @@ function eqDoLead(p) {
   if (e.modo === 'rodizio') {
     if (e.esgotou) return { sc: 'warn', t: 'Ninguém respondeu: ' + (e.avisados || []).join(', ') + ' foram avisadas' };
     if (e.vez) {
-      const hora = e.prazo ? new Date(e.prazo).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+      const dp = e.prazo ? new Date(e.prazo) : null, mesmoDia = dp && dp.toDateString() === new Date().toDateString();
+      const hora = dp ? (mesmoDia ? '' : dp.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '') + ' ') + dp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
       const prod = (EQ_PRODUTOS.find(x => x[0] === e.produto) || [, ''])[1];
       return { sc: '', t: `Vez de ${e.vez}${prod ? ' (' + prod.toLowerCase() + ')' : ''}${e.doDono ? ' · já atendeu este cliente' : ''}${hora ? ' · passa às ' + hora + ' se ninguém tocar' : ''}${(e.passouDe || []).length ? ' · passou de ' + e.passouDe.join(', ') : ''}` };
     }
@@ -265,7 +266,7 @@ function eqDoLead(p) {
 }
 const eqNum = v => { let d = String(v || '').replace(/\D/g, ''); if (d.length === 10 || d.length === 11) d = '55' + d; return d.length >= 12 && d.length <= 15 ? d : ''; };
 async function eqCarregar() {
-  if (!REAL()) { if (!EQ.carregou) { EQ.lista = [{ nome: 'Ana', numero: '5511900000011' }, { nome: 'Bruno', numero: '5511900000012' }, { nome: 'Carla', numero: '5511900000013', produtos: ['venda', 'aluguel'] }]; EQ.cfg = { modo: 'rodizio', prazoMin: 10 }; } EQ.carregou = true; return; }
+  if (!REAL()) { if (!EQ.carregou) { EQ.lista = [{ nome: 'Ana', numero: '5511900000011' }, { nome: 'Bruno', numero: '5511900000012' }, { nome: 'Carla', numero: '5511900000013', produtos: ['venda', 'aluguel'] }]; EQ.cfg = { modo: 'rodizio', prazoMin: 10, fds: 'segura' }; } EQ.carregou = true; return; }
   if (!LOGADO() || EQ.buscando) return;
   EQ.buscando = true;
   try {
@@ -277,7 +278,7 @@ async function eqCarregar() {
     try {
       const c = await supaFetch('itens?colecao=eq.equipe_cfg&id=eq.cfg&apagado=eq.false&select=dados');
       const l = c.ok ? await c.json() : [];
-      if (l[0] && l[0].dados) EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10 };
+      if (l[0] && l[0].dados) EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10, fds: l[0].dados.fds === 'igual' ? 'igual' : 'segura' };
     } catch (x) { /* sem a configuração: avisa todos, como antes */ }
     EQ.erro = ''; EQ.carregou = true;
   } catch (e) { EQ.erro = 'Não consegui ler a equipe agora. Tente de novo em alguns segundos.'; }
@@ -296,7 +297,7 @@ function vEquipe() {
         <button type="button" data-act="eq-modo" data-v="todos" aria-pressed="${!rz}" class="${rz ? '' : 'on'}">Todos de uma vez</button>
         <button type="button" data-act="eq-modo" data-v="rodizio" aria-pressed="${rz}" class="${rz ? 'on' : ''}">Rodízio, uma por vez</button>
       </div>
-      ${rz ? `<div class="sm">Em cada produto (venda, locação e temporada) a vez gira. Só a da vez recebe o aviso; se ela não tocar em <select class="inp wz-st" data-act="eq-prazo" aria-label="Prazo para tocar">${[5, 10, 15, 30].map(m => `<option value="${m}" ${EQ.cfg.prazoMin === m ? 'selected' : ''}>${m} min</option>`).join('')}</select>, passa para a próxima. À noite, o prazo começa às 9h. Quem não respondeu perde a vez, e o cliente que volta fica com quem já atendeu. Marque abaixo o que cada pessoa atende.</div>` : '<div class="sm">Todo pedido chega para todas as pessoas da lista; vale o primeiro toque.</div>'}
+      ${rz ? `<div class="sm">Em cada produto (venda, locação e temporada) a vez gira. Só a da vez recebe o aviso; se ela não tocar em <select class="inp wz-st" data-act="eq-prazo" aria-label="Prazo para tocar">${[5, 10, 15, 30].map(m => `<option value="${m}" ${EQ.cfg.prazoMin === m ? 'selected' : ''}>${m} min</option>`).join('')}</select>, passa para a próxima. À noite, o prazo começa às 9h. No fim de semana, <select class="inp wz-st" data-act="eq-fds" aria-label="Fim de semana"><option value="segura" ${EQ.cfg.fds !== 'igual' ? 'selected' : ''}>o aviso chega, mas só passa adiante na segunda às 9h</option><option value="igual" ${EQ.cfg.fds === 'igual' ? 'selected' : ''}>gira igual aos outros dias</option></select>. Quem não respondeu perde a vez, e o cliente que volta fica com quem já atendeu. Marque abaixo o que cada pessoa atende.</div>` : '<div class="sm">Todo pedido chega para todas as pessoas da lista; vale o primeiro toque.</div>'}
     </div>
     <div class="box">
       <div>Quando a Milla anota um pedido (visita, reserva, proposta), ${rz ? 'a pessoa da vez' : 'cada pessoa desta lista'} recebe no WhatsApp dela, saindo do número da Milla, o pedido com 3 botões:</div>
@@ -316,7 +317,7 @@ async function eqGravaCfg() {
   if (!REAL()) return true;
   try {
     await authEnsure();
-    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin }, apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
+    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin, fds: EQ.cfg.fds }, apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
     return r.ok;
   } catch (e) { return false; }
 }
@@ -391,6 +392,11 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('change', async e => {
   if (e.target.id === 'bb') { S.bairro = e.target.value; const l = $('lista-imoveis'); if (l) l.innerHTML = cardsImoveis(); return; }
+  if (e.target.dataset.act === 'eq-fds') {
+    const antes = EQ.cfg.fds; EQ.cfg.fds = e.target.value === 'igual' ? 'igual' : 'segura';
+    const ok = await eqGravaCfg(); if (!ok) EQ.cfg.fds = antes;
+    toast(!ok ? 'Não gravou. Tente de novo.' : EQ.cfg.fds === 'igual' ? 'No fim de semana o rodízio gira igual aos outros dias.' : 'No fim de semana o aviso chega, mas só passa adiante na segunda às 9h.'); render(); return;
+  }
   if (e.target.dataset.act === 'eq-prazo') {
     const antes = EQ.cfg.prazoMin; EQ.cfg.prazoMin = +e.target.value || 10;
     const ok = await eqGravaCfg(); if (!ok) EQ.cfg.prazoMin = antes;
