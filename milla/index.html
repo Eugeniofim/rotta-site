@@ -284,16 +284,26 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .preco-tab .forte th, .preco-tab .forte td { font-weight: 700; background: #FFF6E2 }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%) }
 .plano .btn { justify-self: stretch }
-.vid-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px) minmax(0, 300px); gap: 24px 20px; align-items: end }
-.vid-txt { display: grid; gap: 16px; align-self: center; padding-right: 20px }
+.vid-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr); gap: 28px 40px; align-items: center }
+.vid-txt { display: grid; gap: 16px; align-self: center }
 .vid { margin: 0; display: grid; gap: 10px }
+.vid[hidden] { display: none }
+.vid-v { width: 100%; max-width: 340px; justify-self: center }
 .vid-caixa { position: relative }
-.vid video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; background: var(--noite); border-radius: 22px 22px 22px 5px }
-.vid-play { position: absolute; left: 12px; right: 12px; bottom: 12px; border: 0; cursor: pointer; font-family: inherit; padding: 13px 20px }
+.vid video { display: block; width: 100%; height: auto; background: var(--noite); border-radius: 22px 22px 22px 5px }
+.vid-h video { aspect-ratio: 16 / 9 }
+.vid-v video { aspect-ratio: 9 / 16 }
+.vid-play { position: absolute; left: 12px; bottom: 12px; border: 0; cursor: pointer; font-family: inherit; padding: 13px 22px }
+.vid-v .vid-play { right: 12px }
 .vid-play[hidden] { display: none }
 .vid figcaption { display: flex; justify-content: space-between; gap: 12px; font-size: 15.5px }
 .vid figcaption b { font-weight: 600 }
 .vid figcaption span { font-family: var(--mono); font-size: 13.5px; color: var(--dim) }
+.vid-formato { display: inline-flex; gap: 4px; padding: 4px; background: var(--papel); border: 1px solid var(--linha); border-radius: 999px; justify-self: start }
+.vid-formato button { border: 0; background: transparent; color: var(--tinta); font: 600 15px/1 var(--corpo); padding: 11px 18px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px }
+.vid-formato button[aria-pressed="true"] { background: var(--noite); color: var(--marfim) }
+.vid-formato svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2 }
+.vid-dica { font-size: 14.5px; color: var(--dim); max-width: 30em }
 .fim-planos { justify-self: start; color: var(--janela); font-weight: 600; font-size: 17px; text-underline-offset: 4px }
 .oferta-fixa { position: fixed; z-index: 18; right: max(24px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 18px; padding: 10px 10px 10px 18px; background: rgba(7,12,18,.95); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--linha-noite); border-radius: 18px 18px 18px 4px; color: var(--marfim); opacity: 0; visibility: hidden; transform: translateY(14px); transition: opacity .3s, transform .3s, visibility .3s }
 .oferta-fixa.on { opacity: 1; visibility: visible; transform: none }
@@ -306,8 +316,8 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   .hero-planos { display: none }
   .promo { padding: 24px 22px }
   .vid-grade { grid-template-columns: minmax(0, 1fr) }
-  .vid { max-width: 360px; width: 100%; justify-self: center }
-  .vid-txt { padding-right: 0 }
+  .vid-h { width: 100% }
+  .vid-v { max-width: 340px }
   .oferta-fixa { left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); justify-content: space-between; gap: 10px; padding: 8px 8px 8px 13px }
   .oferta-fixa p { font-size: 14px }
   .oferta-fixa span { font-size: 12px }
@@ -540,21 +550,26 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     <div class="w vid-grade">
       <div class="vid-txt">
         <h2 class="d2">Veja em vídeo.</h2>
-        <p class="lead">O que a Milla faz, em menos de dois minutos. E quem está por trás dela.</p>
+        <p class="lead">O que a Milla faz, em menos de dois minutos.</p>
+        <div class="vid-formato" role="group" aria-label="Formato do vídeo">
+          <button type="button" data-fmt="h" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>Horizontal</button>
+          <button type="button" data-fmt="v" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/></svg>Vertical</button>
+        </div>
+        <p class="vid-dica">O mesmo vídeo nos dois formatos: horizontal para a tela do computador, vertical para o celular e o WhatsApp.</p>
       </div>
-      <figure class="vid">
+      <figure class="vid vid-h" data-fmt="h">
         <div class="vid-caixa">
-          <video playsinline preload="none" width="720" height="1280" poster="video/milla.jpg?v=6" aria-label="Vídeo: conheça a Milla"><source src="video/milla.mp4?v=6" type="video/mp4"></video>
-          <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
+          <video playsinline preload="none" width="1280" height="720" poster="video/milla-h.jpg?v=1" aria-label="Vídeo horizontal: conheça a Milla"><source src="video/milla-h.mp4?v=1" type="video/mp4"></video>
+          <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla na horizontal"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
         </div>
-        <figcaption><b>Conheça a Milla</b><span class="num">1:41</span></figcaption>
+        <figcaption><b>Conheça a Milla</b><span class="num">horizontal · 1:41</span></figcaption>
       </figure>
-      <figure class="vid">
+      <figure class="vid vid-v" data-fmt="v" hidden>
         <div class="vid-caixa">
-          <video playsinline preload="none" width="720" height="1280" poster="video/ti-artes.jpg" aria-label="Vídeo: quem é o studio Ti Artes"><source src="video/ti-artes.mp4" type="video/mp4"></video>
-          <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo do studio Ti Artes"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
+          <video playsinline preload="none" width="720" height="1280" poster="video/milla.jpg?v=6" aria-label="Vídeo vertical: conheça a Milla"><source src="video/milla.mp4?v=6" type="video/mp4"></video>
+          <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla na vertical"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
         </div>
-        <figcaption><b>Quem faz: studio Ti Artes</b><span class="num">0:41</span></figcaption>
+        <figcaption><b>Conheça a Milla</b><span class="num">vertical · 1:41</span></figcaption>
       </figure>
     </div>
   </section>
@@ -760,6 +775,15 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   });
   document.addEventListener("visibilitychange", function () { if (document.hidden) paraVoz(); });
   document.querySelectorAll("video").forEach(function (v) { v.addEventListener("play", paraVoz); });
+  (function () {
+    var botoes = document.querySelectorAll(".vid-formato button"), figs = document.querySelectorAll(".vid[data-fmt]");
+    function mostra(f) {
+      botoes.forEach(function (x) { x.setAttribute("aria-pressed", x.dataset.fmt === f ? "true" : "false"); });
+      figs.forEach(function (g) { var v = g.querySelector("video"); if (g.dataset.fmt === f) g.hidden = false; else { g.hidden = true; if (v) v.pause(); } });
+    }
+    botoes.forEach(function (x) { x.addEventListener("click", function () { mostra(x.dataset.fmt); }); });
+    if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) mostra("v");
+  })();
   document.querySelectorAll(".vid-play").forEach(function (b) {
     b.addEventListener("click", function () {
       var v = b.parentNode.querySelector("video");
