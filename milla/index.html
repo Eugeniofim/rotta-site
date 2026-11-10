@@ -80,6 +80,8 @@ main { position: relative; z-index: 1 }
 .nav-dir { padding: 5px; gap: 2px }
 .nav-dir a { text-decoration: none; font-size: 15px; font-weight: 500; padding: 8px 13px; border-radius: 10px; color: var(--marfim) }
 .nav-dir a:hover { background: rgba(246,243,236,.1) }
+.nav-dir a.entrar { color: var(--janela); border: 1px solid rgba(255,181,46,.45); padding: 7px 13px }
+.nav-dir a.entrar:hover { background: rgba(255,181,46,.12) }
 .nav-dir a.teste { background: var(--janela); color: var(--tinta); font-weight: 600; border-radius: 10px 10px 10px 3px }
 .nav-dir a.teste:hover { background: #FFC354 }
 .nav-dir .som { display: grid; place-items: center; width: 38px; height: 36px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--janela); cursor: pointer }
@@ -361,6 +363,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <a href="#videos" data-voz="videos">Vídeos</a>
       <a href="#funcoes" data-voz="funcoes">O que ela faz</a>
       <button class="som" id="somMenu" type="button" aria-pressed="true" aria-label="Resumo falado no menu: ligado. Toque para desligar" title="Resumo falado no menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="alto" d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="onda o1" d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="onda o2" d="M18 7a7 7 0 0 1 0 10"/><path class="corte" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>
+      <a class="entrar" href="entrar/">Entrar</a>
       <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">Testar agora</a>
     </nav>
   </div>
@@ -690,6 +693,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <p>Uma criação do studio Ti Artes, Curitiba.</p>
       <p>+55 41 99156-6444 · @estudio_ti_artes</p>
       <p>Empresa verificada pela Meta · Tech Provider</p>
+      <p><a href="entrar/">Já é cliente? Entrar no app da Milla</a></p>
     </div>
     <div>
       <p>Preços em reais. A mensalidade de R$ 460 vale para os 20 primeiros contratos e continua a mesma a cada renovação, com 2.000 mensagens por mês e R$ 0,20 por mensagem a mais. Contrato de 6 meses, renovado sozinho; na renovação, a franquia e o preço da mensagem a mais podem ser revistos, com 30 dias de aviso. A implantação é paga uma vez.</p>

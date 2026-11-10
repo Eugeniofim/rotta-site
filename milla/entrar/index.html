@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrar · Milla</title>
+<meta name="description" content="Entrar no app da Milla: o CRM da imobiliária com as conversas do WhatsApp, as fichas e os imóveis.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#070C12">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap">
+<style>
+:root {
+  --noite: #070C12; --noite-2: #0E1823; --noite-3: #16222F;
+  --janela: #FFB52E; --marfim: #F6F3EC; --dim: #A3AFBB; --fraco: #7D8996;
+  --linha: rgba(246,243,236,.14); --erro: #FF8A80; --ok: #46D98A; --wa: #25D366;
+  --display: "Bricolage Grotesque", "Avenir Next", Arial, sans-serif;
+  --corpo: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html, body { margin: 0 }
+body {
+  min-height: 100vh; min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto;
+  background: radial-gradient(900px 700px at 20% 0%, var(--noite-3), var(--noite) 70%) fixed, var(--noite);
+  color: var(--marfim); font: 400 16.5px/1.5 var(--corpo);
+  padding: max(18px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(18px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+a { color: var(--janela) }
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; max-width: 980px; width: 100%; margin: 0 auto }
+.topo a.marca { display: inline-flex }
+.topo svg { height: 30px; width: auto; display: block }
+.topo .voltar { font-size: 15px; color: var(--dim); text-decoration: none }
+.topo .voltar:hover { color: var(--marfim) }
+main { display: grid; place-items: center; padding: 28px 0 }
+.cartao { width: 100%; max-width: 430px; background: rgba(14,24,35,.86); border: 1px solid var(--linha); border-radius: 26px 26px 26px 6px; padding: 30px 26px 26px; box-shadow: 0 40px 90px -40px rgba(0,0,0,.8) }
+.olho { font: 500 12.5px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--janela) }
+h1 { font: 700 34px/1.05 var(--display); letter-spacing: -.03em; margin: 10px 0 8px }
+.sub { color: var(--dim); margin: 0 0 22px; font-size: 15.5px }
+label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 6px }
+input { width: 100%; font: 500 16px var(--corpo); color: var(--marfim); background: rgba(7,12,18,.8); border: 1px solid var(--linha); border-radius: 12px 12px 12px 3px; padding: 13px 14px; min-height: 48px }
+input:focus { outline: 2px solid var(--janela); outline-offset: 1px; border-color: transparent }
+.btn { width: 100%; margin-top: 20px; min-height: 52px; border: 0; border-radius: 14px 14px 14px 4px; background: var(--janela); color: var(--noite); font: 700 17px var(--corpo); cursor: pointer }
+.btn:hover { background: #FFC354 }
+.btn:disabled { opacity: .6; cursor: wait }
+.btn:focus-visible, .link:focus-visible, .app:focus-visible { outline: 3px solid var(--marfim); outline-offset: 3px }
+.link { background: none; border: 0; padding: 0; margin-top: 14px; color: var(--dim); font: 500 14.5px var(--corpo); text-decoration: underline; text-underline-offset: 3px; cursor: pointer }
+.link:hover { color: var(--marfim) }
+.msg { min-height: 22px; margin-top: 14px; font-size: 14.5px; color: var(--dim) }
+.msg.erro { color: var(--erro) }
+.msg.ok { color: var(--ok) }
+.apps { display: grid; gap: 10px; margin-top: 6px }
+.app { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 15px 16px; border-radius: 16px 16px 16px 4px; border: 1px solid var(--linha); background: rgba(7,12,18,.7); color: var(--marfim); font: 600 16.5px var(--corpo); cursor: pointer }
+.app:hover { border-color: var(--janela) }
+.app span { color: var(--janela); font: 500 13px var(--mono) }
+.aviso { margin-top: 18px; padding: 14px 16px; border-radius: 14px 14px 14px 4px; background: rgba(255,181,46,.08); border: 1px solid rgba(255,181,46,.3); font-size: 14.5px; color: var(--marfim) }
+.pe { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; max-width: 980px; width: 100%; margin: 0 auto; font-size: 13.5px; color: var(--fraco) }
+.pe a { color: var(--dim) }
+[hidden] { display: none !important }
+@media (max-width: 420px) { .cartao { padding: 24px 18px 20px } h1 { font-size: 30px } }
+</style>
+</head>
+<body>
+<header class="topo">
+  <a class="marca" href="../" aria-label="Milla, página inicial"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -126.9 2804.3 824.3"><g transform="translate(0 -112.2) scale(8.243)"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></g><g transform="translate(914.3 0)"><path d="M45.9996337890625 660.0V0.0H239.33599853515625L402.6676025390625 514.9971923828125H404.6676025390625L565.9991455078125 0.0H750.3352661132812V660.0H631.3333740234375V128.00213623046875H629.3333740234375L457.33477783203125 660.0H337.666748046875L167.00152587890625 127.6688232421875H165.00152587890625V660.0Z M823.3330078125 660.0V137.9996337890625H950.0018310546875V660.0Z M1018.3330078125 660.0V-30.0006103515625H1145.0018310546875V660.0Z M1213.3330078125 660.0V-30.0006103515625H1340.0018310546875V660.0Z M1542.9999389648438 673.6666870117188Q1502.6666259765625 673.6666870117188 1467.4999084472656 659.3333740234375Q1432.3331909179688 645.0000610351562 1410.4997863769531 613.6667175292969Q1388.6663818359375 582.3333740234375 1388.6663818359375 530.9999389648438Q1388.6663818359375 483.99981689453125 1406.6664428710938 454.3330993652344Q1424.66650390625 424.6663818359375 1455.8332214355469 406.3330383300781Q1486.9999389648438 387.99969482421875 1525.6665649414062 378.1663818359375Q1564.3331909179688 368.33306884765625 1604.9996337890625 361.33306884765625Q1659.3328247070312 351.6663818359375 1685.9994506835938 345.8330383300781Q1712.6660766601562 339.99969482421875 1721.6661071777344 331.4997253417969Q1730.6661376953125 322.999755859375 1730.6661376953125 307.66650390625Q1730.6661376953125 268.6671142578125 1703.6664733886719 248.00079345703125Q1676.6668090820312 227.33447265625 1635.0005493164062 227.33447265625Q1609.3341064453125 227.33447265625 1584.0009765625 237.00103759765625Q1558.6678466796875 246.6676025390625 1541.8346862792969 269.6674499511719Q1525.0015258789062 292.66729736328125 1524.0016479492188 333.00048828125L1409.66650390625 322.00054931640625Q1410.6663208007812 264.6668701171875 1431.1663513183594 226.33334350585938Q1451.6663818359375 187.99981689453125 1485.3332214355469 165.66641235351562Q1519.0000610351562 143.3330078125 1558.8336181640625 133.66632080078125Q1598.6671752929688 123.9996337890625 1638.3340454101562 123.9996337890625Q1707.3346557617188 123.9996337890625 1755.5014953613281 149.83319091796875Q1803.6683349609375 175.666748046875 1829.0016174316406 226.00039672851562Q1854.3348999023438 276.33404541015625 1854.3348999023438 350.66766357421875V446.66754150390625Q1854.668212890625 482.000732421875 1854.8348693847656 517.8339233398438Q1855.0015258789062 553.6671142578125 1855.1681823730469 589.1669616699219Q1855.3348388671875 624.6668090820312 1855.3348388671875 660.0H1742.66650390625Q1744.3330688476562 619.3336181640625 1745.6663208007812 579.1671447753906Q1746.9995727539062 539.0006713867188 1748.3328247070312 494.66754150390625H1741.3328857421875Q1735.6663208007812 544.3339233398438 1709.3330383300781 585.0003967285156Q1682.999755859375 625.6668701171875 1640.6664733886719 649.6667785644531Q1598.3331909179688 673.6666870117188 1542.9999389648438 673.6666870117188ZM1589.001220703125 576.9987182617188Q1613.0007934570312 576.9987182617188 1637.6671447753906 567.3322448730469Q1662.33349609375 557.665771484375 1683.1666259765625 537.6660766601562Q1703.999755859375 517.6663818359375 1716.9996337890625 486.6666564941406Q1729.99951171875 455.66693115234375 1730.6661376953125 413.6671142578125L1730.9994506835938 390.333740234375L1757.6661376953125 384.667236328125Q1747.9995727539062 399.00048828125 1726.3330993652344 407.1671447753906Q1704.6666259765625 415.33380126953125 1677.1669006347656 420.0004577636719Q1649.6671752929688 424.6671142578125 1621.6674499511719 429.6670837402344Q1593.667724609375 434.66705322265625 1569.66796875 443.8336181640625Q1545.668212890625 453.00018310546875 1530.8350219726562 468.83331298828125Q1516.0018310546875 484.66644287109375 1516.0018310546875 512.332763671875Q1516.0018310546875 542.6658325195312 1536.0017395019531 559.832275390625Q1556.0016479492188 576.9987182617188 1589.001220703125 576.9987182617188Z" fill="#FFF4E0"/><path transform="translate(800.5 -60.0) scale(1.72)" d="M26 8H74A18 18 0 0 1 92 26V64A18 18 0 0 1 74 82H26L8 92V26A18 18 0 0 1 26 8Z" fill="#FFB52E"/></g></svg></a>
+  <a class="voltar" href="../">Conhecer a Milla</a>
+</header>
+
+<main>
+  <section class="cartao" aria-live="polite">
+    <!-- 1) entrar -->
+    <form id="fEntrar" novalidate>
+      <div class="olho">Para imobiliárias clientes</div>
+      <h1>Entrar no app da Milla</h1>
+      <p class="sub">O CRM da sua imobiliária: as conversas do WhatsApp, as fichas e os imóveis.</p>
+      <label for="email">E-mail</label>
+      <input id="email" type="email" autocomplete="username" inputmode="email" required>
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" autocomplete="current-password" required>
+      <button class="btn" id="bEntrar" type="submit">Entrar</button>
+      <button class="link" id="bEsqueci" type="button">Esqueci a senha</button>
+      <div class="msg" id="mEntrar" role="status"></div>
+    </form>
+
+    <!-- 2) senha nova (volta do e-mail de "esqueci a senha") -->
+    <form id="fNova" hidden novalidate>
+      <div class="olho">Senha nova</div>
+      <h1>Crie a sua senha</h1>
+      <p class="sub">Use pelo menos 8 caracteres. Ela é só sua: ninguém da Ti Artes vê.</p>
+      <label for="nova1">Senha nova</label>
+      <input id="nova1" type="password" autocomplete="new-password" minlength="8" required>
+      <label for="nova2">Repita a senha</label>
+      <input id="nova2" type="password" autocomplete="new-password" minlength="8" required>
+      <button class="btn" id="bNova" type="submit">Salvar e entrar</button>
+      <div class="msg" id="mNova" role="status"></div>
+    </form>
+
+    <!-- 3) escolher o app (quando a conta tem mais de um) -->
+    <div id="vEscolher" hidden>
+      <div class="olho">Sua conta</div>
+      <h1>Qual app você quer abrir?</h1>
+      <p class="sub" id="quem"></p>
+      <div class="apps" id="listaApps"></div>
+      <button class="link" id="bOutra" type="button">Entrar com outra conta</button>
+    </div>
+
+    <!-- 4) conta sem app ligado -->
+    <div id="vSem" hidden>
+      <div class="olho">Quase lá</div>
+      <h1>Esta conta ainda não abriu o app</h1>
+      <p class="sub">Entramos na sua conta, mas ela ainda não está ligada ao app da sua imobiliária.</p>
+      <div class="aviso">Se você é cliente, abra uma vez o endereço do app que a Ti Artes mandou na implantação e entre por lá. Depois disso, este botão leva você direto.</div>
+      <button class="btn" id="bFalar" type="button">Falar com a Ti Artes no WhatsApp</button>
+      <button class="link" id="bOutra2" type="button">Entrar com outra conta</button>
+    </div>
+  </section>
+</main>
+
+<footer class="pe">
+  <span>Milla · uma criação do studio Ti Artes</span>
+  <span>Ainda não é cliente? <a href="https://wa.me/5541963493440?text=Oi" target="_blank" rel="noopener">Teste a Milla no WhatsApp</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  /* o mesmo projeto do app; a chave é a publicável (quem protege é a RLS de cada sala) */
+  var SUPA_URL = 'https://uopfqlogjzuqpabptxkb.supabase.co';
+  var SUPA_KEY = 'sb_publishable_VKIdd2RNpMf3e4IEDprxJw_TOKPIHT2';
+  var ESTUDIO_WA = 'https://wa.me/5541991566444?text=' + encodeURIComponent('Oi! Sou cliente da Milla e preciso de ajuda para entrar no app.');
+  var AQUI = location.origin + location.pathname;
+  var $ = function (id) { return document.getElementById(id); };
+  var sessao = null;
+
+  function prazo(url, opts) {
+    var c = new AbortController(), t = setTimeout(function () { c.abort(); }, 12000);
+    opts = opts || {}; opts.signal = c.signal;
+    return fetch(url, opts).finally(function () { clearTimeout(t); });
+  }
+  function mostra(id) {
+    ['fEntrar', 'fNova', 'vEscolher', 'vSem'].forEach(function (x) { $(x).hidden = x !== id; });
+    var foco = { fEntrar: 'email', fNova: 'nova1' }[id];
+    if (foco) setTimeout(function () { $(foco).focus(); }, 30);
+  }
+  function msg(id, texto, tipo) { var m = $(id); m.textContent = texto || ''; m.className = 'msg' + (tipo ? ' ' + tipo : ''); }
+  function sessaoDe(d) { return { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (+d.expires_in || 3600) * 1000, user: d.user }; }
+  function erroDe(d, padrao) {
+    var t = (d && (d.error_description || d.msg || d.message || d.error)) || '';
+    if (/invalid login|invalid_grant|invalid credentials/i.test(t)) return 'E-mail ou senha não conferem.';
+    if (/not confirmed/i.test(t)) return 'Falta confirmar o e-mail: abra o link que chegou na sua caixa de entrada.';
+    if (/rate|too many/i.test(t)) return 'Muitas tentativas seguidas. Espere um minuto e tente de novo.';
+    if (/same as the old|different from the old/i.test(t)) return 'A senha nova precisa ser diferente da antiga.';
+    if (/weak|at least/i.test(t)) return 'Senha fraca: use pelo menos 8 caracteres.';
+    return padrao;
+  }
+
+  /* os apps que a própria conta lembra (o app grava quando a dona entra) */
+  function appsDe(user) {
+    var l = (user && user.user_metadata && user.user_metadata.milla_apps) || [];
+    if (!Array.isArray(l)) return [];
+    return l.filter(function (a) {
+      if (!a || !a.sala || !a.url || !/^[a-z0-9_]{1,40}$/.test(a.sala)) return false;
+      try { return new URL(a.url).protocol === 'https:'; } catch (e) { return false; }
+    });
+  }
+  function abre(app) {
+    try {
+      /* mesmo endereço (rottaguide.com): entrega a sessão ao app para não pedir a senha de novo */
+      if (new URL(app.url).origin === location.origin) localStorage.setItem('milla_sessao_' + app.sala, JSON.stringify(sessao));
+    } catch (e) { /* sem localStorage: o app pede a senha uma vez */ }
+    location.href = app.url;
+  }
+  function segue(user) {
+    var apps = appsDe(user);
+    if (apps.length === 1) { abre(apps[0]); return; }
+    if (!apps.length) { mostra('vSem'); return; }
+    $('quem').textContent = user && user.email ? 'Conta ' + user.email : '';
+    var caixa = $('listaApps'); caixa.textContent = '';
+    apps.forEach(function (a) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'app';
+      b.appendChild(document.createTextNode(a.nome || a.sala));
+      var s = document.createElement('span'); s.textContent = 'Abrir'; b.appendChild(s);
+      b.addEventListener('click', function () { abre(a); });
+      caixa.appendChild(b);
+    });
+    mostra('vEscolher');
+  }
+  async function usuario() {
+    var r = await prazo(SUPA_URL + '/auth/v1/user', { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + sessao.access_token } });
+    if (!r.ok) throw new Error('user ' + r.status);
+    var u = await r.json(); sessao.user = u; return u;
+  }
+
+  /* 1) entrar */
+  $('fEntrar').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var email = $('email').value.trim(), senha = $('senha').value;
+    if (!email || !senha) { msg('mEntrar', 'Escreva o e-mail e a senha.', 'erro'); return; }
+    $('bEntrar').disabled = true; msg('mEntrar', 'Entrando…');
+    try {
+      var r = await prazo(SUPA_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: senha }) });
+      var d = await r.json().catch(function () { return {}; });
+      if (!r.ok || !d.access_token) { msg('mEntrar', erroDe(d, 'Não consegui entrar agora. Tente de novo.'), 'erro'); return; }
+      sessao = sessaoDe(d); msg('mEntrar', '');
+      segue(d.user);
+    } catch (x) { msg('mEntrar', 'Sem conexão agora. Confira a internet e tente de novo.', 'erro'); }
+    finally { $('bEntrar').disabled = false; }
+  });
+
+  /* esqueci a senha: o e-mail volta para esta página */
+  $('bEsqueci').addEventListener('click', async function () {
+    var email = $('email').value.trim();
+    if (!email) { msg('mEntrar', 'Escreva o seu e-mail acima e toque de novo em "Esqueci a senha".', 'erro'); $('email').focus(); return; }
+    msg('mEntrar', 'Enviando…');
+    try {
+      await prazo(SUPA_URL + '/auth/v1/recover?redirect_to=' + encodeURIComponent(AQUI), { method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) });
+      msg('mEntrar', 'Se este e-mail tiver conta, chega um link em alguns minutos (remetente Ti Arts). Abra o link neste aparelho.', 'ok');
+    } catch (x) { msg('mEntrar', 'Sem conexão agora. Tente de novo.', 'erro'); }
+  });
+
+  /* 2) senha nova */
+  $('fNova').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var a = $('nova1').value, b = $('nova2').value;
+    if (a.length < 8) { msg('mNova', 'Use pelo menos 8 caracteres.', 'erro'); return; }
+    if (a !== b) { msg('mNova', 'As duas senhas não são iguais.', 'erro'); return; }
+    $('bNova').disabled = true; msg('mNova', 'Salvando…');
+    try {
+      var r = await prazo(SUPA_URL + '/auth/v1/user', { method: 'PUT', headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + sessao.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ password: a }) });
+      var d = await r.json().catch(function () { return {}; });
+      if (!r.ok) { msg('mNova', erroDe(d, 'Não consegui salvar. Peça outro link em "Esqueci a senha".'), 'erro'); return; }
+      sessao.user = d; msg('mNova', 'Senha salva.', 'ok');
+      segue(d);
+    } catch (x) { msg('mNova', 'Sem conexão agora. Tente de novo.', 'erro'); }
+    finally { $('bNova').disabled = false; }
+  });
+
+  function outra() { sessao = null; $('senha').value = ''; msg('mEntrar', ''); mostra('fEntrar'); }
+  $('bOutra').addEventListener('click', outra);
+  $('bOutra2').addEventListener('click', outra);
+  $('bFalar').addEventListener('click', function () { window.open(ESTUDIO_WA, '_blank', 'noopener'); });
+
+  /* volta do e-mail: #access_token=…&type=recovery (ou #error=…) */
+  (function () {
+    var h = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+    if (!h.toString()) { mostra('fEntrar'); return; }
+    history.replaceState(null, '', AQUI);
+    if (h.get('error') || h.get('error_description')) { mostra('fEntrar'); msg('mEntrar', 'O link do e-mail não valeu mais. Peça outro em "Esqueci a senha".', 'erro'); return; }
+    if (h.get('access_token')) {
+      sessao = { access_token: h.get('access_token'), refresh_token: h.get('refresh_token'), expires_at: Date.now() + (+h.get('expires_in') || 3600) * 1000, user: null };
+      if (h.get('type') === 'recovery') { mostra('fNova'); return; }
+      usuario().then(segue).catch(function () { mostra('fEntrar'); msg('mEntrar', 'Entre com o e-mail e a senha.', ''); });
+      return;
+    }
+    mostra('fEntrar');
+  })();
+})();
+</script>
+</body>
+</html>

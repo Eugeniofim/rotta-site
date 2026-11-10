@@ -119,6 +119,8 @@ async function confereDona() {
     if (r.status === 401) { authSave(null); return; }
     const c = r.ok ? await r.json() : [];
     WZ.dona = !!(c[0] && authUser() && c[0].owner_uid === authUser().id);
+    /* a dona confirmada: a conta passa a lembrar onde fica este app (o Entrar do site usa) */
+    if (WZ.dona && typeof authLembraApp === 'function') authLembraApp({ sala: APP_CONFIG.sala, nome: APP_CONFIG.nome, url: appHome() }).catch(() => {});
   } catch (e) { /* sem rede: tenta de novo no próximo render */ } finally { confereDona.indo = false; render(); }
 }
 
