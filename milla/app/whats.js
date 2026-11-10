@@ -25,6 +25,20 @@ const WZ = { lista: [], msgs: [], pedidos: [], leads: new Set(), erro: '', carre
 const WZ_REAL = () => typeof temNuvem === 'function' && temNuvem() && typeof SUPA_SALA !== 'undefined' && !!SUPA_SALA;
 const WZ_LOGADO = () => typeof isLoggedIn === 'function' && isLoggedIn();
 const WZ_COFRE = () => String(SUPA_URL).replace(/\/+$/, '') + '/functions/v1/cofre';
+/* o calor do lead (10/11/2026): a Milla diz ao anotar e a equipe pode trocar. Ficha antiga sem calor:
+   visita, proposta ou data = quente; perdido = frio; o resto morno. */
+const WZ_TEMPS = [['quente', 'Quente'], ['morno', 'Morno'], ['frio', 'Frio']];
+function tempDe(p) {
+  if (p && ['quente', 'morno', 'frio'].includes(p.temperatura)) return p.temperatura;
+  const q = p && p.extra && (p.extra.Quando || p.extra.quando);
+  return p && (p.status === 'visita marcada' || p.status === 'proposta' || q) ? 'quente' : (p && p.status === 'perdido' ? 'frio' : 'morno');
+}
+const tempNome = t => (WZ_TEMPS.find(x => x[0] === t) || [, ''])[1];
+function tempTag(p) { const t = tempDe(p); return `<span class="temp t-${t}">${tempNome(t)}</span>`; }
+function tempSelect(p, act) {
+  const t = tempDe(p);
+  return `<select class="inp wz-st temp-sel t-${t}" data-act="${act}" data-id="${esc(p.id)}" aria-label="Calor do lead">${WZ_TEMPS.map(([v, l]) => `<option value="${v}" ${t === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+}
 const WZ_STATUS = [['novo', 'Novo'], ['em atendimento', 'Em atendimento'], ['visita marcada', 'Visita marcada'], ['proposta', 'Proposta'], ['atendido', 'Fechado'], ['perdido', 'Perdido']];
 const WZ_DIA = 86400000;
 const WZ_MARCA = (typeof APP_CONFIG !== 'undefined' && (APP_CONFIG.curto || APP_CONFIG.nome)) || 'imobiliária';
@@ -78,13 +92,13 @@ function wzDemo() {
     m('5511900000004', 'robo', 'Separei 2 apartamentos para aluguel anual no Centro. Quer ver as fotos?', 264),
   ];
   const ped = [
-    { id: 'demo-p1', telefone: '5511900000001', nome: 'Carla', rotulo: 'Interesse em imóvel', imovelRef: 'T108', status: 'novo', mensagem: 'Carla quer ver a T108 (Praia Mansa, piscina) para 6 pessoas no Natal.', extra: { Pedido: 'Visita', Quando: 'sábado de manhã' }, criadoEm: h(4),
+    { id: 'demo-p1', temperatura: 'quente', telefone: '5511900000001', nome: 'Carla', rotulo: 'Interesse em imóvel', imovelRef: 'T108', status: 'novo', mensagem: 'Carla quer ver a T108 (Praia Mansa, piscina) para 6 pessoas no Natal.', extra: { Pedido: 'Visita', Quando: 'sábado de manhã' }, criadoEm: h(4),
       equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(4) } },
-    { id: 'demo-p2', telefone: '5511900000002', nome: 'Rafael', rotulo: 'Interesse em imóvel', imovelRef: 'V204', status: 'visita marcada', mensagem: 'Rafael quer visitar o apartamento V204 no Centro, até R$ 450 mil.', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(58),
+    { id: 'demo-p2', temperatura: 'quente', telefone: '5511900000002', nome: 'Rafael', rotulo: 'Interesse em imóvel', imovelRef: 'V204', status: 'visita marcada', mensagem: 'Rafael quer visitar o apartamento V204 no Centro, até R$ 450 mil.', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(58),
       equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(58), resposta: { acao: 'confirmado', por: 'Ana', em: h(38), clienteAvisado: true } } },
-    { id: 'demo-p3', telefone: '5511900000003', nome: 'Júlia', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Júlia tem um sobrado de 3 quartos com piscina no Jardim das Palmeiras e quer alugar na temporada.', extra: { Pedido: 'Anunciar para temporada' }, criadoEm: h(171),
+    { id: 'demo-p3', temperatura: 'morno', telefone: '5511900000003', nome: 'Júlia', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Júlia tem um sobrado de 3 quartos com piscina no Jardim das Palmeiras e quer alugar na temporada.', extra: { Pedido: 'Anunciar para temporada' }, criadoEm: h(171),
       equipe: { avisados: ['Ana'], falhou: [], em: h(171) } },
-    { id: 'demo-p4', telefone: '5511900000004', nome: 'Marcos', rotulo: 'Interesse em imóvel', imovelRef: 'A302', status: 'novo', mensagem: 'Marcos procura apartamento para aluguel anual no Centro, até R$ 2.500.', extra: { Pedido: 'Aluguel anual' }, criadoEm: h(264) },
+    { id: 'demo-p4', temperatura: 'frio', telefone: '5511900000004', nome: 'Marcos', rotulo: 'Interesse em imóvel', imovelRef: 'A302', status: 'novo', mensagem: 'Marcos procura apartamento para aluguel anual no Centro, até R$ 2.500.', extra: { Pedido: 'Aluguel anual' }, criadoEm: h(264) },
   ];
   return { conv, msgs, ped };
 }
@@ -175,7 +189,7 @@ function wzListaHtml(aberto) {
 function wzLeadHtml(p) {
   const im = p.imovelRef ? porRef(p.imovelRef) : null;
   const extras = Object.entries(p.extra || {}).filter(([, v]) => v && typeof v !== 'object');
-  return `<div class="wz-lead"><div class="wz-lead-cab"><b>${esc(p.rotulo || 'Lead')}</b><label class="sm">Status <select class="inp wz-st" data-act="wz-status" data-id="${esc(p.id)}" aria-label="Status do lead">${WZ_STATUS.map(([v, l]) => `<option value="${v}" ${p.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
+  return `<div class="wz-lead"><div class="wz-lead-cab"><b>${esc(p.rotulo || 'Lead')}</b><span class="wz-lead-sel"><label class="sm">Calor ${tempSelect(p, 'wz-temp')}</label><label class="sm">Status <select class="inp wz-st" data-act="wz-status" data-id="${esc(p.id)}" aria-label="Status do lead">${WZ_STATUS.map(([v, l]) => `<option value="${v}" ${p.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></span></div>
     ${im ? `<a class="wz-im" href="${esc(im.url || '#/imoveis')}" target="_blank" rel="noopener"><img src="${esc(capa(im))}" alt="" loading="lazy"><span><b>Ref. ${esc(im.ref)} · ${esc(tituloCurto(im))}</b><span class="sm">${esc(precoIm(im))} · ${esc(TR[im.transacao] || '')}</span></span></a>` : (p.imovelRef ? `<div class="sm">Imóvel: ${esc(p.imovelRef)}</div>` : '')}
     ${extras.map(([k, v]) => `<div class="wz-kv"><span class="sm">${esc(k)}</span><span>${esc(v)}</span></div>`).join('')}
     ${p.mensagem ? `<div class="wz-kv"><span class="sm">Resumo</span><span>${esc(p.mensagem)}</span></div>` : ''}
@@ -279,16 +293,20 @@ document.addEventListener('click', async e => {
   }
 });
 document.addEventListener('change', async e => {
-  if (e.target.dataset.act !== 'wz-status') return;
-  const id = e.target.dataset.id, status = e.target.value;
-  const p = WZ.pedidos.find(x => x.id === id); if (p) p.status = status;
+  const act = e.target.dataset.act;
+  if (act !== 'wz-status' && act !== 'wz-temp') return;
+  const id = e.target.dataset.id, valor = e.target.value, campo = act === 'wz-temp' ? 'temperatura' : 'status';
+  const status = campo === 'status' ? valor : null;
+  const p = WZ.pedidos.find(x => x.id === id); const antes = p ? p[campo] : undefined; if (p) p[campo] = valor;
   let ok = true;
   if (WZ_REAL() && p) {
     const dados = Object.assign({}, p); delete dados.id;
     try { const r = await supaFetch('pedidos?id=eq.' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify({ data: dados }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (x) { ok = false; }
   }
-  if (ok) { if (['atendido', 'perdido'].includes(status)) WZ.leads.delete(p && p.telefone); else if (p) WZ.leads.add(p.telefone); wzPinta(); }
-  toast(ok ? 'Status do lead: ' + (WZ_STATUS.find(s => s[0] === status) || [, status])[1] + '.' : 'Não gravou. Tente de novo.');
+  if (!ok && p) p[campo] = antes;
+  if (ok && status) { if (['atendido', 'perdido'].includes(status)) WZ.leads.delete(p && p.telefone); else if (p) WZ.leads.add(p.telefone); }
+  if (ok) wzPinta();
+  toast(!ok ? 'Não gravou. Tente de novo.' : campo === 'temperatura' ? 'Lead ' + tempNome(valor).toLowerCase() + '.' : 'Status do lead: ' + (WZ_STATUS.find(s => s[0] === status) || [, status])[1] + '.');
 });
 document.addEventListener('input', e => {
   if (e.target.id !== 'wz-texto') return;

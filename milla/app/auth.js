@@ -164,6 +164,30 @@ async function authSetPassword(pass) {
   } catch (e) { return { ok: false, error: String(e) }; }
 }
 
+/* --------- o "Entrar" do site da Milla (10/11/2026) ---------
+   O site (rottaguide.com/milla/entrar) não sabe de quem é cada app, e não pode ter
+   lista de clientes no código. Então a própria conta lembra: quando a dona confirmada
+   abre o app, ele grava em user_metadata.milla_apps { sala, nome, url }. Só a própria
+   pessoa lê e muda isso; o site lê depois do login e leva direto ao CRM. Se alguém
+   forjar a lista, cai num app em que a RLS não deixa ver nada. */
+async function authLembraApp(app) {
+  if (!authToken() || !app || !app.sala || !app.url) return false;
+  try {
+    const h = { apikey: SUPA_KEY, Authorization: 'Bearer ' + authToken(), 'Content-Type': 'application/json' };
+    const r0 = await comPrazo(SUPA_URL + '/auth/v1/user', { headers: h });
+    if (!r0.ok) return false;
+    const u = await r0.json().catch(() => ({}));
+    const atual = Array.isArray(u.user_metadata && u.user_metadata.milla_apps) ? u.user_metadata.milla_apps : [];
+    if (atual.some(x => x && x.sala === app.sala && x.url === app.url && x.nome === app.nome)) return true;
+    const lista = atual.filter(x => x && x.sala !== app.sala).concat([{ sala: app.sala, nome: app.nome || app.sala, url: app.url }]).slice(-10);
+    const r = await comPrazo(SUPA_URL + '/auth/v1/user', { method: 'PUT', headers: h, body: JSON.stringify({ data: { milla_apps: lista } }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) return false;
+    if (SESSION) { SESSION.user = d; authSave(SESSION); }
+    return true;
+  } catch (e) { return false; }
+}
+
 /* --------- a sala do banco ---------
    Varios apps podem morar num projeto Supabase so, cada um no seu schema
    (config.js -> sala). O PostgREST escolhe o schema por estes cabecalhos:

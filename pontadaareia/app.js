@@ -167,14 +167,15 @@ function vInicio() {
     ['Com a equipe', conv.filter(pausado).length, 'a Milla fica quieta nelas', '#/whats'],
   ];
   const nome = p => p.nome || (typeof wzNum === 'function' ? wzNum(p.telefone) : p.telefone) || 'Sem nome';
-  const precisa = novos.slice(0, 6).map(p => {
+  const ORDEM_T = { quente: 0, morno: 1, frio: 2 };
+  const precisa = novos.slice().sort((a, b) => ORDEM_T[tempDe(a)] - ORDEM_T[tempDe(b)]).slice(0, 6).map(p => {
     const im = p.imovelRef ? porRef(p.imovelRef) : null;
     const eq = eqDoLead(p);
     const pedido = (p.extra && (p.extra.Pedido || p.extra.pedido)) || p.rotulo || 'Lead';
     const quando = p.extra && (p.extra.Quando || p.extra.quando);
     return `<article class="pc">
       ${im && capa(im) ? `<img src="${esc(capa(im))}" alt="" loading="lazy">` : `<span class="pc-ico" aria-hidden="true">${svg(ICO.leads)}</span>`}
-      <div class="pc-tx"><div class="pc-l1"><b>${esc(nome(p))}</b><span class="tag tag-ok">${esc(pedido)}</span>${quando ? `<span class="sm">${esc(quando)}</span>` : ''}</div>
+      <div class="pc-tx"><div class="pc-l1"><b>${esc(nome(p))}</b>${tempTag(p)}<span class="tag tag-ok">${esc(pedido)}</span>${quando ? `<span class="sm">${esc(quando)}</span>` : ''}</div>
         ${p.mensagem ? `<p>${esc(p.mensagem)}</p>` : ''}
         <span class="sm">${esc(quandoLead(p.criadoEm))}${im ? ' · Ref. ' + esc(im.ref) + ' · ' + esc(precoIm(im)) : ''}${eq ? ' · ' + esc(eq.t) : ''}</span></div>
       ${p.telefone ? `<a class="btn btn-navy btn-p" href="#/whats/${esc(p.telefone)}">Abrir a conversa</a>` : ''}
@@ -217,8 +218,9 @@ function quandoLead(iso) {
 function vLeads() {
   const f = S.leadFiltro;
   const todos = LD.lista;
-  const l = todos.filter(p => f === 'todos' || (f === 'abertos' && LEAD_ABERTO(p.status)) || p.status === f);
+  const l = todos.filter(p => f === 'todos' || (f === 'abertos' && LEAD_ABERTO(p.status)) || p.status === f || (String(f).startsWith('t:') && LEAD_ABERTO(p.status) && tempDe(p) === f.slice(2)));
   const chips = [['abertos', 'Em aberto', todos.filter(p => LEAD_ABERTO(p.status)).length], ['novo', 'Novos', todos.filter(p => p.status === 'novo').length], ['visita marcada', 'Visita marcada', todos.filter(p => p.status === 'visita marcada').length], ['todos', 'Todos', todos.length]];
+  const chipsT = WZ_TEMPS.map(([t, n]) => ['t:' + t, n + 's', todos.filter(p => LEAD_ABERTO(p.status) && tempDe(p) === t).length, t]);
   const linha = p => {
     const im = p.imovelRef ? porRef(p.imovelRef) : null;
     const nome = p.nome || (typeof wzNum === 'function' ? wzNum(p.telefone) : p.telefone) || 'Sem nome';
@@ -227,11 +229,12 @@ function vLeads() {
     return `<div class="lead">${im && capa(im) ? `<img src="${esc(capa(im))}" alt="" loading="lazy">` : '<span class="sem-foto" aria-hidden="true"></span>'}
       <span class="lt"><b>${esc(nome)}</b><span class="sm">${esc(p.rotulo || 'Lead')}${im ? ' · Ref. ' + esc(im.ref) + ' · ' + esc(tituloCurto(im)) + ' · ' + esc(precoIm(im)) : (p.imovelRef ? ' · Ref. ' + esc(p.imovelRef) : '')}</span>
         ${extras ? `<span class="sm">${esc(extras)}</span>` : ''}${p.mensagem ? `<span class="resumo">${esc(p.mensagem)}</span>` : ''}${eq ? `<span class="sm eq-lead ${eq.sc}">${esc(eq.t)}</span>` : ''}<span class="sm">${esc(quandoLead(p.criadoEm))}${p.origem ? ' · ' + esc(String(p.origem).replace('robo-', 'Milla · ')) : ''}</span></span>
-      <span class="lr"><select class="inp wz-st" data-act="ld-status" data-id="${esc(p.id)}" aria-label="Status do lead de ${esc(nome)}">${WZ_STATUS.map(([v, t]) => `<option value="${v}" ${p.status === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <span class="lr">${tempSelect(p, 'ld-temp')}<select class="inp wz-st" data-act="ld-status" data-id="${esc(p.id)}" aria-label="Status do lead de ${esc(nome)}">${WZ_STATUS.map(([v, t]) => `<option value="${v}" ${p.status === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
         ${p.telefone ? `<a class="btn btn-line btn-p" href="#/whats/${esc(p.telefone)}">Abrir a conversa</a>` : ''}</span></div>`;
   };
   return `${faixaCel()}<div class="topo"><div><h1>Leads <small>· o que a Milla anotou</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: os leads das conversas de exemplo.</div>'}</div></div>
     <div class="chips">${chips.map(([v, t, q]) => `<button type="button" class="chip ${f === v ? 'on' : ''}" data-act="ld-filtro" data-v="${esc(v)}">${t} <span class="n">${q}</span></button>`).join('')}</div>
+    <div class="chips chips-temp" aria-label="Calor dos leads em aberto">${chipsT.map(([v, t, q, c]) => `<button type="button" class="chip chip-${c} ${f === v ? 'on' : ''}" data-act="ld-filtro" data-v="${esc(v)}"><span class="bolinha" aria-hidden="true"></span>${t} <span class="n">${q}</span></button>`).join('')}</div>
     ${LD.erro ? `<div class="wz-aviso sm">${esc(LD.erro)}</div>` : ''}
     <div class="lead-lista">${!LD.carregou ? '<div class="sm">Carregando os leads…</div>' : (l.map(linha).join('') || `<div class="box sm">${todos.length ? 'Nenhum lead neste filtro.' : 'Nenhum lead ainda. Quando a Milla anotar uma visita, uma reserva ou um pedido, aparece aqui.'}</div>`)}</div>`;
 }
@@ -340,17 +343,19 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('change', async e => {
   if (e.target.id === 'bb') { S.bairro = e.target.value; const l = $('lista-imoveis'); if (l) l.innerHTML = cardsImoveis(); return; }
-  if (e.target.dataset.act !== 'ld-status') return;
+  const act = e.target.dataset.act;
+  if (act !== 'ld-status' && act !== 'ld-temp') return;
+  const campo = act === 'ld-temp' ? 'temperatura' : 'status';
   const id = e.target.dataset.id, status = e.target.value;
   const p = LD.lista.find(x => x.id === id); if (!p) return;
-  const antes = p.status; p.status = status;
+  const antes = p[campo]; p[campo] = status;
   let ok = true;
   if (REAL()) {
     const dados = Object.assign({}, p); delete dados.id; delete dados.criadoEm;
     try { const r = await supaFetch('pedidos?id=eq.' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify({ data: dados }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (x) { ok = false; }
   }
-  if (!ok) p.status = antes;
-  toast(ok ? 'Status do lead: ' + (WZ_STATUS.find(s => s[0] === status) || [, status])[1] + '.' : 'Não gravou. Tente de novo.');
+  if (!ok) p[campo] = antes;
+  toast(!ok ? 'Não gravou. Tente de novo.' : campo === 'temperatura' ? 'Lead ' + tempNome(status).toLowerCase() + '.' : 'Status do lead: ' + (WZ_STATUS.find(s => s[0] === status) || [, status])[1] + '.');
   render();
 });
 document.addEventListener('input', e => {

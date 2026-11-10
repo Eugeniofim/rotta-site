@@ -409,3 +409,26 @@ body.entrar .meio { padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* o calor do lead (10/11/2026) */
+.temp { display: inline-flex; align-items: center; gap: 6px; font: 600 12.5px/1 var(--f-texto); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+.temp::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.t-quente { color: var(--vermelho); background: var(--vermelho-suave); }
+.t-morno { color: var(--ambar); background: var(--ambar-suave); }
+.t-frio { color: var(--azul); background: var(--azul-suave); }
+.temp-sel.t-quente { border-color: var(--vermelho); }
+.temp-sel.t-morno { border-color: var(--ambar-borda); }
+.temp-sel.t-frio { border-color: var(--azul-borda); }
+.temp-sel { font-weight: 600; }
+.chips-temp { margin-top: -4px; }
+.chip .bolinha { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 2px; }
+.chip-quente .bolinha { background: var(--vermelho); }
+.chip-morno .bolinha { background: var(--ambar); }
+.chip-frio .bolinha { background: var(--azul); }
+.wz-lead-sel { display: flex; flex-wrap: wrap; gap: 8px; }
+.wz-lead-sel label { display: flex; align-items: center; gap: 6px; }
+@media (max-width: 760px) {
+  .lead .lr { flex-wrap: wrap; }
+  .lead .lr .wz-st { flex: 1 1 130px; }
+  .lead .lr .btn { flex: 1 1 100%; justify-content: center; }
+}
