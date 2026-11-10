@@ -1,23 +1,23 @@
 /* =====================================================
    WHATSAPP — as conversas do número de atendimento (03/11/2026).
    O nome da imobiliária vem do config.js (APP_CONFIG.curto) e os exemplos são
-   do teste do robô da Ponta da Areia.
+   do teste da Milla da imobiliária.
 
-   O robô responde 24 h num número que só existe na API da Meta: ninguém abre
+   A Milla responde 24 h num número que só existe na API da Meta: ninguém abre
    esse WhatsApp num celular. Esta tela é onde a equipe VÊ cada conversa, a
    ficha de quem quer visitar, reservar ou fazer proposta, e RESPONDE pelo
-   mesmo número. Quem responde aqui assume a conversa: o robô fica quieto
-   nela até alguém tocar em "Devolver ao robô" (ou 24 h depois, sozinho).
+   mesmo número. Quem responde aqui assume a conversa: a Milla fica quieta
+   nela até alguém tocar em "Devolver à Milla" (ou 24 h depois, sozinho).
 
    De onde vem cada coisa (a sala do Supabase, só a conta dona lê — RLS):
      itens · whats_conversas   uma linha por número (o cofre grava a cada mensagem)
-     itens · whats_msgs        uma linha por mensagem (cliente, robô, equipe)
-     pedidos                   o lead que o robô anotou
+     itens · whats_msgs        uma linha por mensagem (cliente, Milla, equipe)
+     pedidos                   o lead que a Milla anotou
    Para responder e para assumir/devolver: rota whats-enviar do cofre, com o
    login da dona (o cofre confere que ela é a dona da sala).
 
    Sem banco (demonstração), a tela mostra conversas de exemplo — os textos do
-   robô são de um teste real (03/11/2026) com os 207 imóveis da API do site deles.
+   Milla são de um teste real (03/11/2026) com os 207 imóveis da API do site deles.
    ===================================================== */
 'use strict';
 
@@ -45,42 +45,46 @@ function wzQuando(iso) {
 const wzHora = iso => iso ? new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
 const wzPausado = c => !!(c && c.robo === 'pausado' && c.pausadoAte && Date.parse(c.pausadoAte) > Date.now());
 const wzNome = c => (c && (c.nome || wzNum(c.numero))) || '';
-/* texto do robô com o link clicável (só links do próprio site e http(s)) */
+/* texto da Milla com o link clicável (só links do próprio site e http(s)) */
 const wzTexto = t => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, '<br>');
 
 /* ---------- dados de exemplo (sem banco) ---------- */
 function wzDemo() {
   const h = (min) => new Date(Date.now() - min * 60000).toISOString();
   const conv = [
-    { numero: '5541991234567', nome: 'Juliana', ultima: "Anotei tudo! A equipe da Ponta da Areia vai confirmar em seguida se a D050 está livre nessas datas, o valor final da sua reserva e como você faz o pagamento. El", ultimaEm: h(4), ultimaDir: 'robo', clienteEm: h(5), naoLidas: 3, robo: 'ligado' },
-    { numero: '5541998887766', nome: 'Fernando', ultima: 'Oi Fernando, aqui é da Ponta da Areia! Sábado às 10h está confirmado no V024.', ultimaEm: h(40), ultimaDir: 'equipe', clienteEm: h(59), naoLidas: 0, robo: 'pausado', pausadoAte: new Date(Date.now() + 20 * 3600000).toISOString() },
-    { numero: '5541995554433', nome: 'Marta', ultima: "Perfeito, Marta! Anotei tudo: sobrado de 3 quartos com piscina, perto da praia, no Atami Sul. A equipe da Ponta da Areia vai entrar em contato por aqui mesmo em", ultimaEm: h(190), ultimaDir: 'robo', clienteEm: h(192), naoLidas: 2, robo: 'ligado' },
+    { numero: '5511900000001', nome: 'Carla', ultima: 'Obrigada, Carla! A equipe confirma o horário e eu te aviso por aqui.', ultimaEm: h(4), ultimaDir: 'robo', clienteEm: h(5), naoLidas: 2, robo: 'ligado' },
+    { numero: '5511900000002', nome: 'Rafael', ultima: 'Oi Rafael, aqui é a Ana! Sábado às 10h está confirmado no V204.', ultimaEm: h(38), ultimaDir: 'equipe', clienteEm: h(58), naoLidas: 0, robo: 'pausado', pausadoAte: new Date(Date.now() + 20 * 3600000).toISOString() },
+    { numero: '5511900000003', nome: 'Júlia', ultima: 'Perfeito, Júlia! Anotei tudo e a equipe fala com você por aqui para avaliar o imóvel.', ultimaEm: h(171), ultimaDir: 'robo', clienteEm: h(173), naoLidas: 1, robo: 'ligado' },
+    { numero: '5511900000004', nome: 'Marcos', ultima: 'Separei 2 apartamentos para aluguel anual no Centro. Quer ver as fotos?', ultimaEm: h(264), ultimaDir: 'robo', clienteEm: h(266), naoLidas: 0, robo: 'ligado' },
   ];
   const m = (numero, dir, texto, min, extra) => Object.assign({ numero, dir, texto, quando: h(min) }, extra || {});
-  /* os textos do robô são do teste de 03/11/2026 (clientes/simula-pontadaareia.mjs no cofre) */
   const msgs = [
-    m('5541991234567', 'cliente', "Oi! Vocês têm casa com piscina no Atami pra 8 pessoas, de 10 a 17 de janeiro?", 9),
-    m('5541991234567', 'robo', "Achei 49 casas com piscina no Atami para 8 pessoas! Aqui estão as primeiras:\n\nRef. D050 · Casa em Atami Norte com Piscina e Churrasqueira — 2 quartos, piscina, churrasqueira. R$ 1.100 por diária (7 noites = R$ 7.700 referência). https://www.pontadaareiaimoveis.com.br/imovel/excelente-sobrado-atami-norte-542\n\nRef. D035 · Casa em Atami Sul — 2 quartos, piscina, churrasqueira, perto do mar. R$ 1.350 por diária (7 noites = R$ 9.450 referência). https://www.pontadaareiaimoveis.com.br/imovel/excelente-casa-119\n\nRef. D019 · Casa Espaçosa em Atami Sul — 4 quartos, piscina, churrasqueira. R$ 1.500 por diária (7 noites = R$ 10.500 referência). https://www.pontadaareiaimoveis.com.br/imovel/excelente-casa-atami-sul-472\n\nOs preços que passei são diária × 7 noites, só pra você ter uma ideia. Se alguma dessas interessar, a equipe da Ponta da Areia confirma se está livre nessas datas e passa o valor final exato. Qual delas chamou sua atenção?", 8),
-    m('5541991234567', 'cliente', "Quanto fica no total a primeira que você mandou?", 7),
-    m('5541991234567', 'robo', "A D050 fica R$ 1.100 × 7 noites = R$ 7.700 como referência.\n\nMas janeiro é alta temporada, e muitas casas pedem um mínimo de 10 diárias nessa época — se for o caso dessa, o total pode ser diferente. A equipe da Ponta da Areia confirma o valor final exato e se ela está livre de 10 a 17 de janeiro. Quer que eu anote seu interesse?", 6),
-    m('5541991234567', 'cliente', "Quero reservar essa. Meu nome é Juliana", 5),
-    m('5541991234567', 'robo', "Anotei tudo! A equipe da Ponta da Areia vai confirmar em seguida se a D050 está livre nessas datas, o valor final da sua reserva e como você faz o pagamento. Eles respondem por aqui mesmo.", 4),
-    m('5541998887766', 'cliente', "Boa tarde. Procuro um sobrado pra comprar em Pontal do Sul, até uns 600 mil. Dá pra financiar?", 62),
-    m('5541998887766', 'robo', "Achei um sobrado ótimo na sua faixa:\n\nRef. V024 · Sobrado em Pontal do Sul, 1 quarto (1 suíte), 2 banheiros, garagem, 65,95 m² — cozinha e churrasqueira — R$ 450.000\nhttps://www.pontadaareiaimoveis.com.br/imovel/excelente-sobrado-325\n\nSobre financiamento: a Ponta da Areia tem corretores que ajudam do começo até a assinatura, simulação tudo. No anúncio dele não aparece se aceita, mas o corretor confirma na mesma hora. Taxa, prazo e aprovação quem define é o banco. Quer agendar uma visita ou quer conversar com um corretor sobre o financiamento?", 61),
-    m('5541998887766', 'cliente', "Gostei do primeiro. Dá pra ver sábado às 10h? Sou o Fernando", 60),
-    m('5541998887766', 'robo', "Anotei sua visita pro sábado às 10h no V024. A equipe da Ponta da Areia confirma em seguida por aqui mesmo. Qualquer dúvida sobre o sobrado ou o financiamento, é só chamar!", 59),
-    m('5541995554433', 'cliente', "Olá, tenho uma casa no Atami Sul e queria colocar pra alugar na temporada. Vocês fazem?", 196),
-    m('5541995554433', 'robo', "Já anotei aqui. A equipe da Ponta da Areia vai retornar com você em breve pra conversar sobre a avaliação e como colocar no ar.", 195),
-    m('5541995554433', 'cliente', "É um sobrado de 3 quartos com piscina, perto da praia. Meu nome é Marta", 194),
-    m('5541995554433', 'robo', "Perfeito, Marta! Anotei tudo: sobrado de 3 quartos com piscina, perto da praia, no Atami Sul. A equipe da Ponta da Areia vai entrar em contato por aqui mesmo em breve pra conversar sobre a avaliação e colocar seu imóvel na temporada. \n\nBoa sorte! 🏡", 193),
-    m('5541998887766', 'equipe', 'Oi Fernando, aqui é da Ponta da Areia! Sábado às 10h está confirmado no V024. Te espero na loja de Pontal do Sul (Av. Beira Mar, 1792).', 40, { por: 'atendimento@pontadaareiaimoveis.com.br' }),
+    m('5511900000001', 'cliente', 'Boa noite! Vocês têm casa pra 6 pessoas no Natal?', 12),
+    m('5511900000001', 'robo', 'Boa noite! Sou a Milla, agente virtual da Sua Imobiliária. Separei 3 casas para 6 pessoas no Natal. A primeira fica a duas quadras do mar:\n\nRef. T108 · Casa com piscina na Praia Mansa, 3 quartos, até 6 pessoas. R$ 780 por diária.', 12),
+    m('5511900000001', 'cliente', 'Gostei dessa. Posso ver sábado de manhã?', 7),
+    m('5511900000001', 'robo', 'Anotei sábado de manhã e já avisei a equipe. Assim que confirmarem, te aviso por aqui. Como posso te chamar?', 7),
+    m('5511900000001', 'cliente', 'Carla', 5),
+    m('5511900000001', 'robo', 'Obrigada, Carla! A equipe confirma o horário e eu te aviso por aqui.', 4),
+    m('5511900000002', 'cliente', 'Áudio de 14 segundos', 62),
+    m('5511900000002', 'robo', 'Entendi: apartamento de 2 quartos para comprar, até R$ 450 mil, perto do centro. Tenho uma opção boa:\n\nRef. V204 · Apartamento no Centro, 2 quartos, 1 vaga, 68 m². R$ 430.000.', 62),
+    m('5511900000002', 'cliente', 'Gostei. Dá pra ver sábado às 10h? Sou o Rafael', 59),
+    m('5511900000002', 'robo', 'Anotei sua visita para sábado às 10h no V204. A equipe confirma em seguida por aqui mesmo.', 58),
+    m('5511900000002', 'equipe', 'Oi Rafael, aqui é a Ana! Sábado às 10h está confirmado no V204.', 38, { por: 'Ana' }),
+    m('5511900000003', 'cliente', 'Olá, tenho uma casa e queria colocar para alugar na temporada. Vocês fazem?', 175),
+    m('5511900000003', 'robo', 'Fazemos sim. Me conta como é a casa e em que bairro fica?', 174),
+    m('5511900000003', 'cliente', 'É um sobrado de 3 quartos com piscina, no Jardim das Palmeiras. Meu nome é Júlia', 173),
+    m('5511900000003', 'robo', 'Perfeito, Júlia! Anotei tudo e a equipe fala com você por aqui para avaliar o imóvel.', 171),
+    m('5511900000004', 'cliente', 'Bom dia, procuro apartamento pra alugar no Centro, até 2.500', 266),
+    m('5511900000004', 'robo', 'Separei 2 apartamentos para aluguel anual no Centro. Quer ver as fotos?', 264),
   ];
   const ped = [
-    { id: 'demo-p1', telefone: '5541991234567', nome: 'Juliana', rotulo: 'Interesse em imóvel', imovelRef: 'D050', status: 'novo', mensagem: 'Juliana quer reservar a D050 (Atami Norte, piscina) para 8 pessoas de 10 a 17 de janeiro (7 noites). Referência: R$ 7.700.', extra: { Pedido: 'Reserva de temporada', Quando: '10/01 a 17/01' }, criadoEm: h(4),
-      equipe: { avisados: ['Corretor de plantão'], falhou: [], em: h(4) } },
-    { id: 'demo-p2', telefone: '5541998887766', nome: 'Fernando', rotulo: 'Interesse em imóvel', imovelRef: 'V024', status: 'visita marcada', mensagem: 'Fernando quer visitar o sobrado V024 em Pontal do Sul e pensa em financiar.', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(59),
-      equipe: { avisados: ['Corretor de plantão'], falhou: [], em: h(59), resposta: { acao: 'confirmado', por: 'Corretor de plantão', em: h(41), clienteAvisado: true } } },
-    { id: 'demo-p3', telefone: '5541995554433', nome: 'Marta', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Marta tem um sobrado de 3 quartos com piscina, perto da praia, no Atami Sul, e quer alugar na temporada.', extra: { Pedido: 'Anunciar para temporada' }, criadoEm: h(190) },
+    { id: 'demo-p1', telefone: '5511900000001', nome: 'Carla', rotulo: 'Interesse em imóvel', imovelRef: 'T108', status: 'novo', mensagem: 'Carla quer ver a T108 (Praia Mansa, piscina) para 6 pessoas no Natal.', extra: { Pedido: 'Visita', Quando: 'sábado de manhã' }, criadoEm: h(4),
+      equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(4) } },
+    { id: 'demo-p2', telefone: '5511900000002', nome: 'Rafael', rotulo: 'Interesse em imóvel', imovelRef: 'V204', status: 'visita marcada', mensagem: 'Rafael quer visitar o apartamento V204 no Centro, até R$ 450 mil.', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(58),
+      equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(58), resposta: { acao: 'confirmado', por: 'Ana', em: h(38), clienteAvisado: true } } },
+    { id: 'demo-p3', telefone: '5511900000003', nome: 'Júlia', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Júlia tem um sobrado de 3 quartos com piscina no Jardim das Palmeiras e quer alugar na temporada.', extra: { Pedido: 'Anunciar para temporada' }, criadoEm: h(171),
+      equipe: { avisados: ['Ana'], falhou: [], em: h(171) } },
+    { id: 'demo-p4', telefone: '5511900000004', nome: 'Marcos', rotulo: 'Interesse em imóvel', imovelRef: 'A302', status: 'novo', mensagem: 'Marcos procura apartamento para aluguel anual no Centro, até R$ 2.500.', extra: { Pedido: 'Aluguel anual' }, criadoEm: h(264) },
   ];
   return { conv, msgs, ped };
 }
@@ -152,13 +156,13 @@ async function wzCofre(corpo) {
 
 /* ---------- telas ---------- */
 function wzItem(c, aberto) {
-  const quem = c.ultimaDir === 'robo' ? 'Robô: ' : c.ultimaDir === 'equipe' ? 'Você: ' : '';
+  const quem = c.ultimaDir === 'robo' ? 'Milla: ' : c.ultimaDir === 'equipe' ? 'Você: ' : '';
   const temLead = WZ.leads.has(c.numero);
   return `<button type="button" class="wz-item ${aberto ? 'on' : ''} ${c.naoLidas ? 'nova' : ''}" data-act="wz-abrir" data-n="${esc(c.numero)}">
     ${av(wzNome(c) || '?')}
     <span class="wz-meio"><span class="wz-l1"><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzQuando(c.ultimaEm))}</span></span>
       <span class="wz-l2"><span class="wz-ult">${esc(quem + (c.ultima || ''))}</span>${c.naoLidas ? `<span class="wz-n" aria-label="${c.naoLidas} não lidas">${c.naoLidas}</span>` : ''}</span>
-      <span class="wz-l3">${wzPausado(c) ? tag('gold', 'equipe atendendo') : tag('ok', 'robô atendendo')}${temLead ? ' ' + tag('warn', 'lead') : ''}</span></span>
+      <span class="wz-l3">${wzPausado(c) ? tag('gold', 'equipe atendendo') : tag('ok', 'Milla atendendo')}${temLead ? ' ' + tag('warn', 'lead') : ''}</span></span>
   </button>`;
 }
 function wzListaHtml(aberto) {
@@ -183,17 +187,17 @@ function wzMsgsHtml() {
   return WZ.msgs.map(m => {
     const d = m.quando ? new Date(m.quando).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }) : '';
     const sep = d && d !== dia ? `<div class="wz-dia">${esc(d)}</div>` : ''; dia = d || dia;
-    const quem = m.dir === 'robo' ? 'Robô' : m.dir === 'equipe' ? (String(m.por || 'Equipe').split('@')[0] || 'Equipe') : '';
+    const quem = m.dir === 'robo' ? 'Milla' : m.dir === 'equipe' ? (String(m.por || 'Equipe').split('@')[0] || 'Equipe') : '';
     return `${sep}<div class="wz-bal wz-${esc(m.dir)}">${quem ? `<span class="wz-quem">${esc(quem)}${m.como === 'modelo' ? ' · mensagem modelo' : ''}</span>` : ''}<span>${wzTexto(m.texto)}</span><i>${esc(wzHora(m.quando))}</i></div>`;
   }).join('');
 }
 function wzCorpoHtml(c) {
   const pausa = wzPausado(c);
   const fora = c.clienteEm && Date.now() - Date.parse(c.clienteEm) > WZ_DIA;
-  return `<div class="wz-estado ${pausa ? 'eq' : ''}">${pausa
-      ? `<span><b>Você assumiu esta conversa.</b> O robô fica quieto até você devolver (ou volta sozinho ${esc(new Date(c.pausadoAte).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }))}).</span><button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="ligar" data-n="${esc(c.numero)}">Devolver ao robô</button>`
-      : `<span><b>O robô está atendendo.</b> Ao responder aqui, você assume e ele fica quieto nesta conversa.</span><button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="pausar" data-n="${esc(c.numero)}">Assumir sem responder</button>`}</div>
-    ${WZ.pedidos.map(wzLeadHtml).join('')}
+  return `<div class="wz-estado ${pausa ? 'eq' : ''}"><i class="ponto" aria-hidden="true"></i>${pausa
+      ? `<span><b>Você assumiu esta conversa.</b> A Milla fica quieta até você devolver (ou volta sozinha ${esc(new Date(c.pausadoAte).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }))}).</span><button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="ligar" data-n="${esc(c.numero)}">Devolver à Milla</button>`
+      : `<span><b>A Milla está atendendo.</b> Ao responder aqui, você assume e ela fica quieta nesta conversa.</span><button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="pausar" data-n="${esc(c.numero)}">Assumir sem responder</button>`}</div>
+    <div class="wz-ficha-dentro">${WZ.pedidos.map(wzLeadHtml).join('')}</div>
     <div class="wz-msgs" id="wz-msgs">${wzMsgsHtml()}</div>
     ${fora ? '<div class="wz-aviso sm">A última mensagem desta pessoa tem mais de 24 h. A Meta só deixa a empresa escrever com mensagem modelo aprovada: o app tenta pelo modelo e avisa se ele ainda estiver em aprovação.</div>' : ''}`;
 }
@@ -203,8 +207,8 @@ function vWhats(numero) {
   if (real && WZ.dona === false) return vNaoDona();
   const c = numero ? WZ.lista.find(x => x.numero === numero) : null;
   const n = (k) => WZ.lista.filter(k).length;
-  const filtros = [['todas', 'Todas', WZ.lista.length], ['naolidas', 'Não lidas', n(x => x.naoLidas)], ['robo', 'Robô atendendo', n(x => !wzPausado(x))], ['equipe', 'Equipe atendendo', n(wzPausado)]];
-  return `${faixaCel()}<div class="topo"><div><h1>WhatsApp <small>· número de atendimento da ${esc(WZ_MARCA)}</small></h1>${real ? '' : '<div class="sm" style="margin-top:4px">Demonstração: conversas de exemplo. Os textos do robô são de um teste real com os imóveis do site da ' + esc(WZ_MARCA) + '.</div>'}</div></div>
+  const filtros = [['todas', 'Todas', WZ.lista.length], ['naolidas', 'Não lidas', n(x => x.naoLidas)], ['robo', 'Milla atendendo', n(x => !wzPausado(x))], ['equipe', 'Equipe atendendo', n(wzPausado)]];
+  return `${faixaCel()}<div class="topo"><div><h1>WhatsApp <small>· número de atendimento da ${esc(WZ_MARCA)}</small></h1>${real ? '' : '<div class="sm" style="margin-top:4px">Demonstração: conversas e imóveis de exemplo.</div>'}</div></div>
     <div class="wz ${c ? 'com-conversa' : ''}">
       <div class="wz-col-lista"><div class="chips wz-filtros">${filtros.map(([v, l, q]) => `<button type="button" class="chip ${WZ.filtro === v ? 'on' : ''}" data-act="wz-filtro" data-v="${v}">${l}${q ? ` <span class="n">${q}</span>` : ''}</button>`).join('')}</div>
         <div class="wz-lista" id="wz-lista">${wzListaHtml(numero)}</div>${WZ.erro && WZ.erro !== 'sessao' ? `<div class="wz-aviso sm">${esc(WZ.erro)}</div>` : ''}</div>
@@ -212,8 +216,11 @@ function vWhats(numero) {
         <div class="wz-cab"><button type="button" class="btn btn-line btn-p wz-voltar" data-act="ir" data-h="#/whats" aria-label="Voltar para a lista">‹</button>${av(wzNome(c))}<span class="wz-cab-tx"><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzNum(c.numero))}</span></span>
           <a class="btn btn-wa btn-p" href="https://wa.me/${esc(c.numero)}" target="_blank" rel="noopener" title="Abre a conversa no SEU WhatsApp, por outro número">Meu WhatsApp</a></div>
         <div class="wz-corpo" id="wz-corpo">${wzCorpoHtml(c)}</div>
-        <form class="wz-form" id="wz-form" aria-label="Responder pelo número da ${esc(WZ_MARCA)}"><label for="wz-texto" class="oculto">Resposta</label><textarea id="wz-texto" class="inp" rows="2" placeholder="Responder pelo número da ${esc(WZ_MARCA)}…">${esc(WZ.rascunho && WZ.rascunho[c.numero] || '')}</textarea><button type="submit" class="btn btn-navy" ${WZ.enviando ? 'disabled' : ''}>Enviar</button></form>`
-      : `<div class="wz-nada sm">${WZ.lista.length ? 'Escolha uma conversa na lista.' : ''}</div>`}</div>
+        <form class="wz-form" id="wz-form" aria-label="Responder pelo número da ${esc(WZ_MARCA)}"><label for="wz-texto" class="oculto">Resposta</label><textarea id="wz-texto" class="inp" rows="1" placeholder="Responder para ${esc(wzNome(c).split(' ')[0])}…">${esc(WZ.rascunho && WZ.rascunho[c.numero] || '')}</textarea><button type="submit" class="btn btn-navy" ${WZ.enviando ? 'disabled' : ''}>Enviar</button></form>`
+      : `<div class="wz-nada"><span class="wz-nada-ico" aria-hidden="true">${typeof SIMBOLO === 'function' ? SIMBOLO() : ''}</span><b>${WZ.lista.length ? 'Escolha uma conversa' : 'Nenhuma conversa ainda'}</b><span class="sm">${WZ.lista.length ? 'A Milla responde sozinha. Abra uma conversa para ver tudo, assumir ou responder pelo número da ' + esc(WZ_MARCA) + '.' : ''}</span></div>`}</div>
+      ${c ? `<aside class="wz-col-ficha" aria-label="Ficha de ${esc(wzNome(c))}"><div class="ficha-cab">${av(wzNome(c))}<span><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzNum(c.numero))}</span></span></div>
+        ${WZ.pedidos.length ? WZ.pedidos.map(wzLeadHtml).join('') : '<div class="sm ficha-vazia">A Milla ainda não anotou um pedido desta pessoa. Quando ela pedir visita, reserva ou proposta, a ficha aparece aqui.</div>'}
+        <div class="ficha-acoes"><a class="btn btn-wa btn-p" href="https://wa.me/${esc(c.numero)}" target="_blank" rel="noopener">Abrir no meu WhatsApp</a></div></aside>` : ''}
     </div>`;
 }
 
@@ -266,7 +273,7 @@ document.addEventListener('click', async e => {
     const c = WZ.lista.find(x => x.numero === n);
     if (r.ok) {
       if (c) Object.assign(c, ligar ? { robo: 'ligado', pausadoAte: '' } : { robo: 'pausado', pausadoAte: r.pausadoAte || new Date(Date.now() + WZ_DIA).toISOString() });
-      toast(ligar ? 'Devolvido: o robô volta a responder esta pessoa.' : 'Assumido: o robô fica quieto nesta conversa.');
+      toast(ligar ? 'Devolvido: a Milla volta a responder esta pessoa.' : 'Assumido: a Milla fica quieta nesta conversa.');
     } else toast(r.erro || 'Não consegui agora. Tente de novo.');
     wzPinta(); return;
   }
@@ -302,9 +309,9 @@ document.addEventListener('submit', async e => {
     WZ.msgs.push({ numero: n, dir: 'equipe', texto, quando: agora, por: (typeof authEmail === 'function' && authEmail()) || 'você', como: r.como });
     if (c) Object.assign(c, { ultima: texto, ultimaEm: agora, ultimaDir: 'equipe', naoLidas: 0, robo: 'pausado', pausadoAte: r.pausadoAte || new Date(Date.now() + WZ_DIA).toISOString() });
     if (WZ_EXEMPLO) WZ_EXEMPLO.msgs.push(WZ.msgs[WZ.msgs.length - 1]);
-    wzPinta(); toast(r.demo ? 'Demonstração: no app de verdade a mensagem sai pelo número da ' + WZ_MARCA + '.' : r.como === 'modelo' ? 'Enviada como mensagem modelo (passou das 24 h).' : 'Enviada pelo número da ' + WZ_MARCA + '. O robô fica quieto nesta conversa.');
+    wzPinta(); toast(r.demo ? 'Demonstração: no app de verdade a mensagem sai pelo número da ' + WZ_MARCA + '.' : r.como === 'modelo' ? 'Enviada como mensagem modelo (passou das 24 h).' : 'Enviada pelo número da ' + WZ_MARCA + '. A Milla fica quieta nesta conversa.');
   } else {
-    const t = { fora_da_janela: r.erro, sem_numero: 'O número do WhatsApp ainda não está ligado no robô.', sem_cliente: 'Esta conta não manda no número da ' + WZ_MARCA + '.', sem_login: 'Entre de novo com a conta da ' + WZ_MARCA + '.' };
+    const t = { fora_da_janela: r.erro, sem_numero: 'O número do WhatsApp ainda não está ligado na Milla.', sem_cliente: 'Esta conta não manda no número da ' + WZ_MARCA + '.', sem_login: 'Entre de novo com a conta da ' + WZ_MARCA + '.' };
     toast(t[r.codigo] || r.erro || 'Não consegui enviar.');
   }
 });

@@ -1,5 +1,5 @@
 /* =====================================================
-   CATÁLOGO — os imóveis da Ponta da Areia (dados/imoveis.json, gerado por dados/importa-api.py).
+   CATÁLOGO — os imóveis da imobiliária (dados/imoveis.json, gerado por dados/importa-api.py).
    Tudo que o site mostra passa por aqui: busca, filtros, destaques, parecidos.
    Na entrega 2 os imóveis passam a morar no banco e este arquivo lê de lá;
    as funções continuam as mesmas.
