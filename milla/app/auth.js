@@ -1,11 +1,12 @@
 /* =====================================================
-   IMOBILIÁRIA — conta da imobiliária (e da equipe)
+   APP DA MILLA — conta da imobiliária (e da equipe)
    Login por e-mail e senha (Supabase Auth).
    A senha é criada por ela; nunca passa por aqui nem por mim.
    ===================================================== */
 'use strict';
 
-const AUTH_KEY = 'pda_session_v1';   /* prefixo do app: a sessão não pode valer em outro app do mesmo endereço */
+/* uma chave por sala: no mesmo endereço (rottaguide.com) a sessão de uma imobiliária nunca vale na outra */
+const AUTH_KEY = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.authKey) || ('milla_sessao_' + ((typeof APP_CONFIG !== 'undefined' && APP_CONFIG.sala) || 'demo'));
 let SESSION = null;   // { access_token, refresh_token, expires_at, user }
 
 /* Prazo para TODA chamada de rede daqui.

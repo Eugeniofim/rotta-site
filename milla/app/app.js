@@ -89,6 +89,16 @@ function vEntrar() {
     ${SITE ? `<a href="${esc(SITE)}" class="sm entrar-site" target="_blank" rel="noopener">Ir para o site da ${esc(MARCA)}</a>` : ''}
   </form><div class="entrar-pe">Milla · por studio Ti Artes</div></div>`;
 }
+/* conta de demonstração (sem banco): a mesma porta do app de verdade, para mostrar na venda */
+const DEMO_CHAVE = 'milla_demo_dentro';
+function demoDentro() { try { return localStorage.getItem(DEMO_CHAVE) === '1'; } catch (e) { return true; } }
+function vEntrarDemo() {
+  return `<div class="entrar-fundo"><div class="entrar-caixa" role="group" aria-label="Conta de demonstração">
+    <div class="entrar-marca">${SIMBOLO('grande')}<span class="olho">Conta de demonstração</span><h1>Entrar no app da Milla</h1><div class="sm">${esc(MARCA)} é uma imobiliária de exemplo: conversas, fichas e imóveis inventados. Na sua imobiliária, você entra com o seu e-mail e a sua senha.</div></div>
+    <label class="sm b" for="d-mail">E-mail</label><input id="d-mail" class="inp" value="demonstracao@milla" readonly>
+    <button type="button" class="btn btn-navy btn-g" data-act="demo-entrar">Entrar na demonstração</button>
+  </div><div class="entrar-pe">Milla · por studio Ti Artes</div></div>`;
+}
 function vSenhaNova() {
   return `<div class="entrar-fundo"><form class="entrar-caixa" id="senha-form" aria-label="Criar senha nova">
     <div class="entrar-marca">${SIMBOLO('grande')}<h1>Crie a sua senha nova</h1></div>
@@ -126,11 +136,11 @@ function renderLado() {
     <nav class="menu" aria-label="Menu">${MENU.map(([id, l]) => `<a class="mi ${r.tela === id ? 'on' : ''}" href="#/${id}" ${r.tela === id ? 'aria-current="page"' : ''}>${svg(ICO[id])}<span>${l}</span>${n[id] ? `<span class="n">${n[id]}</span>` : ''}</a>`).join('')}</nav>
     <div class="rodape">A Milla responde 24 h pelo número da ${esc(MARCA)}. Quem responde aqui assume a conversa; a Milla volta quando você devolver.</div>
     ${SITE ? `<a class="mi site" href="${esc(SITE)}" target="_blank" rel="noopener">${svg(ICO.site)}<span>Ver o site</span></a>` : ''}
-    <div class="quem"><span class="sm">${esc(quem)}</span>${REAL() && LOGADO() ? `<button type="button" class="btn btn-line btn-p" data-act="sair">${svg(ICO.sair)}Sair</button>` : ''}</div>`;
+    <div class="quem"><span class="sm">${esc(quem)}</span>${REAL() && LOGADO() ? `<button type="button" class="btn btn-line btn-p" data-act="sair">${svg(ICO.sair)}Sair</button>` : (REAL() ? '' : `<button type="button" class="btn btn-line btn-p" data-act="demo-sair">${svg(ICO.sair)}Sair da demonstração</button>`)}</div>`;
   $('barra-cel').innerHTML = MENU.map(([id, l]) => `<a href="#/${id}" class="${r.tela === id ? 'on' : ''}" ${r.tela === id ? 'aria-current="page"' : ''}>${svg(ICO[id])}${l}${n[id] ? `<span class="n-cel">${n[id]}</span>` : ''}</a>`).join('');
 }
 function faixaCel() {
-  return `<div class="demo-faixa"><a href="#/inicio" class="faixa-marca" aria-label="Milla, início">${SIMBOLO()}<span><b>Milla</b><small>${esc(MARCA)}</small></span></a>${REAL() && LOGADO() ? '<button type="button" class="btn btn-line btn-p" data-act="sair">Sair</button>' : '<span class="online"><i aria-hidden="true"></i>demonstração</span>'}</div>`;
+  return `<div class="demo-faixa"><a href="#/inicio" class="faixa-marca" aria-label="Milla, início">${SIMBOLO()}<span><b>Milla</b><small>${esc(MARCA)}</small></span></a>${REAL() && LOGADO() ? '<button type="button" class="btn btn-line btn-p" data-act="sair">Sair</button>' : (REAL() ? '' : '<button type="button" class="btn btn-line btn-p" data-act="demo-sair">Sair</button>')}</div>`;
 }
 
 /* ---------- INÍCIO: o que precisa da equipe agora ---------- */
@@ -314,6 +324,8 @@ document.addEventListener('click', async e => {
     if (ok) EQ.lista = EQ.lista.filter(y => y !== x);
     toast(ok ? x.nome + ' saiu da equipe.' : 'Não gravou. Tente de novo.'); render(); return;
   }
+  if (a === 'demo-entrar') { try { localStorage.setItem(DEMO_CHAVE, '1'); } catch (x) {} location.hash = '#/inicio'; render(); return; }
+  if (a === 'demo-sair') { try { localStorage.removeItem(DEMO_CHAVE); } catch (x) {} render(); return; }
   if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
   if (a === 'esqueci') {
     const email = ($('e-mail') && $('e-mail').value.trim()) || '';
@@ -375,7 +387,7 @@ document.addEventListener('submit', async e => {
 /* ---------- render ---------- */
 function render() {
   const real = REAL(), logado = LOGADO();
-  const porta = S.senhaNova ? vSenhaNova() : (real && !logado ? vEntrar() : '');
+  const porta = S.senhaNova ? vSenhaNova() : (real && !logado ? vEntrar() : (!real && !demoDentro() ? vEntrarDemo() : ''));
   document.body.classList.toggle('entrar', !!porta);
   if (porta) { $('meio').innerHTML = porta; $('lado').innerHTML = ''; $('barra-cel').innerHTML = ''; document.title = 'Milla · ' + MARCA + ' · entrar'; return; }
   if (real && WZ.dona === null) { confereDona(); $('meio').innerHTML = '<div class="sm" style="padding:24px">Conferindo a conta…</div>'; renderLado(); return; }
