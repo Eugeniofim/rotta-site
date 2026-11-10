@@ -93,7 +93,7 @@ function wzDemo() {
   ];
   const ped = [
     { id: 'demo-p1', temperatura: 'quente', telefone: '5511900000001', nome: 'Carla', rotulo: 'Interesse em imóvel', imovelRef: 'T108', status: 'novo', mensagem: 'Carla quer ver a T108 (Praia Mansa, piscina) para 6 pessoas no Natal.', extra: { Pedido: 'Visita', Quando: 'sábado de manhã' }, criadoEm: h(4),
-      equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(4) } },
+      equipe: { modo: 'rodizio', produto: 'temporada', vez: 'Bruno', passouDe: ['Ana'], avisados: ['Ana', 'Bruno'], falhou: [], em: h(14), prazo: new Date(Date.now() + 6 * 60000).toISOString() } },
     { id: 'demo-p2', temperatura: 'quente', telefone: '5511900000002', nome: 'Rafael', rotulo: 'Interesse em imóvel', imovelRef: 'V204', status: 'visita marcada', mensagem: 'Rafael quer visitar o apartamento V204 no Centro, até R$ 450 mil.', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(58),
       equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(58), resposta: { acao: 'confirmado', por: 'Ana', em: h(38), clienteAvisado: true } } },
     { id: 'demo-p3', temperatura: 'morno', telefone: '5511900000003', nome: 'Júlia', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Júlia tem um sobrado de 3 quartos com piscina no Jardim das Palmeiras e quer alugar na temporada.', extra: { Pedido: 'Anunciar para temporada' }, criadoEm: h(171),

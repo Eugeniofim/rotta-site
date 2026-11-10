@@ -432,3 +432,12 @@ body.entrar .meio { padding: 0; }
   .lead .lr .wz-st { flex: 1 1 130px; }
   .lead .lr .btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* rodízio da equipe (10/11/2026) */
+.eq-modo-box { display: grid; gap: 10px; }
+.eq-modo { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--linha, rgba(246,243,236,.14)); border-radius: 999px; justify-self: start; }
+.eq-modo button { border: 0; background: transparent; color: inherit; font: 600 14.5px/1 var(--f-texto); padding: 10px 16px; border-radius: 999px; cursor: pointer; min-height: 40px; }
+.eq-modo button.on { background: var(--ambar); color: var(--noite); }
+.eq-modo-box .wz-st { display: inline-block; width: auto; min-height: 30px; margin: 0 4px; }
+.eq-prods { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.eq-prods .chip { padding: 6px 11px; font-size: 13px; }

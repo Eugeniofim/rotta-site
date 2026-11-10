@@ -36,7 +36,10 @@ const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
 /* ---------- estado ---------- */
 const S = { neg: '', q: '', bairro: '', leadFiltro: 'abertos', rotaAnterior: '', senhaNova: false, entrarMsg: '' };
 const LD = { lista: [], carregou: false, buscando: false, erro: '' };
-const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: false };
+const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: false, cfg: { modo: 'todos', prazoMin: 10 } };
+/* rodízio por produto (10/11/2026): a vez gira em venda, locação e temporada; cada pessoa pode ter os seus */
+const EQ_PRODUTOS = [['venda', 'Venda'], ['aluguel', 'Locação'], ['temporada', 'Temporada']];
+const eqProds = x => (Array.isArray(x && x.produtos) && x.produtos.length ? x.produtos : EQ_PRODUTOS.map(p => p[0]));
 const EQ_MAX = 5;
 
 /* ---------- peças ---------- */
@@ -248,13 +251,21 @@ function eqDoLead(p) {
   const e = p && p.equipe;
   if (!e) return null;
   if (e.resposta) return { sc: 'ok', t: `${e.resposta.por} ${EQ_ACAO[e.resposta.acao] || e.resposta.acao}${e.resposta.clienteAvisado === false ? ' · o cliente não foi avisado pela Milla (passou de 24 h): fale direto' : ''}` };
+  if (e.modo === 'rodizio') {
+    if (e.esgotou) return { sc: 'warn', t: 'Ninguém respondeu: ' + (e.avisados || []).join(', ') + ' foram avisadas' };
+    if (e.vez) {
+      const hora = e.prazo ? new Date(e.prazo).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+      const prod = (EQ_PRODUTOS.find(x => x[0] === e.produto) || [, ''])[1];
+      return { sc: '', t: `Vez de ${e.vez}${prod ? ' (' + prod.toLowerCase() + ')' : ''}${e.doDono ? ' · já atendeu este cliente' : ''}${hora ? ' · passa às ' + hora + ' se ninguém tocar' : ''}${(e.passouDe || []).length ? ' · passou de ' + e.passouDe.join(', ') : ''}` };
+    }
+  }
   if ((e.avisados || []).length) return { sc: '', t: 'Aviso no WhatsApp: ' + e.avisados.join(', ') + ' · esperando alguém tocar' };
   if ((e.falhou || []).length) return { sc: 'warn', t: 'O aviso não saiu: ' + (e.falhou[0].porque || 'erro') };
   return null;
 }
 const eqNum = v => { let d = String(v || '').replace(/\D/g, ''); if (d.length === 10 || d.length === 11) d = '55' + d; return d.length >= 12 && d.length <= 15 ? d : ''; };
 async function eqCarregar() {
-  if (!REAL()) { if (!EQ.carregou) EQ.lista = [{ nome: 'Ana', numero: '5511900000011' }, { nome: 'Bruno', numero: '5511900000012' }]; EQ.carregou = true; return; }
+  if (!REAL()) { if (!EQ.carregou) { EQ.lista = [{ nome: 'Ana', numero: '5511900000011' }, { nome: 'Bruno', numero: '5511900000012' }, { nome: 'Carla', numero: '5511900000013', produtos: ['venda', 'aluguel'] }]; EQ.cfg = { modo: 'rodizio', prazoMin: 10 }; } EQ.carregou = true; return; }
   if (!LOGADO() || EQ.buscando) return;
   EQ.buscando = true;
   try {
@@ -262,18 +273,33 @@ async function eqCarregar() {
     const r = await supaFetch('itens?colecao=eq.equipe_wa&apagado=eq.false&select=id,dados&order=atualizado_em.asc&limit=20');
     if (r.status === 401) { authSave(null); throw new Error('sessao'); }
     if (!r.ok) throw new Error('banco ' + r.status);
-    EQ.lista = (await r.json()).map(x => ({ nome: (x.dados && x.dados.nome) || 'Equipe', numero: (x.dados && x.dados.numero) || x.id }));
+    EQ.lista = (await r.json()).map(x => ({ nome: (x.dados && x.dados.nome) || 'Equipe', numero: (x.dados && x.dados.numero) || x.id, ...(x.dados && Array.isArray(x.dados.produtos) ? { produtos: x.dados.produtos } : {}) }));
+    try {
+      const c = await supaFetch('itens?colecao=eq.equipe_cfg&id=eq.cfg&apagado=eq.false&select=dados');
+      const l = c.ok ? await c.json() : [];
+      if (l[0] && l[0].dados) EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10 };
+    } catch (x) { /* sem a configuração: avisa todos, como antes */ }
     EQ.erro = ''; EQ.carregou = true;
   } catch (e) { EQ.erro = 'Não consegui ler a equipe agora. Tente de novo em alguns segundos.'; }
   finally { EQ.buscando = false; }
 }
 function vEquipe() {
   const cheia = EQ.lista.length >= EQ_MAX;
-  const linha = x => `<div class="lead eq-linha">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span></span>
+  const rz = EQ.cfg.modo === 'rodizio';
+  const prods = x => `<span class="eq-prods" role="group" aria-label="O que ${esc(x.nome)} atende">${EQ_PRODUTOS.map(([v, t]) => `<button type="button" class="chip ${eqProds(x).includes(v) ? 'on' : ''}" data-act="eq-prod" data-n="${esc(x.numero)}" data-p="${v}" aria-pressed="${eqProds(x).includes(v)}">${t}</button>`).join('')}</span>`;
+  const linha = x => `<div class="lead eq-linha">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span>${rz ? prods(x) : ''}</span>
     <span class="lr"><button type="button" class="btn btn-line btn-p" data-act="eq-tirar" data-n="${esc(x.numero)}" aria-label="Tirar ${esc(x.nome)} da lista">Tirar</button></span></div>`;
   return `${faixaCel()}<div class="topo"><div><h1>Equipe <small>· quem recebe o aviso de cada pedido</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: a lista não é gravada.</div>'}</div></div>
+    <div class="box eq-modo-box">
+      <div class="b">Como avisar a equipe</div>
+      <div class="eq-modo" role="group" aria-label="Como avisar a equipe">
+        <button type="button" data-act="eq-modo" data-v="todos" aria-pressed="${!rz}" class="${rz ? '' : 'on'}">Todos de uma vez</button>
+        <button type="button" data-act="eq-modo" data-v="rodizio" aria-pressed="${rz}" class="${rz ? 'on' : ''}">Rodízio, uma por vez</button>
+      </div>
+      ${rz ? `<div class="sm">Em cada produto (venda, locação e temporada) a vez gira. Só a da vez recebe o aviso; se ela não tocar em <select class="inp wz-st" data-act="eq-prazo" aria-label="Prazo para tocar">${[5, 10, 15, 30].map(m => `<option value="${m}" ${EQ.cfg.prazoMin === m ? 'selected' : ''}>${m} min</option>`).join('')}</select>, passa para a próxima. À noite, o prazo começa às 9h. Quem não respondeu perde a vez, e o cliente que volta fica com quem já atendeu. Marque abaixo o que cada pessoa atende.</div>` : '<div class="sm">Todo pedido chega para todas as pessoas da lista; vale o primeiro toque.</div>'}
+    </div>
     <div class="box">
-      <div>Quando a Milla anota um pedido (visita, reserva, proposta), cada pessoa desta lista recebe no WhatsApp dela, saindo do número da Milla, o pedido com 3 botões:</div>
+      <div>Quando a Milla anota um pedido (visita, reserva, proposta), ${rz ? 'a pessoa da vez' : 'cada pessoa desta lista'} recebe no WhatsApp dela, saindo do número da Milla, o pedido com 3 botões:</div>
       <div class="eq-botoes"><span><b>Confirmar</b> o cliente recebe a confirmação na hora.</span><span><b>Outro horário</b> a Milla pede outros dias ao cliente.</span><span><b>Eu assumo</b> a Milla fica quieta na conversa e você recebe o link para falar com o cliente.</span></div>
       <div class="sm">Vale o primeiro toque: quem tocar depois fica sabendo quem já respondeu. Até ${EQ_MAX} pessoas.</div>
     </div>
@@ -285,6 +311,14 @@ function vEquipe() {
       <button type="submit" class="btn btn-navy" ${EQ.salvando ? 'disabled' : ''}>Pôr na equipe</button>
     </form>`}
     <div class="sm eq-nota">A Meta aprova a mensagem de aviso uma vez só, em minutos até 1 dia. Enquanto isso, o aviso só chega para quem mandou qualquer mensagem ao número da Milla nas últimas 24 h. Quem escreve ao número da Milla é atendido como cliente: é assim que dá para testar sozinho, pedindo uma visita.</div>`;
+}
+async function eqGravaCfg() {
+  if (!REAL()) return true;
+  try {
+    await authEnsure();
+    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin }, apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
+    return r.ok;
+  } catch (e) { return false; }
 }
 async function eqGrava(numero, dados, apagado) {
   if (!REAL()) return true;
@@ -321,11 +355,25 @@ document.addEventListener('click', async e => {
   if (a === 'ir') { e.preventDefault(); ir(el.dataset.h); return; }
   if (a === 'neg') { S.neg = v; render(); return; }
   if (a === 'ld-filtro') { S.leadFiltro = v; render(); return; }
+  if (a === 'eq-modo') {
+    const antes = EQ.cfg.modo; EQ.cfg.modo = v === 'rodizio' ? 'rodizio' : 'todos';
+    const ok = await eqGravaCfg(); if (!ok) EQ.cfg.modo = antes;
+    toast(!ok ? 'Não gravou. Tente de novo.' : EQ.cfg.modo === 'rodizio' ? 'Rodízio ligado: o próximo pedido vai só para a pessoa da vez.' : 'Todos de uma vez: o próximo pedido chega para toda a equipe.'); render(); return;
+  }
+  if (a === 'eq-prod') {
+    const x = EQ.lista.find(y => y.numero === el.dataset.n); if (!x) return;
+    const atual = eqProds(x), p = el.dataset.p, novo = atual.includes(p) ? atual.filter(y => y !== p) : [...atual, p];
+    if (!novo.length) { toast('Cada pessoa precisa atender pelo menos um produto.'); return; }
+    const antes = x.produtos; x.produtos = EQ_PRODUTOS.map(y => y[0]).filter(y => novo.includes(y));
+    const ok = await eqGrava(x.numero, { nome: x.nome, numero: x.numero, produtos: x.produtos }, false);
+    if (!ok) x.produtos = antes;
+    toast(ok ? x.nome + ' atende: ' + x.produtos.map(y => (EQ_PRODUTOS.find(z => z[0] === y) || [, y])[1].toLowerCase()).join(', ') + '.' : 'Não gravou. Tente de novo.'); render(); return;
+  }
   if (a === 'eq-tirar') {
     const x = EQ.lista.find(y => y.numero === el.dataset.n); if (!x) return;
     if (!confirm('Tirar ' + x.nome + ' da equipe? Esse número deixa de receber o aviso dos pedidos.')) return;
     el.disabled = true;
-    const ok = await eqGrava(x.numero, { nome: x.nome, numero: x.numero }, true);
+    const ok = await eqGrava(x.numero, { nome: x.nome, numero: x.numero, ...(x.produtos ? { produtos: x.produtos } : {}) }, true);
     if (ok) EQ.lista = EQ.lista.filter(y => y !== x);
     toast(ok ? x.nome + ' saiu da equipe.' : 'Não gravou. Tente de novo.'); render(); return;
   }
@@ -343,6 +391,11 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('change', async e => {
   if (e.target.id === 'bb') { S.bairro = e.target.value; const l = $('lista-imoveis'); if (l) l.innerHTML = cardsImoveis(); return; }
+  if (e.target.dataset.act === 'eq-prazo') {
+    const antes = EQ.cfg.prazoMin; EQ.cfg.prazoMin = +e.target.value || 10;
+    const ok = await eqGravaCfg(); if (!ok) EQ.cfg.prazoMin = antes;
+    toast(ok ? 'Prazo para tocar: ' + EQ.cfg.prazoMin + ' minutos.' : 'Não gravou. Tente de novo.'); render(); return;
+  }
   const act = e.target.dataset.act;
   if (act !== 'ld-status' && act !== 'ld-temp') return;
   const campo = act === 'ld-temp' ? 'temperatura' : 'status';
