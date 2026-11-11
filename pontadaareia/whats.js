@@ -21,7 +21,7 @@
    ===================================================== */
 'use strict';
 
-const WZ = { lista: [], msgs: [], pedidos: [], leads: new Set(), erro: '', carregou: false, buscando: false, filtro: 'todas', timer: null, dona: null, enviando: false, ultimaRota: null };
+const WZ = { lista: [], msgs: [], pedidos: [], leads: new Set(), erro: '', carregou: false, buscando: false, filtro: 'todas', timer: null, dona: null, papel: '', enviando: false, ultimaRota: null };
 const WZ_REAL = () => typeof temNuvem === 'function' && temNuvem() && typeof SUPA_SALA !== 'undefined' && !!SUPA_SALA;
 const WZ_LOGADO = () => typeof isLoggedIn === 'function' && isLoggedIn();
 const WZ_COFRE = () => String(SUPA_URL).replace(/\/+$/, '') + '/functions/v1/cofre';

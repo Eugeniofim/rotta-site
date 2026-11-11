@@ -10,8 +10,8 @@
    No fonte o banco fica vazio: abre a demonstração com conversas de exemplo.
    O publicar grava APP_NUVEM_PRODUCAO só na cópia publicada. */
 var APP_CONFIG = {
-  nome: "Ponta D'Areia Imóveis",
-  curto: 'Ponta da Areia',           /* como o app e o robô chamam a imobiliária numa frase */
+  nome: 'Ponta d’a Areia Imóveis',
+  curto: 'Ponta d’a Areia',           /* como o app e o robô chamam a imobiliária numa frase */
   site: 'https://www.pontadaareiaimoveis.com.br',
   instagram: 'https://www.instagram.com/pontadareiaimoveis',
   fixo: '(41) 3455-1277',

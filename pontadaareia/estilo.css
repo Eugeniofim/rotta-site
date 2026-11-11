@@ -283,6 +283,11 @@ select.inp { width: auto; padding-right: 30px; }
 .eq-form { display: grid; grid-template-columns: 1fr 1fr auto; grid-template-rows: auto auto; grid-auto-flow: column; gap: 8px 12px; align-items: end; }
 .eq-form .btn { grid-row: 2; min-height: 44px; }
 .eq-nota { max-width: 760px; color: var(--fraco); }
+/* quem entra no app (11/11/2026) */
+.ac-tit { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 700; margin: 26px 0 10px; }
+#ac-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1.4fr) auto; }
+#ac-form .inp { min-width: 0; width: 100%; }
+.lead .lr.ac-acoes { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; }
 
 /* ---------- IMÓVEIS ---------- */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 16px; }
@@ -380,6 +385,8 @@ body.entrar .meio { padding: 0; }
   .lead .lr { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
   .eq-form { grid-template-columns: 1fr; grid-auto-flow: row; }
   .eq-form .btn { grid-row: auto; }
+  #ac-form { grid-template-columns: minmax(0, 1fr); }
+  .lead .lr.ac-acoes { justify-content: flex-start; }
   .eq-botoes b { display: block; }
   .wz, .wz:not(.com-conversa) { grid-template-columns: minmax(0, 1fr); height: calc(100dvh - 210px); min-height: 420px; }
   .wz.com-conversa .wz-col-lista { display: none; }
