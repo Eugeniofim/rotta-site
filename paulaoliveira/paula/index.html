@@ -43,7 +43,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 
 /* cabeçalho */
 .topo{position:fixed;left:0;right:0;top:var(--barra);z-index:60;display:flex;align-items:center;justify-content:space-between;padding:10px clamp(14px,3vw,40px);color:var(--t);transition:color .3s,background .3s}
-.topo.solido{background:color-mix(in srgb,var(--fundo-topo,#17101A) 95%,transparent);color:var(--tinta-topo,#F5EEF2)}
+.topo.solido{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.02) 40%),color-mix(in srgb,var(--fundo-topo,#17101A) 76%,transparent);-webkit-backdrop-filter:blur(22px) saturate(160%) brightness(.84);backdrop-filter:blur(22px) saturate(160%) brightness(.84);color:var(--tinta-topo,#F5EEF2)}
 .marca{font:400 clamp(21px,2vw,27px)/1 var(--titulo);text-decoration:none}
 .menu{display:flex;gap:clamp(16px,2.6vw,38px);font:400 21px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase}
 .menu a{text-decoration:none;padding:12px 0;background:linear-gradient(currentColor,currentColor) 0 calc(100% - 8px)/0 2px no-repeat;transition:background-size .3s}
@@ -235,7 +235,7 @@ dialog{overscroll-behavior:contain}
 .abas{display:none}
 @media(max-width:820px){
   :root{--tab:calc(60px + env(safe-area-inset-bottom))}
-  .abas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;height:var(--tab);padding-bottom:env(safe-area-inset-bottom);z-index:65;background:#120C14;color:#F5EEF2;border-top:1px solid #ffffff24}
+  .abas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;height:var(--tab);padding-bottom:env(safe-area-inset-bottom);z-index:65;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.02) 40%),rgba(18,12,20,.76);-webkit-backdrop-filter:blur(22px) saturate(160%) brightness(.84);backdrop-filter:blur(22px) saturate(160%) brightness(.84);color:#F5EEF2;border-top:1px solid rgba(255,255,255,.22)}
   .abas a,.abas button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:400 15.5px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;min-height:44px}
   .abas svg{width:21px;height:21px}
   .abas [aria-current=page]{color:#EDE6A0}
@@ -435,6 +435,9 @@ body.em-detalhe .wpp{display:none}
 .cookies button{min-height:44px;padding:2px 12px 0;font:400 20px/1 var(--cartaz);letter-spacing:.05em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px #20131F}
 .cookies button:last-child{background:#20131F;color:#F5EEF2}
 
+
+.sei-cep{display:inline-flex;align-items:center;min-height:36px;font-size:15px;text-decoration:underline;text-underline-offset:3px}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.abas,.topo.solido{background:#17101A!important}}
 /* ---------- v3: cada cor com uma função ---------- */
 .topo{--nav:#F5EEF2;--a:#FFDC3C;--fa:#17101A}
 .menu{color:var(--nav);align-items:center;gap:clamp(13px,1.9vw,28px)}
@@ -531,7 +534,8 @@ function cartaz(p,i){
   <p class="c-credito">${credito(p)}</p>
 </section>`}
 
-const PADRAO={estado:'todos',para:'todos',fam:'todas',ordem:'padrao',vista:'cartazes'};
+const PADRAO={estado:'todos',para:'todos',fam:'todas',preco:'todos',ordem:'padrao',vista:'cartazes'};
+function vendas(){const v={};(Loja.estado().clientes||[]).forEach(c=>(c.pedidos||[]).forEach(p=>{if(p.marca===M)v[p.produto]=(v[p.produto]||0)+1}));return v}
 let filtro={...PADRAO};
 const FAMS=[['floral','Floral'],['gourmand','Gourmand'],['amadeirado','Amadeirado'],['fresco','Fresco'],['oriental','Oriental']];
 function familiaG(p){const f=(p.familia||'').toLowerCase();if(/gourmand/.test(f))return 'gourmand';if(/orient/.test(f)&&!/flor/.test(f))return 'oriental';if(/floral|floriental|soliflore|botânico/.test(f))return 'floral';if(/cítrico|marinho/.test(f))return 'fresco';if(/amadeirado|couro|chipre/.test(f))return 'amadeirado';return ''}
@@ -551,7 +555,11 @@ function filtrados(){
   if(filtro.para!=='todos')l=l.filter(p=>p.para===filtro.para);
   if(filtro.fam!=='todas')l=l.filter(p=>familiaG(p)===filtro.fam);
   const ordem={disponivel:0,estreia:1,esgotado:2};
-  if(filtro.ordem==='menor')l.sort((a,b)=>a.preco-b.preco);
+  if(filtro.preco==='ate350')l=l.filter(p=>p.preco<=350);else if(filtro.preco==='350a600')l=l.filter(p=>p.preco>350&&p.preco<=600);else if(filtro.preco==='mais600')l=l.filter(p=>p.preco>600);
+  if(filtro.ordem==='za')l.sort((a,b)=>b.nome.localeCompare(a.nome,'pt-BR'));
+  else if(filtro.ordem==='novos')l.sort((a,b)=>(b.nid?+b.nid:9e12)-(a.nid?+a.nid:9e12));
+  else if(filtro.ordem==='vendidos'){const v=vendas();l.sort((a,b)=>(v[b.id]||0)-(v[a.id]||0))}
+  else if(filtro.ordem==='menor')l.sort((a,b)=>a.preco-b.preco);
   else if(filtro.ordem==='maior')l.sort((a,b)=>b.preco-a.preco);
   else if(filtro.ordem==='nome')l.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
   else l.sort((a,b)=>ordem[a.status]-ordem[b.status]);
@@ -566,9 +574,9 @@ function vitrine(){
 function chip(k,v,t){return `<button class="chip" aria-pressed="${filtro[k]===v}" onclick="filtra('${k}','${v}')">${t}</button>`}
 function barra(){
   const n=filtrados().length;
-  return `<div class="chips">${chip('estado','todos','Todos')+chip('estado','disponivel','Em cartaz')+chip('estado','estreia','Estreias')+chip('estado','esgotado','Lotação esgotada')}<i class="sep"></i>${chip('para','ela','Para ela')+chip('para','ele','Para ele')}<i class="sep"></i>${FAMS.map(([k,t])=>chip('fam',k,t)).join('')}</div>
+  return `<div class="chips">${chip('estado','todos','Todos')+chip('estado','disponivel','Em cartaz')+chip('estado','estreia','Estreias')+chip('estado','esgotado','Lotação esgotada')}<i class="sep"></i>${chip('para','ela','Para ela')+chip('para','ele','Para ele')}<i class="sep"></i>${FAMS.map(([k,t])=>chip('fam',k,t)).join('')}<i class="sep"></i>${chip('preco','ate350','Até R$ 350')+chip('preco','350a600','R$ 350 a 600')+chip('preco','mais600','Acima de R$ 600')}</div>
   <div class="sub-f"><span class="res" aria-live="polite">${n} ${n===1?'perfume':'perfumes'}</span>
-    <label><span class="so-leitor">Ordenar por</span><select onchange="muda1('ordem',this.value)">${[['padrao','Disponíveis primeiro'],['menor','Menor preço'],['maior','Maior preço'],['nome','Nome']].map(([v,t])=>`<option value="${v}"${filtro.ordem===v?' selected':''}>${t}</option>`).join('')}</select></label>
+    <label><span class="so-leitor">Ordenar por</span><select onchange="muda1('ordem',this.value)">${[['padrao','Disponíveis primeiro'],['vendidos','Mais vendidos'],['novos','Mais novos'],['menor','Menor preço'],['maior','Maior preço'],['nome','A a Z'],['za','Z a A']].map(([v,t])=>`<option value="${v}"${filtro.ordem===v?' selected':''}>${t}</option>`).join('')}</select></label>
     <div class="vista" role="group" aria-label="Ver como"><button aria-pressed="${filtro.vista==='cartazes'}" onclick="muda1('vista','cartazes')">Cartazes</button><button aria-pressed="${filtro.vista==='lista'}" onclick="muda1('vista','lista')">Lista</button></div></div>`
 }
 function urlFiltro(){const q=new URLSearchParams();Object.keys(PADRAO).forEach(k=>{if(filtro[k]!==PADRAO[k])q.set(k,filtro[k])});const t=q.toString();return '#/programacao'+(t?'?'+t:'')}
@@ -599,7 +607,7 @@ function rodape(){
    <form class="news" onsubmit="news(event)"><h2>Receba a programação antes de todo mundo</h2><div class="n-l"><label class="so-leitor" for="n-e">Seu e-mail</label><input id="n-e" type="email" required autocomplete="email" spellcheck="false" placeholder="seu@email.com…"><button class="btn">Assinar</button></div><p id="n-ok" aria-live="polite"></p></form>
    <nav class="colunas" aria-label="Rodapé"><div><h3>Perfumes</h3><a href="#/programacao?para=ela">Para ela</a><a href="#/programacao?para=ele">Para ele</a><a href="#/sob-medida">Sob medida</a><a href="#/atelie">Ateliê e cursos</a></div>
     <div><h3>A casa</h3><a href="#/quem">Quem escreve</a><a href="#/elenco">Elenco</a><a href="#/pg/contato">Fale com a Paula</a><a href="#/conta">Minha conta</a></div>
-    <div><h3>Ajuda</h3><a href="#/pg/trocas">Trocas e devoluções</a><a href="#/pg/entrega">Entrega</a><a href="#/pg/privacidade">Privacidade</a><a href="#/pg/termos">Termos de uso</a></div></nav></div>
+    <div><h3>Ajuda</h3><a href="#/conta">Acompanhar pedido</a><a href="#/pg/trocas">Trocas e devoluções</a><a href="#/pg/entrega">Entrega</a><a href="#/pg/privacidade">Privacidade</a><a href="#/pg/termos">Termos de uso</a></div></nav></div>
    <div class="pagto"><span>Pix · Visa · Mastercard · Elo · Amex · Boleto</span><span><a href="https://instagram.com/paulaoliveiraparfum" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/paulameretica" target="_blank" rel="noopener">Facebook</a> · <a href="https://www.youtube.com/@Paulaoliveiraparfum" target="_blank" rel="noopener">YouTube</a></span><span>CNPJ e endereço da empresa entram aqui. © 2026</span></div>
    <div class="gigante" aria-hidden="true" translate="no">Paula Oliveira</div></footer>`
 }
@@ -648,7 +656,7 @@ function detalhe(id){
   <div class="det-corpo"><nav class="migalha" aria-label="Você está em"><a href="#/">Início</a> / ${seg?`<a href="#/programacao?para=${seg[0]}">${seg[1]}</a>`:`<a href="#/programacao">Programação</a>`} / ${esc(p.nome)}</nav>
    <div class="det-texto"><p class="det-frase">“${esc(p.frase)}”</p>${texto}</div>
    <aside class="caixa"><div class="c-topo" style="margin-bottom:12px"><span class="selo-e s-${p.status}">${selo(p)}</span></div><div class="preco">${precoHTML(p)}</div>${acao(p)}
-    <p>${esc(p.medida)} · ${esc(p.familia)}</p>${p.status==='disponivel'?`<form class="frete" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><div id="fr" aria-live="polite"></div>`:`<p>Entre na fila e receba o aviso antes de abrir para todo mundo.</p>`}
+    <p>${esc(p.medida)} · ${esc(p.familia)}</p>${p.status==='disponivel'?`<form class="frete" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><a class="sei-cep" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a><div id="fr" aria-live="polite"></div>`:`<p>Entre na fila e receba o aviso antes de abrir para todo mundo.</p>`}
     <dl class="info"><div><dt>Pagamento</dt><dd>Pix, cartão em até 4x sem juros ou boleto</dd></div><div><dt>Envio</dt><dd>Correios, em PAC ou SEDEX</dd></div><div><dt>Trocas</dt><dd><a href="#/pg/trocas">Como funciona</a></dd></div></dl>
     <div class="share"><b>Compartilhar</b>${redes.map(r=>`<a href="${r.u}" target="_blank" rel="noopener">${r.n}</a>`).join('')}</div></aside></div>
   ${p.saida?`<section class="piramide" aria-label="Notas"><div><h3>o que chega primeiro</h3><p>${esc(p.saida)}</p></div><div><h3>o que fica no meio</h3><p>${esc(p.coracao)}</p></div><div><h3>o que fica na pele</h3><p>${esc(p.base)}</p></div></section>`:''}
@@ -785,7 +793,7 @@ function abreSacola(){
   const g=$('#gav');g.innerHTML=`<div class="gav" tabindex="-1" autofocus><button class="fechar" aria-label="Fechar" onclick="gav.close()">×</button><h2>Sacola</h2>
   ${ps.length?`<ul class="itens">${ps.map(x=>`<li><img src="${x.p.recorte?img(x.p.recorte,240):img(x.p.fotos[0],240)}" alt=""><div>${esc(x.p.nome)} · ${esc(x.p.medida)}<br>${R(x.p.preco)}</div><div class="qtd"><button data-f="m${x.id}" aria-label="Tirar um ${esc(x.p.nome)}" onclick="muda('${x.id}',-1)">−</button><b aria-live="polite">${x.qtd}</b><button data-f="p${x.id}" aria-label="Colocar mais um ${esc(x.p.nome)}" onclick="muda('${x.id}',1)">+</button></div></li>`).join('')}</ul>
   <div class="gav-fim">${bolsa.erro?`<p class="erro" role="alert">${bolsa.erro}</p>`:''}
-   <form class="linha-f" onsubmit="calcFrete(event)"><input inputmode="numeric" name="cep" autocomplete="postal-code" aria-label="CEP para calcular o frete" placeholder="CEP para o frete…" value="${esc(bolsa.cep)}" oninput="Rec.mascaraCep(this)"><button>Calcular</button></form>
+   <form class="linha-f" onsubmit="calcFrete(event)"><input inputmode="numeric" name="cep" autocomplete="postal-code" aria-label="CEP para calcular o frete" placeholder="CEP para o frete…" value="${esc(bolsa.cep)}" oninput="Rec.mascaraCep(this)"><button>Calcular</button></form><a class="sei-cep" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a>
    ${bolsa.opcoes?bolsa.opcoes.map(o=>`<label class="env"><input type="radio" name="env" ${bolsa.envio&&bolsa.envio.id===o.id?'checked':''} onchange="escolheEnvio('${o.id}')">${o.nome}<b>${R(o.valor)}</b></label>`).join('')+'<p class="miudo" style="margin-top:0">Valores de exemplo para São Paulo/SP.</p>':''}
    <details class="dob" ${bolsa.cupom?'open':''}><summary>Tenho um cupom</summary><form class="linha-f" onsubmit="aplicaCupom(event)"><input name="cupom" autocomplete="off" spellcheck="false" aria-label="Código do cupom" placeholder="Para testar: ELENCO10…" value="${bolsa.cupom?bolsa.cupom.codigo:''}"><button>Aplicar</button></form></details>
    <div class="soma"><div><span>Subtotal</span><span>${R(sub)}</span></div>${desc?`<div><span>Cupom ${bolsa.cupom.codigo}</span><span>−${R(desc)}</span></div>`:''}${env?`<div><span>Frete</span><span>${R(env)}</span></div>`:''}</div>

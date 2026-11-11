@@ -2,35 +2,230 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Prévia · Paula Oliveira e Fada Marinha</title>
-<!-- Prévia: fora do Google. Tirar quando virar o site oficial dela. -->
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Paula Oliveira · Links</title>
+<meta name="description" content="Os sites da Paula Oliveira Parfum e da Fada Marinha, o app da comunidade, o Instagram e o WhatsApp.">
+<!-- Prévia: fora do Google. Tirar quando virar o link oficial dela. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="paula/icone-192.png">
-<meta property="og:title" content="Paula Oliveira e Fada Marinha · Prévia">
-<meta property="og:description" content="Os dois sites novos e o painel, feitos pela Ti Artes.">
+<meta property="og:title" content="Paula Oliveira · Links">
+<meta property="og:description" content="Paula Oliveira Parfum, Fada Marinha, o app da comunidade, Instagram e WhatsApp.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://rottaguide.com/paulaoliveira/">
 <meta property="og:image" content="https://rottaguide.com/paulaoliveira/compartilhar.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F1A16">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://acdn-us.mitiendanube.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Gloock&family=IM+Fell+Double+Pica:ital@1&family=League+Gothic&display=swap" rel="stylesheet">
 <style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:#111;color:#fff;font:400 18px/1.4 system-ui,sans-serif;padding:24px}
-main{max-width:520px;width:100%}
-h1{font-size:26px;margin:0 0 6px}
-p{margin:0 0 22px;color:#bbb}
-a{display:block;padding:18px 20px;margin-top:10px;border-radius:14px;text-decoration:none;font-weight:600;color:#111}
-a small{display:block;font-weight:400}
+:root{--p:0;--verde:#123A2D;--cartaz:#EDE6A0;--acento:#FF7349;--ink:#120C14;--mar:#0A1E4A;--espuma:#F7F3E6;--ease:cubic-bezier(.2,.8,.2,1);color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;background:#0F1A16;color:#fff;font:400 16px/1.45 'Figtree',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* fundo: verde da Paula em cima, mar da Fada embaixo */
+.fundo{position:fixed;inset:0;z-index:0;pointer-events:none}
+.fundo i{position:absolute;inset:0}
+.f1{background:radial-gradient(120% 70% at 50% 18%,#1E5641 0%,#123A2D 38%,#0B1F18 78%)}
+.f2{background:radial-gradient(120% 80% at 50% 92%,#1B6E8E 0%,#0E3A66 36%,#0A1E4A 70%,#071330 100%);opacity:var(--p)}
+.luz{background:radial-gradient(42% 30% at 50% 58%,rgba(255,236,170,.30),transparent 70%);mix-blend-mode:screen}
+
+/* palco 3D com os frascos */
+.palco{position:fixed;inset:0;z-index:1;display:grid;place-items:center;padding-top:22svh;perspective:1100px;pointer-events:none;opacity:0;transition:opacity 1.2s var(--ease);will-change:transform}
+.palco.pronto{opacity:1}
+.anel{--r:min(38vw,300px);--h:min(30svh,290px);position:relative;width:0;height:0;transform-style:preserve-3d}
+.fr{position:absolute;left:0;top:0;width:calc(var(--h)*.62);height:var(--h);margin:calc(var(--h)/-2) 0 0 calc(var(--h)*-.31);transform:rotateY(var(--a)) translateZ(var(--r))}
+.fr img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 22px rgba(0,0,0,.45))}
+.chao{position:absolute;left:50%;top:calc(var(--h)*.48);width:calc(var(--r)*2.4);height:calc(var(--r)*.7);margin-left:calc(var(--r)*-1.2);border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.42),transparent);transform:rotateX(90deg) translateZ(calc(var(--h)*-.02))}
+
+/* conteúdo */
+.previa{position:fixed;top:0;left:0;right:0;z-index:5;background:rgba(0,0,0,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font:500 12.5px/30px 'Figtree',sans-serif;text-align:center;color:#fff;letter-spacing:.01em}
+main{position:relative;z-index:2;width:min(540px,100%);margin:0 auto;padding:0 16px calc(28px + env(safe-area-inset-bottom))}
+.cab{min-height:86svh;display:flex;flex-direction:column;align-items:center;padding-top:calc(30px + 9svh);text-align:center}
+.ola{font:400 19px/1 'League Gothic',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--cartaz)}
+.cab h1{font:400 clamp(58px,16vw,120px)/.86 'Gloock',Georgia,serif;letter-spacing:-.01em;color:#fff;margin-top:10px;text-shadow:0 8px 30px rgba(0,0,0,.35)}
+.cab h1 span{display:block}
+.sub{margin-top:14px;font-size:17px;color:#E9E4D6;max-width:22em}
+.dica{margin-top:auto;margin-bottom:12px;font:400 17px/1 'League Gothic',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--cartaz);opacity:calc(1 - var(--p)*6)}
+.dica::after{content:"";display:block;width:1.5px;height:34px;margin:8px auto 0;background:linear-gradient(var(--cartaz),transparent);animation:desce 1.8s var(--ease) infinite}
+@keyframes desce{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+.links{display:grid;gap:14px}
+.cart{--rx:0deg;--ty:0px;--op:1;position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 14px;min-height:104px;padding:20px 20px 20px 22px;border-radius:24px;text-decoration:none;text-align:left;overflow:hidden;transform:perspective(900px) rotateX(var(--rx)) translateY(var(--ty));transform-origin:50% 100%;opacity:var(--op);box-shadow:0 14px 34px rgba(0,0,0,.28);transition:box-shadow .25s var(--ease)}
+.cart:hover{box-shadow:0 18px 44px rgba(0,0,0,.4)}
+.cart .t{grid-column:1;display:block;font:400 clamp(25px,6.6vw,30px)/1.04 'Gloock',Georgia,serif}
+.cart .d{grid-column:1;display:block;font-size:15.5px;line-height:1.35;max-width:24em}
+.seta{grid-column:2;grid-row:1/span 3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:20px;transition:transform .25s var(--ease)}
+.cart:hover .seta{transform:translateX(4px)}
+.selo{justify-self:start;font:400 15px/1 'League Gothic',sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:5px 9px 3px}
+
+.cart.ok{transform:none}
+.paula{grid-template-columns:minmax(0,1fr);background:var(--verde);color:var(--cartaz);padding-right:clamp(132px,36%,200px)}
+.paula > span{position:relative;z-index:1}
+.paula .t{font-size:clamp(24px,6.2vw,30px)}
+.paula .selo{background:var(--acento);color:var(--verde)}
+.paula .ver{font:400 18px/1 'League Gothic',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--acento);margin-top:4px}
+.paula img{position:absolute;right:-6px;bottom:-12px;height:clamp(150px,40vw,200px);width:auto;filter:drop-shadow(0 10px 16px rgba(0,0,0,.4));transform:rotate(-6deg);transition:transform .45s var(--ease)}
+.paula:hover img{transform:rotate(-2deg) translateY(-4px)}
+
+.fada{background:linear-gradient(160deg,#D8F6F1 0%,#8FDCDD 34%,#3BAFC2 70%,#1B86A6 100%);color:var(--mar)}
+.fada::before{content:"";position:absolute;inset:-40%;background:radial-gradient(closest-side,rgba(255,255,255,.55),transparent 70%) 0 0/120px 90px,radial-gradient(closest-side,rgba(255,255,255,.35),transparent 70%) 40px 30px/150px 110px;opacity:.55;animation:agua 9s linear infinite;pointer-events:none}
+@keyframes agua{to{transform:translate(120px,90px)}}
+.fada > *{position:relative}
+.fada .logo{grid-column:1;width:46px;height:46px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 1.5px #E4BF6C}
+.fada .t{font:italic 400 clamp(29px,7.4vw,34px)/1 'IM Fell Double Pica',Georgia,serif}
+.fada .d{font-weight:500}
+.fada .seta{background:var(--mar);color:var(--espuma)}
+
+.vidro{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 40%),rgba(16,10,18,.72);-webkit-backdrop-filter:blur(20px) saturate(160%) brightness(.84);backdrop-filter:blur(20px) saturate(160%) brightness(.84);border:1px solid rgba(255,255,255,.22);color:#fff}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.vidro{background:#1A1218}}
+.vidro .seta{background:rgba(255,255,255,.14)}
+.app .selo{background:var(--acento);color:#1A0D07}
+.pontos{grid-column:1;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.pontos span{font-size:13px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.12)}
+.ig{grid-template-columns:1fr}
+.duplo{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.duplo a{display:flex;flex-direction:column;justify-content:center;min-height:58px;padding:9px 44px 9px 14px;border-radius:16px;background:rgba(255,255,255,.1);text-decoration:none;font-weight:600;font-size:16px;line-height:1.2;position:relative;transition:background-color .2s}
+.duplo a::after{content:"→";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-weight:400}
+.duplo a:hover{background:rgba(255,255,255,.2)}
+.duplo small{font-weight:400;font-size:13px;opacity:.85}
+.wa .ic{grid-column:2;grid-row:1/span 2;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#25D366;color:#06301A}
+.wa .ic svg{width:24px;height:24px}
+
+.pe{display:flex;flex-direction:column;align-items:center;gap:12px;padding:34px 0 8px;text-align:center;font-size:13.5px;color:#D9E2EE}
+.adm{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid rgba(255,255,255,.3);text-decoration:none;font-weight:500;font-size:14px}
+.adm:hover{background:rgba(255,255,255,.1)}
+
+dialog{border:0;padding:0;max-width:none;color:var(--ink);background:#F5EEF2;overscroll-behavior:contain}
+dialog::backdrop{background:rgba(5,8,14,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#app{width:min(460px,calc(100vw - 24px));margin:auto;border-radius:26px}
+#app[open]{animation:surge .32s var(--ease)}
+@keyframes surge{from{opacity:0;transform:translateY(18px)}}
+@media(max-width:560px){#app{margin:auto 0 0;width:100%;border-radius:26px 26px 0 0}#app[open]{animation-name:lencol}}
+@keyframes lencol{from{transform:translateY(100%)}}
+.folha{padding:26px 22px calc(22px + env(safe-area-inset-bottom))}
+.folha:focus{outline:none}
+.folha h2{font:400 34px/1 'Gloock',Georgia,serif;margin-bottom:8px}
+.folha p{font-size:16px;color:#3D2E38}
+.op{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px;margin-top:12px;padding:16px 18px;border-radius:18px;text-decoration:none}
+.op b{font:400 26px/1 'Gloock',Georgia,serif}
+.op small{grid-column:1;font-size:14.5px}
+.op::after{content:"→";grid-column:2;grid-row:1/span 2;font-size:20px}
+.op.p{background:var(--verde);color:var(--cartaz)}
+.op.f{background:linear-gradient(160deg,#BFEFEA,#3BAFC2);color:var(--mar)}
+.op.f b{font:italic 400 28px/1 'IM Fell Double Pica',Georgia,serif}
+.agora{display:block;width:100%;min-height:48px;margin-top:10px;font-weight:600;color:#3D2E38}
+
+@media(min-width:900px){.cab{padding-top:calc(30px + 6svh)}.anel{--r:330px;--h:min(36svh,320px)}}
+@media(prefers-reduced-motion:reduce){.dica::after,.fada::before{animation:none}.palco{transition:none}#app[open]{animation:none}}
 </style>
 </head>
 <body>
+<div class="previa">Prévia feita pela Ti Artes</div>
+<div class="fundo" aria-hidden="true"><i class="f1"></i><i class="f2"></i><i class="luz"></i></div>
+<div class="palco" id="palco" aria-hidden="true"><div class="anel" id="anel"><i class="chao"></i></div></div>
+
 <main>
-<h1>Prévia para a Paula</h1>
-<p>Feita pela Ti Artes. Abra um site e o painel no mesmo aparelho: o que mudar no painel aparece no site.</p>
-<a href="paula/index.html" style="background:#EDE6A0">Paula Oliveira Parfum<small>Site de perfumes em cartazes</small></a>
-<a href="fada/index.html" style="background:#BFEFEA">Fada Marinha<small>Site em forma de mergulho</small></a>
-<a href="painel/index.html" style="background:#fff">Painel<small>Vitrine, lotes, clientes e avisos das duas marcas</small></a>
+  <header class="cab">
+    <p class="ola">Perfumista independente</p>
+    <h1 translate="no"><span>Paula</span><span>Oliveira</span></h1>
+    <p class="sub">Duas casas de perfume e uma comunidade, num lugar só.</p>
+    <span class="dica" aria-hidden="true">Os links</span>
+  </header>
+
+  <nav class="links" aria-label="Links da Paula Oliveira">
+    <a class="cart paula" href="paula/">
+      <span class="selo">Em cartaz</span>
+      <span class="t" translate="no">Paula Oliveira Parfum</span>
+      <span class="d">Perfumes escritos como personagens. Lotes com dia e hora.</span>
+      <span class="ver" aria-hidden="true">Ver os perfumes →</span>
+      <img id="frasco-card" alt="">
+    </a>
+    <a class="cart fada" href="fada/">
+      <img class="logo" src="https://d1a9qnv764bsoo.cloudfront.net/stores/001/903/584/themes/common/logo-897714601-1640642747-bee96cc36d7d1e814d181d7a502d16351640642748-320-0.webp" alt="">
+      <span class="t" translate="no">Fada Marinha</span>
+      <span class="d">Perfumaria botânica do mar, das praias da Ilha do Mel.</span>
+      <span class="seta" aria-hidden="true">→</span>
+    </a>
+    <button class="cart vidro app" onclick="abreApp()">
+      <span class="selo">Comunidade</span>
+      <span class="t">O app das clientes</span>
+      <span class="d">Ganhe pontos, receba as novidades e entre nos lançamentos exclusivos.</span>
+      <span class="pontos" aria-hidden="true"><span>Pontos</span><span>Novidades</span><span>Lançamentos antes</span></span>
+      <span class="seta" aria-hidden="true">→</span>
+    </button>
+    <div class="cart vidro ig">
+      <span class="t">Instagram</span>
+      <div class="duplo">
+        <a href="https://instagram.com/paulaoliveiraparfum" target="_blank" rel="noopener">@paulaoliveiraparfum<small>Paula Oliveira Parfum</small></a>
+        <a href="https://instagram.com/fadamarinhabr" target="_blank" rel="noopener">@fadamarinhabr<small>Fada Marinha</small></a>
+      </div>
+    </div>
+    <a class="cart vidro wa" href="https://wa.me/5541998165637?text=Oi%2C%20Paula%21%20Vim%20pelo%20link%20da%20bio." target="_blank" rel="noopener">
+      <span class="t">WhatsApp</span>
+      <span class="d">Fale com a Paula</span>
+      <span class="ic" data-ico="whats" aria-hidden="true"></span>
+    </a>
+  </nav>
+
+  <footer class="pe">
+    <a class="adm" href="painel/">ADM · Painel da Paula</a>
+    <small>Prévia feita pela Ti Artes · preços e estoque reais de 08/11</small>
+  </footer>
 </main>
+
+<dialog id="app" aria-labelledby="app-t">
+  <div class="folha" tabindex="-1" autofocus>
+    <h2 id="app-t">Entre para a comunidade</h2>
+    <p>No app você junta pontos a cada compra, recebe os lançamentos antes de todo mundo e conversa com a Paula.</p>
+    <a class="op p" href="paula/#/elenco"><b>Elenco</b><small>da Paula Oliveira Parfum</small></a>
+    <a class="op f" href="fada/#/cardume"><b>Cardume</b><small>da Fada Marinha</small></a>
+    <button class="agora" onclick="app.close()">Agora não</button>
+  </div>
+</dialog>
+
+<script src="comum/dados-paula.js?v=3"></script>
+<script src="comum/recursos.js?v=3"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const app=$('#app');
+function abreApp(){if(!app.open)app.showModal()}
+app.addEventListener('click',e=>{if(e.target===app)app.close()});
+Rec.hidrataIcones();
+
+/* o anel de frascos */
+const TAMS=['-480-0.webp','-640-0.webp','-320-0.webp'];
+const fotoDe=(u,k=0)=>u+TAMS[k];
+const frs=(window.CAT_PAULA||[]).filter(p=>p.recorte);
+const anel=$('#anel'),palco=$('#palco'),passo=360/Math.max(1,frs.length);
+const els=frs.map((p,i)=>{const d=document.createElement('div');d.className='fr';d.style.setProperty('--a',(i*passo).toFixed(2)+'deg');const im=new Image();im.alt='';im.decoding='async';im.dataset.k=0;im.src=fotoDe(p.recorte);im.onerror=()=>{const k=+im.dataset.k+1;if(k<TAMS.length){im.dataset.k=k;im.src=fotoDe(p.recorte,k)}else d.remove()};d.append(im);anel.append(d);return d});
+const lord=frs.find(p=>p.id==='lord');if(lord)$('#frasco-card').src=fotoDe(lord.recorte);
+setTimeout(()=>palco.classList.add('pronto'),120);
+
+/* rolagem: o anel gira e sobe; os links entram virando em 3D */
+const cartas=$$('.cart');let giro=0,ult=performance.now();
+function quadro(t){
+  const dt=Math.min(64,t-ult);ult=t;
+  if(!reduz)giro+=dt*.011;
+  const y=scrollY,H=Math.max(1,document.documentElement.scrollHeight-innerHeight),p=Math.min(1,y/H),g=giro+(reduz?0:y*.2);
+  anel.style.transform=`translateZ(calc(var(--r)*-1)) rotateX(-8deg) rotateY(${(-g).toFixed(2)}deg)`;
+  els.forEach((e,i)=>{const a=(i*passo-g)*Math.PI/180,c=Math.cos(a);e.style.opacity=(.3+.7*(c*.5+.5)).toFixed(2);e.style.filter=`brightness(${(.45+.55*Math.max(0,c)).toFixed(2)})`});
+  if(!reduz)palco.style.transform=`translate3d(0,${(-p*16).toFixed(2)}vh,0) scale(${(1-p*.2).toFixed(3)})`;
+  document.documentElement.style.setProperty('--p',p.toFixed(3));
+  if(!reduz){const vh=innerHeight;cartas.forEach(c=>{const r=c.getBoundingClientRect(),k=p>.995?1:Math.min(1,Math.max(0,(vh-r.top)/(vh*.26)));c.classList.toggle('ok',k>=1);c.style.setProperty('--rx',((1-k)*32).toFixed(1)+'deg');c.style.setProperty('--ty',((1-k)*46).toFixed(1)+'px');c.style.setProperty('--op',(.15+.85*k).toFixed(2))})}
+  if(!document.hidden||reduz)requestAnimationFrame(quadro);
+}
+requestAnimationFrame(quadro);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){ult=performance.now();requestAnimationFrame(quadro)}});
+</script>
 </body>
 </html>

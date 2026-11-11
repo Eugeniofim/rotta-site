@@ -41,7 +41,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 @media(max-width:640px){.previa{justify-content:flex-start;padding:0 44px 0 12px;font-size:12.5px}}
 
 .topo{position:fixed;left:0;right:0;top:var(--barra);z-index:60;display:flex;align-items:center;justify-content:space-between;padding:8px clamp(14px,3vw,40px);color:var(--cor-topo,var(--mar));transition:color .4s,background .4s}
-.topo.solido{background:#0A1E4Ad9;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--espuma)}
+.topo.solido{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.02) 40%),rgba(10,30,74,.8);-webkit-backdrop-filter:blur(22px) saturate(160%) brightness(.84);backdrop-filter:blur(22px) saturate(160%) brightness(.84);color:var(--espuma)}
 .marca{display:flex;align-items:center;gap:10px;font:400 clamp(23px,2vw,28px)/1 var(--conto);text-decoration:none}
 .marca img{width:46px;height:46px;border-radius:50%;background:#0A1E4A;object-fit:cover}
 .menu{display:flex;gap:clamp(16px,2.4vw,34px);font-weight:500;font-size:16px}
@@ -255,7 +255,7 @@ dialog.gaveta[open]{animation:gaveta .34s var(--ease)}
 .abas{display:none}
 @media(max-width:820px){
   :root{--tab:calc(60px + env(safe-area-inset-bottom))}
-  .abas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;height:var(--tab);padding-bottom:env(safe-area-inset-bottom);z-index:65;background:#061233f2;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#F7F3E6;border-top:1px solid #e4bf6c44}
+  .abas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;height:var(--tab);padding-bottom:env(safe-area-inset-bottom);z-index:65;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.02) 40%),rgba(6,18,51,.8);-webkit-backdrop-filter:blur(22px) saturate(160%) brightness(.84);backdrop-filter:blur(22px) saturate(160%) brightness(.84);color:#F7F3E6;border-top:1px solid #e4bf6c44}
   .abas a,.abas button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:500 11.5px/1 var(--tx);text-decoration:none;min-height:44px}
   .abas svg{width:21px;height:21px}
   .abas [aria-current=page]{color:var(--ouro)}
@@ -416,6 +416,9 @@ body.em-detalhe .wpp{display:none}
 .cookies button{min-height:44px;padding:0 14px;border-radius:24px;font:500 15px/1 var(--tx);box-shadow:inset 0 0 0 1.5px var(--mar)}
 .cookies button:last-child{background:var(--mar);color:var(--espuma)}
 
+
+.sei-cep{display:inline-flex;align-items:center;min-height:36px;font-size:15px;text-decoration:underline;text-underline-offset:3px}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.abas,.topo.solido{background:#0A1E4A!important}}
 /* ---------- v3: rolagem e menu ---------- */
 #peixes{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .flut{display:block;width:100%}
@@ -514,7 +517,7 @@ function leito(){
    <form class="news" onsubmit="news(event)"><label class="so-leitor" for="n-e">Seu e-mail</label><input id="n-e" type="email" required autocomplete="email" spellcheck="false" placeholder="seu@email.com…"><button class="pil chei"><span>Assinar</span></button></form><p id="n-ok" aria-live="polite"></p>
    <nav class="colunas" aria-label="Rodapé"><div><h3>O mar</h3><a href="#/tudo">O mar inteiro</a><a href="#/perfumes">Perfumes</a><a href="#/pocoes">Cabelo e corpo</a><a href="#/oraculo">Qual sereia é você</a><a href="#/cardume">Cardume</a></div>
     <div><h3>A Fada</h3><a href="#/pg/quem-somos">Quem somos</a><a href="#/pg/contato">Fale com a Fada</a><a href="#/conta">Minha conta</a><a href="https://instagram.com/fadamarinhabr" target="_blank" rel="noopener">Instagram</a><a href="https://www.facebook.com/fadamarinha.eco.3" target="_blank" rel="noopener">Facebook</a></div>
-    <div><h3>Ajuda</h3><a href="#/pg/trocas">Trocas e devoluções</a><a href="#/pg/entrega">Entrega</a><a href="#/pg/privacidade">Privacidade</a><a href="#/pg/termos">Termos de uso</a></div></nav>
+    <div><h3>Ajuda</h3><a href="#/conta">Acompanhar pedido</a><a href="#/pg/trocas">Trocas e devoluções</a><a href="#/pg/entrega">Entrega</a><a href="#/pg/privacidade">Privacidade</a><a href="#/pg/termos">Termos de uso</a></div></nav>
    <p class="lin">Pix · Visa · Mastercard · Amex · Boleto · Somente loja virtual</p>
    <small>CNPJ e endereço da empresa entram aqui.</small><br><button class="pil" style="margin-top:22px" onclick="scrollTo({top:0,behavior:reduz?'instant':'smooth'})"><span>Voltar à tona ↑</span></button></footer>`
 }
@@ -553,23 +556,25 @@ function detalhe(id){
    <div class="det-tx"><h1>${esc(p.nome)}</h1><p class="fr">${esc(p.frase)}</p>
    <p style="font:400 15px var(--mono)">${esc(p.medida)} · ${estado(p)}${p.status!=='disponivel'&&p.fila?` · ${p.fila} esperando`:''}</p>
    <div class="pr">${precoLinha(p)}<small>${sub}</small></div>${acao(p)}
-   ${p.status==='disponivel'?`<form class="frete-f" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><div id="fr" aria-live="polite"></div>`:''}
+   ${p.status==='disponivel'?`<form class="frete-f" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><a class="sei-cep" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a><div id="fr" aria-live="polite"></div>`:''}
    <dl class="info"><div><dt>Pagamento</dt><dd>Pix, cartão ou boleto</dd></div><div><dt>Preparo</dt><dd>Sua caixinha é preparada em até 7 dias úteis e segue pelos Correios</dd></div><div><dt>Trocas</dt><dd><a href="#/pg/trocas">Como funciona</a></dd></div></dl>
    ${p.notas?`<p class="nt">${esc(p.notas)}</p>`:''}<div class="hist">${h.split(/\n+/).map(t=>`<p>${esc(t)}</p>`).join('')}</div>
    <div class="share"><b>Compartilhar</b>${redes.map(r=>`<a href="${r.u}" target="_blank" rel="noopener">${r.n}</a>`).join('')}</div></div>
    ${sim.length?`<section class="det-mais"><h2>Nas mesmas águas</h2><div class="prat">${sim.map(bolha).join('')}</div></section>`:''}
    <div class="bc" id="bc"><div class="pr">${precoLinha(p)}<small>${sub}</small></div>${acao(p)}</div></article>${leito()}`
 }
-const FT={tipo:'todos',ordem:'padrao'};
+const FT={tipo:'todos',preco:'todos',ordem:'padrao'};
+function vendas(){const v={};(Loja.estado().clientes||[]).forEach(c=>(c.pedidos||[]).forEach(p=>{if(p.marca===M)v[p.produto]=(v[p.produto]||0)+1}));return v}
 function listaT(){
  let l=Loja.produtos(M);
  if(FT.tipo==='atona')l=l.filter(p=>p.status==='disponivel');else if(FT.tipo!=='todos')l=l.filter(p=>p.tipo===FT.tipo);
- if(FT.ordem==='menor')l.sort((a,b)=>a.preco-b.preco);else if(FT.ordem==='maior')l.sort((a,b)=>b.preco-a.preco);else if(FT.ordem==='nome')l.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));else l.sort((a,b)=>({disponivel:0,estreia:1,esgotado:2}[a.status]-{disponivel:0,estreia:1,esgotado:2}[b.status]));
+ if(FT.preco==='ate150')l=l.filter(p=>p.preco<=150);else if(FT.preco==='150a400')l=l.filter(p=>p.preco>150&&p.preco<=400);else if(FT.preco==='mais400')l=l.filter(p=>p.preco>400);
+ if(FT.ordem==='za')l.sort((a,b)=>b.nome.localeCompare(a.nome,'pt-BR'));else if(FT.ordem==='novos')l.sort((a,b)=>(b.nid?+b.nid:9e12)-(a.nid?+a.nid:9e12));else if(FT.ordem==='vendidos'){const v=vendas();l.sort((a,b)=>(v[b.id]||0)-(v[a.id]||0))}else if(FT.ordem==='menor')l.sort((a,b)=>a.preco-b.preco);else if(FT.ordem==='maior')l.sort((a,b)=>b.preco-a.preco);else if(FT.ordem==='nome')l.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));else l.sort((a,b)=>({disponivel:0,estreia:1,esgotado:2}[a.status]-{disponivel:0,estreia:1,esgotado:2}[b.status]));
  return l;
 }
 function filtrosT(){
  const n=listaT().length;
- return `<div class="chips-t">${[['todos','Tudo'],['atona','À tona'],['perfume','Perfumes'],['cabelo','Cabelo'],['corpo','Corpo']].map(([k,t])=>`<button class="b-chip" aria-pressed="${FT.tipo===k}" onclick="FT.tipo='${k}';redesenhaT()">${t}</button>`).join('')}</div><div class="sub-t"><span aria-live="polite">${n} ${n===1?'produto':'produtos'}</span><label><span class="so-leitor">Ordenar por</span><select onchange="FT.ordem=this.value;redesenhaT()">${[['padrao','À tona primeiro'],['menor','Menor preço'],['maior','Maior preço'],['nome','Nome']].map(([v,t])=>`<option value="${v}"${FT.ordem===v?' selected':''}>${t}</option>`).join('')}</select></label></div>`
+ return `<div class="chips-t">${[['todos','Tudo'],['atona','À tona'],['perfume','Perfumes'],['cabelo','Cabelo'],['corpo','Corpo']].map(([k,t])=>`<button class="b-chip" aria-pressed="${FT.tipo===k}" onclick="FT.tipo='${k}';redesenhaT()">${t}</button>`).join('')}</div><div class="chips-t" style="margin-top:8px">${[['ate150','Até R$ 150'],['150a400','R$ 150 a 400'],['mais400','Acima de R$ 400']].map(([k,t])=>`<button class="b-chip" aria-pressed="${FT.preco===k}" onclick="FT.preco=FT.preco==='${k}'?'todos':'${k}';redesenhaT()">${t}</button>`).join('')}</div><div class="sub-t"><span aria-live="polite">${n} ${n===1?'produto':'produtos'}</span><label><span class="so-leitor">Ordenar por</span><select onchange="FT.ordem=this.value;redesenhaT()">${[['padrao','À tona primeiro'],['vendidos','Mais vendidos'],['novos','Mais novos'],['menor','Menor preço'],['maior','Maior preço'],['nome','A a Z'],['za','Z a A']].map(([v,t])=>`<option value="${v}"${FT.ordem===v?' selected':''}>${t}</option>`).join('')}</select></label></div>`
 }
 function redesenhaT(){$('#f-t').innerHTML=filtrosT();$('#l-t').innerHTML=listaT().map(bolha).join('')}
 function tudoHTML(){return `<section class="pag" data-nivel=".5" data-metros="200" data-nome="O mar inteiro"><h1>O mar inteiro</h1><div id="f-t">${filtrosT()}</div><div class="bolhas-t" id="l-t">${listaT().map(bolha).join('')}</div></section>${leito()}`}
@@ -748,7 +753,7 @@ function abreSacola(){
  const foco=document.activeElement&&document.activeElement.dataset?document.activeElement.dataset.f:null;
  const ps=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),sub=ps.reduce((s,x)=>s+x.p.preco*x.qtd,0),desc=bolsa.cupom?Math.round(sub*bolsa.cupom.pct)/100:0,env=bolsa.envio?bolsa.envio.valor:0,total=sub-desc+env,g=$('#gav');
  g.innerHTML=`<div class="gav" tabindex="-1" autofocus><button class="fechar" aria-label="Fechar" onclick="gav.close()">×</button><h2>Sua caixinha</h2>${ps.length?`<ul class="itens">${ps.map(x=>`<li><img src="${img(x.p.fotos[0],240)}" alt=""><div>${esc(x.p.nome)}<br>${R(x.p.preco)}</div><div class="qtd"><button data-f="m${x.id}" aria-label="Tirar um ${esc(x.p.nome)}" onclick="muda('${x.id}',-1)">−</button><b aria-live="polite">${x.qtd}</b><button data-f="p${x.id}" aria-label="Colocar mais um ${esc(x.p.nome)}" onclick="muda('${x.id}',1)">+</button></div></li>`).join('')}</ul>
- <div class="gav-fim">${bolsa.erro?`<p class="erro" role="alert">${bolsa.erro}</p>`:''}<form class="linha-f" onsubmit="calcFrete(event)"><input inputmode="numeric" name="cep" autocomplete="postal-code" aria-label="CEP para calcular o frete" placeholder="CEP para o frete…" value="${esc(bolsa.cep)}" oninput="Rec.mascaraCep(this)"><button>Calcular</button></form>
+ <div class="gav-fim">${bolsa.erro?`<p class="erro" role="alert">${bolsa.erro}</p>`:''}<form class="linha-f" onsubmit="calcFrete(event)"><input inputmode="numeric" name="cep" autocomplete="postal-code" aria-label="CEP para calcular o frete" placeholder="CEP para o frete…" value="${esc(bolsa.cep)}" oninput="Rec.mascaraCep(this)"><button>Calcular</button></form><a class="sei-cep" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a>
  ${bolsa.opcoes?bolsa.opcoes.map(o=>`<label class="env"><input type="radio" name="env" ${bolsa.envio&&bolsa.envio.id===o.id?'checked':''} onchange="escolheEnvio('${o.id}')">${o.nome}<b>${R(o.valor)}</b></label>`).join('')+'<p class="miudo" style="margin-top:0">Valores de exemplo para São Paulo/SP.</p>':''}
  <details class="dob" ${bolsa.cupom?'open':''}><summary>Tenho um cupom</summary><form class="linha-f" onsubmit="aplicaCupom(event)"><input name="cupom" autocomplete="off" spellcheck="false" aria-label="Código do cupom" placeholder="Para testar: CARDUME10…" value="${bolsa.cupom?bolsa.cupom.codigo:''}"><button>Aplicar</button></form></details>
  <div class="soma"><div><span>Subtotal</span><span>${R(sub)}</span></div>${desc?`<div><span>Cupom ${bolsa.cupom.codigo}</span><span>−${R(desc)}</span></div>`:''}${env?`<div><span>Frete</span><span>${R(env)}</span></div>`:''}</div>
