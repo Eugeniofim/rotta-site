@@ -494,11 +494,11 @@ body.em-detalhe .wpp{display:none}
 <dialog id="gav" class="gaveta"></dialog>
 <dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-paula.js?v=4"></script>
-<script src="../comum/loja.js?v=4"></script>
-<script src="../comum/instalar.js?v=4"></script>
-<script src="../comum/recursos.js?v=4"></script>
-<script src="../comum/paginas-paula.js?v=4"></script>
+<script src="../comum/dados-paula.js?v=5"></script>
+<script src="../comum/loja.js?v=5"></script>
+<script src="../comum/instalar.js?v=5"></script>
+<script src="../comum/recursos.js?v=5"></script>
+<script src="../comum/paginas-paula.js?v=5"></script>
 <script>
 const M='paula', $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro, reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -833,8 +833,7 @@ function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);le
   const url=location.href.split('#')[0]+linkPara(p),txt=`Peguei a senha ${pos} para ${p.nome}, da Paula Oliveira.`;
   abre(`<h2>Sua senha está guardada</h2>${ingresso(Loja.produto(M,id),pos)}<p>Avisamos no seu WhatsApp quando ${esc(p.nome)} ${p.status==='estreia'?'estrear':'voltar'}, antes de abrir para todo mundo.</p><a class="acao" href="${Rec.redes(url,txt)[0].u}" target="_blank" rel="noopener">Mandar para uma amiga</a><button class="acao vazada" onclick="baixar()">Baixar o app</button>`);desenhaFilas()}
 function desenhaFilas(){if(naHome&&$('#vitrine')){$('#vitrine').innerHTML=vitrine();revela()}}
-function baixar(){const c=Instalar.conteudo(),s=Instalar.situacao();
-  abre(`<h2>${c.t}</h2>${c.p.length>1?`<ol class="passos">${c.p.map(x=>`<li>${x}</li>`).join('')}</ol>`:`<p>${c.p[0]}</p>`}${c.botao?`<button class="acao" onclick="Instalar.tocar().then(()=>dlg.close())">Baixar agora</button>`:''}${c.copiar?`<button class="acao" onclick="Instalar.copiarEndereco();this.textContent='Endereço copiado'">Copiar o endereço</button>`:''}`)}
+function baixar(){abre(Instalar.html())}
 function frete(e){e.preventDefault();const o=Rec.frete(e.target.querySelector('input').value);$('#fr').innerHTML=o?`<ul class="fr-op">${o.map(x=>`<li><span>${x.nome}</span><b style="font-weight:500">${R(x.valor)}</b></li>`).join('')}</ul><small>Valores de exemplo para São Paulo/SP.</small>`:'<p>O CEP tem 8 números. Confira e tente de novo.</p>'}
 /* cada foto da loja existe em tamanhos diferentes: se um faltar, tenta os outros */
 const TAMS=['-1024-1024.webp','-640-0.webp','-480-0.webp','-320-0.webp','-240-0.webp'];

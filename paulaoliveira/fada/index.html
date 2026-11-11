@@ -470,11 +470,11 @@ a.ic-som{color:inherit}
 <dialog id="gav" class="gaveta"></dialog>
 <dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-fada.js?v=4"></script>
-<script src="../comum/loja.js?v=4"></script>
-<script src="../comum/instalar.js?v=4"></script>
-<script src="../comum/recursos.js?v=4"></script>
-<script src="../comum/paginas-fada.js?v=4"></script>
+<script src="../comum/dados-fada.js?v=5"></script>
+<script src="../comum/loja.js?v=5"></script>
+<script src="../comum/instalar.js?v=5"></script>
+<script src="../comum/recursos.js?v=5"></script>
+<script src="../comum/paginas-fada.js?v=5"></script>
 <script>
 const M='fada',$=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro,reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -810,7 +810,7 @@ function fila(id){const p=Loja.produto(M,id);abre(`<h2>${esc(p.nome)}</h2><p>${p
 function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);let pos=0;semAvisar(()=>{pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,meu:true});Loja.mexe(s=>{if(s.espera[0])s.espera[0].senha=pos})});
  const url=location.href.split('#')[0]+'#/p/'+id,txt=`Sou a ${pos}ª sereia na fila de ${p.nome}, da Fada Marinha.`;
  abre(`<h2>Você é a ${pos}ª sereia da fila</h2>${concha(Loja.produto(M,id),pos)}<p>Avisamos no seu WhatsApp quando ${esc(p.nome)} voltar à tona, antes de abrir para todo mundo.</p><a class="acao" href="${Rec.redes(url,txt)[0].u}" target="_blank" rel="noopener">Chamar uma amiga</a><button class="acao vazada" onclick="baixar()">Baixar o app</button>`)}
-function baixar(){const c=Instalar.conteudo();abre(`<h2>${c.t}</h2>${c.p.length>1?`<ol class="passos">${c.p.map(x=>`<li>${x}</li>`).join('')}</ol>`:`<p>${c.p[0]}</p>`}${c.botao?`<button class="acao" onclick="Instalar.tocar().then(()=>dlg.close())">Baixar agora</button>`:''}${c.copiar?`<button class="acao" onclick="Instalar.copiarEndereco();this.textContent='Endereço copiado'">Copiar o endereço</button>`:''}`)}
+function baixar(){abre(Instalar.html())}
 /* cada foto da loja existe em tamanhos diferentes: se um faltar, tenta os outros */
 const TAMS=['-1024-1024.webp','-640-0.webp','-480-0.webp','-320-0.webp','-240-0.webp'];
 addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;const u=i.src,k=TAMS.findIndex(t=>u.endsWith(t));if(k<0)return;const n=+(i.dataset.tent||0);if(n>=TAMS.length-1)return;i.dataset.tent=n+1;i.src=u.slice(0,-TAMS[k].length)+TAMS[(k+1)%TAMS.length]},true);
