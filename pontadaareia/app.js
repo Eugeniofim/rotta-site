@@ -38,7 +38,7 @@ const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
 const S = { neg: '', q: '', bairro: '', leadFiltro: 'abertos', rotaAnterior: '', senhaNova: false, entrarMsg: '', primeiro: false };
 /* quem entra no app (11/11/2026): cada pessoa com o próprio e-mail; a sala diz o papel (meu_acesso) */
 const AC = { lista: [], carregou: false, erro: '', salvando: false, semTabela: false };
-const PAPEIS = [['corretor', 'Corretora', 'conversas, leads e imóveis'], ['dono', 'Dono', 'tudo, inclusive a Equipe e quem entra']];
+const PAPEIS = [['corretor', 'Equipe', 'vê e responde conversas e leads; não mexe na Equipe'], ['dono', 'Dono', 'tudo, inclusive a Equipe e quem entra no app']];
 const LD = { lista: [], carregou: false, buscando: false, erro: '' };
 const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: false, cfg: { modo: 'todos', prazoMin: 10, fds: 'segura' } };
 /* rodízio por produto (10/11/2026): a vez gira em venda, locação e temporada; cada pessoa pode ter os seus */
@@ -175,7 +175,7 @@ function contagens() {
 }
 function renderLado() {
   const r = rota(), n = contagens();
-  const quem = REAL() && LOGADO() ? (authEmail() || '') + ({ dono: ' · dono', corretor: ' · corretora' }[WZ.papel] || '') : 'demonstração · dados de exemplo';
+  const quem = REAL() && LOGADO() ? (authEmail() || '') + ({ dono: ' · dono', corretor: ' · equipe' }[WZ.papel] || '') : 'demonstração · dados de exemplo';
   $('lado').innerHTML = `
     <a class="marca" href="#/inicio" aria-label="Milla, início">${LOGO}</a>
     <div class="conta"><span class="conta-rot">Imobiliária</span><b>${esc(MARCA)}</b><span class="online"><i aria-hidden="true"></i>Milla atendendo · 24 h</span></div>
@@ -364,8 +364,8 @@ function vAcessos() {
     ${AC.erro ? `<div class="wz-aviso sm">${esc(AC.erro)}</div>` : ''}
     <div class="lead-lista">${!AC.carregou ? '<div class="sm">Carregando…</div>' : (AC.lista.map(linha).join('') || '<div class="box sm">Ninguém da equipe entra no app ainda.</div>')}</div>
     <form class="box eq-form" id="ac-form" aria-label="Dar acesso ao app">
-      <label class="sm b" for="ac-nome">Nome</label><input id="ac-nome" class="inp" maxlength="40" placeholder="Ex.: Poliana" autocomplete="off" required>
-      <label class="sm b" for="ac-mail">E-mail dela ou dele</label><input id="ac-mail" class="inp" type="email" maxlength="120" placeholder="nome@email.com" autocomplete="off" required>
+      <label class="sm b" for="ac-nome">Nome</label><input id="ac-nome" class="inp" maxlength="40" placeholder="Ex.: Tiago" autocomplete="off" required>
+      <label class="sm b" for="ac-mail">E-mail da pessoa</label><input id="ac-mail" class="inp" type="email" maxlength="120" placeholder="nome@email.com" autocomplete="off" required>
       <label class="sm b" for="ac-papel">O que pode fazer</label><select id="ac-papel" class="inp">${PAPEIS.map(([v, t, d]) => `<option value="${v}">${t}: ${d}</option>`).join('')}</select>
       <button type="submit" class="btn btn-navy" ${AC.salvando ? 'disabled' : ''}>Dar acesso</button>
     </form>`;
@@ -551,7 +551,7 @@ document.addEventListener('submit', async e => {
     if (REAL()) { try { await authEnsure(); const r = await supaFetch('acessos', { method: 'POST', body: JSON.stringify({ email, nome, papel }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (x) { ok = false; } }
     AC.salvando = false;
     if (ok) AC.lista.push({ email, nome, papel });
-    toast(ok ? nome + ' pode entrar. Mande o convite: ela cria a própria senha em "Primeiro acesso".' : 'Não gravou. Tente de novo.'); render(); return;
+    toast(ok ? nome + ' pode entrar. Mande o convite: a pessoa cria a própria senha em "Primeiro acesso".' : 'Não gravou. Tente de novo.'); render(); return;
   }
   if (e.target.id === 'primeiro-form') {
     e.preventDefault();
