@@ -5,7 +5,9 @@
 (function () {
   const TEMAS = {
     padrao:    { nome: "Padrão", rotulo: "Gliki Sô Cookeria" },
-    natal:     { nome: "Natal", rotulo: "Natal na Gliki Sô", particula: "neve", luzes: ["#ff6b6b", "#ffe9b8", "#6fdc95"], gorro: true, som: true },
+    natal:     { nome: "Natal", rotulo: "Natal na Gliki Sô", particula: "neve", luzes: ["#ff6b6b", "#ffe9b8", "#6fdc95"], som: true,
+                 /* abertura própria: o cookie de gorro, o gorro cai e o cookie se parte (vídeo de IA) */
+                 quadros: { pasta: "abertura-natal", g: 133, p: 66, faixa: [0.02, 0.72] } },
     pascoa:    { nome: "Páscoa", rotulo: "Páscoa na Gliki Sô", particula: "ovo", luzes: ["#f6c5d0", "#ffe9b8", "#bfe3d9"] },
     namorados: { nome: "Dia dos Namorados", rotulo: "Dia dos Namorados na Gliki", particula: "coracao", luzes: ["#ff8fa3", "#ffe9b8", "#e9a9b2"] }
   };
@@ -43,13 +45,7 @@
   document.documentElement.dataset.tema = id;
   const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let gorro = null;
-  if (T.gorro) {
-    gorro = new Image();
-    gorro.src = new URL("../temas/gorro.webp", document.currentScript.src).href;
-  }
-
-  window.GlikiTema = { id, T, TEMAS, pelaData, gorro };
+  window.GlikiTema = { id, T, TEMAS, pelaData };
   if (id === "padrao") return;
 
   /* ---------- cores das fitas de LED e textos ---------- */
@@ -63,7 +59,11 @@
   html[data-tema] .abertura-fitas path:nth-child(2), html[data-tema] .fitas path:nth-child(2) { animation-delay: .9s; }
   html[data-tema] .abertura-fitas path:nth-child(3), html[data-tema] .fitas path:nth-child(3) { animation-delay: 1.7s; }
   @keyframes temaPisca { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
-  .tema-particulas { position: fixed; inset: 0; z-index: 29; pointer-events: none; }
+  .tema-particulas { pointer-events: none; display: block; }
+  .tema-particulas.no-palco { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tema-particulas.no-fundo { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; }
+  html[data-tema] .abertura { z-index: 1; }
+  html[data-tema] .pagina { position: relative; z-index: 1; }
   .sino-caixa { position: fixed; left: 18px; bottom: calc(22px + env(safe-area-inset-bottom)); z-index: 45; display: flex; align-items: center; gap: 8px; }
   .sino { position: relative; width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center;
     background: radial-gradient(circle at 35% 30%, #4a2c1e, #2a1913 70%); box-shadow: 0 0 0 2px rgba(255,233,184,.55), 0 0 22px rgba(255,200,120,.45), 0 10px 24px rgba(0,0,0,.45); }
@@ -81,65 +81,91 @@
   document.head.appendChild(css);
   const trocarTextos = () => document.querySelectorAll("[data-tema-rotulo]").forEach((el) => (el.textContent = T.rotulo));
 
-  /* ---------- partículas: neve, ovinhos ou corações (bem de leve) ---------- */
+  /* ---------- partículas: neve, ovinhos ou corações (bem de leve) ----------
+     Caem por trás dos textos e botões, e mais pelas laterais: na abertura, entre o cookie e o texto;
+     no resto da página, por trás dos cartões. */
   function particulas() {
     if (reduz || !T.particula) return;
-    const tela = document.createElement("canvas");
-    tela.className = "tema-particulas";
-    tela.setAttribute("aria-hidden", "true");
-    document.body.appendChild(tela);
-    const ctx = tela.getContext("2d");
-    let W = 0, H = 0, dpr = 1, lista = [];
+    const neve = T.particula === "neve";
     const CORES = { neve: ["#ffffff"], ovo: ["#f6c5d0", "#bfe3d9", "#f7e3af", "#d8c8f0"], coracao: ["#ff8fa3", "#e9a9b2", "#ffd1dc"] }[T.particula];
-    function medir() {
-      dpr = Math.min(2, devicePixelRatio || 1);
-      W = innerWidth; H = innerHeight;
-      tela.width = W * dpr; tela.height = H * dpr;
-      tela.style.width = W + "px"; tela.style.height = H + "px";
-      const n = Math.round(Math.min(T.particula === "neve" ? 70 : 26, W / (T.particula === "neve" ? 16 : 40)));
-      lista = Array.from({ length: n }, () => nova(true));
+    const camadas = [];
+    function camada(tela, medidor, visivel) {
+      const ctx = tela.getContext("2d");
+      const c = { tela, ctx, W: 0, H: 0, dpr: 1, lista: [], visivel };
+      c.medir = () => {
+        const [w, h] = medidor();
+        c.dpr = Math.min(2, devicePixelRatio || 1); c.W = w; c.H = h;
+        tela.width = w * c.dpr; tela.height = h * c.dpr;
+        const n = Math.round(Math.min(neve ? 60 : 22, w / (neve ? 18 : 44)));
+        c.lista = Array.from({ length: n }, () => nova(c, true));
+      };
+      camadas.push(c);
+      return c;
     }
-    function nova(qualquer) {
-      const neve = T.particula === "neve";
+    function nova(c, qualquer) {
+      /* 85% nas laterais (até 24% da largura de cada lado), o resto espalhado e mais apagado */
+      const lado = Math.random() < 0.85;
+      const x = lado ? (Math.random() < 0.5 ? Math.random() * c.W * 0.24 : c.W - Math.random() * c.W * 0.24) : Math.random() * c.W;
       return {
-        x: Math.random() * W, y: qualquer ? Math.random() * H : -20,
+        x, y: qualquer ? Math.random() * c.H : -20,
         r: neve ? 0.8 + Math.random() * 2.2 : 4 + Math.random() * 4,
-        v: neve ? 0.25 + Math.random() * 0.75 : 0.25 + Math.random() * 0.45,
+        v: neve ? 0.25 + Math.random() * 0.7 : 0.25 + Math.random() * 0.45,
         fase: Math.random() * 6.28, giro: (Math.random() - 0.5) * 0.02, ang: Math.random() * 6.28,
-        cor: CORES[Math.floor(Math.random() * CORES.length)], a: neve ? 0.35 + Math.random() * 0.45 : 0.35 + Math.random() * 0.3
+        cor: CORES[Math.floor(Math.random() * CORES.length)],
+        a: (neve ? 0.35 + Math.random() * 0.45 : 0.35 + Math.random() * 0.3) * (lado ? 1 : 0.55)
       };
     }
-    function coracao(r) {
+    function coracao(ctx, r) {
       ctx.beginPath();
       ctx.moveTo(0, r * 0.35);
       ctx.bezierCurveTo(-r * 1.1, -r * 0.45, -r * 0.45, -r * 1.15, 0, -r * 0.45);
       ctx.bezierCurveTo(r * 0.45, -r * 1.15, r * 1.1, -r * 0.45, 0, r * 0.35);
       ctx.fill();
     }
+    /* na abertura: logo acima do cookie e abaixo do texto */
+    const palco = document.getElementById("palco"), telaCookie = document.getElementById("tela");
+    if (palco && telaCookie) {
+      const t = document.createElement("canvas");
+      t.className = "tema-particulas no-palco";
+      t.setAttribute("aria-hidden", "true");
+      telaCookie.after(t);
+      camada(t, () => [palco.clientWidth, palco.clientHeight], () => palco.getBoundingClientRect().bottom > 0);
+    }
+    /* no resto da página: por trás dos cartões */
+    const fundo = document.createElement("canvas");
+    fundo.className = "tema-particulas no-fundo";
+    fundo.setAttribute("aria-hidden", "true");
+    document.body.prepend(fundo);
+    camada(fundo, () => [innerWidth, innerHeight], () => true);
+    const medirTudo = () => camadas.forEach((c) => c.medir());
+    medirTudo();
+    addEventListener("resize", medirTudo);
     let ultimo = 0;
     function passo(t) {
       requestAnimationFrame(passo);
       if (document.hidden || t - ultimo < 30) return;
       ultimo = t;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, W, H);
-      for (const p of lista) {
-        p.y += p.v; p.fase += 0.012; p.ang += p.giro;
-        const x = p.x + Math.sin(p.fase) * 14;
-        if (p.y > H + 20) Object.assign(p, nova(false));
-        ctx.globalAlpha = p.a;
-        ctx.fillStyle = p.cor;
-        ctx.save();
-        ctx.translate(x, p.y);
-        ctx.rotate(p.ang);
-        if (T.particula === "neve") { ctx.beginPath(); ctx.arc(0, 0, p.r, 0, 6.283); ctx.fill(); }
-        else if (T.particula === "ovo") { ctx.beginPath(); ctx.ellipse(0, 0, p.r * 0.78, p.r, 0, 0, 6.283); ctx.fill(); }
-        else coracao(p.r);
-        ctx.restore();
+      for (const c of camadas) {
+        if (!c.visivel()) continue;
+        const ctx = c.ctx;
+        ctx.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+        ctx.clearRect(0, 0, c.W, c.H);
+        for (const p of c.lista) {
+          p.y += p.v; p.fase += 0.012; p.ang += p.giro;
+          const x = p.x + Math.sin(p.fase) * 14;
+          if (p.y > c.H + 20) Object.assign(p, nova(c, false));
+          ctx.globalAlpha = p.a;
+          ctx.fillStyle = p.cor;
+          ctx.save();
+          ctx.translate(x, p.y);
+          ctx.rotate(p.ang);
+          if (neve) { ctx.beginPath(); ctx.arc(0, 0, p.r, 0, 6.283); ctx.fill(); }
+          else if (T.particula === "ovo") { ctx.beginPath(); ctx.ellipse(0, 0, p.r * 0.78, p.r, 0, 0, 6.283); ctx.fill(); }
+          else coracao(ctx, p.r);
+          ctx.restore();
+        }
       }
     }
-    medir();
-    addEventListener("resize", medir);
     requestAnimationFrame(passo);
   }
 

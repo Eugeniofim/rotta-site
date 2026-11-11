@@ -1,6 +1,6 @@
 /* Service worker do app Gliki Sô: site, clube e painel.
    SUBIR O NÚMERO A CADA PUBLICAÇÃO — senão o celular não vê que mudou. */
-const CACHE = "gliki-v2";
+const CACHE = "gliki-v3";
 const ESSENCIAL = [
   "./", "./clube/", "./painel/",
   "./comum/dados.js", "./comum/icones.js", "./comum/estilo.css", "./comum/rolagem.js", "./comum/app.js",
@@ -29,7 +29,7 @@ self.addEventListener("fetch", (e) => {
   if (url.origin !== self.location.origin) return;
 
   /* os quadros da abertura nunca mudam: guarda e serve do aparelho */
-  if (url.pathname.includes("/abertura/")) {
+  if (/\/abertura(-natal)?\//.test(url.pathname)) {
     const busca = () => fetch(req).then((res) => {
       if (res && res.ok) { const copia = res.clone(); caches.open(CACHE).then((c) => c.put(req, copia)).catch(() => {}); }
       return res;
