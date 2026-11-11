@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Paula Oliveira · Links</title>
-<meta name="description" content="Os sites da Paula Oliveira Parfum e da Fada Marinha, o app da comunidade, o Instagram e o WhatsApp.">
+<meta name="description" content="Os sites da Paula Oliveira Parfum e da Fada Marinha, o app de membros, o Instagram e o WhatsApp.">
 <!-- Prévia: fora do Google. Tirar quando virar o link oficial dela. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="paula/icone-192.png">
 <meta property="og:title" content="Paula Oliveira · Links">
-<meta property="og:description" content="Paula Oliveira Parfum, Fada Marinha, o app da comunidade, Instagram e WhatsApp.">
+<meta property="og:description" content="Paula Oliveira Parfum, Fada Marinha, o app de membros, Instagram e WhatsApp.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://rottaguide.com/paulaoliveira/">
 <meta property="og:image" content="https://rottaguide.com/paulaoliveira/compartilhar.jpg">
@@ -137,7 +137,7 @@ dialog::backdrop{background:rgba(5,8,14,.6);-webkit-backdrop-filter:blur(4px);ba
   <header class="cab">
     <p class="ola">Perfumista independente</p>
     <h1 translate="no"><span>Paula</span><span>Oliveira</span></h1>
-    <p class="sub">Duas casas de perfume e uma comunidade, num lugar só.</p>
+    <p class="sub">Duas casas de perfume num lugar só. Seja membro.</p>
     <span class="dica" aria-hidden="true">Os links</span>
   </header>
 
@@ -156,8 +156,8 @@ dialog::backdrop{background:rgba(5,8,14,.6);-webkit-backdrop-filter:blur(4px);ba
       <span class="seta" aria-hidden="true">→</span>
     </a>
     <button class="cart vidro app" onclick="abreApp()">
-      <span class="selo">Comunidade</span>
-      <span class="t">O app das clientes</span>
+      <span class="selo">Seja membro</span>
+    <span class="t">O app de membros</span>
       <span class="d">Ganhe pontos, receba as novidades e entre nos lançamentos exclusivos.</span>
       <span class="pontos" aria-hidden="true"><span>Pontos</span><span>Novidades</span><span>Lançamentos antes</span></span>
       <span class="seta" aria-hidden="true">→</span>
@@ -184,16 +184,16 @@ dialog::backdrop{background:rgba(5,8,14,.6);-webkit-backdrop-filter:blur(4px);ba
 
 <dialog id="app" aria-labelledby="app-t">
   <div class="folha" tabindex="-1" autofocus>
-    <h2 id="app-t">Entre para a comunidade</h2>
-    <p>No app você junta pontos a cada compra, recebe os lançamentos antes de todo mundo e conversa com a Paula.</p>
-    <a class="op p" href="paula/#/elenco"><b>Elenco</b><small>da Paula Oliveira Parfum</small></a>
-    <a class="op f" href="fada/#/cardume"><b>Cardume</b><small>da Fada Marinha</small></a>
+    <h2 id="app-t">Seja membro</h2>
+    <p>Membro junta pontos a cada compra, recebe os lançamentos antes de todo mundo e conversa com a Paula. Entra com o Google, num toque.</p>
+    <a class="op p" href="paula/?app=1"><b>Elenco</b><small>da Paula Oliveira Parfum</small></a>
+    <a class="op f" href="fada/?app=1"><b>Cardume</b><small>da Fada Marinha</small></a>
     <button class="agora" onclick="app.close()">Agora não</button>
   </div>
 </dialog>
 
-<script src="comum/dados-paula.js?v=5"></script>
-<script src="comum/recursos.js?v=5"></script>
+<script src="comum/dados-paula.js?v=6"></script>
+<script src="comum/recursos.js?v=6"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;

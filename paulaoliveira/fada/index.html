@@ -444,8 +444,19 @@ a.ic-som{color:inherit}
 
 @media(prefers-reduced-motion:reduce){dialog[open]{animation:none!important}.bb{display:none}#peixes{display:none}.rv>*{transition:none!important}.bc,#toast{transition:none}.vigia,.mergulhar,.pil,.respostas button{transition:none!important}}
 </style>
+<style>
+/* pontos e entrada do app (comum/pontos.js), vestidos de Fada */
+body{--pt-rotulo:500 13px/1.1 var(--mono);--pt-h2:400 clamp(30px,3vw,40px)/1.05 var(--conto);--pt-h3:400 22px/1 var(--conto);--pt-nivel:400 clamp(62px,16vw,92px)/.9 var(--conto);--pt-numero:500 38px/1 var(--tx);--pt-numero-p:500 15px/1 var(--mono);--pt-cartao:radial-gradient(120% 90% at 88% -10%,#F7F3E640,transparent 55%),linear-gradient(160deg,#1A4BA0,#0A1E4A 58%,#061233);--pt-cartao-tx:#F7F3E6;--pt-acento:#E4BF6C;--pt-acento-tx:#201505;--pt-linha:#F7F3E62b;--pt-caixa:#F7F3E61a;--pt-botao:#E4BF6C;--pt-botao-tx:#201505;--pt-canto:24px;--pt-canto-b:22px;--pt-ent:linear-gradient(180deg,#0A1E4A,#061233);--pt-ent-tx:#F7F3E6;--pt-ent-h1:400 clamp(44px,11.5vw,62px)/.98 var(--conto)}
+.pts-pg .pts-cartao{box-shadow:inset 0 0 0 1px #F7F3E633,0 18px 40px -18px #000c}
+.pts-pg .folha{max-width:700px}
+.pts-pg .pts h1{font-size:clamp(50px,12vw,92px)}
+.rende{margin-top:10px;font-size:15.5px}.rende b{font-weight:600}
+.ent .acao{background:var(--ouro);color:#201505}
+.ent .campo input{background:#ffffff14;color:inherit}
+.card .lk{display:inline-block;margin:18px 0 0 18px;font:500 17px var(--tx);color:inherit;text-decoration:underline;text-underline-offset:4px}
+</style>
 </head>
-<body>
+<body data-marca-pontos="fada">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <canvas id="agua" aria-hidden="true"></canvas>
 <canvas id="peixes" aria-hidden="true"></canvas>
@@ -461,7 +472,7 @@ a.ic-som{color:inherit}
   <a href="#/" data-aba="inicio"><span data-ico="ondas"></span>Mar</a>
   <a href="#/perfumes" data-aba="perfumes"><span data-ico="lua"></span>Perfumes</a>
   <button onclick="abreBusca()"><span data-ico="busca"></span>Buscar</button>
-  <a href="#/conta" data-aba="conta"><span data-ico="conta"></span>Conta</a>
+  <a href="#/pontos" data-aba="pontos"><span data-ico="membro"></span>Membro</a>
   <button class="alvo-saco" onclick="abreSacola()" aria-label="Abrir a caixinha"><span data-ico="sacola"></span>Caixinha<i class="bolinha n-saco" hidden>0</i></button>
 </nav>
 <a class="wpp" id="wpp" href="https://wa.me/5541996890967?text=Oi%2C%20Paula%21%20Vim%20pelo%20site%20da%20Fada%20Marinha." target="_blank" rel="noopener" aria-label="Chamar no WhatsApp" data-ico="whats"></a>
@@ -470,11 +481,12 @@ a.ic-som{color:inherit}
 <dialog id="gav" class="gaveta"></dialog>
 <dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-fada.js?v=5"></script>
-<script src="../comum/loja.js?v=5"></script>
-<script src="../comum/instalar.js?v=5"></script>
-<script src="../comum/recursos.js?v=5"></script>
-<script src="../comum/paginas-fada.js?v=5"></script>
+<script src="../comum/dados-fada.js?v=6"></script>
+<script src="../comum/loja.js?v=6"></script>
+<script src="../comum/instalar.js?v=6"></script>
+<script src="../comum/recursos.js?v=6"></script>
+<script src="../comum/pontos.js?v=6"></script>
+<script src="../comum/paginas-fada.js?v=6"></script>
 <script>
 const M='fada',$=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro,reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -543,7 +555,7 @@ function home(){
   <section class="z claro" id="fundo" data-nivel=".88" data-metros="1200" data-nome="${n}">
     ${prox?`<div class="mare"><a class="vigia" href="#/p/${prox.id}" onclick="morfa(this)" aria-label="Ver ${esc(prox.nome)}"><img src="${img(prox.fotos[0],1024)}" alt="" loading="lazy"></a><div><p class="sel">Próxima maré · ${quando(prox.estreia)}</p><h3>${esc(prox.nome)}</h3><p class="fr">${esc(prox.frase)}</p><p class="tempo" data-fim="${prox.estreia}">${falta(prox.estreia)}</p><button class="pil chei" onclick="fila('${prox.id}')"><span>Me avise antes de abrir</span></button></div></div>`:''}
     <header class="cab"><span class="m">${fx}</span><h2>${n}</h2><p>${sub}</p></header><div class="bolhas">${fundo.map(bolha).join('')}</div></section>
-  <section class="z claro card" id="cardume" data-nivel=".95" data-metros="6000" data-nome="Cardume"><div><h2>O cardume sabe antes</h2><ul><li>Aviso no celular quando um perfume volta à tona</li><li>Entrada antes de abrir para todo mundo</li><li>Votação de qual sereia volta primeiro</li><li>Uma surpresa na caixinha do seu aniversário</li></ul><button class="pil chei" style="min-height:58px;padding:0 34px;font-size:19px" onclick="baixar()"><span>Baixar o app</span></button></div>
+  <section class="z claro card" id="cardume" data-nivel=".95" data-metros="6000" data-nome="Cardume"><div><h2>O cardume sabe antes</h2><ul><li>Aviso no celular quando um perfume volta à tona</li><li>Entrada antes de abrir para todo mundo</li><li>Pontos a cada compra, trocados por amostra, frete e miniatura</li><li>Votação de qual sereia volta primeiro</li><li>Uma surpresa na caixinha do seu aniversário</li></ul><button class="pil chei" style="min-height:58px;padding:0 34px;font-size:19px" onclick="Pontos.entrada(M,true)"><span>Seja membro</span></button><a class="lk" href="#/pontos">Meus pontos</a></div>
     <div class="cel" aria-hidden="true"><div class="tela"><div class="hora">18:58</div><div class="dia">sexta-feira</div><div class="push"><b>Fada Marinha · agora</b>Sereias, a Guardiã das Flores voltou à tona.</div><div class="push"><b>Fada Marinha · agora</b>Sua caixinha está a caminho.</div></div></div></section>
   ${leito()}`
 }
@@ -558,7 +570,7 @@ function detalhe(id){
    <div class="det-foto"><a class="volta" href="#/perfumes">← Voltar ao mar</a><span class="vigia"><img id="grande" src="${img(p.fotos[0],1024)}" alt="${esc(p.nome)}" fetchpriority="high"></span><div class="miudas">${p.fotos.slice(0,6).map(f=>`<button aria-label="Ver outra foto" onclick="$('#grande').src='${img(f,1024)}'"><img src="${img(f,240)}" alt="" loading="lazy"></button>`).join('')}</div></div>
    <div class="det-tx"><h1>${esc(p.nome)}</h1><p class="fr">${esc(p.frase)}</p>
    <p style="font:400 15px var(--mono)">${esc(p.medida)} · ${estado(p)}${p.status!=='disponivel'&&p.fila?` · ${p.fila} esperando`:''}</p>
-   <div class="pr">${precoLinha(p)}<small>${sub}</small></div>${acao(p)}
+   <div class="pr">${precoLinha(p)}<small>${sub}</small></div>${acao(p)}${rendeHTML(p)}
    ${p.status==='disponivel'?`<form class="frete-f" onsubmit="frete(event)"><input inputmode="numeric" autocomplete="postal-code" name="cep" placeholder="Seu CEP…" aria-label="Seu CEP" oninput="Rec.mascaraCep(this)"><button>Frete</button></form><a class="sei-cep" href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a><div id="fr" aria-live="polite"></div>`:''}
    <dl class="info"><div><dt>Pagamento</dt><dd>Pix, cartão ou boleto</dd></div><div><dt>Preparo</dt><dd>Sua caixinha é preparada em até 7 dias úteis e segue pelos Correios</dd></div><div><dt>Trocas</dt><dd><a href="#/pg/trocas">Como funciona</a></dd></div></dl>
    ${p.notas?`<p class="nt">${esc(p.notas)}</p>`:''}<div class="hist">${h.split(/\n+/).map(t=>`<p>${esc(t)}</p>`).join('')}</div>
@@ -592,11 +604,13 @@ function contato(){
   return `<section class="pag" data-nivel=".6" data-metros="300" data-nome="Contato"><h1>Fale com a Fada</h1><div class="pg-dup"><form class="folha" onsubmit="enviaContato(event)"><label class="campo">Nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><label class="campo">Telefone<input name="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999…" oninput="Rec.mascaraTel(this)"></label><label class="campo">Mensagem<textarea required name="msg"></textarea></label><button class="acao">Enviar mensagem</button><p id="ct-ok" class="miudo" aria-live="polite"></p></form>
    <div class="folha"><p><b>WhatsApp</b><br><a href="https://wa.me/5541996890967" target="_blank" rel="noopener">(41) 99689-0967</a></p><p><b>E-mail</b><br><a href="mailto:fadamarinhaeco@gmail.com">fadamarinhaeco@gmail.com</a></p><p>Somente loja virtual.</p><ul class="lista-redes"><li><a href="https://instagram.com/fadamarinhabr" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/fadamarinha.eco.3" target="_blank" rel="noopener">Facebook</a></li></ul></div></div></section>${leito()}`
 }
+function pontosHTML(){return `<section class="pag pts-pg" data-nivel=".55" data-metros="250" data-nome="Pontos"><div class="folha">${Pontos.tela(M)}</div></section>${leito()}`}
+function rendeHTML(p){return p.status==='disponivel'?`<p class="rende">Membro do Cardume ganha <b>${Pontos.rende(M,p.preco).toLocaleString('pt-BR')} pontos</b> com este perfume.</p>`:''}
 function contaHTML(){
   const c=Rec.conta(M);
-  if(!c)return `<section class="pag" data-nivel=".6" data-metros="300" data-nome="Conta"><h1>Entrar</h1><form class="folha" onsubmit="entrar(event)" style="max-width:520px"><p>Digite seu e-mail e enviamos um código de acesso. Sem senha para lembrar.</p><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Receber o código</button><p class="miudo">Nesta prévia, o botão entra direto.</p></form></section>${leito()}`;
+  if(!c)return `<section class="pag" data-nivel=".6" data-metros="300" data-nome="Conta"><h1>Seja membro</h1><form class="folha" onsubmit="entrar(event)" style="max-width:520px"><p>Entre com um toque pelo Google, ou receba um código no seu e-mail. Sem senha para lembrar.</p>${Pontos.botaoGoogle(M)}<p class="pts-ou">ou com seu e-mail</p><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Receber o código</button><p class="miudo">Nesta prévia, o botão entra direto.</p></form></section>${leito()}`;
   const minhas=Loja.estado().espera.filter(e=>e.marca===M&&e.meu);
-  return `<section class="pag" data-nivel=".6" data-metros="300" data-nome="Conta"><h1>Olá, ${esc(c.nome.split(' ')[0])}</h1><div class="folha" style="max-width:560px"><h2>Suas filas</h2>${minhas.length?minhas.map(e=>{const p=Loja.produto(M,e.produto);return p?concha(p,e.senha||''):''}).join(''):'<p>Você ainda não entrou em nenhuma fila. <a href="#/perfumes">Ver os perfumes</a></p>'}<h2>Seus pedidos</h2><p>Quando você comprar, seus pedidos aparecem aqui com o código de rastreio.</p><button class="acao vazada" onclick="sair()">Sair da conta</button></div></section>${leito()}`
+  return `<section class="pag" data-nivel=".6" data-metros="300" data-nome="Conta"><h1>Olá, ${esc(c.nome.split(' ')[0])}</h1><div class="folha" style="max-width:560px">${Pontos.resumo(M)}<h2>Suas filas</h2>${minhas.length?minhas.map(e=>{const p=Loja.produto(M,e.produto);return p?concha(p,e.senha||''):''}).join(''):'<p>Você ainda não entrou em nenhuma fila. <a href="#/perfumes">Ver os perfumes</a></p>'}<h2>Seus pedidos</h2><p>Quando você comprar, seus pedidos aparecem aqui com o código de rastreio.</p><button class="acao vazada" onclick="sair()">Sair da conta</button></div></section>${leito()}`
 }
 function concha(p,pos){return `<div class="concha"><div class="c-n"><small>Sereia</small><b>${pos}</b></div><div><small>Fada Marinha</small><strong>${esc(p.nome)}</strong><small>${p.status==='estreia'?'Próxima maré, '+quando(p.estreia):'Volta com a próxima maré'}</small></div></div>`}
 function news(e){e.preventDefault();e.target.querySelector('input').value='';$('#n-ok').textContent='Pronto. As novidades chegam no seu e-mail.'}
@@ -731,10 +745,10 @@ addEventListener('scroll',rolou,{passive:true});addEventListener('resize',()=>{m
 const LUGAR={mergulho:'mergulho',perfumes:'perfumes',pocoes:'pocoes',oraculo:'oraculo',cardume:'cardume'};
 let naHome=false,primeira=true,semAviso=false;
 function rota(){const [a,b]=location.hash.replace(/^#\/?/,'').split('?')[0].split('/');return {a:a||'',b}}
-function tituloDe(a,b){const base='Fada Marinha';if(a==='p'){const p=Loja.produto(M,b);return p?`${p.nome} · ${base}`:base}if(a==='conta')return `Minha conta · ${base}`;if(a==='tudo')return `O mar inteiro · ${base}`;if(a==='pg'){const t=b==='contato'?'Fale com a Fada':(PAGINAS_FADA[b]||{}).t;return t?`${t} · ${base}`:base}return `${base} · Perfumaria botânica`}
-function desenha(fica=false){const {a,b}=rota(),main=$('#conteudo'),interna=a==='p'||a==='pg'||a==='conta'||a==='tudo';
+function tituloDe(a,b){const base='Fada Marinha';if(a==='p'){const p=Loja.produto(M,b);return p?`${p.nome} · ${base}`:base}if(a==='conta')return `Minha conta · ${base}`;if(a==='pontos')return `Meus pontos · ${base}`;if(a==='tudo')return `O mar inteiro · ${base}`;if(a==='pg'){const t=b==='contato'?'Fale com a Fada':(PAGINAS_FADA[b]||{}).t;return t?`${t} · ${base}`:base}return `${base} · Perfumaria botânica`}
+function desenha(fica=false){const {a,b}=rota(),main=$('#conteudo'),interna=a==='p'||a==='pg'||a==='conta'||a==='tudo'||a==='pontos';
  const faz=()=>{document.body.classList.toggle('em-detalhe',a==='p');
-  if(interna){main.innerHTML=a==='p'?detalhe(b):a==='pg'?pagina(b):a==='tudo'?tudoHTML():contaHTML();naHome=false;if(!fica){scrollTo({top:0,behavior:'instant'});main.focus({preventScroll:true})}}
+  if(interna){main.innerHTML=a==='p'?detalhe(b):a==='pg'?pagina(b):a==='tudo'?tudoHTML():a==='pontos'?pontosHTML():contaHTML();naHome=false;if(!fica){scrollTo({top:0,behavior:'instant'});main.focus({preventScroll:true})}}
   else{if(!naHome){main.innerHTML=home();naHome=true}
    if(!fica){if(LUGAR[a]){const e=document.getElementById(LUGAR[a]);if(e)requestAnimationFrame(()=>{const longe=Math.abs(e.getBoundingClientRect().top)>innerHeight*2.4;e.scrollIntoView({behavior:reduz||longe?'instant':'smooth'})})}else if(a==='')scrollTo({top:0,behavior:'instant'})}}
   document.title=tituloDe(a,b);medeMarcos();rolou();atualizaSaco();atualizaAbas(a);revelaF()};
@@ -803,11 +817,13 @@ function alternaSom(){
 }
 document.addEventListener('visibilitychange',()=>{if(!SOM||!SOM.on)return;SOM.m.gain.setTargetAtTime(document.hidden?0:.8,SOM.A.currentTime,.2)});
 function abre(h){const d=$('#dlg');d.innerHTML=`<div class="modal" tabindex="-1" autofocus><button class="fechar" aria-label="Fechar" onclick="dlg.close()">×</button>${h}</div>`;if(!d.open)d.showModal()}
-function abreMenu(){abre(`<ul class="lista-menu">${[['tudo','O mar inteiro'],['perfumes','Perfumes'],['pocoes','Cabelo e corpo'],['oraculo','Qual sereia é você'],['cardume','Cardume'],['pg/quem-somos','Quem somos'],['pg/contato','Fale com a Fada'],['conta','Minha conta']].map(([a,t])=>`<li><a href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}<li><a href="../">← Todos os links</a></li></ul>`)}
-function pagar(){gav.close();abre(`<h2>Aqui entra o pagamento</h2><p>No site de verdade, este botão abre o pagamento da Nuvemshop que a Fada já usa: Pix, cartão, frete e nota fiscal.</p><button class="acao" onclick="dlg.close()">Entendi</button>`)}
+function abreMenu(){abre(`<ul class="lista-menu">${[['tudo','O mar inteiro'],['perfumes','Perfumes'],['pocoes','Cabelo e corpo'],['oraculo','Qual sereia é você'],['cardume','Cardume'],['pontos','Meus pontos'],['pg/quem-somos','Quem somos'],['pg/contato','Fale com a Fada'],['conta','Minha conta']].map(([a,t])=>`<li><a href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}<li><a href="../">← Todos os links</a></li></ul>`)}
+function somaSacola(){const ps=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),sub=ps.reduce((s,x)=>s+x.p.preco*x.qtd,0),desc=bolsa.cupom?Math.round(sub*bolsa.cupom.pct)/100:0;return {ps,valor:sub-desc}}
+function pagar(){gav.close();const {valor}=somaSacola();abre(`<h2>Aqui entra o pagamento</h2><p>No site de verdade, este botão abre o pagamento da Nuvemshop que a Fada já usa: Pix, cartão, frete e nota fiscal.</p><p class="rende">Esta compra rende <b>${Pontos.rende(M,valor).toLocaleString('pt-BR')} pontos</b> no Cardume. Eles entram sozinhos quando o pagamento é aprovado.</p><button class="acao" onclick="simulaCompra()">Simular compra aprovada</button><button class="acao vazada" onclick="dlg.close()">Fechar</button>`)}
+function simulaCompra(){const {ps,valor}=somaSacola();dlg.close();semAvisar(()=>ps.forEach(x=>Loja.tirar(M,x.id)));bolsa.cupom=null;atualizaSaco();Pontos.compra(M,valor,ps.map(x=>x.p.nome).join(', '));location.hash='#/pontos'}
 function fila(id){const p=Loja.produto(M,id);abre(`<h2>${esc(p.nome)}</h2><p>${p.status==='estreia'?`Abre ${quando(p.estreia)}. Quem está na lista recebe o aviso antes.`:`Quando voltar à tona, você recebe o aviso antes de abrir para todo mundo.`}</p>
  <form onsubmit="entra(event,'${id}')"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">WhatsApp com DDD<input required name="wa" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999…" oninput="Rec.mascaraTel(this)"></label><label class="op"><input type="checkbox" required name="ok">Aceito receber este aviso e novidades da Fada Marinha. Posso sair quando quiser.</label><button class="acao">Entrar na fila</button></form>`)}
-function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);let pos=0;semAvisar(()=>{pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,meu:true});Loja.mexe(s=>{if(s.espera[0])s.espera[0].senha=pos})});
+function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);let pos=0;semAvisar(()=>{pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,meu:true});Loja.mexe(s=>{if(s.espera[0])s.espera[0].senha=pos})});Pontos.ganhar(M,'senha',Pontos.regras(M).senha,'Pegou a senha de '+p.nome,true);
  const url=location.href.split('#')[0]+'#/p/'+id,txt=`Sou a ${pos}ª sereia na fila de ${p.nome}, da Fada Marinha.`;
  abre(`<h2>Você é a ${pos}ª sereia da fila</h2>${concha(Loja.produto(M,id),pos)}<p>Avisamos no seu WhatsApp quando ${esc(p.nome)} voltar à tona, antes de abrir para todo mundo.</p><a class="acao" href="${Rec.redes(url,txt)[0].u}" target="_blank" rel="noopener">Chamar uma amiga</a><button class="acao vazada" onclick="baixar()">Baixar o app</button>`)}
 function baixar(){abre(Instalar.html())}
@@ -817,6 +833,7 @@ addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;const 
 const gav=$('#gav'),dlg=$('#dlg'),bus=$('#bus');
 [gav,dlg].forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
 bus.addEventListener('click',e=>{if(e.target.closest('a'))bus.close()});
+Pontos.aoMudar(()=>{const a=rota().a;if(a==='pontos'||a==='conta'){const y=scrollY;desenha(true);scrollTo({top:y,behavior:'instant'})}});
 Loja.aoMudar(()=>{if(semAviso)return;naHome=false;if(!dlg.open&&!gav.open){const y=scrollY;desenha(true);scrollTo({top:y,behavior:'instant'})}});
 setInterval(()=>$$('[data-fim]').forEach(e=>e.textContent=falta(e.dataset.fim)),30000);
 Rec.hidrataIcones();

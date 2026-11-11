@@ -467,8 +467,21 @@ body.em-detalhe .wpp{display:none}
 
 @media(prefers-reduced-motion:reduce){dialog[open]{animation:none!important}.l-fita{animation:none}.mini.vis{animation:none}.video img,.bc,#toast{transition:none}*{scroll-behavior:auto!important}.intro{display:none}.c-nome,.c-frasco{transition:none}.mini,.mini img,.btn{transition:none!important}}
 </style>
+<style>
+/* pontos e entrada do app (comum/pontos.js), vestidos de Paula */
+body{--pt-rotulo:400 16px/1 var(--cartaz);--pt-h2:400 clamp(36px,4.4vw,52px)/1 var(--titulo);--pt-h3:400 23px/1 var(--cartaz);--pt-nivel:400 clamp(76px,20vw,116px)/.84 var(--cartaz);--pt-numero:400 44px/1 var(--titulo);--pt-numero-p:400 25px/1 var(--cartaz);--pt-cartao:#123A2D;--pt-cartao-tx:#EDE6A0;--pt-acento:#F7A400;--pt-acento-tx:#2A0505;--pt-linha:#20131F2e;--pt-caixa:#ffffffa6;--pt-botao:#20131F;--pt-botao-tx:#F5EEF2;--pt-canto:0px;--pt-canto-b:0px;--pt-ent:#123A2D;--pt-ent-tx:#EDE6A0;--pt-ent-h1:400 clamp(46px,13vw,68px)/.95 var(--titulo)}
+.pts-pg .pts-nivel{text-transform:uppercase;letter-spacing:.01em}
+.pts-pg .pts-cartao{padding:22px 30px 20px;-webkit-mask:radial-gradient(circle 13px at 0 50%,#0000 96%,#000) left/51% 100% no-repeat,radial-gradient(circle 13px at 100% 50%,#0000 96%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle 13px at 0 50%,#0000 96%,#000) left/51% 100% no-repeat,radial-gradient(circle 13px at 100% 50%,#0000 96%,#000) right/51% 100% no-repeat}
+.pts-pg .pts-b{font:400 19px/1 var(--cartaz);letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+.pts-pg .pts-ok{border-radius:0}
+.pts-pg .pts-t{font-size:19px}
+.rende{margin-top:12px;font-size:18px}.rende b{font-weight:600}
+.ent .acao{background:var(--pt-acento);color:var(--pt-acento-tx)}
+.ent .campo input{background:#ffffff1a;color:inherit;border-color:#EDE6A066}
+.elenco .lk{display:inline-block;margin:18px 0 0 20px;font-size:21px;color:inherit;background:none;border:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+</style>
 </head>
-<body>
+<body data-marca-pontos="paula">
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="previa" id="previa"><a class="volta-links" href="../">← Links</a><span>Prévia feita pela Ti Artes · preços e estoque reais de 08/11 · filas e datas são exemplo</span><button aria-label="Fechar aviso" onclick="fechaPrevia()">×</button></div>
 <header class="topo" id="topo">
@@ -484,7 +497,7 @@ body.em-detalhe .wpp{display:none}
   <a href="#/" data-aba="inicio"><span data-ico="inicio"></span>Início</a>
   <a href="#/programacao" data-aba="programacao"><span data-ico="filme"></span>Programação</a>
   <button onclick="abreBusca()"><span data-ico="busca"></span>Buscar</button>
-  <a href="#/conta" data-aba="conta"><span data-ico="conta"></span>Conta</a>
+  <a href="#/pontos" data-aba="pontos"><span data-ico="membro"></span>Membro</a>
   <button class="alvo-saco" onclick="abreSacola()" aria-label="Abrir a sacola"><span data-ico="sacola"></span>Sacola<i class="bolinha n-saco" hidden>0</i></button>
 </nav>
 <a class="wpp" id="wpp" href="https://wa.me/5541996890967?text=Oi%2C%20Paula%21%20Vim%20pelo%20site." target="_blank" rel="noopener" aria-label="Chamar no WhatsApp" data-ico="whats"></a>
@@ -494,11 +507,12 @@ body.em-detalhe .wpp{display:none}
 <dialog id="gav" class="gaveta"></dialog>
 <dialog id="bus" class="busca" aria-label="Buscar perfumes"></dialog>
 
-<script src="../comum/dados-paula.js?v=5"></script>
-<script src="../comum/loja.js?v=5"></script>
-<script src="../comum/instalar.js?v=5"></script>
-<script src="../comum/recursos.js?v=5"></script>
-<script src="../comum/paginas-paula.js?v=5"></script>
+<script src="../comum/dados-paula.js?v=6"></script>
+<script src="../comum/loja.js?v=6"></script>
+<script src="../comum/instalar.js?v=6"></script>
+<script src="../comum/recursos.js?v=6"></script>
+<script src="../comum/pontos.js?v=6"></script>
+<script src="../comum/paginas-paula.js?v=6"></script>
 <script>
 const M='paula', $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro, reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -637,8 +651,8 @@ function home(){
    <article class="tile" style="--f:#D8C97F;--t:#2B2610"><img src="${img((todos.find(p=>p.id==='atelie-online')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>Ateliê de Perfumaria</h3><p>A Caixa-Ateliê chega na sua casa com 16 notas nobres, e você faz um perfume que não pertence a nenhuma marca. On-line por R$ 1.497 ou <a href="#/p/atelie-sp">presencial por R$ 1.190</a>.</p><button class="btn" onclick="fila('atelie-online')">Me avise da próxima turma</button></article>
    <article class="tile" style="--f:#22302B;--t:#E7DFC8"><img src="${img((todos.find(p=>p.id==='negocios')||{fotos:['']}).fotos[0],1024)}" alt="" loading="lazy"><h3>O cheiro da sua empresa</h3><p>Consultórios, lojas, barbearias e hotéis. Uma fragrância criada do zero para o seu espaço, com o primeiro frasco de 200 ml incluído. R$ 1.750.</p><button class="btn" onclick="conversa('negocios')">Pedir um projeto</button></article></div>
   <section class="elenco" id="elenco"><div><h2>Quem está no Elenco sabe antes</h2>
-   <ul><li>Aviso no celular na hora que o lote abre</li><li>Uma hora de vantagem sobre todo mundo</li><li>Você vota em qual perfume volta primeiro</li><li>Presente na semana do seu aniversário</li></ul>
-   <button class="btn" onclick="baixar()">Baixar o app</button></div>
+   <ul><li>Aviso no celular na hora que o lote abre</li><li>Uma hora de vantagem sobre todo mundo</li><li>Pontos a cada compra, trocados por amostra, frete e miniatura</li><li>Você vota em qual perfume volta primeiro</li><li>Presente na semana do seu aniversário</li></ul>
+   <button class="btn" onclick="Pontos.entrada(M,true)">Seja membro</button><a class="lk" href="#/pontos">Meus pontos</a></div>
    <div class="cel" aria-hidden="true"><div class="tela"><div class="hora">19:58</div><div class="dia">sábado</div><div class="push"><b>Paula Oliveira · agora</b>Lord chega sábado, às 8. Fique pronta.</div><div class="push"><b>Paula Oliveira · agora</b>Você tem 1 hora antes de abrir para todo mundo.</div></div></div></section>
   ${rodape()}`
 }
@@ -655,7 +669,7 @@ function detalhe(id){
   return `<article class="det" style="--f:${p.fundo};--t:${p.tinta};--a:${p.acento||p.tinta}">
   <div class="det-capa"><div class="c-topo"><span class="selo-e s-${p.status}">${selo(p)}</span><span>${esc(p.medida)} · ${esc(p.familia)}</span></div>
    <div class="c-palco"><h1 class="c-nome">${nome(p.nome)}</h1><img class="c-frasco" src="${foto(p)}" alt="Frasco de ${esc(p.nome)}" fetchpriority="high"></div>
-   <div class="c-baixo"><blockquote class="c-frase">“${esc(p.frase)}”</blockquote><div class="c-compra"><div class="preco">${precoHTML(p)}</div>${acao(p)}</div></div></div>
+   <div class="c-baixo"><blockquote class="c-frase">“${esc(p.frase)}”</blockquote><div class="c-compra"><div class="preco">${precoHTML(p)}</div>${acao(p)}</div>${rendeHTML(p)}</div></div>
   <div class="det-corpo"><nav class="migalha" aria-label="Você está em"><a href="#/">Início</a> / ${seg?`<a href="#/programacao?para=${seg[0]}">${seg[1]}</a>`:`<a href="#/programacao">Programação</a>`} / ${esc(p.nome)}</nav>
    <div class="det-texto"><p class="det-frase">“${esc(p.frase)}”</p>${texto}</div>
    <aside class="caixa"><div class="c-topo" style="margin-bottom:12px"><span class="selo-e s-${p.status}">${selo(p)}</span></div><div class="preco">${precoHTML(p)}</div>${acao(p)}
@@ -679,11 +693,13 @@ function contato(){
   return `<section class="pg"><h1>Fale com a Paula</h1><div class="pg-dup"><form class="form-pg" onsubmit="enviaContato(event)"><label class="campo">Nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><label class="campo">Telefone<input name="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999…" oninput="Rec.mascaraTel(this)"></label><label class="campo">Mensagem<textarea required name="msg"></textarea></label><button class="acao">Enviar mensagem</button><p id="ct-ok" class="miudo" aria-live="polite"></p></form>
    <div class="corpo"><p>Para perfume sob medida e projetos de empresa, o caminho mais rápido é o WhatsApp: <a href="https://wa.me/5541996890967" target="_blank" rel="noopener">(41) 99689-0967</a>.</p><button class="btn" onclick="conversa('site')">Chamar no WhatsApp</button><ul class="lista-redes"><li><a href="https://instagram.com/paulaoliveiraparfum" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/paulameretica" target="_blank" rel="noopener">Facebook</a></li><li><a href="https://www.youtube.com/@Paulaoliveiraparfum" target="_blank" rel="noopener">YouTube</a></li></ul></div></div></section>${rodape()}`
 }
+function pontosHTML(){return `<section class="pg pts-pg">${Pontos.tela(M)}</section>${rodape()}`}
+function rendeHTML(p){return p.status==='disponivel'?`<p class="rende">Membro do Elenco ganha <b>${Pontos.rende(M,p.preco).toLocaleString('pt-BR')} pontos</b> com este perfume.</p>`:''}
 function contaHTML(){
   const c=Rec.conta(M);
-  if(!c)return `<section class="pg"><h1>Entrar</h1><p class="corpo">Digite seu e-mail e enviamos um código de acesso. Sem senha para lembrar.</p><form class="form-pg" onsubmit="entrar(event)"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Receber o código</button><p class="miudo">Nesta prévia, o botão entra direto.</p></form></section>${rodape()}`;
+  if(!c)return `<section class="pg"><h1>Seja membro</h1><p class="corpo">Entre com um toque pelo Google, ou receba um código no seu e-mail. Sem senha para lembrar.</p><div class="form-pg">${Pontos.botaoGoogle(M)}<p class="pts-ou">ou com seu e-mail</p></div><form class="form-pg" style="margin-top:0" onsubmit="entrar(event)"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Receber o código</button><p class="miudo">Nesta prévia, o botão entra direto.</p></form></section>${rodape()}`;
   const minhas=Loja.estado().espera.filter(e=>e.marca===M&&e.meu);
-  return `<section class="pg"><h1>Olá, ${esc(c.nome.split(' ')[0])}</h1><div class="corpo" style="max-width:560px"><h2>Suas senhas</h2>${minhas.length?minhas.map(e=>{const p=Loja.produto(M,e.produto);return p?ingresso(p,e.senha||''):''}).join(''):'<p>Você ainda não entrou em nenhuma fila. <a href="#/programacao">Ver a programação</a></p>'}<h2>Seus pedidos</h2><p>Quando você comprar, seus pedidos aparecem aqui com o código de rastreio.</p><button class="acao vazada" onclick="sair()">Sair da conta</button></div></section>${rodape()}`
+  return `<section class="pg"><h1>Olá, ${esc(c.nome.split(' ')[0])}</h1><div class="corpo" style="max-width:560px">${Pontos.resumo(M)}<h2>Suas senhas</h2>${minhas.length?minhas.map(e=>{const p=Loja.produto(M,e.produto);return p?ingresso(p,e.senha||''):''}).join(''):'<p>Você ainda não entrou em nenhuma fila. <a href="#/programacao">Ver a programação</a></p>'}<h2>Seus pedidos</h2><p>Quando você comprar, seus pedidos aparecem aqui com o código de rastreio.</p><button class="acao vazada" onclick="sair()">Sair da conta</button></div></section>${rodape()}`
 }
 function ingresso(p,pos){return `<div class="ingresso" style="--f:${p.fundo||'#123A2D'};--t:${p.tinta||'#EDE6A0'}"><div class="e"><small>Senha</small><b>${pos}</b></div><div class="d"><small>Paula Oliveira Parfum</small><strong>${esc(p.nome)}</strong><small>${esc(p.medida)} · ${p.status==='estreia'?'Estreia '+quando(p.estreia):'Volta em lote'}</small></div></div>`}
 function news(e){e.preventDefault();e.target.querySelector('input').value='';$('#n-ok').textContent='Pronto. A próxima programação chega no seu e-mail.'}
@@ -755,14 +771,14 @@ const LUGAR={programacao:'programacao',quem:'quem','sob-medida':'sob-medida',ate
 function rota(){const h=location.hash.replace(/^#\/?/,'');const [cam,qs]=h.split('?');const [a,b]=cam.split('/');return {a:a||'',b,qs:qs||''}}
 let naHome=false,primeira=true,semAviso=false;
 function aplicaFiltroURL(qs){const q=new URLSearchParams(qs);Object.keys(PADRAO).forEach(k=>filtro[k]=q.get(k)||PADRAO[k])}
-function tituloDe(a,b){const base='Paula Oliveira Parfum';if(a==='p'){const p=Loja.produto(M,b);return p?`${p.nome} · ${base}`:base}if(a==='conta')return `Minha conta · ${base}`;if(a==='pg'){const t=b==='contato'?'Fale com a Paula':(PAGINAS_PAULA[b]||{}).t;return t?`${t} · ${base}`:base}if(a==='programacao')return `Programação · ${base}`;return `${base} · Perfumista independente`}
+function tituloDe(a,b){const base='Paula Oliveira Parfum';if(a==='p'){const p=Loja.produto(M,b);return p?`${p.nome} · ${base}`:base}if(a==='conta')return `Minha conta · ${base}`;if(a==='pontos')return `Meus pontos · ${base}`;if(a==='pg'){const t=b==='contato'?'Fale com a Paula':(PAGINAS_PAULA[b]||{}).t;return t?`${t} · ${base}`:base}if(a==='programacao')return `Programação · ${base}`;return `${base} · Perfumista independente`}
 function desenha(fica=false){
-  const {a,b,qs}=rota(), main=$('#conteudo'), interna=a==='p'||a==='pg'||a==='conta';
+  const {a,b,qs}=rota(), main=$('#conteudo'), interna=a==='p'||a==='pg'||a==='conta'||a==='pontos';
   if(a==='programacao')aplicaFiltroURL(qs);
   const faz=()=>{
     document.body.classList.toggle('em-detalhe',a==='p');
     if(interna){
-      main.innerHTML=a==='p'?detalhe(b):a==='pg'?pagina(b):contaHTML();naHome=false;
+      main.innerHTML=a==='p'?detalhe(b):a==='pg'?pagina(b):a==='pontos'?pontosHTML():contaHTML();naHome=false;
       if(!fica){scrollTo({top:0,behavior:'instant'});main.focus({preventScroll:true})}
     }else{
       if(!naHome){main.innerHTML=home();naHome=true}else if(a==='programacao')redesenhaVitrine();
@@ -819,8 +835,10 @@ function buscaViva(v){
   r.innerHTML=l.length?`<p class="b-n" aria-live="polite">${l.length} ${l.length===1?'resultado':'resultados'}</p><ul class="lista">${l.map(lp).join('')}</ul>`:`<p class="b-n" aria-live="polite">Nada com “${esc(v)}”</p><p>Tente uma nota, como baunilha, couro ou jasmim, ou <a href="#/programacao">veja a programação inteira</a>.</p>`;
 }
 function abre(html){const d=$('#dlg');d.innerHTML=`<div class="modal" tabindex="-1" autofocus><button class="fechar" aria-label="Fechar" onclick="dlg.close()">×</button>${html}</div>`;if(!d.open)d.showModal()}
-function abreMenu(){abre(`<ul style="list-style:none;padding:0;font:400 34px/1.2 var(--titulo)">${[['programacao','Programação'],['programacao?para=ela','Para ela'],['programacao?para=ele','Para ele'],['sob-medida','Sob medida'],['atelie','Ateliê e cursos'],['quem','Quem escreve'],['elenco','Elenco'],['pg/contato','Fale com a Paula'],['conta','Minha conta']].map(([a,t])=>`<li><a style="text-decoration:none;display:block;padding:5px 0" href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}<li><a style="text-decoration:none;display:block;padding:5px 0" href="../">← Todos os links</a></li></ul>`)}
-function pagar(){gav.close();abre(`<h2>Aqui entra o pagamento</h2><p>No site de verdade, este botão abre o pagamento da Nuvemshop que a Paula já usa: Pix, cartão, frete pelos Correios e nota fiscal.</p><button class="acao" onclick="dlg.close()">Entendi</button>`)}
+function abreMenu(){abre(`<ul style="list-style:none;padding:0;font:400 34px/1.2 var(--titulo)">${[['programacao','Programação'],['programacao?para=ela','Para ela'],['programacao?para=ele','Para ele'],['sob-medida','Sob medida'],['atelie','Ateliê e cursos'],['quem','Quem escreve'],['elenco','Elenco'],['pontos','Meus pontos'],['pg/contato','Fale com a Paula'],['conta','Minha conta']].map(([a,t])=>`<li><a style="text-decoration:none;display:block;padding:5px 0" href="#/${a}" onclick="dlg.close()">${t}</a></li>`).join('')}<li><a style="text-decoration:none;display:block;padding:5px 0" href="../">← Todos os links</a></li></ul>`)}
+function somaSacola(){const ps=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),sub=ps.reduce((s,x)=>s+x.p.preco*x.qtd,0),desc=bolsa.cupom?Math.round(sub*bolsa.cupom.pct)/100:0;return {ps,valor:sub-desc}}
+function pagar(){gav.close();const {valor}=somaSacola();abre(`<h2>Aqui entra o pagamento</h2><p>No site de verdade, este botão abre o pagamento da Nuvemshop que a Paula já usa: Pix, cartão, frete pelos Correios e nota fiscal.</p><p class="rende">Esta compra rende <b>${Pontos.rende(M,valor).toLocaleString('pt-BR')} pontos</b> no Elenco. Eles entram sozinhos quando o pagamento é aprovado.</p><button class="acao" onclick="simulaCompra()">Simular compra aprovada</button><button class="acao vazada" onclick="dlg.close()">Fechar</button>`)}
+function simulaCompra(){const {ps,valor}=somaSacola();dlg.close();semAvisar(()=>ps.forEach(x=>Loja.tirar(M,x.id)));bolsa.cupom=null;atualizaSaco();Pontos.compra(M,valor,ps.map(x=>x.p.nome).join(', '));location.hash='#/pontos'}
 const WA='5541996890967';
 function conversa(id){const p=Loja.produto(M,id);const txt=id==='sobmedida'?'Oi, Paula! Quero conversar sobre um Perfume Sob Medida.':id==='negocios'?'Oi, Paula! Quero um perfume para a minha empresa.':p?`Oi, Paula! Quero saber do ${p.nome}.`:'Oi, Paula! Vim pelo site.';window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(txt),'_blank','noopener')}
 function fila(id){const p=Loja.produto(M,id);
@@ -829,7 +847,7 @@ function fila(id){const p=Loja.produto(M,id);
   <form onsubmit="entra(event,'${id}')"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">WhatsApp com DDD<input required name="wa" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999…" oninput="Rec.mascaraTel(this)"></label>
   <label class="op"><input type="checkbox" required name="ok">Aceito receber este aviso e novidades da Paula Oliveira Parfum. Posso sair quando quiser.</label><button class="acao">Pegar minha senha</button></form>`)}
 function entra(e,id){e.preventDefault();const f=e.target,p=Loja.produto(M,id);let pos=0;
-  semAvisar(()=>{pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,meu:true});Loja.mexe(s=>{if(s.espera[0])s.espera[0].senha=pos})});
+  semAvisar(()=>{pos=Loja.entrarNaFila(M,id,{nome:f.nome.value,wa:f.wa.value,meu:true});Loja.mexe(s=>{if(s.espera[0])s.espera[0].senha=pos})});Pontos.ganhar(M,'senha',Pontos.regras(M).senha,'Pegou a senha de '+p.nome,true);
   const url=location.href.split('#')[0]+linkPara(p),txt=`Peguei a senha ${pos} para ${p.nome}, da Paula Oliveira.`;
   abre(`<h2>Sua senha está guardada</h2>${ingresso(Loja.produto(M,id),pos)}<p>Avisamos no seu WhatsApp quando ${esc(p.nome)} ${p.status==='estreia'?'estrear':'voltar'}, antes de abrir para todo mundo.</p><a class="acao" href="${Rec.redes(url,txt)[0].u}" target="_blank" rel="noopener">Mandar para uma amiga</a><button class="acao vazada" onclick="baixar()">Baixar o app</button>`);desenhaFilas()}
 function desenhaFilas(){if(naHome&&$('#vitrine')){$('#vitrine').innerHTML=vitrine();revela()}}
@@ -841,6 +859,7 @@ addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;const 
 const gav=$('#gav'),dlg=$('#dlg'),bus=$('#bus');
 [gav,dlg].forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
 bus.addEventListener('click',e=>{if(e.target.closest('a'))bus.close()});
+Pontos.aoMudar(()=>{const a=rota().a;if(a==='pontos'||a==='conta'){const y=scrollY;desenha(true);scrollTo({top:y,behavior:'instant'})}});
 Loja.aoMudar(()=>{if(semAviso)return;naHome=false;if(!dlg.open&&!gav.open){const y=scrollY;desenha(true);scrollTo({top:y,behavior:'instant'})}});
 if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!reduz){
   let ax=0,ay=0,sx=0,sy=0,seguindo=false;const sg=$('#seguidor');

@@ -120,6 +120,11 @@ dialog.lado{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(480px,100v
  .cli{grid-template-columns:minmax(0,1fr) auto;padding:10px 14px}.cli .mob{display:none}
 }
 @media(min-width:901px){.ln .ps{display:contents}}
+.regras{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 12px}
+.regras .f{display:grid;grid-template-columns:minmax(0,1fr) 84px;align-items:center;gap:10px;font-weight:500;font-size:14.5px;margin-top:8px}.regras .f input{margin-top:0;text-align:right;font-variant-numeric:tabular-nums;padding:9px 12px}
+.bloco h4{font-size:16px;margin:18px 0 0}
+.dar{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:8px;align-items:end;margin-top:12px}.dar .f{margin:0}
+@media(max-width:520px){.dar{grid-template-columns:90px minmax(0,1fr)}.dar .b{grid-column:1/-1}}
 </style>
 </head>
 <body data-marca="paula">
@@ -131,9 +136,10 @@ dialog.lado{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(480px,100v
 <dialog id="dlg" class="lado"></dialog>
 <div class="aviso" id="aviso" role="status"></div>
 
-<script src="../comum/dados-paula.js?v=5"></script>
-<script src="../comum/dados-fada.js?v=5"></script>
-<script src="../comum/loja.js?v=5"></script>
+<script src="../comum/dados-paula.js?v=6"></script>
+<script src="../comum/dados-fada.js?v=6"></script>
+<script src="../comum/loja.js?v=6"></script>
+<script src="../comum/pontos.js?v=6"></script>
 <script>
 const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro,esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -147,7 +153,8 @@ const aviso=t=>{const a=$('#aviso');a.textContent=t;a.classList.add('on');clearT
 
 function clientes(){return Loja.estado().clientes.filter(c=>c.marca===M||c.marca==='ambas').map(c=>{const ped=c.pedidos.filter(p=>p.marca===M);const total=ped.reduce((s,p)=>s+p.valor,0),ult=ped[0]?dias(ped[0].em):9999,n=ped.length;
  let seg='Comprou uma vez';if(n>=5||total>=2500)seg='Colecionadora';else if(n>=3&&ult<180)seg='Fiel';else if(n===1&&ult<60)seg='Nova';else if(ult>240)seg='Sumida';else if(ult>120)seg='Esfriando';
- return {...c,ped,total,ult,n,seg}}).filter(c=>c.n>0).sort((a,b)=>b.total-a.total)}
+ const rg=Pontos.regras(M),pts=Math.floor(total*rg.compra)+(c.app?rg.app:0)+((c.pontosExtra||{})[M]||0),nv=Pontos.CFG[M].niveis.reduce((k,x,i)=>pts>=x.de?i:k,0);
+ return {...c,ped,total,ult,n,seg,pts,nivelI:nv,nivel:Pontos.CFG[M].niveis[nv].n}}).filter(c=>c.n>0).sort((a,b)=>b.total-a.total)}
 
 function nav(){$('#nav').innerHTML=ABAS.map(([k,t])=>`<button aria-current="${aba===k?'page':'false'}" onclick="ir('${k}')">${t==='Clube'?CLUBE[M]:t}</button>`).join('')}
 function ir(k){aba=k;desenha();scrollTo(0,0)}
@@ -200,11 +207,12 @@ let seg='Todas',busca='';
 function clientesPg(){const cs=clientes(),segs=['Todas','Colecionadora','Fiel','Nova','Esfriando','Sumida'];const l=cs.filter(c=>(seg==='Todas'||c.seg===seg)&&c.nome.toLowerCase().includes(busca.toLowerCase()));
  return `<div class="tp"><div><h2>Clientes</h2><p class="lead" style="margin:0">Da que mais compra para a que menos compra.</p></div><input class="bus" placeholder="Buscar pelo nome" aria-label="Buscar cliente" value="${esc(busca)}" oninput="busca=this.value;lista()"></div>
  <div class="fil">${segs.map(s=>`<button class="ch" aria-pressed="${seg===s}" onclick="seg='${s}';desenha()">${s}${s==='Todas'?'':' ('+cs.filter(c=>c.seg===s).length+')'}</button>`).join('')}</div><div class="lst" id="lc">${listaHTML(l)}</div>`}
-function listaHTML(l){return l.map(c=>`<button class="cli" onclick="ficha('${c.id}')"><span><b>${esc(c.nome)}</b><small>${esc(c.cidade)}</small></span><span class="mob"><span class="tag">${c.seg}</span></span><span class="mob" style="font-size:14.5px">${c.ult===0?'hoje':c.ult+' dias'}</span><span class="tot">${R(c.total)}</span></button>`).join('')||'<p style="padding:18px">Ninguém com esse filtro.</p>'}
+function listaHTML(l){return l.map(c=>`<button class="cli" onclick="ficha('${c.id}')"><span><b>${esc(c.nome)}</b><small>${esc(c.cidade)} · ${c.nivel} · ${c.pts.toLocaleString('pt-BR')} pontos</small></span><span class="mob"><span class="tag">${c.seg}</span></span><span class="mob" style="font-size:14.5px">${c.ult===0?'hoje':c.ult+' dias'}</span><span class="tot">${R(c.total)}</span></button>`).join('')||'<p style="padding:18px">Ninguém com esse filtro.</p>'}
 function lista(){const cs=clientes().filter(c=>(seg==='Todas'||c.seg===seg)&&c.nome.toLowerCase().includes(busca.toLowerCase()));$('#lc').innerHTML=listaHTML(cs)}
 function ficha(id){const c=clientes().find(x=>x.id===id);if(!c)return;const espera=Object.entries({});
  abre(`<h3>${esc(c.nome)}</h3><p style="margin-top:6px"><span class="tag">${c.seg}</span></p>
- <div class="dados"><div><span>Comprou no total</span><b>${R(c.total)}</b></div><div><span>Pedidos</span><b>${c.n}</b></div><div><span>Última compra</span><b>${c.ult} dias atrás</b></div><div><span>Cheiro preferido</span><b>${esc(c.familia)}</b></div><div><span>WhatsApp</span><b>${esc(c.wa)}</b></div><div><span>Aniversário</span><b>${new Date(c.nascimento+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'long'})}</b></div><div><span>Cidade</span><b>${esc(c.cidade)}</b></div><div><span>App no celular</span><b>${c.app?'Sim':'Ainda não'}</b></div></div>
+ <div class="dados"><div><span>Comprou no total</span><b>${R(c.total)}</b></div><div><span>Pedidos</span><b>${c.n}</b></div><div><span>Última compra</span><b>${c.ult} dias atrás</b></div><div><span>Cheiro preferido</span><b>${esc(c.familia)}</b></div><div><span>WhatsApp</span><b>${esc(c.wa)}</b></div><div><span>Aniversário</span><b>${new Date(c.nascimento+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'long'})}</b></div><div><span>Cidade</span><b>${esc(c.cidade)}</b></div><div><span>App no celular</span><b>${c.app?'Sim':'Ainda não'}</b></div><div><span>Pontos</span><b>${c.pts.toLocaleString('pt-BR')}</b></div><div><span>Nível no ${CLUBE[M]}</span><b>${c.nivel}</b></div></div>
+ <form class="dar" onsubmit="darPontos(event,'${c.id}')"><label class="f">Pontos<input name="n" inputmode="numeric" required placeholder="50"></label><label class="f">Por quê<input name="m" placeholder="Ex.: presente de Natal"></label><button class="b">Dar pontos</button></form>
  <button class="b" style="width:100%;min-height:50px" onclick="aviso('No app de verdade abre o WhatsApp com a mensagem pronta')">Chamar no WhatsApp</button>
  <label class="f" style="margin-top:16px">Anotação sua<textarea rows="2" oninput="Loja.estado().clientes.find(x=>x.id==='${c.id}').nota=this.value" onchange="Loja.mexe(()=>{})" placeholder="Ex.: prefere perfumes secos, presente para a mãe em maio">${esc(c.nota)}</textarea></label>
  <h4 style="margin-top:18px;font-size:17px">O que já comprou</h4><ul class="hist">${c.ped.map(p=>`<li><span>${esc(p.nome)}</span><span>${new Date(p.em+'T12:00').toLocaleDateString('pt-BR')} · ${R(p.valor)}</span></li>`).join('')}</ul>`)}
@@ -223,7 +231,15 @@ function manda(n){if(!msg.t.trim()){aviso('Escreva o aviso primeiro');$('#mt').f
 function clube(){const cs=clientes(),s=Loja.estado(),mural=s.mural.filter(m=>m.marca===M),ps=Loja.produtos(M).filter(p=>p.fila).sort((a,b)=>b.fila-a.fila).slice(0,3),tot=ps.reduce((a,p)=>a+p.fila,0)||1;
  return `<h2>${CLUBE[M]}</h2><p class="lead">A sua rede de clientes, dentro do app. Só você publica. Elas reagem e votam.</p><div class="gr"><div class="k"><span>No ${CLUBE[M]}</span><b>${cs.length}</b></div><div class="k"><span>Com o app</span><b>${cs.filter(c=>c.app).length}</b></div><div class="k"><span>Colecionadoras</span><b>${cs.filter(c=>c.seg==='Colecionadora').length}</b></div><div class="k"><span>Avisos enviados</span><b>${s.avisos.filter(a=>a.marca===M).length}</b></div></div>
  <div class="cols"><section class="bloco"><h3>Publicar no mural</h3><label class="f">Bastidor, novidade, pergunta<textarea id="mu" rows="3" placeholder="Hoje macerando o próximo lote..."></textarea></label><button class="b" style="margin-top:12px" onclick="publica()">Publicar</button>${mural.map(m=>`<div class="post">${esc(m.t)}<br><small>${new Date(m.em).toLocaleString('pt-BR')}</small></div>`).join('')}</section>
- <section class="bloco"><h3>Votação: qual volta primeiro</h3>${ps.map(p=>`<div class="bar"><span>${esc(p.nome)}</span><i style="width:${Math.round(100*p.fila/ps[0].fila)}%"></i><span>${Math.round(100*p.fila/tot)}%</span></div>`).join('')}</section></div>`}
+ <section class="bloco"><h3>Votação: qual volta primeiro</h3>${ps.map(p=>`<div class="bar"><span>${esc(p.nome)}</span><i style="width:${Math.round(100*p.fila/ps[0].fila)}%"></i><span>${Math.round(100*p.fila/tot)}%</span></div>`).join('')}</section></div>${blocoPontos()}`}
+function blocoPontos(){const r=Pontos.regras(M),pr=Pontos.premios(M),ns=Pontos.CFG[M].niveis,cs=clientes();
+ return `<section class="bloco" style="margin-top:12px"><h3>Pontos do ${CLUBE[M]}</h3><p class="lead" style="margin:0 0 12px">Quem junta pontos volta para comprar. Você decide quanto vale cada coisa, e o app muda na hora.</p>
+ <div class="gr">${ns.map((n,i)=>`<div class="k" style="background:var(--real)"><span>${n.n}${n.de?' · '+n.de.toLocaleString('pt-BR')+'+':''}</span><b>${cs.filter(c=>c.nivelI===i).length}</b></div>`).join('')}<div class="k" style="background:var(--real)"><span>Pontos em aberto</span><b>${cs.reduce((a,c)=>a+c.pts,0).toLocaleString('pt-BR')}</b></div></div>
+ <h4>Quanto vale cada coisa</h4><div class="regras">${RG.map(([k,t])=>`<label class="f">${t}<input inputmode="numeric" value="${r[k]}" onchange="mudaPts('regras','${k}',this.value)"></label>`).join('')}</div>
+ <h4>Prêmios (custam em pontos)</h4><div class="regras">${pr.map(p=>`<label class="f">${esc(p.t)}<input inputmode="numeric" value="${p.pts}" onchange="mudaPts('premios','${p.id}',this.value)"></label>`).join('')}</div></section>`}
+const RG=[['compra','Pontos por real gasto'],['app','Baixar o app'],['avisos','Ligar os avisos'],['voto','Votar no próximo lote'],['senha','Pegar senha de um lote'],['aniversario','Contar o aniversário'],['aniversarioMes','No mês do aniversário'],['avaliar','Avaliar um perfume'],['amiga','Amiga que comprou']];
+function mudaPts(tipo,k,v){const n=Math.max(0,parseInt(String(v).replace(/\D/g,''))||0);Loja.mexe(s=>{s.pontos=s.pontos||{};s.pontos[M]=s.pontos[M]||{};(s.pontos[M][tipo]=s.pontos[M][tipo]||{})[k]=n});aviso('Pronto: o app já mostra o valor novo')}
+function darPontos(e,id){e.preventDefault();const f=e.target,n=parseInt(f.n.value.replace(/\D/g,''))||0;if(!n)return;let nome='';Loja.mexe(s=>{const x=s.clientes.find(c=>c.id===id);nome=x.nome;x.pontosExtra=x.pontosExtra||{};x.pontosExtra[M]=(x.pontosExtra[M]||0)+n;(x.pontosLog=x.pontosLog||[]).unshift({marca:M,n,m:f.m.value.trim(),em:new Date().toISOString()})});aviso(`+${n} pontos para ${nome.split(' ')[0]}. Ela recebe o aviso no app.`);ficha(id)}
 function publica(){const t=$('#mu').value.trim();if(!t)return;Loja.mexe(s=>{s.mural.unshift({marca:M,t,em:new Date().toISOString()})});aviso('Publicado no mural')}
 
 /* cada foto da loja existe em tamanhos diferentes: se um faltar, tenta os outros */
