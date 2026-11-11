@@ -348,6 +348,41 @@
   @keyframes vira { from { transform: perspective(600px) rotateX(-80deg) scale(.7); opacity: 0; } }
   .progresso { height: 8px; border-radius: 8px; background: rgba(255,233,184,.14); margin: 4px 0 8px; overflow: hidden; }
   .progresso i { display: block; height: 100%; width: var(--de); border-radius: 8px; background: var(--led); box-shadow: var(--brilho); transition: width 1s cubic-bezier(.6,0,.2,1) .25s; }
+  /* ---------- computador ---------- */
+  .heroi-volta { display: inline-block; position: relative; }
+  .lado-desk { display: none; }
+  @media (min-width: 960px) {
+    body:has(#telaEntrar:not([hidden])) .app { max-width: 1160px; }
+    #telaEntrar:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); grid-template-rows: 1fr auto 1fr; column-gap: 64px; padding: 30px 48px 0; }
+    #telaEntrar .heroi { grid-column: 1; grid-row: 1 / 4; min-height: 640px; padding: 50px 0 40px; overflow: visible; }
+    #telaEntrar .heroi-arco { width: 62%; height: 380px; right: -40px; border-bottom-left-radius: 100% 96%; }
+    #telaEntrar .heroi-cookie { width: 250px; height: 250px; top: 14px; right: -10px; }
+    #telaEntrar .heroi-logo { width: 240px; margin-bottom: 70px; }
+    #telaEntrar .heroi h1 { font-size: 92px; max-width: 8ch; }
+    #telaEntrar .aviso-codigo, #telaEntrar .porta-fone { grid-column: 2; margin-left: 0; margin-right: 0; }
+    #telaEntrar .aviso-codigo { grid-row: 1; align-self: end; }
+    #telaEntrar .porta-fone { grid-row: 2; }
+    #telaEntrar .porta-fone { padding: 34px; border-radius: 30px; background: var(--cacau-2); box-shadow: 0 30px 70px rgba(0,0,0,.4); }
+    #telaEntrar .desce, #telaEntrar .tunel { grid-column: 1 / -1; grid-row: auto; }
+    .porta { width: min(56vw, 600px); height: min(72vh, 620px); }
+    .porta-miolo h2 { font-size: 48px; }
+    .porta-foto { width: 190px; height: 190px; }
+  }
+  @media (min-width: 1100px) {
+    body:has(#telaApp:not([hidden])) .lado-desk {
+      display: flex; flex-direction: column; justify-content: center; gap: 14px;
+      position: fixed; left: 0; top: 0; bottom: 0; width: calc((100vw - 480px) / 2); padding: 0 min(6vw, 90px);
+      border-right: 1px solid rgba(243,230,211,.08);
+      background: radial-gradient(ellipse 80% 60% at 30% 50%, #3a2419, var(--cacau) 70%);
+    }
+    .lado-desk h2 { font: 400 44px/1.05 var(--display); margin: 0; max-width: 10ch; }
+    .lado-desk p:not(.rotulo) { margin: 0; color: var(--creme-2); max-width: 30ch; }
+    .lado-desk .rotulo { color: var(--led); }
+    .lado-logo img { width: 150px; filter: drop-shadow(0 0 8px rgba(255,205,130,.5)); margin-bottom: 18px; }
+    .lado-qr { width: 190px; padding: 12px; background: #fff; border-radius: 18px; box-shadow: 0 0 30px rgba(255,214,140,.25); }
+    .lado-qr svg { width: 100%; height: auto; }
+    .lado-site { color: var(--led); font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
+  }
 </style>
 </head>
 <body>
@@ -363,7 +398,7 @@
     <div class="heroi" id="heroi">
       <div class="heroi-arco"></div>
       <img class="heroi-cookie" id="heroiCookie" src="https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534333/739cd598IMG_1781045522397.jpeg" alt="Cookie de Nutella da Gliki Sô cortado ao meio">
-      <img class="heroi-logo" src="../comum/logo-escrita.svg" alt="Gliki Sô">
+      <a href="../" class="heroi-volta" aria-label="Voltar ao site da Gliki Sô"><img class="heroi-logo" src="../comum/logo-escrita.svg" alt="Gliki Sô"></a>
       <p class="rotulo">Clube Glikilovers</p>
       <h1>Comprou, apontou, <em>ganhou.</em></h1>
     </div>
@@ -396,7 +431,7 @@
   <!-- ---------- o app ---------- -->
   <div id="telaApp" hidden>
     <header class="topo-app">
-      <img class="logo-app" src="../comum/logo-escrita.svg" alt="Gliki Sô">
+      <a href="../" aria-label="Voltar ao site da Gliki Sô"><img class="logo-app" src="../comum/logo-escrita.svg" alt="Gliki Sô"></a>
       <p><strong id="ola"></strong>Clube Glikilovers</p>
     </header>
     <main id="conteudo"></main>
@@ -409,6 +444,15 @@
     </nav>
   </div>
 </div>
+
+<aside class="lado-desk" aria-label="Use o clube no celular">
+  <a href="../" class="lado-logo"><img src="../comum/logo-escrita.svg" alt="Gliki Sô"></a>
+  <p class="rotulo">Clube Glikilovers</p>
+  <h2>Pontuar é no celular</h2>
+  <p>A câmera do celular lê a nota fiscal. Aponte para este QR e abra o clube nele.</p>
+  <div class="lado-qr" id="ladoQr"></div>
+  <a class="lado-site" href="../">Voltar ao site</a>
+</aside>
 
 <dialog class="folha" id="folha"><div class="folha-corpo"><div class="folha-alca"></div><div id="folhaConteudo"></div></div></dialog>
 
@@ -889,6 +933,7 @@ function contaChave() {
   $("scanEnviar").disabled = n !== 44;
 }
 $("navPontuarIc").innerHTML = I.qr;
+$("ladoQr").innerHTML = qrSVG(LINK_CLUBE, 166);
 $("navPontuar").addEventListener("click", abrirScan);
 $("scanFechar").innerHTML = I.fechar;
 $("scanFechar").addEventListener("click", fecharScan);

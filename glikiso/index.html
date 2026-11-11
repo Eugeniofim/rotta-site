@@ -21,6 +21,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="abertura/g/001.webp" media="(min-width: 760px)">
+<link rel="preload" as="image" href="abertura/p/001.webp" media="(max-width: 759px)">
 <style>
   :root {
     --cacau: #2a1913;      /* a parede de chocolate */
@@ -468,9 +470,163 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
   }
+  /* ================= SITE ================= */
+  .topo { display: none; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+  /* barra do topo: Clube e Painel sempre à mão */
+  .barra { position: fixed; top: 0; left: 0; right: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: calc(10px + env(safe-area-inset-top)) 14px 10px; transition: background .35s, box-shadow .35s; }
+  .barra.solida { background: rgba(22,11,7,.8); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); box-shadow: 0 1px 0 rgba(243,230,211,.08); }
+  .barra-logo { display: block; padding: 4px 0; }
+  .barra-logo img { width: 84px; height: auto; filter: drop-shadow(0 0 8px rgba(255,205,130,.5)); }
+  .barra-links { display: none; gap: 28px; margin-left: 22px; }
+  .barra-links a { font: 500 13px/1 var(--rotulo); letter-spacing: .18em; text-transform: uppercase; text-decoration: none; color: var(--creme-2); padding: 14px 0; transition: color .2s; }
+  .barra-links a:hover { color: var(--led); }
+  .barra-acoes { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .pilula { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; font: 700 14px var(--texto); text-decoration: none; white-space: nowrap; transition: transform .15s, box-shadow .2s, background .2s; }
+  .pilula:active { transform: scale(.97); }
+  .pilula svg { width: 18px; height: 18px; }
+  .pilula-led { background: var(--led); color: var(--cacau); box-shadow: 0 0 18px rgba(255,214,140,.35); }
+  .pilula-led:hover { box-shadow: 0 0 28px rgba(255,214,140,.6); }
+  .pilula-linha { border: 1.5px solid rgba(255,233,184,.55); color: var(--led); }
+  .pilula-linha:hover { background: rgba(255,233,184,.08); }
+  .pilula-adm { width: 44px; padding: 0; border: 1.5px solid rgba(243,230,211,.25); color: var(--creme-2); }
+  .pilula-adm:hover { color: var(--led); border-color: var(--led); }
+
+  /* abertura: o cookie se parte conforme a rolagem */
+  .abertura { position: relative; height: 330vh; background: #150906; }
+  .abertura-palco { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+  .abertura canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; will-change: transform; }
+  .abertura-veu { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 75% at 50% 52%, transparent 50%, rgba(12,6,3,.78) 100%), linear-gradient(180deg, rgba(21,9,6,.6) 0%, transparent 20%, transparent 72%, #150906 100%); }
+  .abertura-luz { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 40%), rgba(255,205,130,.13), transparent 70%); mix-blend-mode: screen; }
+  .bat { position: absolute; will-change: transform, opacity; }
+  .bat1 { left: 22px; right: 22px; top: calc(76px + env(safe-area-inset-top)); bottom: 0; }
+  .bat1 h1 { font-size: clamp(42px, 7vw, 112px); }
+  .zap { transition: opacity .3s, transform .3s; }
+  .zap[data-longe] { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  .bat1-acoes.no-pe { display: grid; grid-template-columns: 1fr 1fr; left: 0; right: 0; }
+  .bat1-acoes.no-pe .pilula { padding: 0 10px; font-size: 15px; }
+  @media (max-width: 759px) { .abertura-dica { display: none !important; } }
+  .bat1 .rotulo { color: var(--led); margin-bottom: 12px; }
+  .bat1 h1 { font: 400 clamp(46px, 7vw, 112px)/.95 var(--display); max-width: 9ch; margin: 0 0 14px; text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+  .bat1 p.sub { margin: 0; color: var(--creme-2); max-width: 30ch; font-size: 17px; }
+  .bat1-acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .bat1-acoes.no-pe { position: absolute; left: 22px; right: 22px; bottom: calc(26px + env(safe-area-inset-bottom)); }
+  .bat1-acoes .pilula { min-height: 52px; padding: 0 22px; font-size: 16px; }
+  .bat2 { inset: 0; pointer-events: none; }
+  .bat2 span { position: absolute; font: 400 clamp(64px, 13vw, 230px)/.9 var(--display); color: var(--led); text-shadow: 0 0 22px rgba(255,190,100,.55), 0 0 60px rgba(255,170,80,.3); }
+  .bat2 .w1 { left: 4vw; top: 17%; }
+  .bat2 .w2 { right: 4vw; bottom: 17%; }
+  .bat3 { left: 0; right: 0; bottom: 13%; text-align: center; }
+  .bat3 strong { display: block; font: 400 clamp(54px, 9vw, 150px)/.95 var(--display); text-shadow: 0 6px 34px rgba(0,0,0,.7); }
+  .bat3 .rotulo { color: var(--led); margin-top: 18px; }
+  .abertura-fitas { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 120px; pointer-events: none; filter: drop-shadow(0 0 5px #ffd98a) drop-shadow(0 0 14px rgba(255,196,110,.6)); }
+  .abertura-fitas path { fill: none; stroke: var(--led); stroke-width: 3; stroke-linecap: round; }
+  .abertura-dica { position: absolute; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: grid; justify-items: center; gap: 2px; font: 500 12px/1 var(--rotulo); letter-spacing: .2em; text-transform: uppercase; color: var(--creme-2); }
+  .abertura-dica svg { width: 20px; height: 11px; color: var(--led); animation: piscaDica 1.5s infinite; }
+  .abertura-dica svg:nth-of-type(2) { animation-delay: .2s; }
+  @keyframes piscaDica { 0%, 100% { opacity: .2; } 40% { opacity: 1; } }
+  .ilustrativa { position: absolute; right: 14px; bottom: 10px; font-size: 11px; color: rgba(243,230,211,.45); }
+  .abertura + .pagina { position: relative; }
+  .abertura::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 120px; background: linear-gradient(180deg, transparent, var(--cacau)); pointer-events: none; }
+
+  /* luz que segue o mouse */
+  .luz-mouse { position: fixed; inset: 0; z-index: 30; pointer-events: none; background: radial-gradient(260px circle at var(--mx, -500px) var(--my, -500px), rgba(255,214,140,.09), transparent 70%); }
+
+  /* cartões que levantam ao entrar e inclinam com o mouse */
+  .entra3d { transform-origin: 50% 100%; transform: perspective(1000px) translateY(var(--dy, 0px)) rotateX(calc(var(--rxe, 0deg) + var(--rx, 0deg))) rotateY(var(--ry, 0deg)) scale(var(--sce, 1)); }
+
+  /* queridinhos: no computador a vitrine anda sozinha com a rolagem */
+  .q-barra { height: 3px; margin: 18px 0 0; background: rgba(255,233,184,.12); border-radius: 3px; display: none; }
+  .q-barra i { display: block; height: 100%; width: 0; background: var(--led); box-shadow: 0 0 8px #ffd98a; border-radius: 3px; }
+  .maquina-foto { display: none; }
+
+  @media (min-width: 760px) {
+    .bat1 { left: 6vw; right: auto; top: 50%; bottom: auto; transform: translateY(-50%); width: min(36vw, 520px); }
+    .bat2 .w1 { left: 6vw; top: 28%; }
+    .bat2 .w2 { left: 6vw; right: auto; top: calc(28% + clamp(64px, 11vw, 190px)); bottom: auto; }
+    .bat2 span { font-size: clamp(64px, 11vw, 190px); }
+    .bat3 { left: 6vw; right: auto; bottom: 18%; text-align: left; }
+    .bat1-acoes.no-pe { position: static; margin-top: 28px; display: flex; }
+    .bat1-acoes.no-pe .pilula { padding: 0 22px; font-size: 16px; }
+    .bat1-acoes .pilula { min-height: 56px; }
+    .abertura-dica { bottom: 120px; }
+  }
+  @media (min-width: 960px) {
+    .barra { padding: 14px 40px; }
+    .barra-logo img { width: 104px; }
+    .barra-links { display: flex; }
+    body { padding: 0 !important; }
+    .pagina { max-width: 1200px; padding: 30px 40px 0; border-radius: 0 !important; box-shadow: none !important; overflow: visible; }
+    main { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); column-gap: 56px; align-items: start; }
+    main > section { grid-column: 1 / -1; }
+    main > section:nth-of-type(1) { grid-column: 1; }
+    main > section:nth-of-type(2) { grid-column: 2; padding-top: 74px; }
+    .bloco { padding: 56px 0 0; }
+    h2.secao { font-size: 46px; }
+    .clube-convite { padding: 34px; }
+    .clube-convite strong { font-size: 40px; }
+    .maquina-area { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; margin-top: 90px; padding: 64px 64px 56px 34px; }
+    .maquina-foto { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 45% 58%; border-radius: 26px; box-shadow: 0 30px 70px rgba(0,0,0,.55); }
+    .q-secao { padding-top: 40px !important; }
+    .q-trilho { height: 240vh; }
+    .q-palco { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+    .q-palco .vitrine { overflow: hidden; scroll-snap-type: none; grid-auto-columns: 33%; gap: 22px; padding: 30px 6px 10px; margin: 0; }
+    .q-barra { display: block; }
+    .bloco[aria-label="Fique perto da Gliki"] { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
+    .bloco[aria-label="Fique perto da Gliki"] .cartao { margin-top: 0; }
+    .zap { right: 32px; bottom: 32px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .abertura { height: auto; }
+    .abertura-palco { position: relative; height: 100svh; }
+    .bat2, .bat3, .abertura-dica { display: none; }
+    .q-trilho { height: auto !important; }
+    .q-palco { position: static !important; height: auto !important; }
+    .q-palco .vitrine { overflow-x: auto !important; }
+  }
 </style>
 </head>
 <body>
+<header class="barra" id="barra">
+  <a class="barra-logo" href="#abertura" aria-label="Gliki Sô, voltar ao começo"><img src="comum/logo-escrita.svg" alt="Gliki Sô"></a>
+  <nav class="barra-links" aria-label="Seções">
+    <a href="#pedir">Peça</a><a href="#maquinaArea">A máquina</a><a href="#queridinhos">Queridinhos</a><a href="#clube-sec">Clube</a>
+  </nav>
+  <div class="barra-acoes">
+    <a class="pilula pilula-linha" id="barraClube" href="clube/">Clube</a>
+    <a class="pilula pilula-led" href="#pedir">Pedir</a>
+    <a class="pilula pilula-adm" id="barraAdm" href="painel/" aria-label="ADM: painel da loja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+  </div>
+</header>
+
+<section class="abertura" id="abertura" aria-label="Seu momento feliz está aqui">
+  <div class="abertura-palco" id="palco">
+    <canvas id="tela" aria-hidden="true"></canvas>
+    <div class="abertura-luz" id="luzPalco"></div>
+    <div class="abertura-veu"></div>
+    <div class="bat bat1" id="bat1">
+      <p class="rotulo">Gliki Sô Cookeria</p>
+      <h1>Seu momento feliz</h1>
+      <p class="sub">Cookies mega recheados, feitos à mão. Curitiba, Paranaguá, Caiobá e a 1ª máquina de cookies do Paraná.</p>
+      <div class="bat1-acoes no-pe">
+        <a class="pilula pilula-led" href="#pedir">Pedir agora</a>
+        <a class="pilula pilula-linha" href="clube/">Entrar no clube</a>
+      </div>
+    </div>
+    <div class="bat bat2" id="bat2" aria-hidden="true"><span class="w1">Mega</span><span class="w2">recheado.</span></div>
+    <div class="bat bat3" id="bat3"><strong>está aqui.</strong><p class="rotulo">Desça e escolha a sua Gliki</p></div>
+    <svg class="abertura-fitas" id="aberturaFitas" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="abertura-dica" id="dica" aria-hidden="true">Role
+      <svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m3 2 8 8 8-8"/></svg>
+      <svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m3 2 8 8 8-8"/></svg>
+    </div>
+    <span class="ilustrativa">Imagem ilustrativa</span>
+  </div>
+</section>
+<div class="luz-mouse" id="luzMouse" aria-hidden="true"></div>
+
 <div class="pagina">
   <div class="previa" id="previa" hidden>Prévia feita pela Ti Artes · ainda não é o link oficial</div>
 
@@ -479,19 +635,19 @@
     <div class="topo-texto">
       <img class="logo" id="logo" src="" alt="Logo Gliki Sô">
       <p class="rotulo">Gliki Sô Cookeria</p>
-      <h1>Seu momento feliz está aqui</h1>
+      <p class="h1-antigo">Seu momento feliz está aqui</p>
       <p class="topo-sub">Cookies mega recheados, feitos à mão. A 1ª cookeria do litoral do Paraná.</p>
     </div>
   </header>
 
   <main>
-    <section class="bloco" aria-labelledby="t-pedir">
+    <section class="bloco" id="pedir" aria-labelledby="t-pedir">
       <p class="rotulo" id="t-pedir">Peça na sua cidade</p>
       <div class="cidades" id="cidades"></div>
       <div id="pedido"></div>
     </section>
 
-    <section class="bloco" aria-labelledby="t-clube">
+    <section class="bloco" id="clube-sec" aria-labelledby="t-clube">
       <a class="clube-convite" id="clubeLink">
         <span class="rotulo" style="color:var(--cacau)">Clube Glikilovers</span>
         <strong id="t-clube">Comprou, apontou, ganhou</strong>
@@ -521,14 +677,18 @@
         </details>
         <p class="marque">Comprou? Marque <a id="marque" target="_blank" rel="noopener">@glikisocookeria</a> no story.</p>
       </div>
+      <img class="maquina-foto" src="img/parede.jpg" alt="A parede da Gliki Sô no Jockey Plaza, com a máquina de cookies e as fitas de LED" loading="lazy">
     </section>
 
-    <section class="bloco" aria-labelledby="t-queridinhos" style="padding-top:44px">
-      <div class="titulo-bloco">
-        <h2 class="secao" id="t-queridinhos">Os queridinhos</h2>
-        <a id="verCardapio" target="_blank" rel="noopener">Cardápio completo</a>
-      </div>
-      <div class="vitrine" id="vitrine"></div>
+    <section class="bloco q-secao" id="queridinhos" aria-labelledby="t-queridinhos" style="padding-top:44px">
+      <div class="q-trilho" id="qTrilho"><div class="q-palco">
+        <div class="titulo-bloco">
+          <h2 class="secao" id="t-queridinhos">Os queridinhos</h2>
+          <a id="verCardapio" target="_blank" rel="noopener">Cardápio completo</a>
+        </div>
+        <div class="vitrine" id="vitrine"></div>
+        <div class="q-barra" aria-hidden="true"><i id="qLuz"></i></div>
+      </div></div>
     </section>
 
     <section class="bloco" style="padding-top:32px" aria-label="Fique perto da Gliki">
@@ -580,6 +740,7 @@
 </div>
 
 <script src="comum/rolagem.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 /* Tudo o que muda fica aqui. */
 const CONFIG = {
@@ -885,44 +1046,210 @@ if ("ResizeObserver" in window) {
 /* ---------- rolagem em 3D ---------- */
 (function () {
   const R = window.Rolagem;
-  if (R.reduz) return;
-  const { limita } = R;
-  const foto = $("topoFoto");
-  const texto = document.querySelector(".topo-texto");
-  texto.style.transformOrigin = "50% 0";
-  R.add(() => {
-    const y = scrollY;
-    if (y < 900) {
-      foto.style.transform = `translate3d(0, ${y * 0.2}px, 0) rotate(${y * 0.1}deg) scale(${1 + y * 0.0007})`;
-      texto.style.transform = `perspective(800px) rotateX(${limita(y / 500) * 14}deg)`;
+  const { limita, suave } = R;
+  const computador = matchMedia("(min-width: 760px)");
+  const mouseFino = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const barra = $("barra");
+
+  /* rolagem suave com inércia (a roda do mouse "escorrega") */
+  let lenis = null;
+  if (!R.reduz && window.Lenis) {
+    lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
+    const passo = (t) => { lenis.raf(t); requestAnimationFrame(passo); };
+    requestAnimationFrame(passo);
+    document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
+      const alvo = document.querySelector(a.getAttribute("href"));
+      if (!alvo) return;
+      e.preventDefault();
+      lenis.scrollTo(alvo, { offset: -70, duration: 1.4 });
+    }));
+  }
+
+  /* ---------- abertura: quadros do vídeo no canvas ---------- */
+  const tela = $("tela"), ctx = tela.getContext("2d");
+  const abertura = $("abertura");
+  let serie = null, quadros = [], prontos = [], atual = -1, alvoQuadro = 0;
+  function carregarSerie() {
+    const grande = computador.matches;
+    const nome = grande ? "g" : "p";
+    if (serie === nome) return;
+    serie = nome;
+    const total = grande ? 126 : 63;
+    quadros = new Array(total);
+    prontos = new Array(total).fill(false);
+    /* primeiro o quadro 1, depois um de cada 8, depois o resto: a rolagem já funciona enquanto carrega */
+    const ordem = [0];
+    for (let passo of [8, 4, 2, 1]) for (let i = 0; i < total; i += passo) if (!ordem.includes(i)) ordem.push(i);
+    let fila = 0;
+    const baixa = () => {
+      if (fila >= ordem.length || serie !== nome) return;
+      const i = ordem[fila++];
+      const img = new Image();
+      img.decoding = "async";
+      img.onload = () => { prontos[i] = true; quadros[i] = img; if (i === 0 || Math.abs(i - alvoQuadro) < 3) desenhar(true); baixa(); };
+      img.onerror = baixa;
+      img.src = `abertura/${nome}/${String(i + 1).padStart(3, "0")}.webp`;
+    };
+    for (let k = 0; k < 4; k++) baixa();
+  }
+  function perto(i) {
+    if (prontos[i]) return i;
+    for (let d = 1; d < quadros.length; d++) {
+      if (prontos[i - d]) return i - d;
+      if (prontos[i + d]) return i + d;
     }
-    /* os cartões levantam do chão quando entram na tela */
-    document.querySelectorAll(".clube-convite, .maquina-area, .cartao").forEach((el) => {
+    return -1;
+  }
+  function ajustarTela() {
+    const r = tela.getBoundingClientRect();
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    tela.width = Math.round(r.width * dpr);
+    tela.height = Math.round(r.height * dpr);
+    atual = -1;
+    desenhar(true);
+  }
+  function desenhar(forca) {
+    const i = perto(alvoQuadro);
+    if (i < 0 || (i === atual && !forca)) return;
+    atual = i;
+    const img = quadros[i], W = tela.width, H = tela.height;
+    ctx.fillStyle = "#150906";
+    ctx.fillRect(0, 0, W, H);
+    let w, h;
+    if (serie === "g") { const e = Math.max(W / img.width, H / img.height); w = img.width * e; h = img.height * e; }
+    else { w = W * 1.04; h = img.height * (w / img.width); }
+    /* no computador o cookie vai um pouco para a direita e o texto fica à esquerda */
+    const desloca = serie === "g" && W / H > 1.2 ? W * 0.11 : 0;
+    const x = (W - w) / 2 + desloca, y = serie === "g" ? (H - h) / 2 : H * 0.57 - h / 2;
+    ctx.drawImage(img, x, y, w, h);
+    if (desloca > 0 && x > 0) {
+      const g0 = ctx.createLinearGradient(x, 0, x + W * 0.08, 0);
+      g0.addColorStop(0, "#150906"); g0.addColorStop(1, "rgba(21,9,6,0)");
+      ctx.fillStyle = g0; ctx.fillRect(x - 2, 0, W * 0.08 + 2, H);
+    }
+    if (serie === "p") {
+      /* no celular o quadro é uma faixa: funde as bordas com o fundo */
+      const g1 = ctx.createLinearGradient(0, y, 0, y + h * 0.22);
+      g1.addColorStop(0, "#150906"); g1.addColorStop(1, "rgba(21,9,6,0)");
+      ctx.fillStyle = g1; ctx.fillRect(0, y - 2, W, h * 0.22 + 2);
+      const g2 = ctx.createLinearGradient(0, y + h * 0.8, 0, y + h);
+      g2.addColorStop(0, "rgba(21,9,6,0)"); g2.addColorStop(1, "#150906");
+      ctx.fillStyle = g2; ctx.fillRect(0, y + h * 0.8, W, h * 0.2 + 2);
+    }
+  }
+  carregarSerie();
+  ajustarTela();
+  addEventListener("resize", () => { carregarSerie(); ajustarTela(); });
+
+  /* as fitas de LED no pé da abertura */
+  const fitasSvg = $("aberturaFitas");
+  function desenharFitasAbertura() {
+    const w = fitasSvg.clientWidth, h = fitasSvg.clientHeight;
+    fitasSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    fitasSvg.innerHTML = [0, 1, 2].map((i) => { const y = 20 + i * 18, xr = w * 0.86 - i * 18; return `<path pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M -10 ${y} H ${xr - 16} Q ${xr} ${y} ${xr} ${y + 16} V ${h + 10}"/>`; }).join("");
+  }
+  desenharFitasAbertura();
+  addEventListener("resize", desenharFitasAbertura);
+
+  const faixa = (p, a, b) => limita((p - a) / (b - a));
+  const bat1 = $("bat1"), bat2 = $("bat2"), bat3 = $("bat3"), dica = $("dica");
+  const w1 = bat2.querySelector(".w1"), w2 = bat2.querySelector(".w2");
+  function pintarAbertura() {
+    const r = abertura.getBoundingClientRect();
+    const total = abertura.offsetHeight - innerHeight;
+    const p = limita(-r.top / total);
+    barra.classList.toggle("solida", r.bottom < innerHeight * 0.6 || -r.top > 40);
+    $("zap").toggleAttribute("data-longe", r.bottom > innerHeight * 0.35);
+    if (r.bottom < 0) return;
+    alvoQuadro = Math.round(suave(faixa(p, 0.04, 0.88)) * (quadros.length - 1));
+    desenhar(false);
+    tela.style.transform = `scale(${1 + p * 0.06})`;
+    if (R.reduz) return;
+    const s1 = faixa(p, 0.14, 0.26);
+    bat1.style.opacity = 1 - s1;
+    bat1.style.transform = (computador.matches ? "translateY(-50%) " : "") + `translateY(${-s1 * 60}px)`;
+    bat1.style.visibility = s1 >= 1 ? "hidden" : "visible";
+    const e2 = faixa(p, 0.3, 0.42), s2 = faixa(p, 0.6, 0.7);
+    bat2.style.opacity = e2 * (1 - s2);
+    w1.style.transform = `translateX(${(1 - e2) * -120 - s2 * 80}px)`;
+    w2.style.transform = `translateX(${(1 - e2) * 120 + s2 * 80}px)`;
+    const e3 = faixa(p, 0.72, 0.84);
+    bat3.style.opacity = e3;
+    bat3.style.transform = `translateY(${(1 - e3) * 40}px) scale(${0.94 + e3 * 0.06})`;
+    dica.style.opacity = 1 - faixa(p, 0.01, 0.06);
+    const luz = faixa(p, 0.74, 0.96);
+    fitasSvg.querySelectorAll("path").forEach((el, i) => el.setAttribute("stroke-dashoffset", 1 - limita(luz * 1.2 - i * 0.1)));
+  }
+  R.add(pintarAbertura);
+  if (R.reduz) { alvoQuadro = 0; pintarAbertura(); }
+
+  /* a luz acompanha o mouse; a cena mexe um pouco junto */
+  if (mouseFino && !R.reduz) {
+    const luzM = $("luzMouse"), luzP = $("luzPalco");
+    addEventListener("pointermove", (e) => {
+      luzM.style.setProperty("--mx", e.clientX + "px"); luzM.style.setProperty("--my", e.clientY + "px");
+      luzP.style.setProperty("--mx", e.clientX + "px"); luzP.style.setProperty("--my", e.clientY + "px");
+      const dx = e.clientX / innerWidth - 0.5, dy = e.clientY / innerHeight - 0.5;
+      tela.style.translate = `${dx * -18}px ${dy * -12}px`;
+    }, { passive: true });
+  }
+
+  /* ---------- cartões que levantam do chão e inclinam com o mouse ---------- */
+  const cartoes = [...document.querySelectorAll(".clube-convite, .maquina-area, .cartao")];
+  cartoes.forEach((el) => el.classList.add("entra3d"));
+  R.add(() => {
+    cartoes.forEach((el) => {
       const r = el.getBoundingClientRect();
       const topo = r.top - (el._dy || 0);
       const v = limita((innerHeight - topo) / (innerHeight * 0.4));
-      el._dy = (1 - v) * 46;
-      el.style.transformOrigin = "50% 100%";
-      el.style.transform = v < 1 ? `perspective(900px) translateY(${el._dy}px) rotateX(${(1 - v) * -22}deg) scale(${0.95 + 0.05 * v})` : "";
+      el._dy = (1 - v) * 50;
+      el.style.setProperty("--dy", el._dy.toFixed(1) + "px");
+      el.style.setProperty("--rxe", ((1 - v) * -22).toFixed(2) + "deg");
+      el.style.setProperty("--sce", (0.95 + 0.05 * v).toFixed(3));
       el.style.opacity = v < 1 ? 0.3 + 0.7 * v : "";
     });
   });
-  /* a vitrine gira como um carrossel: quem está na frente fica reto */
+  if (mouseFino && !R.reduz) {
+    cartoes.forEach((el) => {
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.setProperty("--ry", (x * 8).toFixed(2) + "deg");
+        el.style.setProperty("--rx", (-y * 6).toFixed(2) + "deg");
+      });
+      el.addEventListener("pointerleave", () => { el.style.setProperty("--ry", "0deg"); el.style.setProperty("--rx", "0deg"); });
+    });
+  }
+
+  /* ---------- vitrine em carrossel 3D ---------- */
   const vit = $("vitrine");
   let q = 0;
   const gira = () => {
     q = 0;
-    const alvo = vit.getBoundingClientRect().left + 20;
+    const alvo = vit.getBoundingClientRect().left + (computador.matches ? vit.clientWidth / 2 - vit.querySelector(".cookie").offsetWidth / 2 : 20);
     vit.querySelectorAll(".cookie").forEach((c) => {
       const r = c.getBoundingClientRect();
-      const a = limita((r.left - alvo) / r.width, -1, 1);
+      const a = limita((r.left - alvo) / r.width, -1.4, 1.4);
       const f = c.querySelector(".cookie-foto");
       f.style.transformOrigin = a > 0 ? "0% 50%" : "100% 50%";
-      f.style.transform = `perspective(700px) rotateY(${a * -30}deg) scale(${1 - Math.abs(a) * 0.08})`;
+      f.style.transform = `perspective(800px) rotateY(${a * -26}deg) scale(${1 - Math.min(1, Math.abs(a)) * 0.1})`;
+      f.style.opacity = 1 - Math.min(1, Math.abs(a)) * 0.35;
     });
   };
-  vit.addEventListener("scroll", () => { if (!q) q = requestAnimationFrame(gira); }, { passive: true });
-  gira();
+  if (!R.reduz) {
+    vit.addEventListener("scroll", () => { if (!q) q = requestAnimationFrame(gira); }, { passive: true });
+    gira();
+    /* no computador, a rolagem da página passa a vitrine */
+    const trilho = $("qTrilho"), qLuz = $("qLuz");
+    R.add(() => {
+      if (!computador.matches) return;
+      const r = trilho.getBoundingClientRect();
+      const p = limita(-r.top / (trilho.offsetHeight - innerHeight));
+      vit.scrollLeft = suave(p) * (vit.scrollWidth - vit.clientWidth);
+      qLuz.style.width = p * 100 + "%";
+      gira();
+    });
+  }
 })();
 </script>
 </body>
