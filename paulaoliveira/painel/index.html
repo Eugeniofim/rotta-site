@@ -123,7 +123,7 @@ dialog.lado{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(480px,100v
 </style>
 </head>
 <body data-marca="paula">
-<div class="previa">Prévia feita pela Ti Artes · clientes, vendas e filas são exemplo · nada aqui sai deste aparelho</div>
+<div class="previa"><a href="../" style="color:#fff;font-weight:600;margin-right:12px">← Links</a>Prévia feita pela Ti Artes · clientes, vendas e filas são exemplo · nada aqui sai deste aparelho</div>
 <header class="alto"><h1 id="tit">Painel</h1>
  <div class="tt" role="group" aria-label="Marca"><button id="m-paula" onclick="marca('paula')">Paula Oliveira</button><button id="m-fada" onclick="marca('fada')">Fada Marinha</button></div>
  <a id="versite" target="_blank" rel="noopener">Ver o site ↗</a></header>
@@ -131,9 +131,9 @@ dialog.lado{margin:0 0 0 auto;height:100dvh;max-height:none;width:min(480px,100v
 <dialog id="dlg" class="lado"></dialog>
 <div class="aviso" id="aviso" role="status"></div>
 
-<script src="../comum/dados-paula.js?v=3"></script>
-<script src="../comum/dados-fada.js?v=3"></script>
-<script src="../comum/loja.js?v=3"></script>
+<script src="../comum/dados-paula.js?v=4"></script>
+<script src="../comum/dados-fada.js?v=4"></script>
+<script src="../comum/loja.js?v=4"></script>
 <script>
 const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const R=Loja.dinheiro,esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));

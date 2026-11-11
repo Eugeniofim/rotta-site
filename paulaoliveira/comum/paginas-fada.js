@@ -82,7 +82,7 @@ window.PAGINAS_FADA={
 },
 {
 "k": "p",
-"x": "Ou qualquer outro problema ou falha não relacionado anteriormente, sejam dúvidas, sugestões, elogios ou críticas, por favor entrar em contato pelo WhatsApp (41) 9 9816-5637 ou no nosso e-mail: fadamarinhaeco@gmail.com que retornaremos o mais breve possível."
+"x": "Ou qualquer outro problema ou falha não relacionado anteriormente, sejam dúvidas, sugestões, elogios ou críticas, por favor entrar em contato pelo WhatsApp (41) 99689-0967 ou no nosso e-mail: fadamarinhaeco@gmail.com que retornaremos o mais breve possível."
 }
 ]
 },
