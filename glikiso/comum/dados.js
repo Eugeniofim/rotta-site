@@ -3,19 +3,33 @@
    quando abertos no MESMO aparelho. Na versão de verdade isso vira um banco
    (Supabase) e o aviso chega em todos os celulares. */
 (function () {
-  const CHAVE = "glk_demo_v2";
+  const CHAVE = "glk_demo_v3";
   const CHAVE_EU = "glk_eu";
 
   const CANAIS = {
     maquina: "Máquina · Jockey Plaza",
-    "loja-cwb": "Loja Curitiba",
-    "loja-pgua": "Loja Paranaguá",
+    "loja-cwb": "Gliki Curitiba",
+    "loja-pgua": "Gliki Paranaguá",
     delivery: "Delivery",
     caioba: "Caiobá"
   };
   const CIDADES = ["Curitiba", "Paranaguá", "Caiobá"];
 
+  /* A nota só vale se for destes CNPJs. Falta saber se Caiobá tem CNPJ próprio. */
+  const CNPJS = {
+    "58476355000131": { canal: "loja-cwb", cidade: "Curitiba" },
+    "42656312000106": { canal: "loja-pgua", cidade: "Paranaguá" }
+  };
+  /* Onde o prêmio é retirado: é o motivo de a pessoa ir até a loja. */
+  const LOJAS = [
+    { id: "loja-cwb", nome: "Curitiba", end: "R. Hildebrando de Araújo, 1035 · Jardim Botânico", mapa: "R. Hildebrando de Araújo, 1035, Jardim Botânico, Curitiba - PR" },
+    { id: "loja-pgua", nome: "Paranaguá", end: "R. Manoel Corrêa, 622 · Costeira", mapa: "R. Manoel Corrêa, 622, Costeira, Paranaguá - PR" }
+  ];
+
   const REGRAS_PADRAO = {
+    pontosPorNota: 10,
+    notasPorDia: 3,
+    notaMeses: 1,
     pontosPorCookie: 10,
     validadeMeses: 3,
     bonusCadastro: 10,
@@ -45,6 +59,53 @@
   const dataBR = (t) => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   const dataHoraBR = (t) => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
+  /* DDD + 8 últimos: o WhatsApp às vezes grava o celular sem o 9. */
+  function chaveFone(w) {
+    let x = soDigitos(w);
+    if (x.length > 11 && x.startsWith("55")) x = x.slice(2);
+    return x.length >= 10 ? x.slice(0, 2) + x.slice(-8) : "";
+  }
+  function mascaraFone(w) {
+    const x = soDigitos(w).slice(0, 11);
+    if (x.length <= 2) return x ? "(" + x : "";
+    const meio = x.length === 11 ? 7 : 6;
+    return `(${x.slice(0, 2)}) ${x.slice(2, meio)}${x.length > meio ? "-" + x.slice(meio) : ""}`;
+  }
+
+  /* ---------- nota fiscal ----------
+     A chave de 44 números já diz, sem consultar ninguém: estado, ano/mês, CNPJ de quem emitiu,
+     modelo, número e o dígito verificador. O QR da nota traz essa chave dentro do link da SEFAZ. */
+  function dvChave(c43) {
+    let peso = 2, soma = 0;
+    for (let i = 42; i >= 0; i--) { soma += Number(c43[i]) * peso; peso = peso === 9 ? 2 : peso + 1; }
+    const r = soma % 11;
+    return r < 2 ? 0 : 11 - r;
+  }
+  function achaChave(texto) {
+    const t = String(texto || "");
+    const m = t.match(/(?:^|\D)(\d{44})(?:\D|$)/);
+    if (m) return m[1];
+    const so = soDigitos(t);
+    return so.length === 44 ? so : null;
+  }
+  function analisarNota(texto) {
+    const c = achaChave(texto);
+    if (!c) return null;
+    return {
+      chave: c, valida: dvChave(c.slice(0, 43)) === Number(c[43]),
+      ano: 2000 + Number(c.slice(2, 4)), mes: Number(c.slice(4, 6)),
+      cnpj: c.slice(6, 20), modelo: c.slice(20, 22), numero: String(Number(c.slice(25, 34)))
+    };
+  }
+  function montaChave(cnpj, quando, rnd = Math.random) {
+    const t = new Date(quando);
+    const aamm = String(t.getFullYear()).slice(2) + String(t.getMonth() + 1).padStart(2, "0");
+    const num = String(Math.floor(1000 + rnd() * 90000)).padStart(9, "0");
+    const cod = String(Math.floor(rnd() * 99999999)).padStart(8, "0");
+    const c43 = "41" + aamm + cnpj + "65" + "001" + num + "1" + cod;
+    return c43 + dvChave(c43);
+  }
+
   function semente(n) {
     return function () {
       n = (n * 1664525 + 1013904223) % 4294967296;
@@ -58,13 +119,10 @@
     const nomes = ["Ana Clara M.", "Bruna S.", "Camila R.", "Diego F.", "Eduarda L.", "Felipe A.", "Gabriela P.", "Helena C.",
       "Isabela T.", "João Pedro B.", "Júlia N.", "Larissa G.", "Lucas V.", "Manuela D.", "Marina K.", "Mateus O.",
       "Nicole H.", "Pedro H.", "Rafaela Z.", "Sofia E.", "Thiago W.", "Valentina I.", "Vitória Q.", "Yasmin U."];
-    const d = { regras: { ...REGRAS_PADRAO }, premios: PREMIOS_PADRAO.map((p) => ({ ...p })), membros: [], codigos: {}, lotes: [], resgates: [], avisos: [], criado: agora() };
+    const d = { regras: { ...REGRAS_PADRAO }, premios: PREMIOS_PADRAO.map((p) => ({ ...p })), membros: [], codigos: {}, notas: {}, lotes: [], resgates: [], avisos: [], criado: agora() };
 
     const lotes = [
-      { canal: "maquina", qtd: 160, dias: 20 },
-      { canal: "loja-pgua", qtd: 120, dias: 28 },
-      { canal: "loja-cwb", qtd: 100, dias: 21 },
-      { canal: "delivery", qtd: 120, dias: 25 }
+      { canal: "maquina", qtd: 240, dias: 20 }
     ];
     lotes.forEach((l, i) => {
       const lote = { id: "L" + (i + 1), data: agora() - l.dias * DIA, qtd: l.qtd, pontos: 10, canal: l.canal };
@@ -86,14 +144,23 @@
       lancar(m, d.regras.bonusCadastro, "Boas-vindas", null, desde);
       const compras = Math.floor(rnd() * (i < 6 ? 34 : 14));
       for (let k = 0; k < compras; k++) {
-        const canal = rnd() < 0.34 ? "maquina" : cidade === "Paranaguá" ? (rnd() < 0.6 ? "loja-pgua" : "delivery") : (rnd() < 0.5 ? "loja-cwb" : "delivery");
-        const lista = livres(canal);
-        if (!lista.length) continue;
-        const [cod, c] = lista[Math.floor(rnd() * lista.length)];
-        const lote = d.lotes.find((x) => x.id === c.lote);
-        const quando = Math.max(desde, lote.data) + Math.floor(rnd() * (agora() - Math.max(desde, lote.data)));
-        c.usadoPor = m.id; c.usadoEm = quando;
-        lancar(m, c.pontos, "Código " + mostraCodigo(cod), canal, quando);
+        const naMaquina = rnd() < 0.34 && cidade === "Curitiba";
+        if (naMaquina) {
+          const lista = livres("maquina");
+          if (!lista.length) continue;
+          const [cod, c] = lista[Math.floor(rnd() * lista.length)];
+          const lote = d.lotes.find((x) => x.id === c.lote);
+          const quando = Math.max(desde, lote.data) + Math.floor(rnd() * (agora() - Math.max(desde, lote.data)));
+          c.usadoPor = m.id; c.usadoEm = quando;
+          lancar(m, c.pontos, "Etiqueta " + mostraCodigo(cod), "maquina", quando);
+        } else {
+          const cnpj = cidade === "Paranaguá" ? "42656312000106" : "58476355000131";
+          const quando = desde + Math.floor(rnd() * (agora() - desde));
+          const chave = montaChave(cnpj, quando, rnd);
+          const nota = analisarNota(chave);
+          d.notas[chave] = { membro: m.id, data: quando, canal: CNPJS[cnpj].canal, numero: nota.numero, pontos: d.regras.pontosPorNota };
+          lancar(m, d.regras.pontosPorNota, "Nota fiscal nº " + nota.numero, CNPJS[cnpj].canal, quando);
+        }
       }
       m.extrato.sort((a, b) => b.data - a.data);
       d.membros.push(m);
@@ -102,7 +169,7 @@
     // dois prêmios já trocados, um ainda esperando retirada
     const ricos = d.membros.filter((m) => m.pontos >= 100);
     ricos.slice(0, 3).forEach((m, i) => {
-      const r = { codigo: codigoNovo(6, rnd), membro: m.id, premio: "bronze", nome: "Cookie Tradicional", pontos: 100, data: agora() - (i + 1) * 2 * DIA, entregue: i < 2 ? agora() - i * DIA : null };
+      const r = { codigo: codigoNovo(6, rnd), membro: m.id, premio: "bronze", nome: "Cookie Tradicional", pontos: 100, data: agora() - (i + 1) * 2 * DIA, entregue: i < 2 ? agora() - i * DIA : null, loja: i % 2 ? "loja-pgua" : "loja-cwb" };
       lancar(m, -100, "Trocou: Cookie Tradicional", null, r.data);
       d.resgates.push(r);
     });
@@ -128,7 +195,7 @@
   function ler() {
     try {
       const s = localStorage.getItem(CHAVE);
-      if (s) return JSON.parse(s);
+      if (s) { const d = JSON.parse(s); d.notas = d.notas || {}; return d; }
     } catch (e) {}
     const d = exemplo();
     gravar(d);
@@ -168,16 +235,25 @@
     return false;
   }
 
+  function premiaIndicacao(d, m, primeira) {
+    if (!primeira || !m.indicadoPor) return;
+    const quem = Clube.membro(d, m.indicadoPor);
+    if (quem) lancar(quem, d.regras.bonusIndicacao, "Sua amiga " + m.nome.split(" ")[0] + " comprou");
+  }
+
   const Clube = {
-    CANAIS, CIDADES, REGRAS_PADRAO, PREMIOS_PADRAO,
+    CANAIS, CIDADES, CNPJS, LOJAS, REGRAS_PADRAO, PREMIOS_PADRAO,
+    mascaraFone, chaveFone, analisarNota,
+    notaExemplo() { return montaChave("58476355000131", agora()); },
     ler, mexer, codigoNovo, limpaCodigo, mostraCodigo, soDigitos, dataBR, dataHoraBR, faixaDe, expiraEm, aniversarioPerto,
 
     eu() { try { return localStorage.getItem(CHAVE_EU); } catch (e) { return null; } },
     entrarComo(id) { try { id ? localStorage.setItem(CHAVE_EU, id) : localStorage.removeItem(CHAVE_EU); } catch (e) {} },
     membro(d, id) { return d.membros.find((m) => m.id === id) || null; },
-    porWhats(d, w) { const x = soDigitos(w).slice(-9); return x.length >= 8 ? d.membros.find((m) => soDigitos(m.whats).endsWith(x)) : null; },
+    porWhats(d, w) { const x = chaveFone(w); return x ? d.membros.find((m) => chaveFone(m.whats) === x) : null; },
+    guardarAniversario(id, niver) { return mexer((d) => { const m = Clube.membro(d, id); if (m) m.niver = niver; return m; }); },
 
-    cadastrar({ nome, whats, niver, cidade, indicacao }) {
+    cadastrar({ nome, whats, niver = null, cidade = null, indicacao }) {
       return mexer((d) => {
         const ja = Clube.porWhats(d, whats);
         if (ja) return { membro: ja, novo: false };
@@ -200,23 +276,48 @@
         if (!c) return { ok: false, erro: "Não achei esse código. Confira as letras da etiqueta." };
         if (c.usadoPor) return { ok: false, erro: `Esse código já foi usado em ${dataBR(c.usadoEm)}.` };
         c.usadoPor = m.id; c.usadoEm = agora();
-        const primeiro = !m.extrato.some((e) => e.motivo.startsWith("Código"));
-        lancar(m, c.pontos, "Código " + mostraCodigo(cod), c.canal);
-        if (primeiro && m.indicadoPor) {
-          const quem = Clube.membro(d, m.indicadoPor);
-          if (quem) lancar(quem, d.regras.bonusIndicacao, "Sua amiga " + m.nome.split(" ")[0] + " comprou");
-        }
-        return { ok: true, pontos: c.pontos, canal: c.canal, saldo: m.pontos };
+        const primeira = !m.extrato.some((e) => e.canal);
+        lancar(m, c.pontos, "Etiqueta " + mostraCodigo(cod), c.canal);
+        premiaIndicacao(d, m, primeira);
+        return { ok: true, pontos: c.pontos, canal: c.canal, saldo: m.pontos, tipo: "Etiqueta da máquina" };
       });
     },
 
-    trocar(idMembro, idPremio) {
+    /* Cada nota pontua uma vez só, e só se for da Gliki. */
+    usarNota(idMembro, texto) {
+      return mexer((d) => {
+        const m = Clube.membro(d, idMembro);
+        if (!m) return { ok: false, erro: "Entre no clube para guardar seus pontos." };
+        const n = analisarNota(texto);
+        if (!n) return { ok: false, erro: "Não reconheci essa nota. Tente de novo ou digite os 44 números." };
+        if (!n.valida) return { ok: false, erro: "Esse número tem algum dígito errado. Confira e tente de novo." };
+        const loja = CNPJS[n.cnpj];
+        if (!loja) return { ok: false, erro: "Essa nota não é da Gliki Sô." };
+        if (!["65", "55", "59"].includes(n.modelo)) return { ok: false, erro: "Esse documento não é uma nota de compra." };
+        const hoje = new Date();
+        const meses = (hoje.getFullYear() - n.ano) * 12 + (hoje.getMonth() + 1 - n.mes);
+        if (meses < 0 || meses > d.regras.notaMeses) return { ok: false, erro: `Essa nota é de ${String(n.mes).padStart(2, "0")}/${n.ano}. Valem as notas deste mês e do mês passado.` };
+        const ja = d.notas[n.chave];
+        if (ja) return { ok: false, erro: ja.membro === m.id ? `Você já pontuou essa nota em ${dataBR(ja.data)}.` : `Essa nota já foi usada em ${dataBR(ja.data)}.` };
+        const inicioDia = new Date(); inicioDia.setHours(0, 0, 0, 0);
+        const deHoje = Object.values(d.notas).filter((x) => x.membro === m.id && x.data >= inicioDia.getTime()).length;
+        if (deHoje >= d.regras.notasPorDia) return { ok: false, erro: `Você já pontuou ${deHoje} notas hoje. Guarde esta e volte amanhã.` };
+        const primeira = !m.extrato.some((e) => e.canal);
+        d.notas[n.chave] = { membro: m.id, data: agora(), canal: loja.canal, numero: n.numero, pontos: d.regras.pontosPorNota };
+        lancar(m, d.regras.pontosPorNota, "Nota fiscal nº " + n.numero, loja.canal);
+        if (!m.cidade) m.cidade = loja.cidade;
+        premiaIndicacao(d, m, primeira);
+        return { ok: true, pontos: d.regras.pontosPorNota, canal: loja.canal, saldo: m.pontos, tipo: "Nota fiscal nº " + n.numero };
+      });
+    },
+
+    trocar(idMembro, idPremio, idLoja) {
       return mexer((d) => {
         const m = Clube.membro(d, idMembro);
         const p = d.premios.find((x) => x.id === idPremio);
         if (!m || !p) return { ok: false, erro: "Prêmio não encontrado." };
         if (m.pontos < p.pontos) return { ok: false, erro: `Faltam ${p.pontos - m.pontos} pontos.` };
-        const r = { codigo: codigoNovo(6), membro: m.id, premio: p.id, nome: p.nome, pontos: p.pontos, data: agora(), entregue: null };
+        const r = { codigo: codigoNovo(6), membro: m.id, premio: p.id, nome: p.nome, pontos: p.pontos, data: agora(), entregue: null, loja: idLoja || null };
         lancar(m, -p.pontos, "Trocou: " + p.nome);
         d.resgates.push(r);
         return { ok: true, resgate: r };

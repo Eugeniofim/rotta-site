@@ -241,7 +241,7 @@ const faixa = (d, m) => { const f = C.faixaDe(m.pontos, d.premios).atual; return
 /* ---------- Início ---------- */
 function telaInicio(d) {
   const semana = d.membros.filter((m) => Date.now() - m.desde < 7 * DIA).length;
-  const usados30 = Object.values(d.codigos).filter((c) => c.usadoEm && Date.now() - c.usadoEm < 30 * DIA);
+  const usados30 = [...Object.values(d.codigos).filter((c) => c.usadoEm).map((c) => ({ canal: c.canal, quando: c.usadoEm })), ...Object.values(d.notas).map((n) => ({ canal: n.canal, quando: n.data }))].filter((c) => Date.now() - c.quando < 30 * DIA);
   const pendentes = d.resgates.filter((r) => !r.entregue);
   const niver = d.membros.filter(C.aniversarioPerto);
   const sumidos = C.publico(d, "sumidos");
@@ -253,20 +253,20 @@ function telaInicio(d) {
       <a class="btn btn-escuro" href="#avisos">${I.megafone}Mandar um aviso</a></div>
     <div class="grade g4">
       <div class="caixa destaque"><p class="rotulo">No clube</p><p class="numero">${d.membros.length}</p><p class="numero-nota">${semana} ${semana === 1 ? "entrou" : "entraram"} esta semana</p></div>
-      <div class="caixa"><p class="rotulo">Cookies registrados</p><p class="numero">${usados30.length}</p><p class="numero-nota">códigos usados em 30 dias</p></div>
+      <div class="caixa"><p class="rotulo">Compras registradas</p><p class="numero">${usados30.length}</p><p class="numero-nota">notas e etiquetas em 30 dias</p></div>
       <div class="caixa"><p class="rotulo">Prêmios a entregar</p><p class="numero">${pendentes.length}</p><p class="numero-nota">${pendentes.length ? "veja em Balcão" : "tudo entregue"}</p></div>
       <div class="caixa"><p class="rotulo">Aniversários</p><p class="numero">${niver.length}</p><p class="numero-nota">nesta semana</p></div>
     </div>
     <div class="grade g-3-2" style="margin-top:14px">
       <div class="caixa">
-        <h2>De onde vêm os cookies</h2>
+        <h2>De onde vêm as compras</h2>
         <div class="barras">${porCanal.map((x) => `<div class="barra-linha ${x.k === "maquina" ? "maq" : ""}"><span>${icCanal[x.k]}${C.CANAIS[x.k]}</span><span class="barra"><i style="width:${(x.n / maior) * 100}%"></i></span><b>${x.n}</b></div>`).join("")}</div>
-        <p class="nota-barras">Quem compra na máquina não fala com ninguém. Com a etiqueta, essa pessoa ganha nome, WhatsApp e aniversário aqui.</p>
+        <p class="nota-barras">Quem compra na máquina não fala com ninguém. Com a nota e a etiqueta, cada compra ganha nome e WhatsApp aqui.</p>
       </div>
       <div class="caixa">
         <h2>Para hoje</h2>
         <ul class="tarefas">
-          ${niver.map((m) => `<li><span>${I.presente} Aniversário de ${m.nome}<small>${m.cidade}</small></span><a class="btn btn-zap btn-peq" target="_blank" rel="noopener" href="${zap(m, `Oi, ${primeiro(m.nome)}! Feliz aniversário 🤎 Seu presente do Clube Glikilovers: ${d.regras.presenteAniversario}. É só mostrar o seu QR na loja.`)}">${I.whats}Parabéns</a></li>`).join("")}
+          ${niver.map((m) => `<li><span>${I.presente} Aniversário de ${m.nome}<small>${m.cidade || "—"}</small></span><a class="btn btn-zap btn-peq" target="_blank" rel="noopener" href="${zap(m, `Oi, ${primeiro(m.nome)}! Feliz aniversário 🤎 Seu presente do Clube Glikilovers: ${d.regras.presenteAniversario}. É só mostrar o seu QR na loja.`)}">${I.whats}Parabéns</a></li>`).join("")}
           ${pendentes.slice(0, 3).map((r) => `<li><span>Entregar ${r.nome}<small>${(C.membro(d, r.membro) || {}).nome || ""} · código ${C.mostraCodigo(r.codigo)}</small></span><a class="btn btn-linha btn-peq" href="#balcao">Balcão</a></li>`).join("")}
           ${sumidos.length ? `<li><span>${sumidos.length} pessoas sem comprar há 30 dias<small>um aviso traz de volta</small></span><a class="btn btn-led btn-peq" href="#avisos" data-publico="sumidos">Avisar</a></li>` : ""}
           ${!niver.length && !pendentes.length && !sumidos.length ? "<li>Nada pendente. Bom dia de vendas.</li>" : ""}
@@ -285,10 +285,10 @@ function telaClientes(d) {
 }
 function linhasClientes(d) {
   const f = filtro.toLowerCase();
-  const lista = d.membros.filter((m) => !f || (m.nome + m.whats + m.cidade).toLowerCase().includes(f)).sort((a, b) => b.pontos - a.pontos);
+  const lista = d.membros.filter((m) => !f || (m.nome + m.whats + (m.cidade || "")).toLowerCase().includes(f)).sort((a, b) => b.pontos - a.pontos);
   $("linhas").innerHTML = lista.map((m) => `<tr class="clicavel" data-id="${m.id}" tabindex="0">
     <td><span class="pessoa"><span class="ini">${iniciais(m.nome)}</span><span>${m.nome}<br>${faixa(d, m)}</span></span></td>
-    <td><b>${m.pontos}</b></td><td class="esconde-cel">${m.cidade}</td><td class="esconde-cel">${diasDesde(m.ultimo) === 0 ? "hoje" : `há ${diasDesde(m.ultimo)} dias`}</td></tr>`).join("") || `<tr><td colspan="4">Ninguém com esse nome.</td></tr>`;
+    <td><b>${m.pontos}</b></td><td class="esconde-cel">${m.cidade || "—"}</td><td class="esconde-cel">${diasDesde(m.ultimo) === 0 ? "hoje" : `há ${diasDesde(m.ultimo)} dias`}</td></tr>`).join("") || `<tr><td colspan="4">Ninguém com esse nome.</td></tr>`;
   document.querySelectorAll("#linhas tr[data-id]").forEach((tr) => {
     tr.addEventListener("click", () => abrirFicha(tr.dataset.id));
     tr.addEventListener("keydown", (e) => { if (e.key === "Enter") abrirFicha(tr.dataset.id); });
@@ -302,7 +302,7 @@ function abrirFicha(id) {
   $("fichaCorpo").innerHTML = `<div class="ficha-topo"><div><p class="rotulo">${m.id} · desde ${C.dataBR(m.desde)}</p><h2 style="margin:6px 0 4px">${m.nome}</h2>${faixa(d, m)}</div><button class="fechar" aria-label="Fechar" data-fechar>${I.fechar}</button></div>
     <div class="grade g2" style="margin:18px 0">
       <div class="caixa destaque" style="padding:16px"><p class="rotulo">Pontos agora</p><p class="numero">${m.pontos}</p><p class="numero-nota">${m.total} ganhos no total</p></div>
-      <div class="caixa" style="padding:16px;font-size:14px;line-height:1.7">${m.cidade}<br>Aniversário: ${m.niver ? `${dd}/${mm}` : "—"}<br>${m.whats}</div>
+      <div class="caixa" style="padding:16px;font-size:14px;line-height:1.7">${m.cidade || "Cidade: na 1ª compra"}<br>Aniversário: ${m.niver ? `${dd}/${mm}` : "—"}<br>${m.whats}</div>
     </div>
     <div class="caixa" style="padding:16px;margin-bottom:14px">
       <p style="margin:0 0 10px;font-weight:600">Somar uma compra no balcão</p>
@@ -331,7 +331,7 @@ $("ficha").addEventListener("click", (e) => { if (e.target === $("ficha")) $("fi
 /* ---------- Balcão ---------- */
 function telaBalcao(d) {
   const pendentes = d.resgates.filter((r) => !r.entregue).sort((a, b) => b.data - a.data);
-  return `<div class="cabeca"><div><p class="rotulo">Na loja</p><h1>Balcão</h1><p class="sub">Entregue prêmios e some pontos de quem compra sem etiqueta.</p></div></div>
+  return `<div class="cabeca"><div><p class="rotulo">Na loja</p><h1>Balcão</h1><p class="sub">Entregue os prêmios e some pontos de quem esqueceu a nota.</p></div></div>
     <div class="grade g2">
       <div class="caixa">
         <h2>Entregar um prêmio</h2>
@@ -340,7 +340,7 @@ function telaBalcao(d) {
           <button class="btn btn-escuro" type="submit">Conferir</button>
         </form>
         <div id="resEntregar"></div>
-        ${pendentes.length ? `<p class="rotulo" style="margin:20px 0 4px">Esperando retirada</p><ul class="tarefas">${pendentes.map((r) => `<li><span>${r.nome}<small>${(C.membro(d, r.membro) || {}).nome || ""} · trocado em ${C.dataBR(r.data)}</small></span><code style="font-family:var(--rotulo);letter-spacing:.12em">${C.mostraCodigo(r.codigo)}</code></li>`).join("")}</ul>` : ""}
+        ${pendentes.length ? `<p class="rotulo" style="margin:20px 0 4px">Esperando retirada</p><ul class="tarefas">${pendentes.map((r) => `<li><span>${r.nome}<small>${(C.membro(d, r.membro) || {}).nome || ""} · retira em ${(C.LOJAS.find((l) => l.id === r.loja) || { nome: "qualquer loja" }).nome}</small></span><code style="font-family:var(--rotulo);letter-spacing:.12em">${C.mostraCodigo(r.codigo)}</code></li>`).join("")}</ul>` : ""}
       </div>
       <div class="caixa">
         <h2>Somar uma compra</h2>
@@ -350,6 +350,10 @@ function telaBalcao(d) {
         </form>
         <div id="resSomar"></div>
       </div>
+    </div>
+    <div class="caixa" style="margin-top:14px">
+      <h2>Últimas notas lidas</h2>
+      ${(() => { const ns = Object.values(d.notas).sort((a, b) => b.data - a.data).slice(0, 8); return ns.length ? `<ul class="tarefas">${ns.map((n) => `<li><span>Nota nº ${n.numero}<small>${(C.membro(d, n.membro) || {}).nome || ""} · ${C.CANAIS[n.canal]}</small></span><span>${C.dataHoraBR(n.data)}</span></li>`).join("")}</ul>` : `<p class="sub">Nenhuma nota ainda.</p>`; })()}
     </div>`;
 }
 function achar(d, q) {
@@ -360,7 +364,7 @@ function achar(d, q) {
 /* ---------- Etiquetas (códigos) ---------- */
 function telaCodigos(d) {
   const lotes = [...d.lotes].sort((a, b) => b.data - a.data);
-  return `<div class="cabeca"><div><p class="rotulo">Um código por cookie</p><h1>Etiquetas</h1><p class="sub">Cada etiqueta tem um QR que só vale uma vez. A cliente aponta a câmera e ganha os pontos, comprando na máquina, na loja ou no delivery.</p></div></div>
+  return `<div class="cabeca"><div><p class="rotulo">Para o que sai sem nota</p><h1>Etiquetas</h1><p class="sub">Loja e delivery pontuam pela nota fiscal. A etiqueta fica para a máquina: cada QR só vale uma vez.</p></div></div>
     <div class="grade g-3-2">
       <div class="caixa">
         <h2>Gerar etiquetas</h2>
@@ -396,7 +400,7 @@ let publicoEscolhido = "todos";
 const MODELOS = [
   ["Sabor novo", "Sabor novo na Gliki", "Chegou cookie novo. Vem provar antes que acabe!"],
   ["Máquina abastecida", "Máquina cheia no Jockey", "Acabamos de repor a máquina do Jockey Plaza com os favoritos."],
-  ["Fim de semana", "Pontos em dobro no sábado", "Neste sábado cada etiqueta vale o dobro de pontos no Clube Glikilovers."],
+  ["Fim de semana", "Pontos em dobro no sábado", "Neste sábado cada compra vale o dobro de pontos no Clube Glikilovers."],
   ["Saudade", "Faz tempo que você não aparece", "Seu cookie favorito está esperando. Passa na Gliki esta semana?"]
 ];
 function telaAvisos(d) {
@@ -443,7 +447,9 @@ function telaPremios(d) {
         </div>
         <div class="caixa">
           <h2>Regras</h2>
-          <label class="campo">Pontos por cookie (etiqueta ou balcão)<input name="pontosPorCookie" type="number" min="1" value="${r.pontosPorCookie}"></label>
+          <label class="campo">Pontos por nota fiscal<input name="pontosPorNota" type="number" min="1" value="${r.pontosPorNota}"></label>
+          <label class="campo">Máximo de notas por dia, por pessoa<input name="notasPorDia" type="number" min="1" max="20" value="${r.notasPorDia}"></label>
+          <label class="campo">Pontos por etiqueta (máquina) ou compra no balcão<input name="pontosPorCookie" type="number" min="1" value="${r.pontosPorCookie}"></label>
           <label class="campo">Pontos valem por (meses sem comprar)<input name="validadeMeses" type="number" min="1" max="24" value="${r.validadeMeses}"></label>
           <label class="campo">Boas-vindas ao entrar<input name="bonusCadastro" type="number" min="0" value="${r.bonusCadastro}"></label>
           <label class="campo">Indicação (para as duas)<input name="bonusIndicacao" type="number" min="0" value="${r.bonusIndicacao}"></label>
@@ -464,7 +470,7 @@ const ligar = {
     $("buscar").addEventListener("input", (e) => { filtro = e.target.value; linhasClientes(C.ler()); });
     $("baixar").addEventListener("click", (e) => {
       e.preventDefault();
-      const linhas = [["Nome", "WhatsApp", "Cidade", "Aniversário", "Pontos", "Desde"], ...d.membros.map((m) => [m.nome, m.whats, m.cidade, m.niver || "", m.pontos, C.dataBR(m.desde)])];
+      const linhas = [["Nome", "WhatsApp", "Cidade", "Aniversário", "Pontos", "Desde"], ...d.membros.map((m) => [m.nome, m.whats, m.cidade || "", m.niver || "", m.pontos, C.dataBR(m.desde)])];
       const csv = "﻿" + linhas.map((l) => l.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(";")).join("\n");
       const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([csv], { type: "text/csv" })), download: "clube-glikilovers.csv" });
       a.click();
@@ -534,7 +540,7 @@ const ligar = {
       const f = e.target;
       C.mexer((x) => {
         x.premios = x.premios.map((p, i) => ({ ...p, faixa: f["faixa" + i].value.trim() || p.faixa, nome: f["nome" + i].value.trim() || p.nome, pontos: Math.max(1, Number(f["pontos" + i].value) || p.pontos) }));
-        ["pontosPorCookie", "validadeMeses", "bonusCadastro", "bonusIndicacao"].forEach((k) => { x.regras[k] = Math.max(0, Number(f[k].value) || 0); });
+        ["pontosPorNota", "notasPorDia", "pontosPorCookie", "validadeMeses", "bonusCadastro", "bonusIndicacao"].forEach((k) => { x.regras[k] = Math.max(0, Number(f[k].value) || 0); });
         x.regras.presenteAniversario = f.presenteAniversario.value.trim() || x.regras.presenteAniversario;
       });
       toast("Prêmios e regras salvos");

@@ -494,8 +494,8 @@
     <section class="bloco" aria-labelledby="t-clube">
       <a class="clube-convite" id="clubeLink">
         <span class="rotulo" style="color:var(--cacau)">Clube Glikilovers</span>
-        <strong id="t-clube">Cada cookie vale pontos</strong>
-        <span>Junte na máquina, na loja e no delivery. Troque por cookies, potinhos e caixas.</span>
+        <strong id="t-clube">Comprou, apontou, ganhou</strong>
+        <span>Aponte a câmera para a nota, junte pontos e busque seu prêmio na loja.</span>
         <span class="clube-acao">Entrar no clube →</span>
       </a>
     </section>
@@ -579,6 +579,7 @@
   </footer>
 </div>
 
+<script src="comum/rolagem.js"></script>
 <script>
 /* Tudo o que muda fica aqui. */
 const CONFIG = {
@@ -880,6 +881,49 @@ if ("ResizeObserver" in window) {
 } else {
   addEventListener("resize", desenharFitas);
 }
+
+/* ---------- rolagem em 3D ---------- */
+(function () {
+  const R = window.Rolagem;
+  if (R.reduz) return;
+  const { limita } = R;
+  const foto = $("topoFoto");
+  const texto = document.querySelector(".topo-texto");
+  texto.style.transformOrigin = "50% 0";
+  R.add(() => {
+    const y = scrollY;
+    if (y < 900) {
+      foto.style.transform = `translate3d(0, ${y * 0.2}px, 0) rotate(${y * 0.1}deg) scale(${1 + y * 0.0007})`;
+      texto.style.transform = `perspective(800px) rotateX(${limita(y / 500) * 14}deg)`;
+    }
+    /* os cartões levantam do chão quando entram na tela */
+    document.querySelectorAll(".clube-convite, .maquina-area, .cartao").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const topo = r.top - (el._dy || 0);
+      const v = limita((innerHeight - topo) / (innerHeight * 0.4));
+      el._dy = (1 - v) * 46;
+      el.style.transformOrigin = "50% 100%";
+      el.style.transform = v < 1 ? `perspective(900px) translateY(${el._dy}px) rotateX(${(1 - v) * -22}deg) scale(${0.95 + 0.05 * v})` : "";
+      el.style.opacity = v < 1 ? 0.3 + 0.7 * v : "";
+    });
+  });
+  /* a vitrine gira como um carrossel: quem está na frente fica reto */
+  const vit = $("vitrine");
+  let q = 0;
+  const gira = () => {
+    q = 0;
+    const alvo = vit.getBoundingClientRect().left + 20;
+    vit.querySelectorAll(".cookie").forEach((c) => {
+      const r = c.getBoundingClientRect();
+      const a = limita((r.left - alvo) / r.width, -1, 1);
+      const f = c.querySelector(".cookie-foto");
+      f.style.transformOrigin = a > 0 ? "0% 50%" : "100% 50%";
+      f.style.transform = `perspective(700px) rotateY(${a * -30}deg) scale(${1 - Math.abs(a) * 0.08})`;
+    });
+  };
+  vit.addEventListener("scroll", () => { if (!q) q = requestAnimationFrame(gira); }, { passive: true });
+  gira();
+})();
 </script>
 </body>
 </html>

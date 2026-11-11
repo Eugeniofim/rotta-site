@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Clube Glikilovers · Gliki Sô</title>
-<meta name="description" content="Junte pontos em cada cookie da Gliki Sô e troque por cookies.">
+<meta name="description" content="Comprou, apontou, ganhou: cada nota da Gliki Sô vale pontos e o prêmio você busca na loja.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2a1913">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://rottaguide.com/glikiso/clube/">
 <meta property="og:title" content="Clube Glikilovers · Gliki Sô">
-<meta property="og:description" content="Cada cookie vale pontos. Aponte a câmera para a etiqueta e troque por cookies.">
+<meta property="og:description" content="Comprou, apontou, ganhou. Aponte a câmera para a nota e troque por cookies.">
 <meta property="og:image" content="https://rottaguide.com/glikiso/clube/compartilhar.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -34,13 +34,10 @@
   .demo button, .demo a { background: none; border: 0; padding: 4px 0; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
   /* ---------- entrar ---------- */
-  .entrar { padding: 34px 22px 40px; }
-  .entrar .logo { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--creme); margin-bottom: 22px; }
-  .entrar h1 { font: 400 40px/1.05 var(--display); margin: 8px 0 10px; }
-  .entrar .sub { color: var(--creme-2); margin: 0 0 22px; }
+  .entrar { padding: 0; }
   .aviso-codigo {
     display: flex; gap: 12px; align-items: center;
-    padding: 14px 16px; margin-bottom: 20px;
+    padding: 14px 16px; margin: 0 22px 14px;
     border: 1.5px dashed var(--led); border-radius: 18px; color: var(--led);
   }
   .campo { display: block; margin-bottom: 14px; }
@@ -80,6 +77,7 @@
   /* ---------- app ---------- */
   .topo-app { display: flex; align-items: center; gap: 12px; padding: 18px 20px 6px; }
   .topo-app img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--creme); }
+  .topo-app img.logo-app { width: 74px; height: auto; border: 0; border-radius: 0; filter: drop-shadow(0 0 6px rgba(255,205,130,.45)); }
   .topo-app p { margin: 0; font-size: 14px; color: var(--creme-2); line-height: 1.3; }
   .topo-app strong { display: block; color: var(--creme); font-size: 16px; }
   main { padding: 10px 20px 120px; }
@@ -205,6 +203,151 @@
   .toast img { width: 36px; height: 36px; border-radius: 10px; }
   .toast b { display: block; }
   @keyframes desce { from { transform: translate(-50%, -20px); opacity: 0; } }
+
+  /* ---------- entrada: uma pergunta só ---------- */
+  .heroi { position: relative; padding: 26px 22px 6px; min-height: 306px; overflow: hidden; perspective: 900px; }
+  .heroi-arco { position: absolute; top: 0; right: 0; width: 58%; height: 196px; background: var(--bordo); border-bottom-left-radius: 100% 96%; }
+  .heroi-cookie { position: absolute; top: 14px; right: -24px; width: 160px; height: 160px; border-radius: 50%; object-fit: cover; box-shadow: 0 20px 44px rgba(0,0,0,.5); will-change: transform; }
+  .heroi-logo { position: relative; width: 160px; height: auto; margin-bottom: 34px; filter: drop-shadow(0 0 10px rgba(255,205,130,.55)); }
+  .heroi .rotulo { position: relative; color: var(--creme-2); }
+  .heroi h1 { position: relative; font: 400 48px/1 var(--display); margin: 8px 0 0; }
+  .heroi h1 em { font-style: normal; color: var(--led); text-shadow: 0 0 16px rgba(255,214,140,.55); }
+  .porta-fone { padding: 14px 22px 8px; }
+  #formNome { animation: entra .28s ease; }
+  .campo-fone { display: block; margin-bottom: 8px; }
+  .campo-fone span { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .campo-fone input {
+    width: 100%; min-height: 66px; padding: 12px 16px; text-align: center;
+    border-radius: 18px; border: 2px solid rgba(243,230,211,.3);
+    background: var(--cacau-2); color: var(--creme); font: 600 26px var(--texto);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .campo-fone input::placeholder { color: rgba(243,230,211,.42); }
+  .campo-fone input:focus { outline: none; border-color: var(--led); box-shadow: 0 0 20px rgba(255,214,140,.32); }
+  .letrinha { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--creme-2); }
+  .link-troca { display: block; margin: 4px auto 0; min-height: 44px; }
+  .desce { display: grid; justify-items: center; gap: 2px; padding: 16px 0 26px; color: var(--creme-2); font-size: 14px; font-weight: 600; text-decoration: none; }
+  .desce svg { width: 22px; height: 12px; color: var(--led); animation: pisca 1.5s infinite; }
+  .desce svg:nth-of-type(2) { animation-delay: .18s; }
+  .desce svg:nth-of-type(3) { animation-delay: .36s; }
+  @keyframes pisca { 0%, 100% { opacity: .2; } 40% { opacity: 1; } }
+
+  /* ---------- túnel de LED: a câmera atravessa as molduras da parede ---------- */
+  .tunel { position: relative; height: 420vh; height: 420svh; }
+  .palco { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; perspective: 720px; perspective-origin: 50% 46%; background: radial-gradient(ellipse 72% 56% at 50% 46%, #41281c 0%, var(--cacau) 72%); }
+  .mundo { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+  .chao { position: absolute; left: calc(50% - 170px); width: 340px; top: 78%; height: 5200px; border-left: 3px solid var(--led); border-right: 3px solid var(--led); transform-origin: 50% 0; transform: translateZ(900px) rotateX(-90deg); opacity: .32; }
+  .porta {
+    position: absolute; left: 50%; top: 46%; width: min(84%, 392px); height: min(64svh, 500px);
+    transform: translate(-50%, -50%) translateZ(var(--z));
+    border: 3px solid var(--led); border-radius: 34px;
+    box-shadow: 0 0 14px rgba(255,205,130,.75), inset 0 0 14px rgba(255,205,130,.32);
+    background: rgba(42,25,19, calc(var(--t, 0) * .96));
+  }
+  .porta::before, .porta::after { content: ""; position: absolute; border: 2px solid var(--led); pointer-events: none; }
+  .porta::before { inset: 9px; border-radius: 26px; box-shadow: 0 0 8px rgba(255,205,130,.55); opacity: .75; }
+  .porta::after { inset: 19px; border-radius: 18px; opacity: .4; }
+  .porta-miolo { position: relative; z-index: 1; height: 100%; padding: 34px 32px; display: grid; justify-items: center; align-content: center; gap: 12px; text-align: center; opacity: var(--t, 0); }
+  .porta-miolo .rotulo { color: var(--led); }
+  .porta-miolo h2 { font: 400 36px/1.05 var(--display); margin: 0; }
+  .porta-miolo p:not(.rotulo) { margin: 0; color: var(--creme-2); font-size: 17px; line-height: 1.35; max-width: 26ch; }
+  .porta-foto { width: 148px; height: 148px; border-radius: 50%; object-fit: cover; border: 5px solid var(--creme); box-shadow: 0 16px 34px rgba(0,0,0,.5); }
+  .notinha { position: relative; width: 138px; padding: 12px 12px 18px; background: #fbf6ec; color: var(--cacau); border-radius: 6px 6px 0 0; overflow: hidden; }
+  .notinha i { display: block; height: 4px; background: #cdbfa9; border-radius: 2px; margin-bottom: 5px; }
+  .notinha i:nth-child(2) { width: 70%; }
+  .notinha svg { width: 100%; height: auto; margin-top: 6px; }
+  .notinha::after { content: ""; position: absolute; left: 0; right: 0; height: 3px; top: 30%; background: #e0912f; box-shadow: 0 0 12px 3px rgba(224,145,47,.7); animation: varre 1.7s ease-in-out infinite alternate; }
+  @keyframes varre { from { top: 34%; } to { top: 92%; } }
+  .dez { display: grid; grid-template-columns: repeat(5, 34px); gap: 8px; }
+  .dez b { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,233,184,.35); }
+  .dez b.aceso { background: var(--led); border-color: var(--led); box-shadow: var(--brilho); }
+  .porta .btn { pointer-events: auto; margin-top: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tunel { height: auto; }
+    .palco { position: static; height: auto; overflow: visible; padding: 10px 22px 30px; }
+    .mundo { position: static; display: grid; gap: 14px; }
+    .chao { display: none; }
+    .porta { position: static; width: 100%; height: auto; transform: none; }
+    .porta-miolo { opacity: 1; }
+  }
+
+  /* ---------- no app ---------- */
+  .cartao { transform-origin: 50% 100%; will-change: transform; }
+  .btn-pontuar { min-height: 64px; font-size: 18px; margin-bottom: 14px; }
+  .retira { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; border: 1.5px dashed var(--led); background: none; cursor: pointer; }
+  .retira .ic { color: var(--led); width: 26px; height: 26px; }
+  .retira h3 { font-size: 20px; }
+  .bloco form { margin-top: 12px; display: grid; gap: 10px; }
+  .bloco select { min-height: 48px; padding: 10px 12px; border-radius: 12px; border: 1.5px solid rgba(243,230,211,.22); background: var(--cacau-3); color: var(--creme); font: 500 16px var(--texto); width: 100%; }
+
+  /* prêmios: o baralho */
+  .baralho { padding-bottom: 12px; }
+  .carta { position: sticky; top: calc(12px + var(--i) * 12px); margin-bottom: 16px; border-radius: 26px; overflow: hidden; background: var(--cacau-2); transform-origin: 50% 0; will-change: transform; box-shadow: 0 -12px 28px rgba(0,0,0,.38); }
+  .carta::after { content: ""; position: absolute; inset: 0; background: #120906; opacity: var(--s, 0); pointer-events: none; }
+  .carta-arte { height: 176px; position: relative; background: var(--bordo); overflow: hidden; }
+  .carta-arte img { width: 100%; height: 100%; object-fit: cover; }
+  .carta:not(.pode) .carta-arte img { filter: saturate(.55) brightness(.72); }
+  .carta-mosaico { display: grid; grid-template-columns: repeat(3, 1fr); height: 100%; }
+  .carta-desenho { height: 100%; display: grid; place-items: center; color: var(--led); }
+  .carta-desenho svg { width: 104px; height: 104px; filter: drop-shadow(0 0 10px rgba(255,214,140,.6)); stroke-width: 1.2; }
+  .carta-faixa { position: absolute; top: 12px; left: 12px; font: 500 12px/1 var(--rotulo); letter-spacing: .14em; text-transform: uppercase; background: var(--led); color: var(--cacau); padding: 7px 9px; border-radius: 6px; }
+  .carta-corpo { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px 16px; }
+  .carta-corpo h4 { margin: 0; font: 400 23px/1.1 var(--display); }
+  .carta-corpo small { color: var(--creme-2); font-size: 14px; }
+  .carta-corpo button { flex: none; min-height: 48px; padding: 10px 18px; border-radius: 999px; border: 0; font-weight: 700; cursor: pointer; background: var(--led); color: var(--cacau); }
+  .carta-corpo button[disabled] { background: transparent; color: var(--creme-2); border: 1.5px solid rgba(243,230,211,.24); cursor: default; font-weight: 600; font-size: 14px; }
+  .carta-barra { height: 4px; background: rgba(255,233,184,.12); }
+  .carta-barra i { display: block; height: 100%; background: var(--led); box-shadow: var(--brilho); }
+
+  /* escolher a loja */
+  .loja-opcao { display: flex; gap: 12px; align-items: center; width: 100%; min-height: 72px; padding: 12px 16px; text-align: left; border-radius: 18px; border: 1.5px solid rgba(255,233,184,.4); background: var(--cacau-3); cursor: pointer; transition: border-color .15s, transform .15s; }
+  .loja-opcao:active { transform: scale(.98); border-color: var(--led); }
+  .loja-opcao .ic { color: var(--led); width: 24px; height: 24px; }
+  .loja-opcao b { display: block; font-size: 17px; }
+  .loja-opcao small { color: var(--creme-2); font-size: 14px; }
+
+  /* a barra de baixo, com o botão principal no meio */
+  .abas { grid-template-columns: 1fr 1fr 74px 1fr 1fr; }
+  .abas .pontuar { color: var(--led); }
+  .abas .pontuar span { display: grid; place-items: center; width: 62px; height: 62px; margin-top: -30px; border-radius: 50%; background: var(--led); color: var(--cacau); box-shadow: 0 0 22px rgba(255,214,140,.55), 0 0 0 5px var(--cacau); transition: transform .15s; }
+  .abas .pontuar:active span { transform: scale(.93); }
+  .abas .pontuar svg { width: 28px; height: 28px; }
+
+  /* ---------- a câmera ---------- */
+  dialog.scan { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: #0d0705; color: var(--creme); overflow: hidden; }
+  dialog.scan::backdrop { background: #0d0705; }
+  .scan video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .scan-janela { position: absolute; left: 50%; top: 38%; width: min(72vw, 300px); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 26px; box-shadow: 0 0 0 200vmax rgba(13,7,5,.66); overflow: hidden; }
+  .scan-janela::after { content: ""; position: absolute; left: 8%; right: 8%; height: 3px; top: 8%; background: var(--led); box-shadow: 0 0 14px 4px rgba(255,214,140,.65); animation: scanvarre 1.9s ease-in-out infinite alternate; }
+  @keyframes scanvarre { to { top: 90%; } }
+  .canto { position: absolute; width: 46px; height: 46px; left: 50%; top: 38%; border: 0 solid var(--led); filter: drop-shadow(0 0 7px rgba(255,205,130,.9)); }
+  .canto.a { transform: translate(calc(min(72vw, 300px) / -2 - 4px), calc(min(72vw, 300px) / -2 - 4px)); border-width: 5px 0 0 5px; border-top-left-radius: 26px; }
+  .canto.b { transform: translate(calc(min(72vw, 300px) / 2 - 42px), calc(min(72vw, 300px) / -2 - 4px)); border-width: 5px 5px 0 0; border-top-right-radius: 26px; }
+  .canto.c { transform: translate(calc(min(72vw, 300px) / -2 - 4px), calc(min(72vw, 300px) / 2 - 42px)); border-width: 0 0 5px 5px; border-bottom-left-radius: 26px; }
+  .canto.d { transform: translate(calc(min(72vw, 300px) / 2 - 42px), calc(min(72vw, 300px) / 2 - 42px)); border-width: 0 5px 5px 0; border-bottom-right-radius: 26px; }
+  .scan-topo { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 8px; padding: calc(10px + env(safe-area-inset-top)) 12px 10px; }
+  .scan-topo h3 { font: 400 24px/1 var(--display); margin: 0; }
+  .icone-btn { display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(243,230,211,.14); cursor: pointer; }
+  .scan-base { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 20px calc(18px + env(safe-area-inset-bottom)); display: grid; gap: 10px; max-width: 480px; margin: 0 auto; }
+  .scan-dica { margin: 0; text-align: center; font-size: 19px; font-weight: 600; line-height: 1.3; }
+  .scan-dica small { display: block; margin-top: 4px; font-size: 15px; font-weight: 500; color: var(--creme-2); }
+  .scan-erro { padding: 12px 14px; border-radius: 14px; background: #5a1f1a; color: #ffe1dc; font-size: 15px; text-align: center; animation: entra .2s ease; }
+  .scan-falha { position: absolute; left: 50%; top: 38%; width: min(62vw, 250px); transform: translate(-50%, -50%); text-align: center; color: var(--creme-2); font-size: 15px; z-index: 1; }
+  .scan-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .scan-acoes .btn { min-height: 52px; font-size: 15px; padding: 10px; }
+  .scan-acoes .largo { grid-column: 1 / -1; }
+  .btn-sutil { background: none; border: 0; color: var(--led); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; cursor: pointer; }
+  .digitar { display: grid; gap: 10px; }
+  .digitar input { width: 100%; min-height: 56px; padding: 10px 12px; border-radius: 14px; border: 2px solid rgba(243,230,211,.3); background: var(--cacau-2); color: var(--creme); font: 600 17px var(--texto); text-align: center; }
+  .digitar input:focus { outline: none; border-color: var(--led); }
+  .digitar small { text-align: center; color: var(--creme-2); font-size: 14px; }
+
+  /* comemoração */
+  .grande { animation: vira .6s cubic-bezier(.2,1.3,.4,1); transform-origin: 50% 60%; }
+  @keyframes vira { from { transform: perspective(600px) rotateX(-80deg) scale(.7); opacity: 0; } }
+  .progresso { height: 8px; border-radius: 8px; background: rgba(255,233,184,.14); margin: 4px 0 8px; overflow: hidden; }
+  .progresso i { display: block; height: 100%; width: var(--de); border-radius: 8px; background: var(--led); box-shadow: var(--brilho); transition: width 1s cubic-bezier(.6,0,.2,1) .25s; }
 </style>
 </head>
 <body>
@@ -217,48 +360,50 @@
 <div class="app">
   <!-- ---------- entrar no clube ---------- -->
   <section class="entrar" id="telaEntrar" hidden>
-    <img class="logo" src="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg" alt="Logo Gliki Sô">
-    <p class="rotulo" style="color:var(--creme-2)">Gliki Sô Cookeria</p>
-    <h1>Clube Glikilovers</h1>
-    <p class="sub">Cada cookie vale pontos. Junte e troque por cookies, potinhos e caixas.</p>
+    <div class="heroi" id="heroi">
+      <div class="heroi-arco"></div>
+      <img class="heroi-cookie" id="heroiCookie" src="https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534333/739cd598IMG_1781045522397.jpeg" alt="Cookie de Nutella da Gliki Sô cortado ao meio">
+      <img class="heroi-logo" src="../comum/logo-escrita.svg" alt="Gliki Sô">
+      <p class="rotulo">Clube Glikilovers</p>
+      <h1>Comprou, apontou, <em>ganhou.</em></h1>
+    </div>
     <div class="aviso-codigo" id="avisoCodigo" hidden></div>
 
-    <form id="formNovo" novalidate>
-      <label class="campo"><span>Seu nome</span><input name="nome" autocomplete="given-name" required></label>
-      <label class="campo"><span>WhatsApp</span><input name="whats" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999" required></label>
-      <div class="campo">
-        <span>Aniversário (para ganhar presente)</span>
-        <div class="dupla">
-          <select name="dia" aria-label="Dia do aniversário"></select>
-          <select name="mes" aria-label="Mês do aniversário"></select>
-        </div>
-      </div>
-      <div class="campo">
-        <span>Onde você compra mais</span>
-        <div class="chips" id="chipsCidade"></div>
-      </div>
-      <p class="erro" id="erroNovo" role="alert"></p>
-      <button class="btn btn-led" type="submit">Entrar no clube</button>
+    <form class="porta-fone" id="formFone" novalidate>
+      <label class="campo-fone"><span>Entre com seu celular</span><input id="fone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="(41) 99999-9999" maxlength="15"></label>
+      <p class="erro" id="erroFone" role="alert"></p>
+      <button class="btn btn-led" type="submit">Entrar</button>
+      <p class="letrinha">Sem senha. Seu número só guarda os seus pontos.</p>
     </form>
 
-    <form id="formVolta" hidden novalidate>
-      <label class="campo"><span>WhatsApp do cadastro</span><input name="whats" inputmode="tel" autocomplete="tel" required></label>
-      <p class="erro" id="erroVolta" role="alert"></p>
-      <button class="btn btn-led" type="submit">Entrar</button>
+    <form class="porta-fone" id="formNome" hidden novalidate>
+      <label class="campo-fone"><span>Primeira vez aqui. Como a gente te chama?</span><input id="nome" autocomplete="given-name" autocapitalize="words" placeholder="Seu nome"></label>
+      <p class="erro" id="erroNome" role="alert"></p>
+      <button class="btn btn-led" type="submit">Entrar no clube</button>
+      <button class="link-troca" type="button" id="corrigeFone">Corrigir o número</button>
     </form>
-    <button class="link-troca" type="button" id="trocaForm">Já sou do clube</button>
+
+    <a class="desce" href="#tunel">Como funciona
+      <svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 2 8 8 8-8"/></svg>
+      <svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 2 8 8 8-8"/></svg>
+      <svg viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 2 8 8 8-8"/></svg>
+    </a>
+    <section class="tunel" id="tunel" aria-label="Como funciona o clube">
+      <div class="palco"><div class="mundo" id="mundo"></div></div>
+    </section>
   </section>
 
   <!-- ---------- o app ---------- -->
   <div id="telaApp" hidden>
     <header class="topo-app">
-      <img src="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg" alt="">
+      <img class="logo-app" src="../comum/logo-escrita.svg" alt="Gliki Sô">
       <p><strong id="ola"></strong>Clube Glikilovers</p>
     </header>
     <main id="conteudo"></main>
     <nav class="abas" aria-label="Seções do clube">
       <button type="button" data-aba="inicio"></button>
       <button type="button" data-aba="premios"></button>
+      <button type="button" class="pontuar" id="navPontuar"><span id="navPontuarIc"></span>Pontuar</button>
       <button type="button" data-aba="avisos"></button>
       <button type="button" data-aba="eu"></button>
     </nav>
@@ -267,9 +412,36 @@
 
 <dialog class="folha" id="folha"><div class="folha-corpo"><div class="folha-alca"></div><div id="folhaConteudo"></div></div></dialog>
 
+<dialog class="scan" id="scan" aria-label="Pontuar compra">
+  <video id="scanVideo" playsinline muted></video>
+  <div class="scan-janela" id="scanJanela"></div>
+  <i class="canto a"></i><i class="canto b"></i><i class="canto c"></i><i class="canto d"></i>
+  <p class="scan-falha" id="scanFalha" hidden>A câmera não abriu. Envie uma foto da nota ou digite o número.</p>
+  <div class="scan-topo"><button class="icone-btn" type="button" id="scanFechar" aria-label="Fechar"></button><h3>Pontuar compra</h3></div>
+  <div class="scan-base">
+    <div class="scan-erro" id="scanErro" role="alert" hidden></div>
+    <div id="scanLer">
+      <p class="scan-dica" style="margin-bottom:12px">Aponte para o QR da nota fiscal<small>Comprou na máquina? Aponte para a etiqueta.</small></p>
+      <div class="scan-acoes">
+        <label class="btn btn-linha" style="cursor:pointer">Enviar foto<input id="scanFoto" type="file" accept="image/*" hidden></label>
+        <button class="btn btn-linha" type="button" id="scanDigitar">Digitar número</button>
+        <button class="btn-sutil largo" type="button" id="scanExemplo">Protótipo: usar uma nota de exemplo</button>
+      </div>
+    </div>
+    <form class="digitar" id="scanForm" hidden novalidate>
+      <input id="scanChave" inputmode="numeric" autocomplete="off" placeholder="Os 44 números da nota" aria-label="Número da nota fiscal">
+      <small id="scanConta">0 de 44 números</small>
+      <button class="btn btn-led" type="submit" id="scanEnviar" disabled>Somar pontos</button>
+      <div class="scan-acoes"><button class="btn-sutil" type="button" id="scanVolta">Voltar à câmera</button><button class="btn-sutil" type="button" id="scanEtiqueta">É uma etiqueta</button></div>
+    </form>
+  </div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="../comum/dados.js"></script>
 <script src="../comum/icones.js"></script>
+<script src="../comum/rolagem.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const C = window.Clube;
@@ -290,65 +462,111 @@ function lerLink() {
   if (h.get("c") || h.get("i")) history.replaceState(null, "", location.pathname + location.search);
 }
 
-/* ---------- entrar ---------- */
-function montarEntrar() {
-  const f = $("formNovo");
-  f.dia.innerHTML = '<option value="">Dia</option>' + Array.from({ length: 31 }, (_, i) => `<option>${String(i + 1).padStart(2, "0")}</option>`).join("");
-  f.mes.innerHTML = '<option value="">Mês</option>' + MESES.map((m, i) => `<option value="${String(i + 1).padStart(2, "0")}">${m}</option>`).join("");
-  $("chipsCidade").innerHTML = C.CIDADES.map((c, i) => `<label><input type="radio" name="cidade" value="${c}" ${i === 0 ? "checked" : ""}><span>${c}</span></label>`).join("");
-}
+/* ---------- entrar: só o celular ---------- */
+let foneDigitado = "";
+const R3D = window.Rolagem;
 function mostrarEntrar() {
   $("telaApp").hidden = true;
   $("telaEntrar").hidden = false;
+  $("formFone").hidden = false;
+  $("formNome").hidden = true;
+  $("fone").value = "";
+  $("erroFone").textContent = "";
   const aviso = $("avisoCodigo");
   if (codigoPendente) {
     aviso.hidden = false;
-    aviso.innerHTML = `${I.ticket}<span>Seu código <b>${C.mostraCodigo(codigoPendente)}</b> já está guardado. Entre no clube para somar os pontos.</span>`;
+    aviso.innerHTML = `${I.ticket}<span>Seu código <b>${C.mostraCodigo(codigoPendente)}</b> já está guardado. Entre para somar os pontos.</span>`;
   } else if (indicacaoPendente) {
     const d = C.ler();
     const quem = d.membros.find((m) => m.indicacao === indicacaoPendente);
     aviso.hidden = !quem;
     if (quem) aviso.innerHTML = `${I.presente}<span>${quem.nome.split(" ")[0]} te convidou: você entra com <b>+${d.regras.bonusIndicacao} pontos</b>.</span>`;
   } else aviso.hidden = true;
+  montarTunel();
 }
-$("trocaForm").addEventListener("click", () => {
-  const voltando = $("formVolta").hidden;
-  $("formVolta").hidden = !voltando;
-  $("formNovo").hidden = voltando;
-  $("trocaForm").textContent = voltando ? "Quero entrar no clube" : "Já sou do clube";
-});
-$("formNovo").addEventListener("submit", (e) => {
+$("fone").addEventListener("input", (e) => { e.target.value = C.mascaraFone(e.target.value); $("erroFone").textContent = ""; });
+$("formFone").addEventListener("submit", (e) => {
   e.preventDefault();
-  const f = e.target;
-  const nome = f.nome.value.trim();
-  const whats = f.whats.value.trim();
-  if (nome.length < 2) return ($("erroNovo").textContent = "Escreva seu nome.");
-  if (C.soDigitos(whats).length < 10) return ($("erroNovo").textContent = "Confira o WhatsApp com DDD.");
-  const niver = f.dia.value && f.mes.value ? `${f.mes.value}-${f.dia.value}` : null;
-  const r = C.cadastrar({ nome, whats, niver, cidade: f.cidade.value, indicacao: indicacaoPendente });
+  const w = $("fone").value;
+  const n = C.soDigitos(w).length;
+  if (n < 10 || n > 11) return ($("erroFone").textContent = "Confira o número com DDD. Exemplo: (41) 99999-9999.");
+  foneDigitado = w;
+  const m = C.porWhats(C.ler(), w);
+  if (m) { C.entrarComo(m.id); return abrirApp("Oi de novo, " + m.nome.split(" ")[0], `Você tem ${m.pontos} pontos.`); }
+  $("formFone").hidden = true;
+  $("formNome").hidden = false;
+  $("nome").focus();
+});
+$("corrigeFone").addEventListener("click", () => { $("formNome").hidden = true; $("formFone").hidden = false; $("fone").focus(); });
+$("formNome").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nome = $("nome").value.trim();
+  if (nome.length < 2) return ($("erroNome").textContent = "Escreva seu nome.");
+  const r = C.cadastrar({ nome, whats: foneDigitado, indicacao: indicacaoPendente });
   C.entrarComo(r.membro.id);
   indicacaoPendente = null;
-  abrirApp(r.novo ? "Bem-vinda ao clube" : null);
+  abrirApp("Você entrou no clube", `Já começa com ${r.membro.pontos} pontos.`);
 });
-$("formVolta").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const m = C.porWhats(C.ler(), e.target.whats.value);
-  if (!m) return ($("erroVolta").textContent = "Não achei esse WhatsApp no clube. Confira o número ou entre como novo.");
-  C.entrarComo(m.id);
-  abrirApp();
-});
+
+/* ---------- túnel de LED: cada rolada atravessa uma moldura ---------- */
+const FOTO_NUTELLA = "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534333/739cd598IMG_1781045522397.jpeg";
+const FOTOS = {
+  redvelvet: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg",
+  ninho: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534310/d007d98a10332570-CD0E-46B0-9CFE-5500D1232C31.jpeg",
+  lotus: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534332/a3372658IMG_7114.jpeg",
+  nutella: FOTO_NUTELLA,
+  potinho: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534327/18548989IMG_1777486853223.jpeg"
+};
+let tunelPronto = false;
+function montarTunel() {
+  if (tunelPronto) return;
+  tunelPronto = true;
+  const d = C.ler();
+  const menor = Math.min(...d.premios.map((p) => p.pontos));
+  const compras = Math.ceil(menor / d.regras.pontosPorNota);
+  const D = 900;
+  const passos = [
+    `<img class="porta-foto" src="${FOTOS.redvelvet}" alt="" loading="lazy"><p class="rotulo">Passo 1</p><h2>Compre na Gliki</h2><p>Na loja, no delivery ou na máquina do Jockey Plaza.</p>`,
+    `<div class="notinha" aria-hidden="true"><i></i><i></i>${qrSVG("https://rottaguide.com/glikiso/clube/", 112)}</div><p class="rotulo">Passo 2</p><h2>Aponte para a nota</h2><p>O QR da nota vira ${d.regras.pontosPorNota} pontos na hora.</p>`,
+    `<div class="dez" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<b class="${i < 7 ? "aceso" : ""}"></b>`).join("")}</div><p class="rotulo">Passo 3</p><h2>${compras} compras, um cookie</h2><p>Cada compra acende mais uma luz.</p>`,
+    `<img class="porta-foto" src="${FOTOS.potinho}" alt="" loading="lazy"><p class="rotulo">Passo 4</p><h2>Busque na loja</h2><p>Seu prêmio te espera em Curitiba ou Paranaguá.</p><button class="btn btn-led" type="button" id="tunelEntrar">Entrar com meu celular</button>`
+  ];
+  $("mundo").innerHTML = '<div class="chao" aria-hidden="true"></div>' + passos.map((h, i) => `<article class="porta" style="--z:${-i * D}px"><div class="porta-miolo">${h}</div></article>`).join("");
+  $("tunelEntrar").addEventListener("click", () => { scrollTo({ top: 0, behavior: "smooth" }); setTimeout(() => $("fone").focus(), 500); });
+  const portas = [...document.querySelectorAll(".porta")];
+  const { limita, suave } = R3D;
+  R3D.add(() => {
+    if ($("telaEntrar").hidden) return;
+    const y = scrollY;
+    $("heroiCookie").style.transform = `translate3d(${y * 0.1}px, ${y * 0.22}px, ${y * 0.5}px) rotate(${y * 0.12}deg)`;
+    const r = $("tunel").getBoundingClientRect();
+    const p = limita(-r.top / (r.height - innerHeight));
+    const trecho = p * (portas.length - 1);
+    const i = Math.min(Math.floor(trecho), portas.length - 2);
+    const cam = (i + suave(limita((trecho - i - 0.2) / 0.6))) * D;
+    $("mundo").style.transform = `translateZ(${cam}px)`;
+    portas.forEach((el, k) => {
+      const z = cam - k * D;
+      const luz = z > 0 ? limita(1 - z / 260) : limita(1 + z / (D * 2.4));
+      el.style.opacity = luz;
+      el.style.visibility = luz < 0.01 ? "hidden" : "visible";
+      el.style.setProperty("--t", limita(1 - Math.abs(z) / 240));
+    });
+  });
+}
 
 /* ---------- o app ---------- */
 function eu() { const d = C.ler(); return { d, m: C.membro(d, C.eu()) }; }
 
-function abrirApp(boasVindas) {
+function abrirApp(titulo, texto) {
   const { m } = eu();
   if (!m) return mostrarEntrar();
+  scrollTo(0, 0);
   $("telaEntrar").hidden = true;
   $("telaApp").hidden = false;
   $("ola").textContent = "Oi, " + m.nome.split(" ")[0];
   if (codigoPendente) { const c = codigoPendente; codigoPendente = null; somarCodigo(c); }
-  else if (boasVindas) toast(boasVindas, `Você já começa com ${C.ler().regras.bonusCadastro} pontos.`);
+  else if (titulo) toast(titulo, texto);
   ir(abaAtual);
 }
 
@@ -360,14 +578,14 @@ const ABAS = {
 };
 function desenharAbas() {
   const { d, m } = eu();
-  document.querySelectorAll(".abas button").forEach((b) => {
+  document.querySelectorAll(".abas button[data-aba]").forEach((b) => {
     const a = ABAS[b.dataset.aba];
     const novos = b.dataset.aba === "avisos" && avisosDe(d, m).some((x) => x.data > vistoAvisos());
     b.innerHTML = a.icone + a.nome + (novos ? '<i class="ponto" aria-label="novo"></i>' : "");
     b.setAttribute("aria-current", b.dataset.aba === abaAtual ? "page" : "false");
   });
 }
-document.querySelectorAll(".abas button").forEach((b) => b.addEventListener("click", () => ir(b.dataset.aba)));
+document.querySelectorAll(".abas button[data-aba]").forEach((b) => b.addEventListener("click", () => ir(b.dataset.aba)));
 
 function ir(aba) {
   abaAtual = aba;
@@ -380,7 +598,31 @@ function ir(aba) {
   ligarTela();
   requestAnimationFrame(() => requestAnimationFrame(acenderCartao));
   scrollTo(0, 0);
+  R3D.pede();
 }
+
+/* O cartão deita para trás ao rolar; as cartas de prêmio empilham como um baralho. */
+R3D.add(() => {
+  if ($("telaApp").hidden) return;
+  const { limita } = R3D;
+  const cartaoEl = document.querySelector("#conteudo .cartao");
+  if (cartaoEl) {
+    const s = limita(scrollY / 300);
+    cartaoEl.style.transform = `perspective(900px) translateY(${s * 26}px) rotateX(${s * 24}deg) scale(${1 - s * 0.08})`;
+    cartaoEl.style.opacity = 1 - s * 0.45;
+  }
+  const cartas = [...document.querySelectorAll(".carta")];
+  cartas.forEach((c, i) => {
+    const prox = cartas[i + 1];
+    let s = 0;
+    if (prox) {
+      const topo = 12 + i * 12;
+      s = limita(1 - (prox.getBoundingClientRect().top - topo - 24) / (c.offsetHeight - 24));
+    }
+    c.style.transform = s ? `perspective(1000px) rotateX(${-9 * s}deg) scale(${1 - 0.07 * s})` : "";
+    c.style.setProperty("--s", (s * 0.55).toFixed(3));
+  });
+});
 
 /* ---------- Início ---------- */
 function cartao(d, m) {
@@ -396,7 +638,7 @@ function cartao(d, m) {
     <p class="pontos">${m.pontos}<small>pontos</small></p>
     <p class="falta">${falta}</p>
     <div class="trilha" data-luz="${Math.min(100, (m.pontos / teto) * 100)}"><div class="trilha-luz"></div>${nos}</div>
-    <p class="validade">${I.relogio}Valem até ${C.dataBR(C.expiraEm(m, d.regras))}. Cada código novo renova o prazo.</p>
+    <p class="validade">${I.relogio}Valem até ${C.dataBR(C.expiraEm(m, d.regras))}. Cada compra nova renova o prazo.</p>
   </div>`;
 }
 function acenderCartao() {
@@ -410,21 +652,22 @@ function acenderCartao() {
 function telaInicio(d, m) {
   const ultimos = m.extrato.slice(0, 4);
   const ultimoAviso = avisosDe(d, m).slice(-1)[0];
+  const paraRetirar = d.resgates.find((r) => r.membro === m.id && !r.entregue);
+  const lojaRet = paraRetirar && C.LOJAS.find((l) => l.id === paraRetirar.loja);
   return `${cartao(d, m)}
-    <div class="acoes">
-      <button class="btn btn-led" data-acao="codigo">${I.ticket}Adicionar código</button>
-      <button class="btn btn-linha" data-acao="meuqr">${I.qr}Meu QR</button>
-    </div>
+    <button class="btn btn-led btn-pontuar" data-acao="scan">${I.qr}Pontuar minha compra</button>
+    ${paraRetirar ? `<button class="bloco retira" data-resgate="${paraRetirar.codigo}">${I.presente}<span><h3>${paraRetirar.nome} te espera</h3><p>${lojaRet ? "Retire em " + lojaRet.nome : "Retire na loja"}. Toque para ver o código.</p></span></button>` : ""}
     ${C.aniversarioPerto(m) ? `<div class="bloco niver"><h3>Feliz aniversário, ${m.nome.split(" ")[0]}</h3><p>Seu presente: ${d.regras.presenteAniversario}. Mostre o seu QR na loja.</p></div>` : ""}
     <div class="bloco">
       <h3>Como ganhar pontos</h3>
-      <p>Cada cookie vem com uma etiqueta. Aponte a câmera do celular para o QR: +${d.regras.pontosPorCookie} pontos.</p>
       <div class="como">
-        <div><i>${I.maquina}</i>Na máquina do Jockey Plaza</div>
-        <div><i>${I.loja}</i>No balcão, mostrando o seu QR</div>
-        <div><i>${I.sacola}</i>No delivery, a etiqueta vai na embalagem</div>
+        <div><i>${I.loja}</i>Na loja e no delivery: aponte para o QR da nota. +${d.regras.pontosPorNota}</div>
+        <div><i>${I.maquina}</i>Na máquina: aponte para a etiqueta do cookie. +${d.regras.pontosPorCookie}</div>
+        <div><i>${I.presente}</i>O prêmio você busca na loja.</div>
       </div>
     </div>
+    ${m.niver ? "" : `<div class="bloco"><h3>Ganhe um presente no aniversário</h3><p>Conte o dia. Só isso.</p>
+      <form id="formNiver" novalidate><div class="dupla"><select name="dia" aria-label="Dia do aniversário"><option value="">Dia</option>${Array.from({ length: 31 }, (_, i) => `<option>${String(i + 1).padStart(2, "0")}</option>`).join("")}</select><select name="mes" aria-label="Mês do aniversário"><option value="">Mês</option>${MESES.map((x, i) => `<option value="${String(i + 1).padStart(2, "0")}">${x}</option>`).join("")}</select></div><button class="btn btn-linha" type="submit">Guardar</button></form></div>`}
     ${ultimoAviso ? `<div class="bloco" data-acao="ir-avisos" role="button" tabindex="0"><p class="rotulo" style="color:var(--led);margin-bottom:8px">Último aviso</p><h3>${ultimoAviso.titulo}</h3><p>${ultimoAviso.texto}</p></div>` : ""}
     <div class="bloco">
       <h3>Seus últimos pontos</h3>
@@ -439,21 +682,28 @@ function linhaExtrato(e) {
 /* ---------- Prêmios ---------- */
 function telaPremios(d, m) {
   const meus = d.resgates.filter((r) => r.membro === m.id && !r.entregue);
-  const lista = [...d.premios].sort((a, b) => a.pontos - b.pontos).map((p) => {
+  const arte = (p) => {
+    if (p.id === "master") return `<div class="carta-mosaico">${[FOTOS.redvelvet, FOTOS.nutella, FOTOS.ninho, FOTOS.lotus, FOTOS.potinho, FOTOS.redvelvet].map((u) => `<img src="${u}" alt="" loading="lazy">`).join("")}</div>`;
+    if (p.id === "ouro") return `<img src="${FOTOS.potinho}" alt="" loading="lazy">`;
+    if (p.id === "prata") return `<img src="${FOTOS.ninho}" alt="" loading="lazy">`;
+    return `<div class="carta-desenho">${I.cookie}</div>`;
+  };
+  const lista = [...d.premios].sort((a, b) => a.pontos - b.pontos).map((p, i) => {
     const pode = m.pontos >= p.pontos;
-    return `<div class="premio">
-      <i class="no ${pode ? "aceso" : ""}"></i>
-      <div><small>${p.faixa} · ${p.pontos} pontos</small><h4>${p.nome}</h4></div>
-      ${pode ? `<button data-trocar="${p.id}">Trocar</button>` : `<button disabled>Faltam ${p.pontos - m.pontos}</button>`}
-    </div>`;
+    return `<article class="carta ${pode ? "pode" : ""}" style="--i:${i}">
+      <div class="carta-arte">${arte(p)}<span class="carta-faixa">${p.faixa}</span></div>
+      <div class="carta-corpo"><div><h4>${p.nome}</h4><small>${p.pontos} pontos</small></div>
+      ${pode ? `<button data-trocar="${p.id}">Trocar</button>` : `<button disabled>Faltam ${p.pontos - m.pontos}</button>`}</div>
+      <div class="carta-barra"><i style="width:${Math.min(100, (m.pontos / p.pontos) * 100)}%"></i></div>
+    </article>`;
   }).join("");
   return `<h2 class="titulo">Prêmios</h2>
-    <p style="color:var(--creme-2);margin:-6px 0 8px">Você tem <b style="color:var(--led)">${m.pontos} pontos</b>.</p>
+    <p style="color:var(--creme-2);margin:-6px 0 8px">Você tem <b style="color:var(--led)">${m.pontos} pontos</b>. O prêmio você busca na loja.</p>
     ${meus.length ? `<p class="rotulo" style="color:var(--led);margin:18px 0 10px">Para retirar</p>${meus.map((r) => `<button class="meu-premio" data-resgate="${r.codigo}"><span>${r.nome}<br><small style="color:var(--creme-2)">Trocado em ${C.dataBR(r.data)}</small></span><b>${C.mostraCodigo(r.codigo)}</b></button>`).join("")}` : ""}
-    <div>${lista}</div>
+    <div class="baralho">${lista}</div>
     <div class="bloco indica" style="margin-top:22px">
       <h3>Indique uma amiga</h3>
-      <p>Ela entra com +${d.regras.bonusIndicacao} pontos e você ganha +${d.regras.bonusIndicacao} quando ela comprar o primeiro cookie.</p>
+      <p>Ela entra com +${d.regras.bonusIndicacao} pontos e você ganha +${d.regras.bonusIndicacao} quando ela pontuar a primeira compra.</p>
       <button class="btn btn-creme" style="margin-top:14px" data-acao="indicar">${I.compartilhar}Mandar convite</button>
     </div>`;
 }
@@ -478,10 +728,10 @@ function telaAvisos(d, m) {
 function telaEu(d, m) {
   const [mm, dd] = (m.niver || "").split("-");
   return `<h2 class="titulo">${m.nome}</h2>
-    <div class="meuqr">${qrSVG("GLIKI:" + m.id, 170)}<b>${m.id}</b><span>Mostre no balcão para somar pontos</span></div>
+    <div class="meuqr">${qrSVG("GLIKI:" + m.id, 170)}<b>${m.id}</b><span>Esqueceu a nota? Mostre este QR no balcão.</span></div>
     <ul class="dados">
       <li><span>WhatsApp</span>${m.whats}</li>
-      <li><span>Cidade</span>${m.cidade}</li>
+      <li><span>Cidade</span>${m.cidade || "aparece na 1ª compra"}</li>
       <li><span>Aniversário</span>${m.niver ? `${dd} de ${MESES[Number(mm) - 1]}` : "não informado"}</li>
       <li><span>No clube desde</span>${C.dataBR(m.desde)}</li>
       <li><span>Pontos ganhos no total</span>${m.total}</li>
@@ -495,9 +745,18 @@ function ligarTela() {
   document.querySelectorAll("[data-acao]").forEach((el) => el.addEventListener("click", () => acao(el.dataset.acao)));
   document.querySelectorAll("[data-trocar]").forEach((b) => b.addEventListener("click", () => confirmarTroca(b.dataset.trocar)));
   document.querySelectorAll("[data-resgate]").forEach((b) => b.addEventListener("click", () => mostrarResgate(b.dataset.resgate)));
+  const fn = $("formNiver");
+  if (fn) fn.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!fn.dia.value || !fn.mes.value) return toast("Falta o dia ou o mês", "Escolha os dois para guardar.");
+    C.guardarAniversario(C.eu(), `${fn.mes.value}-${fn.dia.value}`);
+    toast("Aniversário guardado", "Na semana do seu dia tem presente.");
+    ir(abaAtual);
+  });
 }
 function acao(a) {
   if (a === "codigo") return folhaCodigo();
+  if (a === "scan") return abrirScan();
   if (a === "meuqr") { const { m } = eu(); return abrirFolha(`<h3>Meu QR</h3><p>Mostre no balcão: a loja soma os pontos da sua compra.</p><div class="qr-caixa">${qrSVG("GLIKI:" + m.id, 200)}<b>${m.id}</b></div><button class="btn btn-creme" data-fechar>Pronto</button>`); }
   if (a === "ir-avisos") return ir("avisos");
   if (a === "ativar") return ativarAvisos();
@@ -532,42 +791,154 @@ function somarCodigo(bruto) {
   const antes = m.pontos;
   const r = C.usarCodigo(m.id, bruto);
   if (!r.ok) return folhaCodigo(r.erro);
+  celebrar(r, antes);
+}
+
+function celebrar(r, antes) {
   const d = C.ler();
   const cruzou = d.premios.filter((p) => antes < p.pontos && r.saldo >= p.pontos).pop();
+  const { proximo } = C.faixaDe(r.saldo, d.premios);
+  const alvo = proximo ? proximo.pontos : r.saldo;
+  if (navigator.vibrate) navigator.vibrate([18, 40, 30]);
   abrirFolha(`<p class="rotulo centro" style="color:var(--creme-2);margin-bottom:0">${C.CANAIS[r.canal]}</p>
     <p class="grande">+${r.pontos}</p>
-    <p class="centro">Agora você tem <b style="color:var(--creme)">${r.saldo} pontos</b>.</p>
-    ${cruzou ? `<div class="bloco niver" style="margin-bottom:14px"><h3>Você liberou: ${cruzou.nome}</h3><p>Troque na aba Prêmios quando quiser.</p></div>` : ""}
+    <p class="centro" style="margin-bottom:10px">Agora você tem <b style="color:var(--creme)">${r.saldo} pontos</b>.</p>
+    ${proximo ? `<div class="progresso" style="--de:${Math.min(100, (antes / alvo) * 100)}%"><i id="barraGanho"></i></div><p class="centro">Faltam ${proximo.pontos - r.saldo} para ${proximo.nome}</p>` : ""}
+    ${cruzou ? `<div class="bloco niver" style="margin-bottom:14px"><h3>Você liberou: ${cruzou.nome}</h3><p>Troque na aba Prêmios e busque na loja.</p></div>` : ""}
     <div class="botoes">${cruzou ? `<button class="btn btn-led" id="verPremios">Ver prêmios</button>` : ""}<button class="btn btn-creme" data-fechar>Pronto</button></div>`);
   const v = $("verPremios");
   if (v) v.addEventListener("click", () => { $("folha").close(); ir("premios"); });
+  requestAnimationFrame(() => requestAnimationFrame(() => { const b = $("barraGanho"); if (b) b.style.width = Math.min(100, (r.saldo / alvo) * 100) + "%"; }));
   ir(abaAtual);
 }
+
+/* ---------- a câmera: lê a nota fiscal ou a etiqueta ---------- */
+const Scan = { ativo: false, stream: null, detector: null, ultimo: "", quando: 0, tela: document.createElement("canvas") };
+async function abrirScan() {
+  const d = $("scan");
+  if (!d.open) d.showModal();
+  verLeitura();
+  erroScan("");
+  Scan.ativo = true;
+  Scan.ultimo = "";
+  $("scanFalha").hidden = true;
+  try {
+    Scan.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    if (!Scan.ativo) return pararCamera();
+    const v = $("scanVideo");
+    v.srcObject = Scan.stream;
+    await v.play();
+    if ("BarcodeDetector" in window && !Scan.detector) { try { Scan.detector = new BarcodeDetector({ formats: ["qr_code"] }); } catch (e) {} }
+    lacoScan();
+  } catch (e) {
+    $("scanFalha").hidden = false;
+  }
+}
+function pararCamera() {
+  if (Scan.stream) Scan.stream.getTracks().forEach((t) => t.stop());
+  Scan.stream = null;
+  $("scanVideo").srcObject = null;
+}
+function fecharScan() {
+  Scan.ativo = false;
+  pararCamera();
+  if ($("scan").open) $("scan").close();
+}
+$("scan").addEventListener("close", () => { Scan.ativo = false; pararCamera(); });
+function lerImagem(fonte, larg, alt) {
+  const lado = Math.min(larg, alt);
+  const saida = Math.min(lado, 900);
+  const t = Scan.tela;
+  t.width = t.height = saida;
+  const c = t.getContext("2d", { willReadFrequently: true });
+  c.drawImage(fonte, (larg - lado) / 2, (alt - lado) / 2, lado, lado, 0, 0, saida, saida);
+  const img = c.getImageData(0, 0, saida, saida);
+  const q = window.jsQR ? window.jsQR(img.data, saida, saida, { inversionAttempts: "attemptBoth" }) : null;
+  return q ? q.data : null;
+}
+async function lacoScan() {
+  if (!Scan.ativo) return;
+  const v = $("scanVideo");
+  let texto = null;
+  try {
+    if (v.readyState >= 2 && v.videoWidth) {
+      if (Scan.detector) { const r = await Scan.detector.detect(v); texto = r[0] ? r[0].rawValue : null; }
+      else texto = lerImagem(v, v.videoWidth, v.videoHeight);
+    }
+  } catch (e) {}
+  if (texto) receberLeitura(texto);
+  if (Scan.ativo) setTimeout(lacoScan, 160);
+}
+function receberLeitura(texto) {
+  const agora = Date.now();
+  if (texto === Scan.ultimo && agora - Scan.quando < 4000) return;
+  Scan.ultimo = texto; Scan.quando = agora;
+  const { m } = eu();
+  const antes = m.pontos;
+  const etiqueta = texto.match(/[#&?]c=([A-Za-z0-9-]+)/);
+  const r = etiqueta ? C.usarCodigo(m.id, etiqueta[1]) : C.usarNota(m.id, texto);
+  if (!r.ok) return erroScan(r.erro);
+  fecharScan();
+  celebrar(r, antes);
+}
+function erroScan(msg) { $("scanErro").textContent = msg; $("scanErro").hidden = !msg; }
+function verLeitura() { $("scanLer").hidden = false; $("scanForm").hidden = true; $("scanChave").value = ""; contaChave(); }
+function contaChave() {
+  const n = C.soDigitos($("scanChave").value).length;
+  $("scanConta").textContent = `${n} de 44 números`;
+  $("scanEnviar").disabled = n !== 44;
+}
+$("navPontuarIc").innerHTML = I.qr;
+$("navPontuar").addEventListener("click", abrirScan);
+$("scanFechar").innerHTML = I.fechar;
+$("scanFechar").addEventListener("click", fecharScan);
+$("scanDigitar").addEventListener("click", () => { $("scanLer").hidden = true; $("scanForm").hidden = false; erroScan(""); $("scanChave").focus(); });
+$("scanVolta").addEventListener("click", () => { verLeitura(); erroScan(""); });
+$("scanEtiqueta").addEventListener("click", () => { fecharScan(); folhaCodigo(); });
+$("scanChave").addEventListener("input", (e) => { const x = C.soDigitos(e.target.value).slice(0, 44); e.target.value = x.replace(/(.{4})(?=.)/g, "$1 "); contaChave(); erroScan(""); });
+$("scanForm").addEventListener("submit", (e) => { e.preventDefault(); Scan.ultimo = ""; receberLeitura(C.soDigitos($("scanChave").value)); });
+$("scanExemplo").addEventListener("click", () => { Scan.ultimo = ""; receberLeitura("https://www.fazenda.pr.gov.br/nfce/qrcode?p=" + C.notaExemplo() + "|3|1"); });
+$("scanFoto").addEventListener("change", async (e) => {
+  const arq = e.target.files[0];
+  e.target.value = "";
+  if (!arq) return;
+  try {
+    const bmp = await createImageBitmap(arq);
+    const texto = lerImagem(bmp, bmp.width, bmp.height);
+    if (!texto) return erroScan("Não achei o QR nessa foto. Tire outra, mais perto e com luz.");
+    Scan.ultimo = "";
+    receberLeitura(texto);
+  } catch (err) { erroScan("Não consegui abrir essa foto."); }
+});
 
 function confirmarTroca(id) {
   const { d } = eu();
   const p = d.premios.find((x) => x.id === id);
-  abrirFolha(`<h3>Trocar por ${p.nome}?</h3><p>Saem ${p.pontos} pontos do seu saldo. Você recebe um código para retirar na loja.</p>
-    <div class="botoes"><button class="btn btn-led" id="okTroca">Trocar ${p.pontos} pontos</button><button class="btn btn-linha" data-fechar>Agora não</button></div>`);
-  $("okTroca").addEventListener("click", () => {
-    const r = C.trocar(C.eu(), id);
+  abrirFolha(`<h3>${p.nome}</h3><p>Saem ${p.pontos} pontos. Onde você vai buscar?</p>
+    <div class="botoes">
+      ${C.LOJAS.map((l) => `<button class="loja-opcao" data-loja="${l.id}">${I.pino}<span><b>${l.nome}</b><small>${l.end}</small></span></button>`).join("")}
+      <button class="btn btn-linha" data-fechar>Agora não</button>
+    </div>`);
+  document.querySelectorAll("[data-loja]").forEach((b) => b.addEventListener("click", () => {
+    const r = C.trocar(C.eu(), id, b.dataset.loja);
     if (!r.ok) return abrirFolha(`<h3>Não deu</h3><p>${r.erro}</p><button class="btn btn-creme" data-fechar>Pronto</button>`);
     ir("premios");
     mostrarResgate(r.resgate.codigo);
-  });
+  }));
 }
 function mostrarResgate(codigo) {
   const { d } = eu();
   const r = d.resgates.find((x) => x.codigo === codigo);
-  abrirFolha(`<h3>${r.nome}</h3><p>Mostre este código na loja para retirar. Vale por 30 dias.</p>
+  const l = C.LOJAS.find((x) => x.id === r.loja);
+  abrirFolha(`<h3>${r.nome}</h3><p>${l ? `Mostre este código na loja de <b style="color:var(--creme)">${l.nome}</b>.` : "Mostre este código na loja."} Vale por 30 dias.</p>
     <div class="qr-caixa">${qrSVG("GLIKI-PREMIO:" + r.codigo, 190)}<b>${C.mostraCodigo(r.codigo)}</b></div>
-    <button class="btn btn-creme" data-fechar>Pronto</button>`);
+    <div class="botoes">${l ? `<a class="btn btn-led" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.mapa)}">${I.pino}Como chegar</a>` : ""}<button class="btn btn-creme" data-fechar>Pronto</button></div>`);
 }
 
 function indicar() {
   const { m } = eu();
   const link = LINK_CLUBE + "#i=" + m.indicacao;
-  const texto = `Entra no Clube Glikilovers comigo: cada cookie da Gliki Sô vale pontos. Pelo meu convite você já começa com pontos extras: ${link}`;
+  const texto = `Entra no Clube Glikilovers comigo: cada compra na Gliki Sô vale pontos. Pelo meu convite você já começa com pontos extras: ${link}`;
   if (navigator.share) navigator.share({ title: "Clube Glikilovers", text: texto }).catch(() => {});
   else window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
 }
@@ -627,7 +998,6 @@ $("simular").addEventListener("click", () => {
 
 /* ---------- começo ---------- */
 lerLink();
-montarEntrar();
 if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar();
 addEventListener("hashchange", () => { lerLink(); if (codigoPendente || indicacaoPendente) { if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar(); } });
 </script>
