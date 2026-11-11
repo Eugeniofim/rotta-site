@@ -17,7 +17,13 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Cookie Red Velvet recheado da Gliki Sô com o texto Seu momento feliz está aqui">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icones/favicon-64.png">
+<link rel="apple-touch-icon" href="icones/apple-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gliki Sô">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
@@ -491,6 +497,16 @@
   .pilula-led:hover { box-shadow: 0 0 28px rgba(255,214,140,.6); }
   .pilula-linha { border: 1.5px solid rgba(255,233,184,.55); color: var(--led); }
   .pilula-linha:hover { background: rgba(255,233,184,.08); }
+  .pilula-app { border: 1.5px solid rgba(255,233,184,.55); color: var(--led); width: 44px; padding: 0; }
+  .pilula-app span { display: none; }
+  .app-convite { display: grid; grid-template-columns: 72px 1fr; gap: 14px 16px; align-items: center; margin-top: 14px; padding: 18px; border-radius: 24px; background: linear-gradient(135deg, #3a2419, #2f1d15); border: 1px solid rgba(255,233,184,.18); }
+  .app-convite img { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 8px 22px rgba(0,0,0,.45), 0 0 18px rgba(255,205,130,.18); }
+  .app-convite strong { display: block; font: 400 24px/1.1 var(--display); margin-bottom: 4px; }
+  .app-convite span { color: var(--creme-2); font-size: 15px; }
+  .app-convite .pilula { grid-column: 1 / -1; min-height: 52px; font-size: 16px; }
+  .app-convite[hidden], [data-instalar][hidden] { display: none !important; }
+  @media (max-width: 380px) { .barra-acoes { gap: 6px; } .barra .pilula:not(.pilula-adm):not(.pilula-app) { padding: 0 12px; } .barra-logo img { width: 74px; } }
+  @media (min-width: 960px) { .pilula-app { width: auto; padding: 0 16px; } .pilula-app span { display: inline; } }
   .pilula-adm { width: 44px; padding: 0; border: 1.5px solid rgba(243,230,211,.25); color: var(--creme-2); }
   .pilula-adm:hover { color: var(--led); border-color: var(--led); }
 
@@ -595,6 +611,7 @@
     <a href="#pedir">Peça</a><a href="#maquinaArea">A máquina</a><a href="#queridinhos">Queridinhos</a><a href="#clube-sec">Clube</a>
   </nav>
   <div class="barra-acoes">
+    <a class="pilula pilula-app" href="#" data-instalar aria-label="Baixar o app da Gliki Sô"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg><span>Baixar o app</span></a>
     <a class="pilula pilula-linha" id="barraClube" href="clube/">Clube</a>
     <a class="pilula pilula-led" href="#pedir">Pedir</a>
     <a class="pilula pilula-adm" id="barraAdm" href="painel/" aria-label="ADM: painel da loja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
@@ -654,6 +671,14 @@
         <span>Aponte a câmera para a nota, junte pontos e busque seu prêmio na loja.</span>
         <span class="clube-acao">Entrar no clube →</span>
       </a>
+      <div class="app-convite" data-instalar-caixa>
+        <img src="icones/apple-180.png" alt="Ícone do app Gliki Sô" width="72" height="72">
+        <div>
+          <strong>Leve a Gliki no bolso</strong>
+          <span>O app abre com um toque: pontos, prêmios, pedidos e aviso de sabor novo.</span>
+        </div>
+        <button class="pilula pilula-led" type="button" data-instalar><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Baixar o app</button>
+      </div>
     </section>
 
     <section class="maquina-area" id="maquinaArea" aria-labelledby="t-maquina">
@@ -739,6 +764,9 @@
   </footer>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="comum/icones.js"></script>
+<script src="comum/app.js"></script>
 <script src="comum/rolagem.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
@@ -1043,6 +1071,9 @@ if ("ResizeObserver" in window) {
   addEventListener("resize", desenharFitas);
 }
 
+/* ---------- app: o cartão some quando já está instalado ---------- */
+if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-instalar-caixa]").forEach((c) => (c.hidden = true));
+
 /* ---------- rolagem em 3D ---------- */
 (function () {
   const R = window.Rolagem;
@@ -1057,8 +1088,9 @@ if ("ResizeObserver" in window) {
     lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
     const passo = (t) => { lenis.raf(t); requestAnimationFrame(passo); };
     requestAnimationFrame(passo);
-    document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
-      const alvo = document.querySelector(a.getAttribute("href"));
+    document.querySelectorAll('a[href^="#"]:not([data-instalar])').forEach((a) => a.addEventListener("click", (e) => {
+      const h = a.getAttribute("href");
+      const alvo = h.length > 1 ? document.querySelector(h) : null;
       if (!alvo) return;
       e.preventDefault();
       lenis.scrollTo(alvo, { offset: -70, duration: 1.4 });
@@ -1087,7 +1119,7 @@ if ("ResizeObserver" in window) {
       const img = new Image();
       img.decoding = "async";
       img.onload = () => { prontos[i] = true; quadros[i] = img; if (i === 0 || Math.abs(i - alvoQuadro) < 3) desenhar(true); baixa(); };
-      img.onerror = baixa;
+      img.onerror = () => { if (!img._tentou) { img._tentou = true; ordem.push(i); } baixa(); };
       img.src = `abertura/${nome}/${String(i + 1).padStart(3, "0")}.webp`;
     };
     for (let k = 0; k < 4; k++) baixa();

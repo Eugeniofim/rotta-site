@@ -15,7 +15,13 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Painel ADM da Gliki Sô: membros, cookies da semana, de onde vêm os cookies e etiqueta com QR">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="../icones/favicon-64.png">
+<link rel="apple-touch-icon" href="../icones/apple-adm-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gliki ADM">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
@@ -183,6 +189,7 @@
     <nav class="menu" id="menu" aria-label="Painel"></nav>
     <div class="lado-pe">
       <span>Protótipo com dados de exemplo.</span>
+      <a href="#" data-instalar>Instalar o painel no celular</a>
       <a href="../clube/" target="_blank" rel="noopener">Abrir o clube (cliente)</a>
       <a href="../" target="_blank" rel="noopener">Página de links</a>
     </div>
@@ -195,6 +202,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="../comum/dados.js"></script>
 <script src="../comum/icones.js"></script>
+<script src="../comum/app.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const C = window.Clube;

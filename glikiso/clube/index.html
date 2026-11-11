@@ -15,9 +15,13 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
-<link rel="apple-touch-icon" href="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" type="image/png" href="../icones/favicon-64.png">
+<link rel="apple-touch-icon" href="../icones/apple-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gliki Sô">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
@@ -348,6 +352,16 @@
   @keyframes vira { from { transform: perspective(600px) rotateX(-80deg) scale(.7); opacity: 0; } }
   .progresso { height: 8px; border-radius: 8px; background: rgba(255,233,184,.14); margin: 4px 0 8px; overflow: hidden; }
   .progresso i { display: block; height: 100%; width: var(--de); border-radius: 8px; background: var(--led); box-shadow: var(--brilho); transition: width 1s cubic-bezier(.6,0,.2,1) .25s; }
+  /* ---------- app ---------- */
+  .app-card { display: grid; grid-template-columns: 56px 1fr; gap: 10px 14px; align-items: center; border: 1px solid rgba(255,233,184,.2); }
+  .app-card img { width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 6px 16px rgba(0,0,0,.4); }
+  .app-card .btn, .app-card .link-troca { grid-column: 1 / -1; }
+  .app-card .link-troca { margin: -4px auto 0; }
+  .pedir-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-decoration: none; background: var(--bordo); }
+  .pedir-card p { color: #f6dfe2 !important; }
+  .pedir-card .ic { width: 30px; height: 30px; color: var(--led); }
+  [data-instalar][hidden] { display: none !important; }
+
   /* ---------- computador ---------- */
   .heroi-volta { display: inline-block; position: relative; }
   .lado-desk { display: none; }
@@ -485,6 +499,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="../comum/dados.js"></script>
 <script src="../comum/icones.js"></script>
+<script src="../comum/app.js"></script>
 <script src="../comum/rolagem.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -669,6 +684,10 @@ R3D.add(() => {
 });
 
 /* ---------- Início ---------- */
+function mostrarConviteApp() {
+  if (window.GlikiApp && GlikiApp.instalado()) return false;
+  try { return Number(localStorage.getItem("glk_app_depois") || 0) < Date.now(); } catch (e) { return true; }
+}
 function cartao(d, m) {
   const { atual, proximo } = C.faixaDe(m.pontos, d.premios);
   const teto = Math.max(...d.premios.map((p) => p.pontos));
@@ -702,6 +721,8 @@ function telaInicio(d, m) {
     <button class="btn btn-led btn-pontuar" data-acao="scan">${I.qr}Pontuar minha compra</button>
     ${paraRetirar ? `<button class="bloco retira" data-resgate="${paraRetirar.codigo}">${I.presente}<span><h3>${paraRetirar.nome} te espera</h3><p>${lojaRet ? "Retire em " + lojaRet.nome : "Retire na loja"}. Toque para ver o código.</p></span></button>` : ""}
     ${C.aniversarioPerto(m) ? `<div class="bloco niver"><h3>Feliz aniversário, ${m.nome.split(" ")[0]}</h3><p>Seu presente: ${d.regras.presenteAniversario}. Mostre o seu QR na loja.</p></div>` : ""}
+    ${mostrarConviteApp() ? `<div class="bloco app-card"><img src="../icones/apple-180.png" alt="" width="56" height="56"><div><h3>Baixe o app da Gliki</h3><p>Abre com um toque e é por ele que chegam os avisos.</p></div><button class="btn btn-led" type="button" data-instalar><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Baixar o app</button><button class="link-troca" type="button" data-acao="app-depois">Agora não</button></div>` : ""}
+    <a class="bloco pedir-card" href="../#pedir"><span><h3>Peça seu cookie</h3><p>Delivery em Curitiba e Paranaguá, iFood e WhatsApp.</p></span>${I.cookie}</a>
     <div class="bloco">
       <h3>Como ganhar pontos</h3>
       <div class="como">
@@ -801,6 +822,7 @@ function ligarTela() {
 function acao(a) {
   if (a === "codigo") return folhaCodigo();
   if (a === "scan") return abrirScan();
+  if (a === "app-depois") { try { localStorage.setItem("glk_app_depois", String(Date.now() + 7 * 86400000)); } catch (e) {} return ir(abaAtual); }
   if (a === "meuqr") { const { m } = eu(); return abrirFolha(`<h3>Meu QR</h3><p>Mostre no balcão: a loja soma os pontos da sua compra.</p><div class="qr-caixa">${qrSVG("GLIKI:" + m.id, 200)}<b>${m.id}</b></div><button class="btn btn-creme" data-fechar>Pronto</button>`); }
   if (a === "ir-avisos") return ir("avisos");
   if (a === "ativar") return ativarAvisos();
@@ -999,7 +1021,7 @@ async function ativarAvisos() {
 }
 async function notificar(titulo, texto) {
   try {
-    if (!registro && "serviceWorker" in navigator) registro = await navigator.serviceWorker.register("sw.js");
+    if (!registro && window.GlikiApp) registro = await GlikiApp.registro();
     if (registro && Notification.permission === "granted") {
       await navigator.serviceWorker.ready;
       return registro.showNotification(titulo, { body: texto, icon: LOGO, badge: LOGO, tag: "glk-" + Date.now() });
@@ -1043,6 +1065,11 @@ $("simular").addEventListener("click", () => {
 
 /* ---------- começo ---------- */
 lerLink();
+{
+  const q = new URLSearchParams(location.search);
+  if (q.get("aba") && ["inicio", "premios", "avisos", "eu"].includes(q.get("aba"))) abaAtual = q.get("aba");
+  if (q.get("acao") === "pontuar") setTimeout(() => { if (C.membro(C.ler(), C.eu())) abrirScan(); }, 400);
+}
 if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar();
 addEventListener("hashchange", () => { lerLink(); if (codigoPendente || indicacaoPendente) { if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar(); } });
 </script>
