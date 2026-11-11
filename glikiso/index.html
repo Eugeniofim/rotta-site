@@ -27,6 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<script src="comum/tema.js"></script>
 <link rel="preload" as="image" href="abertura/g/001.webp" media="(min-width: 760px)">
 <link rel="preload" as="image" href="abertura/p/001.webp" media="(max-width: 759px)">
 <style>
@@ -624,7 +625,7 @@
     <div class="abertura-luz" id="luzPalco"></div>
     <div class="abertura-veu"></div>
     <div class="bat bat1" id="bat1">
-      <p class="rotulo">Gliki Sô Cookeria</p>
+      <p class="rotulo" data-tema-rotulo>Gliki Sô Cookeria</p>
       <h1>Seu momento feliz</h1>
       <p class="sub">Cookies mega recheados, feitos à mão. Curitiba, Paranaguá, Caiobá e a 1ª máquina de cookies do Paraná.</p>
       <div class="bat1-acoes no-pe">
@@ -1100,7 +1101,9 @@ if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-in
   /* ---------- abertura: quadros do vídeo no canvas ---------- */
   const tela = $("tela"), ctx = tela.getContext("2d");
   const abertura = $("abertura");
-  let serie = null, quadros = [], prontos = [], atual = -1, alvoQuadro = 0;
+  let serie = null, quadros = [], prontos = [], atual = -1, alvoQuadro = 0, vooGorro = 0;
+  const temGorro = !!(window.GlikiTema && GlikiTema.gorro);
+  if (temGorro) GlikiTema.gorro.addEventListener("load", () => desenhar(true));
   function carregarSerie() {
     const grande = computador.matches;
     const nome = grande ? "g" : "p";
@@ -1168,6 +1171,18 @@ if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-in
       g2.addColorStop(0, "rgba(21,9,6,0)"); g2.addColorStop(1, "#150906");
       ctx.fillStyle = g2; ctx.fillRect(0, y + h * 0.8, W, h * 0.2 + 2);
     }
+    /* tema de Natal: o gorrinho no cookie, que sai voando quando a pessoa começa a rolar */
+    const gorro = window.GlikiTema && GlikiTema.gorro;
+    if (gorro && gorro.complete && gorro.naturalWidth && vooGorro < 1) {
+      const nx = serie === "g" ? 0.535 : (0.535 - 0.22) / 0.62, larg = serie === "g" ? 0.225 : 0.24 / 0.62;
+      const gw = w * larg, gh = gw * gorro.naturalHeight / gorro.naturalWidth;
+      ctx.save();
+      ctx.globalAlpha = 1 - vooGorro;
+      ctx.translate(x + nx * w + vooGorro * W * 0.2, y + (serie === "g" ? 0.16 : 0.15) * h - vooGorro * H * 0.6);
+      ctx.rotate((16 + vooGorro * 85) * Math.PI / 180);
+      ctx.drawImage(gorro, -gw / 2, -gh / 2, gw, gh);
+      ctx.restore();
+    }
   }
   carregarSerie();
   ajustarTela();
@@ -1194,7 +1209,9 @@ if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-in
     $("zap").toggleAttribute("data-longe", r.bottom > innerHeight * 0.35);
     if (r.bottom < 0) return;
     alvoQuadro = Math.round(suave(faixa(p, 0.04, 0.88)) * (quadros.length - 1));
-    desenhar(false);
+    const vooAntes = vooGorro;
+    vooGorro = temGorro ? suave(faixa(p, 0.015, 0.2)) : 1;
+    desenhar(temGorro && (vooGorro < 1 || vooAntes < 1));
     tela.style.transform = `scale(${1 + p * 0.06})`;
     if (R.reduz) return;
     const s1 = faixa(p, 0.14, 0.26);

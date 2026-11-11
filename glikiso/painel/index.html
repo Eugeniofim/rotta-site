@@ -85,6 +85,16 @@
   .btn-linha { background: transparent; color: var(--tinta); border: 1.5px solid var(--linha); }
   .btn-zap { background: var(--zap); color: #06301a; }
   .btn-peq { min-height: 36px; padding: 6px 12px; font-size: 13px; }
+  .temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .tema-cartao { display: flex; flex-direction: column; gap: 8px; }
+  .tema-cartao.ativo { border-color: var(--cacau); box-shadow: 0 0 0 2px var(--cacau) inset; }
+  .tema-cartao h2 { font: 400 24px/1.1 var(--display); margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tema-cartao p { margin: 0; color: var(--tinta-2); font-size: 14px; flex: 1; }
+  .tema-cores { display: flex; gap: 6px; }
+  .tema-cores i { width: 28px; height: 28px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.12) inset; }
+  .tema-selo { font: 600 11px/1 var(--rotulo); letter-spacing: .14em; text-transform: uppercase; background: var(--cacau); color: var(--led); padding: 6px 8px; border-radius: 6px; }
+  .tema-botoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .tema-botoes .btn-peq { min-height: 44px; }
   .btn[disabled] { opacity: .4; cursor: default; }
 
   .campo { display: grid; gap: 6px; margin-bottom: 14px; font-size: 14px; font-weight: 600; }
@@ -203,6 +213,7 @@
 <script src="../comum/dados.js"></script>
 <script src="../comum/icones.js"></script>
 <script src="../comum/app.js"></script>
+<script src="../comum/tema.js" data-so="dados"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const C = window.Clube;
@@ -215,7 +226,8 @@ const PAGINAS = {
   balcao: { nome: "Balcão", icone: I.loja, tela: telaBalcao },
   codigos: { nome: "Etiquetas", icone: I.ticket, tela: telaCodigos },
   avisos: { nome: "Avisos", icone: I.megafone, tela: telaAvisos },
-  premios: { nome: "Prêmios e regras", icone: I.presente, tela: telaPremios }
+  premios: { nome: "Prêmios e regras", icone: I.presente, tela: telaPremios },
+  tema: { nome: "Tema do site", icone: I.estrela, tela: telaTema }
 };
 let pagina = "inicio";
 
@@ -441,6 +453,33 @@ function telaAvisos(d) {
 }
 
 /* ---------- Prêmios e regras ---------- */
+/* ---------- Tema do site (época do ano) ---------- */
+const TEMA_CARTOES = [
+  { id: "auto", nome: "Automático", texto: "Muda sozinho pelo calendário: Natal de 1º/11 a 6/1, Páscoa nas 5 semanas antes do domingo de Páscoa e Namorados de 25/5 a 12/6. No resto do ano, o padrão.", cores: ["#ffe9b8", "#ff6b6b", "#f6c5d0"] },
+  { id: "padrao", nome: "Padrão", texto: "A parede da Gliki: cacau, bordô e as fitas de LED.", cores: ["#2a1913", "#6e1f2a", "#ffe9b8"] },
+  { id: "natal", nome: "Natal", texto: "Gorrinho de Papai Noel no cookie, neve caindo, pisca-pisca nas fitas e o sininho que toca um carrilhão baixinho na rolagem.", cores: ["#ff6b6b", "#ffe9b8", "#6fdc95"] },
+  { id: "pascoa", nome: "Páscoa", texto: "Ovinhos coloridos caindo devagar e as fitas em tons pastel.", cores: ["#f6c5d0", "#ffe9b8", "#bfe3d9"] },
+  { id: "namorados", nome: "Dia dos Namorados", texto: "Corações caindo e as fitas em rosa.", cores: ["#ff8fa3", "#ffe9b8", "#e9a9b2"] }
+];
+function temaSalvo() { try { return localStorage.getItem("glk_tema") || "auto"; } catch (e) { return "auto"; } }
+function telaTema() {
+  const salvo = temaSalvo();
+  const hoje = window.GlikiTema ? GlikiTema.TEMAS[GlikiTema.pelaData()].nome : "Padrão";
+  return `<div class="cabeca"><div><p class="rotulo">Vitrine</p><h1>Tema do site</h1><p class="sub">Escolha a cara do site para a época do ano. Hoje, o automático está em <b>${hoje}</b>.</p></div>
+      <a class="btn btn-escuro" href="../" target="_blank" rel="noopener">${I.casa}Ver o site</a></div>
+    <div class="temas">${TEMA_CARTOES.map((c) => `
+      <div class="caixa tema-cartao${salvo === c.id ? " ativo" : ""}">
+        <div class="tema-cores">${c.cores.map((k) => `<i style="background:${k}"></i>`).join("")}</div>
+        <h2>${c.nome}${salvo === c.id ? '<span class="tema-selo">Em uso</span>' : ""}</h2>
+        <p>${c.texto}</p>
+        <div class="tema-botoes">
+          ${salvo === c.id ? "" : `<button class="btn btn-escuro btn-peq" type="button" data-usar-tema="${c.id}">Usar este</button>`}
+          ${c.id === "auto" ? "" : `<a class="btn btn-linha btn-peq" href="../?tema=${c.id}" target="_blank" rel="noopener">Ver como fica</a>`}
+        </div>
+      </div>`).join("")}</div>
+    <p class="sub" style="margin-top:14px">No protótipo, a escolha vale neste aparelho. Na versão final, vale para todo mundo na hora em que você tocar.</p>`;
+}
+
 function telaPremios(d) {
   const r = d.regras;
   return `<div class="cabeca"><div><p class="rotulo">Você decide</p><h1>Prêmios e regras</h1></div></div>
@@ -470,6 +509,14 @@ function telaPremios(d) {
 
 /* ---------- o que cada tela faz ---------- */
 const ligar = {
+  tema() {
+    document.querySelectorAll("[data-usar-tema]").forEach((b) => b.addEventListener("click", () => {
+      try { localStorage.setItem("glk_tema", b.dataset.usarTema); } catch (e) {}
+      const c = TEMA_CARTOES.find((x) => x.id === b.dataset.usarTema);
+      toast("Tema do site: " + c.nome);
+      ir("tema");
+    }));
+  },
   inicio() {
     document.querySelectorAll("[data-publico]").forEach((a) => a.addEventListener("click", () => { publicoEscolhido = a.dataset.publico; }));
   },
