@@ -179,6 +179,8 @@
   .nota-linha input:focus { outline: none; border-color: var(--massa); }
   .nota-info { font-size: 13px; color: var(--tinta-2); margin: 6px 0 0; min-height: 18px; }
   .nota-info.boa { color: #2f6b3a; font-weight: 600; } .nota-info.ruim { color: #b3261e; font-weight: 600; }
+  .tag-sefaz { font: 500 10px/1 var(--rotulo); letter-spacing: .1em; text-transform: uppercase; background: #e3efe1; color: #2f6b3a; padding: 3px 6px; border-radius: 5px; margin-left: 6px; vertical-align: 1px; }
+  .tag-sefaz.falta { background: #fbecea; color: #7a1a14; }
   .tag-balcao { font: 500 10px/1 var(--rotulo); letter-spacing: .1em; text-transform: uppercase; background: var(--cacau); color: var(--led); padding: 3px 6px; border-radius: 5px; margin-left: 6px; vertical-align: 1px; }
   dialog.leitor { width: min(480px, 100%); padding: 0; border: 0; border-radius: 24px; background: #120b08; color: var(--creme); }
   dialog.leitor::backdrop { background: rgba(20,12,9,.7); }
@@ -489,7 +491,7 @@ function abrirFicha(id) {
     $("somarFicha").disabled = false;
     if (r.sessao) return pedirLogin("Entre de novo para somar.");
     if (!r.ok) { info(r.erro, "ruim"); if (r.precisaNota) $("notaFicha").focus(); return; }
-    const extras = [r.dobro && "em dobro", r.selo && `selo ${r.selo.nome} (${r.selo.n} de ${r.selo.de})`, r.passaporte && "passaporte completo!", r.sequencia && `+${r.sequencia} de 3 meses seguidos`].filter(Boolean);
+    const extras = [r.dobro && "em dobro", r.selo && `selo ${r.selo.nome} (${r.selo.n} de ${r.selo.de})`, r.passaporte && "passaporte completo!", r.sequencia && `+${r.sequencia} de 3 meses seguidos`, r.sefaz === "sem_resposta" && "a Sefaz não respondeu: a nota fica marcada"].filter(Boolean);
     toast(r.pontos ? `+${r.pontos} pontos para ${primeiro(m.nome)}${extras.length ? " · " + extras.join(" · ") : ""}` : `A nota já tinha dado os ${r.jaTinha} pontos dessa compra`);
     abrirFicha(m.id);
     ir(pagina);
@@ -523,7 +525,7 @@ function telaBalcao(d) {
     </div>
     <div class="caixa" style="margin-top:14px">
       <h2>Últimas notas lidas</h2>
-      ${(() => { const ns = Object.values(d.notas).sort((a, b) => b.data - a.data).slice(0, 8); return ns.length ? `<ul class="tarefas">${ns.map((n) => `<li><span>Nota nº ${n.numero}${n.balcao ? '<span class="tag-balcao">balcão</span>' : ""}<small>${(C.membro(d, n.membro) || {}).nome || ""} · ${C.CANAIS[n.canal]}</small></span><span>${C.dataHoraBR(n.data)}</span></li>`).join("")}</ul>` : `<p class="sub">Nenhuma nota ainda.</p>`; })()}
+      ${(() => { const ns = Object.values(d.notas).sort((a, b) => b.data - a.data).slice(0, 8); return ns.length ? `<ul class="tarefas">${ns.map((n) => `<li><span>Nota nº ${n.numero}${n.balcao ? '<span class="tag-balcao">balcão</span>' : ""}${["autorizada", "existe"].includes(n.conferida) ? '<span class="tag-sefaz">Sefaz ✓</span>' : n.conferida === "sem_resposta" ? '<span class="tag-sefaz falta">Sefaz não respondeu</span>' : ""}${n.valor ? ` · R$ ${Number(n.valor).toFixed(2).replace(".", ",")}` : ""}<small>${(C.membro(d, n.membro) || {}).nome || ""} · ${C.CANAIS[n.canal]}</small></span><span>${C.dataHoraBR(n.data)}</span></li>`).join("")}</ul>` : `<p class="sub">Nenhuma nota ainda.</p>`; })()}
     </div>`;
 }
 function achar(d, q) {

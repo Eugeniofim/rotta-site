@@ -956,7 +956,7 @@ function celebrar(r, antes) {
   const { proximo } = C.faixaDe(r.saldo, d.premios);
   const alvo = proximo ? proximo.pontos : r.saldo;
   if (navigator.vibrate) navigator.vibrate([18, 40, 30]);
-  abrirFolha(`<p class="rotulo centro" style="color:var(--creme-2);margin-bottom:0">${C.CANAIS[r.canal]}${r.dobro ? " · em dobro" : ""}</p>
+  abrirFolha(`<p class="rotulo centro" style="color:var(--creme-2);margin-bottom:0">${C.CANAIS[r.canal]}${r.dobro ? " · em dobro" : ""}${r.sefaz === "autorizada" || r.sefaz === "existe" ? " · nota conferida" : ""}</p>
     <p class="grande">+${r.pontos}</p>
     ${r.sequencia ? `<p class="centro bonus-seq">+${r.sequencia} de bônus: 3 meses seguidos na Gliki</p>` : ""}
     <p class="centro" style="margin-bottom:10px">Agora você tem <b style="color:var(--creme)">${r.saldo} pontos</b>.</p>
