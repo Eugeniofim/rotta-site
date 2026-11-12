@@ -26,6 +26,18 @@
     { id: "loja-pgua", nome: "Paranaguá", end: "R. Manoel Corrêa, 622 · Costeira", mapa: "R. Manoel Corrêa, 622, Costeira, Paranaguá - PR" }
   ];
 
+  /* Passaporte: um selo em cada cidade e um na máquina. É o que leva a pessoa a conhecer as outras lojas. */
+  const PASSAPORTE = ["loja-pgua", "caioba", "loja-cwb", "maquina"];
+  const NOME_SELO = { "loja-pgua": "Paranaguá", caioba: "Caiobá", "loja-cwb": "Curitiba", maquina: "Máquina do Jockey" };
+  /* o selo que vale a pena sugerir primeiro para quem mora em cada cidade (o mais perto antes) */
+  const PERTO = {
+    Curitiba: ["maquina", "loja-cwb", "loja-pgua", "caioba"],
+    "Paranaguá": ["loja-pgua", "caioba", "loja-cwb", "maquina"],
+    "Caiobá": ["caioba", "loja-pgua", "loja-cwb", "maquina"]
+  };
+  /* Onde pode haver balcão. Loja sem CNPJ cadastrado (Caiobá, por enquanto) soma sem a nota. */
+  const BALCOES = ["loja-pgua", "caioba", "loja-cwb"];
+
   const REGRAS_PADRAO = {
     pontosPorNota: 10,
     notasPorDia: 3,
@@ -34,9 +46,13 @@
     validadeMeses: 3,
     bonusCadastro: 10,
     bonusIndicacao: 20,
+    bonusSequencia: 30,
+    premioPassaporte: "1 cookie recheado à escolha",
+    dobro: null,
     presenteAniversario: "1 cookie tradicional na semana do aniversário"
   };
   const PREMIOS_PADRAO = [
+    { id: "fa", faixa: "Fã", pontos: 50, nome: "Mini cookie" },
     { id: "bronze", faixa: "Bronze", pontos: 100, nome: "Cookie Tradicional" },
     { id: "prata", faixa: "Prata", pontos: 300, nome: "Cookie recheado à escolha" },
     { id: "ouro", faixa: "Ouro", pontos: 600, nome: "Potinho + cookie" },
@@ -119,7 +135,7 @@
     const nomes = ["Ana Clara M.", "Bruna S.", "Camila R.", "Diego F.", "Eduarda L.", "Felipe A.", "Gabriela P.", "Helena C.",
       "Isabela T.", "João Pedro B.", "Júlia N.", "Larissa G.", "Lucas V.", "Manuela D.", "Marina K.", "Mateus O.",
       "Nicole H.", "Pedro H.", "Rafaela Z.", "Sofia E.", "Thiago W.", "Valentina I.", "Vitória Q.", "Yasmin U."];
-    const d = { regras: { ...REGRAS_PADRAO }, premios: PREMIOS_PADRAO.map((p) => ({ ...p })), membros: [], codigos: {}, notas: {}, lotes: [], resgates: [], avisos: [], criado: agora() };
+    const d = { regras: { ...REGRAS_PADRAO }, premios: PREMIOS_PADRAO.map((p) => ({ ...p })), membros: [], codigos: {}, notas: {}, lotes: [], resgates: [], avisos: [], criado: agora(), v4: true };
 
     const lotes = [
       { canal: "maquina", qtd: 240, dias: 20 }
@@ -153,8 +169,14 @@
           const quando = Math.max(desde, lote.data) + Math.floor(rnd() * (agora() - Math.max(desde, lote.data)));
           c.usadoPor = m.id; c.usadoEm = quando;
           lancar(m, c.pontos, "Etiqueta " + mostraCodigo(cod), "maquina", quando);
+        } else if (cidade === "Caiobá" && rnd() < 0.7) {
+          // Caiobá ainda não tem CNPJ cadastrado: soma no balcão
+          const quando = desde + Math.floor(rnd() * (agora() - desde));
+          const q = 1 + Math.floor(rnd() * 3);
+          lancar(m, q * d.regras.pontosPorCookie, `${q} cookie${q > 1 ? "s" : ""} no balcão`, "caioba", quando);
         } else {
-          const cnpj = cidade === "Paranaguá" ? "42656312000106" : "58476355000131";
+          const fora = rnd() < 0.18; // de vez em quando compra em outra cidade
+          const cnpj = (cidade === "Paranaguá") !== fora ? "42656312000106" : "58476355000131";
           const quando = desde + Math.floor(rnd() * (agora() - desde));
           const chave = montaChave(cnpj, quando, rnd);
           const nota = analisarNota(chave);
@@ -163,6 +185,15 @@
         }
       }
       m.extrato.sort((a, b) => b.data - a.data);
+      // quem já fechou o passaporte no exemplo já buscou o presente
+      const s = selosDe(m);
+      if (PASSAPORTE.every((c) => s[c])) {
+        const quando = Math.max(...Object.values(s));
+        m.passaporte = quando;
+        d.resgates.push({ codigo: codigoNovo(6, rnd), membro: m.id, premio: "passaporte", nome: d.regras.premioPassaporte, pontos: 0, data: quando, entregue: quando + DIA, loja: null });
+        m.extrato.unshift({ data: quando, pontos: 0, motivo: "Passaporte completo", canal: null });
+        m.extrato.sort((a, b) => b.data - a.data);
+      }
       d.membros.push(m);
     });
 
@@ -195,10 +226,20 @@
   function ler() {
     try {
       const s = localStorage.getItem(CHAVE);
-      if (s) { const d = JSON.parse(s); d.notas = d.notas || {}; return d; }
+      if (s) return atualizar(JSON.parse(s));
     } catch (e) {}
     const d = exemplo();
     gravar(d);
+    return d;
+  }
+  /* quem já tinha o protótipo aberto ganha as regras novas sem perder o que fez */
+  function atualizar(d) {
+    d.notas = d.notas || {};
+    d.regras = { ...REGRAS_PADRAO, ...d.regras };
+    if (!d.v4) {
+      if (!d.premios.some((p) => p.id === "fa")) d.premios.unshift({ ...PREMIOS_PADRAO[0] });
+      d.v4 = true;
+    }
     return d;
   }
   function gravar(d) {
@@ -241,9 +282,153 @@
     if (quem) lancar(quem, d.regras.bonusIndicacao, "Sua amiga " + m.nome.split(" ")[0] + " comprou");
   }
 
+  /* ---------- o que deixa o clube esperto ---------- */
+  const mesNum = (t) => { const x = new Date(t); return x.getFullYear() * 12 + x.getMonth(); };
+  const mesAtual = () => { const x = new Date(); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0"); };
+  const ehCompra = (e) => e.canal && e.pontos > 0 && !e.comp;
+
+  /* selo -> data do primeiro, de cada lugar onde a pessoa já comprou */
+  function selosDe(m) {
+    const s = {};
+    for (let i = m.extrato.length - 1; i >= 0; i--) {
+      const e = m.extrato[i];
+      if (ehCompra(e) && PASSAPORTE.includes(e.canal) && !s[e.canal]) s[e.canal] = e.data;
+    }
+    return s;
+  }
+  /* pontos em dobro num lugar, até o fim do mês em que foi ligado */
+  function dobroAtivo(d) {
+    const x = d.regras.dobro;
+    return x && x.mes === mesAtual() ? x.canal : null;
+  }
+  const vezes = (d, canal) => (canal && dobroAtivo(d) === canal ? 2 : 1);
+  /* meses seguidos com compra, contando este mês (ou a partir do passado, se ainda não comprou) */
+  function seguidos(m) {
+    const s = new Set(m.extrato.filter(ehCompra).map((e) => mesNum(e.data)));
+    const h = mesNum(agora());
+    const corte = m.seqBonus == null ? -1 : m.seqBonus;
+    let k = s.has(h) ? h : h - 1, n = 0;
+    while (s.has(k) && k > corte) { n++; k--; }
+    return { n, esteMes: s.has(h) };
+  }
+  /* roda depois de toda compra: selo novo, passaporte completo, 3 meses seguidos */
+  function depoisDaCompra(d, m, canal) {
+    const r = {};
+    if (PASSAPORTE.includes(canal) && !m.extrato.slice(1).some((e) => ehCompra(e) && e.canal === canal)) {
+      r.selo = { canal, nome: NOME_SELO[canal], n: Object.keys(selosDe(m)).length, de: PASSAPORTE.length };
+    }
+    if (!m.passaporte && PASSAPORTE.every((c) => selosDe(m)[c])) {
+      m.passaporte = agora();
+      const res = { codigo: codigoNovo(6), membro: m.id, premio: "passaporte", nome: d.regras.premioPassaporte, pontos: 0, data: agora(), entregue: null, loja: null };
+      d.resgates.push(res);
+      lancar(m, 0, "Passaporte completo: " + res.nome, null);
+      r.passaporte = res;
+    }
+    const b = d.regras.bonusSequencia;
+    const q = seguidos(m);
+    if (b > 0 && q.esteMes && q.n >= 3) {
+      m.seqBonus = mesNum(agora());
+      lancar(m, b, "3 meses seguidos na Gliki", null);
+      r.sequencia = b;
+    }
+    return r;
+  }
+  /* a nota precisa ser da Gliki, deste mês ou do passado, e de compra */
+  function checarNota(d, n) {
+    if (!n) return { erro: "Não reconheci essa nota. Tente de novo ou digite os 44 números." };
+    if (!n.valida) return { erro: "Esse número tem algum dígito errado. Confira e tente de novo." };
+    const loja = CNPJS[n.cnpj];
+    if (!loja) return { erro: "Essa nota não é da Gliki Sô." };
+    if (!["65", "55", "59"].includes(n.modelo)) return { erro: "Esse documento não é uma nota de compra." };
+    const hoje = new Date();
+    const meses = (hoje.getFullYear() - n.ano) * 12 + (hoje.getMonth() + 1 - n.mes);
+    if (meses < 0 || meses > d.regras.notaMeses) return { erro: `Essa nota é de ${String(n.mes).padStart(2, "0")}/${n.ano}. Valem as notas deste mês e do mês passado.` };
+    return { loja };
+  }
+  const umaCompra = (d) => Math.max(1, d.regras.pontosPorNota);
+  function quaseNoPremio(d, m) {
+    const { proximo } = faixaDe(m.pontos, d.premios);
+    return proximo && m.pontos > 0 && proximo.pontos - m.pontos <= umaCompra(d);
+  }
+  function vencendo(m, regras) {
+    const falta = expiraEm(m, regras) - agora();
+    return m.pontos > 0 && falta >= 0 && falta <= 15 * DIA;
+  }
+  const faltaUmSelo = (m) => !m.passaporte && Object.keys(selosDe(m)).length === PASSAPORTE.length - 1;
+
+  /* "Sua próxima jogada": o que vale mais a pena para ESTA pessoa agora, no máximo 2 */
+  function missoes(d, m) {
+    const r = d.regras, lista = [];
+    const perto = PERTO[m.cidade] || PERTO.Curitiba;
+    const { proximo } = faixaDe(m.pontos, d.premios);
+    const pode = [...d.premios].filter((p) => m.pontos >= p.pontos).sort((a, b) => b.pontos - a.pontos)[0];
+    const esperando = d.resgates.some((x) => x.membro === m.id && !x.entregue);
+    if (pode && !esperando) lista.push({ tipo: "troca", peso: 95, titulo: `Você já pode trocar: ${pode.nome}`,
+      texto: proximo ? `Ou junte mais ${proximo.pontos - m.pontos} e troque por ${proximo.nome}.` : "Troque na aba Prêmios e busque na loja." });
+    if (proximo && !(pode && !esperando)) {
+      const falta = proximo.pontos - m.pontos;
+      const compras = Math.ceil(falta / umaCompra(d));
+      if (compras <= 2) lista.push({ tipo: "premio", peso: compras === 1 ? 90 : 60,
+        titulo: compras === 1 ? `Mais 1 compra e você troca: ${proximo.nome}` : `Mais 2 compras e você troca: ${proximo.nome}`,
+        texto: `Faltam ${falta} pontos. O prêmio você busca na loja.` });
+    }
+    const dias = Math.ceil((expiraEm(m, r) - agora()) / DIA);
+    if (m.pontos > 0 && dias <= 15) lista.push({ tipo: "vence", peso: dias <= 7 ? 100 : 80,
+      titulo: `Seus ${m.pontos} pontos vencem ${dias <= 0 ? "hoje" : dias === 1 ? "amanhã" : "em " + dias + " dias"}`,
+      texto: "Qualquer compra renova o prazo de todos eles." });
+    if (!m.passaporte) {
+      const s = selosDe(m);
+      const faltam = perto.filter((c) => !s[c]);
+      const tem = PASSAPORTE.length - faltam.length;
+      if (faltam.length === 1) lista.push({ tipo: "selo", peso: 85, titulo: `Falta 1 selo: ${NOME_SELO[faltam[0]]}`, texto: `Complete o passaporte e ganhe ${r.premioPassaporte}.` });
+      else if (faltam.length) lista.push({ tipo: "selo", peso: 45, titulo: tem ? `Próximo selo: ${NOME_SELO[faltam[0]]}` : "Comece o seu passaporte", texto: `${tem} de ${PASSAPORTE.length} selos. Um em cada cidade e um na máquina: completo, vale ${r.premioPassaporte}.` });
+    }
+    const dob = dobroAtivo(d);
+    if (dob) lista.push({ tipo: "dobro", peso: perto.indexOf(dob) <= 1 ? 88 : 50, titulo: `Pontos em dobro: ${NOME_SELO[dob] || CANAIS[dob]}`, texto: "Até o fim do mês, cada compra lá vale o dobro." });
+    if (r.bonusSequencia > 0) {
+      const q = seguidos(m);
+      if (!q.esteMes && q.n >= 1) lista.push({ tipo: "seq", peso: q.n + 1 >= 3 ? 75 : 55,
+        titulo: q.n + 1 >= 3 ? `Compre este mês e ganhe +${r.bonusSequencia}` : `Compre este mês: ${q.n + 1} meses seguidos`,
+        texto: q.n + 1 >= 3 ? "É o 3º mês seguido na Gliki." : `No 3º mês seguido você ganha +${r.bonusSequencia} pontos.` });
+    }
+    return lista.sort((a, b) => b.peso - a.peso).slice(0, 2);
+  }
+
+  /* o que o painel sugere à Melissa, com o botão que já resolve */
+  function sugestoes(d) {
+    const r = d.regras, out = [];
+    const t30 = agora() - 30 * DIA;
+    const conta = {};
+    PASSAPORTE.forEach((c) => (conta[c] = 0));
+    d.membros.forEach((m) => m.extrato.forEach((e) => { if (ehCompra(e) && e.data >= t30 && e.canal in conta) conta[e.canal]++; }));
+    const dob = dobroAtivo(d);
+    if (dob) {
+      const desde = r.dobro.desde || 0;
+      const n = d.membros.reduce((s, m) => s + m.extrato.filter((e) => ehCompra(e) && e.canal === dob && e.data >= desde).length, 0);
+      out.push({ tipo: "dobro-ligado", canal: dob, titulo: `Pontos em dobro em ${NOME_SELO[dob]}`, texto: `${n} compra${n === 1 ? "" : "s"} lá desde que você ligou. Desliga sozinho no fim do mês.`, botao: "Desligar agora" });
+    } else {
+      const lojas = BALCOES.map((c) => ({ c, n: conta[c] })).sort((a, b) => a.n - b.n);
+      const fraca = lojas[0], forte = lojas[lojas.length - 1];
+      if (forte.n >= 6 && fraca.n * 2 <= forte.n) out.push({ tipo: "dobro", canal: fraca.c, titulo: `${NOME_SELO[fraca.c]} está mais parada`,
+        texto: `${fraca.n} compra${fraca.n === 1 ? "" : "s"} no clube em 30 dias, contra ${forte.n} em ${NOME_SELO[forte.c]}. Ligar pontos em dobro lá até o fim do mês?`, botao: "Ligar o dobro" });
+    }
+    const avisa = (publico, titulo, texto, modelo) => { const n = Clube.publico(d, publico).length; if (n) out.push({ tipo: "aviso", publico, titulo: titulo(n), texto, botao: "Avisar", modelo }); };
+    avisa("vencendo", (n) => `${n} ${n === 1 ? "pessoa perde" : "pessoas perdem"} os pontos em até 15 dias`, "Um aviso lembra que uma compra renova o prazo.",
+      ["Seus pontos vencem logo", "Uma compra na Gliki renova o prazo de todos os seus pontos. Não deixa vencer!"]);
+    avisa("quase", (n) => `${n} ${n === 1 ? "pessoa está" : "pessoas estão"} a 1 compra de um prêmio`, "Quem sabe que falta pouco volta antes.",
+      ["Falta 1 compra para o seu prêmio", "Mais uma compra na Gliki e você já troca seus pontos. Passa aqui?"]);
+    avisa("passaporte", (n) => `${n} ${n === 1 ? "pessoa está" : "pessoas estão"} a 1 selo do passaporte`, `Completo, o passaporte vale ${r.premioPassaporte}.`,
+      ["Falta 1 selo no seu passaporte", `Complete o Passaporte Gliki e ganhe ${r.premioPassaporte}. Veja qual falta no clube.`]);
+    return out;
+  }
+
   const Clube = {
-    CANAIS, CIDADES, CNPJS, LOJAS, REGRAS_PADRAO, PREMIOS_PADRAO,
-    mascaraFone, chaveFone, analisarNota,
+    CANAIS, CIDADES, CNPJS, LOJAS, REGRAS_PADRAO, PREMIOS_PADRAO, PASSAPORTE, NOME_SELO, BALCOES,
+    /* quantas compras até o prêmio mais barato, contando as boas-vindas */
+    comprasAtePrimeiro(d) { const p = Math.min(...d.premios.map((x) => x.pontos)); return { n: Math.max(1, Math.ceil((p - d.regras.bonusCadastro) / umaCompra(d))), premio: d.premios.find((x) => x.pontos === p) }; },
+    mascaraFone, chaveFone, analisarNota, checarNota, selosDe, dobroAtivo, missoes, sugestoes, seguidos,
+    temCNPJ(canal) { return Object.values(CNPJS).some((x) => x.canal === canal); },
+    ligarDobro(canal) { return mexer((d) => { d.regras.dobro = canal ? { canal, mes: mesAtual(), desde: agora() } : null; }); },
     notaExemplo() { return montaChave("58476355000131", agora()); },
     ler, mexer, codigoNovo, limpaCodigo, mostraCodigo, soDigitos, dataBR, dataHoraBR, faixaDe, expiraEm, aniversarioPerto,
 
@@ -277,9 +462,11 @@
         if (c.usadoPor) return { ok: false, erro: `Esse código já foi usado em ${dataBR(c.usadoEm)}.` };
         c.usadoPor = m.id; c.usadoEm = agora();
         const primeira = !m.extrato.some((e) => e.canal);
-        lancar(m, c.pontos, "Etiqueta " + mostraCodigo(cod), c.canal);
+        const x = vezes(d, c.canal);
+        lancar(m, c.pontos * x, "Etiqueta " + mostraCodigo(cod) + (x > 1 ? " (em dobro)" : ""), c.canal);
+        const extra = depoisDaCompra(d, m, c.canal);
         premiaIndicacao(d, m, primeira);
-        return { ok: true, pontos: c.pontos, canal: c.canal, saldo: m.pontos, tipo: "Etiqueta da máquina" };
+        return { ok: true, pontos: c.pontos * x, dobro: x > 1, canal: c.canal, saldo: m.pontos, tipo: "Etiqueta da máquina", ...extra };
       });
     },
 
@@ -289,25 +476,23 @@
         const m = Clube.membro(d, idMembro);
         if (!m) return { ok: false, erro: "Entre no clube para guardar seus pontos." };
         const n = analisarNota(texto);
-        if (!n) return { ok: false, erro: "Não reconheci essa nota. Tente de novo ou digite os 44 números." };
-        if (!n.valida) return { ok: false, erro: "Esse número tem algum dígito errado. Confira e tente de novo." };
-        const loja = CNPJS[n.cnpj];
-        if (!loja) return { ok: false, erro: "Essa nota não é da Gliki Sô." };
-        if (!["65", "55", "59"].includes(n.modelo)) return { ok: false, erro: "Esse documento não é uma nota de compra." };
-        const hoje = new Date();
-        const meses = (hoje.getFullYear() - n.ano) * 12 + (hoje.getMonth() + 1 - n.mes);
-        if (meses < 0 || meses > d.regras.notaMeses) return { ok: false, erro: `Essa nota é de ${String(n.mes).padStart(2, "0")}/${n.ano}. Valem as notas deste mês e do mês passado.` };
+        const ch = checarNota(d, n);
+        if (ch.erro) return { ok: false, erro: ch.erro };
+        const loja = ch.loja;
         const ja = d.notas[n.chave];
-        if (ja) return { ok: false, erro: ja.membro === m.id ? `Você já pontuou essa nota em ${dataBR(ja.data)}.` : `Essa nota já foi usada em ${dataBR(ja.data)}.` };
+        if (ja) return { ok: false, erro: ja.balcao ? `Essa nota já pontuou no balcão em ${dataBR(ja.data)}.` : ja.membro === m.id ? `Você já pontuou essa nota em ${dataBR(ja.data)}.` : `Essa nota já foi usada em ${dataBR(ja.data)}.` };
         const inicioDia = new Date(); inicioDia.setHours(0, 0, 0, 0);
-        const deHoje = Object.values(d.notas).filter((x) => x.membro === m.id && x.data >= inicioDia.getTime()).length;
+        const deHoje = Object.values(d.notas).filter((x) => x.membro === m.id && !x.balcao && x.data >= inicioDia.getTime()).length;
         if (deHoje >= d.regras.notasPorDia) return { ok: false, erro: `Você já pontuou ${deHoje} notas hoje. Guarde esta e volte amanhã.` };
         const primeira = !m.extrato.some((e) => e.canal);
-        d.notas[n.chave] = { membro: m.id, data: agora(), canal: loja.canal, numero: n.numero, pontos: d.regras.pontosPorNota };
-        lancar(m, d.regras.pontosPorNota, "Nota fiscal nº " + n.numero, loja.canal);
+        const x = vezes(d, loja.canal);
+        const pts = d.regras.pontosPorNota * x;
+        d.notas[n.chave] = { membro: m.id, data: agora(), canal: loja.canal, numero: n.numero, pontos: pts };
+        lancar(m, pts, "Nota fiscal nº " + n.numero + (x > 1 ? " (em dobro)" : ""), loja.canal);
         if (!m.cidade) m.cidade = loja.cidade;
+        const extra = depoisDaCompra(d, m, loja.canal);
         premiaIndicacao(d, m, primeira);
-        return { ok: true, pontos: d.regras.pontosPorNota, canal: loja.canal, saldo: m.pontos, tipo: "Nota fiscal nº " + n.numero };
+        return { ok: true, pontos: pts, dobro: x > 1, canal: loja.canal, saldo: m.pontos, tipo: "Nota fiscal nº " + n.numero, ...extra };
       });
     },
 
@@ -334,13 +519,39 @@
       });
     },
 
-    pontuarBalcao(idMembro, cookies, canal) {
+    /* No balcão a atendente lê a nota da compra: pontua por cookie e a nota fica usada,
+       então a mesma compra não pontua de novo pelo celular. Se a cliente já tinha lido a nota,
+       o balcão só completa a diferença. Loja sem CNPJ cadastrado ainda soma sem nota. */
+    pontuarBalcao(idMembro, cookies, canalBalcao, textoNota) {
       return mexer((d) => {
         const m = Clube.membro(d, idMembro);
-        if (!m) return { ok: false };
-        const pts = cookies * d.regras.pontosPorCookie;
-        lancar(m, pts, `${cookies} cookie${cookies > 1 ? "s" : ""} no balcão`, canal);
-        return { ok: true, pontos: pts, saldo: m.pontos };
+        if (!m) return { ok: false, erro: "Cliente não encontrada." };
+        let canal = canalBalcao, n = null, jaTinha = 0;
+        if (textoNota && String(textoNota).trim()) {
+          n = analisarNota(textoNota);
+          const ch = checarNota(d, n);
+          if (ch.erro) return { ok: false, erro: ch.erro };
+          const ja = d.notas[n.chave];
+          if (ja && ja.membro !== m.id) return { ok: false, erro: `Essa nota já foi usada por outra pessoa em ${dataBR(ja.data)}.` };
+          if (ja && ja.balcao) return { ok: false, erro: `Essa nota já foi somada no balcão em ${dataHoraBR(ja.data)}.` };
+          jaTinha = ja ? ja.pontos : 0;
+          canal = ch.loja.canal;
+        } else if (Clube.temCNPJ(canalBalcao)) {
+          return { ok: false, precisaNota: true, erro: "Leia a nota desta compra. É ela que impede a mesma compra de pontuar duas vezes." };
+        }
+        const x = vezes(d, canal);
+        const total = cookies * d.regras.pontosPorCookie * x;
+        const pts = Math.max(0, total - jaTinha);
+        const primeira = !m.extrato.some((e) => e.canal);
+        if (n) d.notas[n.chave] = { membro: m.id, data: agora(), canal, numero: n.numero, pontos: total, balcao: true };
+        const motivo = `${cookies} cookie${cookies > 1 ? "s" : ""} no balcão${n ? " · nota nº " + n.numero : ""}${x > 1 ? " (em dobro)" : ""}`;
+        if (pts > 0) {
+          lancar(m, pts, jaTinha ? motivo + " (completa a nota)" : motivo, canal);
+          if (jaTinha) m.extrato[0].comp = true; // a compra já tinha contado; isto é só o resto dos pontos
+        }
+        const extra = pts > 0 ? depoisDaCompra(d, m, canal) : {};
+        if (pts > 0) premiaIndicacao(d, m, primeira);
+        return { ok: true, pontos: pts, total, jaTinha, dobro: x > 1, canal, saldo: m.pontos, ...extra };
       });
     },
 
@@ -366,6 +577,9 @@
         if (publico === "aniversario") return aniversarioPerto(m);
         if (publico === "sumidos") return hoje - (m.ultimo || m.desde) > 30 * DIA;
         if (publico === "premio") return m.pontos >= Math.min(...d.premios.map((p) => p.pontos));
+        if (publico === "quase") return quaseNoPremio(d, m);
+        if (publico === "vencendo") return vencendo(m, d.regras);
+        if (publico === "passaporte") return faltaUmSelo(m);
         return m.cidade === publico;
       });
     },

@@ -34,7 +34,7 @@
 
   .lado { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 4px; padding: 22px 14px; background: var(--cacau); color: var(--creme); }
   .marca { display: flex; gap: 10px; align-items: center; padding: 0 8px 22px; }
-  .marca img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--creme); }
+  .marca img { width: 40px; height: 40px; border-radius: 11px; box-shadow: 0 0 0 1px rgba(255,233,184,.25); }
   .marca b { display: block; font: 400 19px/1.1 var(--display); }
   .marca small { color: var(--creme-2); font-size: 12px; }
   .menu a { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; text-decoration: none; color: var(--creme-2); font-weight: 600; font-size: 15px; position: relative; }
@@ -98,7 +98,7 @@
   .btn[disabled] { opacity: .4; cursor: default; }
 
   .campo { display: grid; gap: 6px; margin-bottom: 14px; font-size: 14px; font-weight: 600; }
-  .campo input, .campo select, .campo textarea { min-height: 46px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--linha); background: #fff; font: 500 15px var(--texto); color: var(--tinta); }
+  .campo input, .campo select, .campo textarea { width: 100%; min-width: 0; box-sizing: border-box; min-height: 46px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--linha); background: #fff; font: 500 15px var(--texto); color: var(--tinta); }
   .campo textarea { min-height: 90px; resize: vertical; }
   .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--massa); }
   .ajuda { font-weight: 400; color: var(--tinta-2); font-size: 13px; }
@@ -156,6 +156,35 @@
   .toast .ic { color: var(--led); }
   @keyframes sobe { from { transform: translateY(12px); opacity: 0; } }
 
+  /* o clube sugere: cada linha já vem com o botão que resolve */
+  .sugere { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .sugere li { display: grid; grid-template-columns: 40px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 16px; background: #fbf4ea; border: 1px solid var(--linha); }
+  .sugere li > i { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--cacau); color: var(--led); font-style: normal; }
+  .sugere b { display: block; font-size: 15px; }
+  .sugere small { display: block; color: var(--tinta-2); font-size: 13px; margin-top: 2px; }
+  .sugere .s-dobro-ligado { background: #fff4d6; border-color: #e8cf94; }
+  @media (max-width: 620px) { .sugere li { grid-template-columns: 40px 1fr; } .sugere li .btn { grid-column: 1 / -1; } }
+  /* selos do passaporte na ficha */
+  .mini-selos { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 16px; }
+  .mini-selos span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1.5px dashed var(--linha); color: var(--tinta-2); }
+  .mini-selos span.tem { border: 1.5px solid var(--cacau); background: var(--cacau); color: var(--led); }
+  .mini-selos .ic { width: 15px; height: 15px; }
+  /* balcão: onde a atendente está e a nota da compra */
+  .onde { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; font-weight: 600; }
+  .onde select { min-height: 44px; padding: 8px 12px; border-radius: 12px; border: 1.5px solid var(--linha); background: #fff; font: 600 15px var(--texto); color: var(--tinta); }
+  .nota-linha { display: flex; gap: 8px; margin-top: 10px; }
+  .nota-linha input { flex: 1; min-width: 0; min-height: 46px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--linha); background: #fff; font: 500 15px var(--texto); }
+  .nota-linha input:focus { outline: none; border-color: var(--massa); }
+  .nota-info { font-size: 13px; color: var(--tinta-2); margin: 6px 0 0; min-height: 18px; }
+  .nota-info.boa { color: #2f6b3a; font-weight: 600; } .nota-info.ruim { color: #b3261e; font-weight: 600; }
+  .tag-balcao { font: 500 10px/1 var(--rotulo); letter-spacing: .1em; text-transform: uppercase; background: var(--cacau); color: var(--led); padding: 3px 6px; border-radius: 5px; margin-left: 6px; vertical-align: 1px; }
+  dialog.leitor { width: min(480px, 100%); padding: 0; border: 0; border-radius: 24px; background: #120b08; color: var(--creme); }
+  dialog.leitor::backdrop { background: rgba(20,12,9,.7); }
+  .leitor-topo { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; }
+  .leitor-topo b { font: 400 20px var(--display); }
+  .leitor video { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #000; }
+  .leitor p { margin: 0; padding: 14px 16px 18px; font-size: 14px; color: var(--creme-2); }
+
   /* folha de etiquetas para imprimir */
   #etiquetas { display: none; }
   @media print {
@@ -168,6 +197,17 @@
     .etq b { font: 400 13pt/1 var(--display); display: block; }
     .etq span { font-size: 7.5pt; display: block; margin: 1mm 0; }
     .etq code { font: 500 12pt var(--rotulo); letter-spacing: .12em; }
+    /* cartaz: duas metades de A4 (A5), para cortar */
+    #etiquetas.modo-cartaz { grid-template-columns: 1fr; gap: 0; }
+    .cartaz { break-inside: avoid; height: 136mm; box-sizing: border-box; padding: 9mm 14mm; border-bottom: .3mm dashed #bbb; display: grid; grid-template-columns: 1fr 58mm; grid-template-rows: auto auto auto auto auto; align-content: center; column-gap: 12mm; background: #2a1913; color: #f3e6d3; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: var(--texto); }
+    .cartaz img { width: 40mm; }
+    .cartaz .c-rotulo { font: 500 9pt var(--rotulo); letter-spacing: .2em; text-transform: uppercase; color: #ffe9b8; margin: 5mm 0 1mm; }
+    .cartaz h3 { font: 400 33pt/1.02 var(--display); margin: 0 0 6mm; }
+    .cartaz .c-qr { grid-column: 2; grid-row: 1 / 5; align-self: center; background: #fff; padding: 3mm; border-radius: 3mm; }
+    .cartaz .c-qr svg { width: 52mm; height: 52mm; display: block; }
+    .cartaz ol { margin: 0; padding-left: 5mm; font-size: 13pt; line-height: 1.55; }
+    .cartaz ol b { color: #ffe9b8; }
+    .cartaz .c-pe { grid-column: 1 / -1; font-size: 10pt; color: #d9c7b0; margin: 8mm 0 0; padding-top: 4mm; border-top: .5mm solid #ffe9b8; }
   }
 
   @media (max-width: 900px) {
@@ -184,6 +224,9 @@
     .barra-linha { grid-template-columns: 120px 1fr 36px; }
     .esconde-cel { display: none; }
     .lote { grid-template-columns: 1fr auto; }
+    .btn-peq { min-height: 44px; padding: 8px 14px; }
+    .linha-premio { grid-template-columns: 1fr 96px !important; }
+    .linha-premio .campo:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
     .lote .barra { grid-column: 1 / -1; }
     h1 { font-size: 30px; }
   }
@@ -193,7 +236,7 @@
 <div class="casca">
   <aside class="lado">
     <div class="marca">
-      <img src="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg" alt="Gliki Sô">
+      <img src="../icones/apple-adm-180.png" alt="Gliki Sô">
       <div><b>Glikilovers</b><small>Painel da Melissa</small></div>
     </div>
     <nav class="menu" id="menu" aria-label="Painel"></nav>
@@ -207,6 +250,11 @@
   <main class="conteudo" id="conteudo"></main>
 </div>
 <dialog class="ficha" id="ficha"><div class="ficha-corpo" id="fichaCorpo"></div></dialog>
+<dialog class="leitor" id="leitor" aria-label="Ler a nota com a câmera">
+  <div class="leitor-topo"><b>Ler a nota</b><button class="fechar" type="button" id="leitorFechar" aria-label="Fechar" style="color:var(--creme)"></button></div>
+  <video id="leitorVideo" playsinline muted></video>
+  <p id="leitorTexto">Aponte para o QR no pé da nota.</p>
+</dialog>
 <div id="etiquetas" aria-hidden="true"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -258,10 +306,71 @@ const zap = (m, texto) => "https://wa.me/55" + C.soDigitos(m.whats) + "?text=" +
 const diasDesde = (t) => Math.floor((Date.now() - t) / DIA);
 const faixa = (d, m) => { const f = C.faixaDe(m.pontos, d.premios).atual; return f ? `<span class="faixa ${f.faixa}">${f.faixa}</span>` : `<span class="faixa">Início</span>`; };
 
+/* onde a atendente está (fica guardado neste aparelho) */
+function balcaoAqui() { try { const v = localStorage.getItem("glk_balcao"); return C.BALCOES.includes(v) ? v : "loja-pgua"; } catch (e) { return "loja-pgua"; } }
+function dobroAqui(d, canal) { return C.dobroAtivo(d) === (canal || balcaoAqui()) ? 2 : 1; }
+let modeloPendente = null;
+
+/* câmera para ler a nota no balcão (no Android lê direto; no iPhone usa o jsQR) */
+const Leitor = { ativo: false, stream: null, det: null, tela: document.createElement("canvas") };
+function carregarJsQR() {
+  if (window.jsQR) return Promise.resolve();
+  return new Promise((ok, falha) => { const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"; s.onload = ok; s.onerror = falha; document.head.appendChild(s); });
+}
+async function lerComCamera(destino) {
+  const dlg = $("leitor");
+  if (!dlg.open) dlg.showModal();
+  $("leitorTexto").textContent = "Aponte para o QR no pé da nota.";
+  Leitor.ativo = true;
+  try {
+    if ("BarcodeDetector" in window && !Leitor.det) { try { Leitor.det = new BarcodeDetector({ formats: ["qr_code"] }); } catch (e) {} }
+    if (!Leitor.det) await carregarJsQR();
+    Leitor.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    if (!Leitor.ativo) return pararLeitor();
+    const v = $("leitorVideo");
+    v.srcObject = Leitor.stream;
+    await v.play();
+    const laco = async () => {
+      if (!Leitor.ativo) return;
+      let t = null;
+      try {
+        if (v.readyState >= 2 && v.videoWidth) {
+          if (Leitor.det) { const r = await Leitor.det.detect(v); t = r[0] ? r[0].rawValue : null; }
+          else if (window.jsQR) {
+            const lado = Math.min(v.videoWidth, v.videoHeight), sai = Math.min(lado, 800), c = Leitor.tela;
+            c.width = c.height = sai;
+            const g = c.getContext("2d", { willReadFrequently: true });
+            g.drawImage(v, (v.videoWidth - lado) / 2, (v.videoHeight - lado) / 2, lado, lado, 0, 0, sai, sai);
+            const q = window.jsQR(g.getImageData(0, 0, sai, sai).data, sai, sai, { inversionAttempts: "attemptBoth" });
+            t = q ? q.data : null;
+          }
+        }
+      } catch (e) {}
+      if (t && C.analisarNota(t)) { if (navigator.vibrate) navigator.vibrate(30); destino(t); return fecharLeitor(); }
+      if (t) $("leitorTexto").textContent = "Esse QR não é de nota fiscal. Aponte para o QR da nota.";
+      setTimeout(laco, 160);
+    };
+    laco();
+  } catch (e) {
+    $("leitorTexto").textContent = "Não consegui abrir a câmera. Libere a câmera para o painel ou digite os 44 números da nota.";
+  }
+}
+function pararLeitor() { if (Leitor.stream) Leitor.stream.getTracks().forEach((t) => t.stop()); Leitor.stream = null; $("leitorVideo").srcObject = null; }
+function fecharLeitor() { Leitor.ativo = false; pararLeitor(); if ($("leitor").open) $("leitor").close(); }
+$("leitorFechar").innerHTML = I.fechar;
+$("leitorFechar").addEventListener("click", fecharLeitor);
+$("leitor").addEventListener("close", () => { Leitor.ativo = false; pararLeitor(); });
+
 /* ---------- Início ---------- */
 function telaInicio(d) {
   const semana = d.membros.filter((m) => Date.now() - m.desde < 7 * DIA).length;
-  const usados30 = [...Object.values(d.codigos).filter((c) => c.usadoEm).map((c) => ({ canal: c.canal, quando: c.usadoEm })), ...Object.values(d.notas).map((n) => ({ canal: n.canal, quando: n.data }))].filter((c) => Date.now() - c.quando < 30 * DIA);
+  // toda compra que pontuou (nota, etiqueta ou balcão), sem contar bônus nem o "completa a nota"
+  const usados30 = d.membros.flatMap((m) => m.extrato.filter((e) => e.canal && e.pontos > 0 && !e.comp).map((e) => ({ canal: e.canal, quando: e.data }))).filter((c) => Date.now() - c.quando < 30 * DIA);
+  const sug = C.sugestoes(d);
+  // quem comprou no mês e voltou pelo menos mais uma vez: é o número que diz se o clube funciona
+  const porPessoa = d.membros.map((m) => m.extrato.filter((e) => e.canal && e.pontos > 0 && !e.comp && Date.now() - e.data < 30 * DIA).length).filter((n) => n > 0);
+  const voltaram = porPessoa.filter((n) => n >= 2).length;
+  const taxaVolta = porPessoa.length ? Math.round((voltaram / porPessoa.length) * 100) : 0;
   const pendentes = d.resgates.filter((r) => !r.entregue);
   const niver = d.membros.filter(C.aniversarioPerto);
   const sumidos = C.publico(d, "sumidos");
@@ -273,10 +382,14 @@ function telaInicio(d) {
       <a class="btn btn-escuro" href="#avisos">${I.megafone}Mandar um aviso</a></div>
     <div class="grade g4">
       <div class="caixa destaque"><p class="rotulo">No clube</p><p class="numero">${d.membros.length}</p><p class="numero-nota">${semana} ${semana === 1 ? "entrou" : "entraram"} esta semana</p></div>
-      <div class="caixa"><p class="rotulo">Compras registradas</p><p class="numero">${usados30.length}</p><p class="numero-nota">notas e etiquetas em 30 dias</p></div>
+      <div class="caixa"><p class="rotulo">Compras registradas</p><p class="numero">${usados30.length}</p><p class="numero-nota">notas, etiquetas e balcão em 30 dias</p></div>
       <div class="caixa"><p class="rotulo">Prêmios a entregar</p><p class="numero">${pendentes.length}</p><p class="numero-nota">${pendentes.length ? "veja em Balcão" : "tudo entregue"}</p></div>
-      <div class="caixa"><p class="rotulo">Aniversários</p><p class="numero">${niver.length}</p><p class="numero-nota">nesta semana</p></div>
+      <div class="caixa"><p class="rotulo">Voltaram</p><p class="numero">${taxaVolta}%</p><p class="numero-nota">${voltaram} de ${porPessoa.length} compraram 2 vezes ou mais em 30 dias</p></div>
     </div>
+    ${sug.length ? `<div class="caixa" style="margin-top:14px">
+      <h2>O clube sugere</h2>
+      <ul class="sugere">${sug.map((x, i) => `<li class="s-${x.tipo}"><i>${x.tipo === "aviso" ? I.megafone : I.estrela}</i><span><b>${x.titulo}</b><small>${x.texto}</small></span><button class="btn ${x.tipo === "dobro-ligado" ? "btn-linha" : "btn-escuro"} btn-peq" type="button" data-sug="${i}">${x.botao}</button></li>`).join("")}</ul>
+    </div>` : ""}
     <div class="grade g-3-2" style="margin-top:14px">
       <div class="caixa">
         <h2>De onde vêm as compras</h2>
@@ -324,9 +437,14 @@ function abrirFicha(id) {
       <div class="caixa destaque" style="padding:16px"><p class="rotulo">Pontos agora</p><p class="numero">${m.pontos}</p><p class="numero-nota">${m.total} ganhos no total</p></div>
       <div class="caixa" style="padding:16px;font-size:14px;line-height:1.7">${m.cidade || "Cidade: na 1ª compra"}<br>Aniversário: ${m.niver ? `${dd}/${mm}` : "—"}<br>${m.whats}</div>
     </div>
+    <p class="rotulo" style="margin-bottom:2px">Passaporte ${m.passaporte ? "completo" : `· ${Object.keys(C.selosDe(m)).length} de ${C.PASSAPORTE.length}`}</p>
+    <div class="mini-selos">${(() => { const s = C.selosDe(m); return C.PASSAPORTE.map((c) => `<span class="${s[c] ? "tem" : ""}">${s[c] ? I.check : ""}${C.NOME_SELO[c]}</span>`).join(""); })()}</div>
     <div class="caixa" style="padding:16px;margin-bottom:14px">
-      <p style="margin:0 0 10px;font-weight:600">Somar uma compra no balcão</p>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="passo"><button type="button" data-passo="-1" aria-label="Menos">−</button><output id="qtd">1</output><button type="button" data-passo="1" aria-label="Mais">+</button></span><span id="qtdTexto">cookie = ${d.regras.pontosPorCookie} pontos</span><button class="btn btn-escuro" id="somarFicha" style="margin-left:auto">Somar</button></div>
+      <p style="margin:0 0 10px;font-weight:600">Somar uma compra no balcão de ${C.NOME_SELO[balcaoAqui()]}</p>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="passo"><button type="button" data-passo="-1" aria-label="Menos">−</button><output id="qtd">1</output><button type="button" data-passo="1" aria-label="Mais">+</button></span><span id="qtdTexto">cookie = ${d.regras.pontosPorCookie * dobroAqui(d)} pontos${dobroAqui(d) > 1 ? " (em dobro)" : ""}</span></div>
+      <div class="nota-linha"><input id="notaFicha" inputmode="numeric" autocomplete="off" placeholder="${C.temCNPJ(balcaoAqui()) ? "Leia o QR da nota ou digite os 44 números" : "Nota (opcional em Caiobá)"}" aria-label="Nota da compra"><button class="btn btn-linha" type="button" id="lerNota">${I.qr}Câmera</button></div>
+      <p class="nota-info" id="notaInfo">${C.temCNPJ(balcaoAqui()) ? "A nota impede que a mesma compra pontue duas vezes." : "Caiobá ainda soma sem a nota: falta o CNPJ da loja."}</p>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-escuro" id="somarFicha">Somar</button></div>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap"><a class="btn btn-zap" target="_blank" rel="noopener" href="${zap(m, `Oi, ${primeiro(m.nome)}! Aqui é a Melissa, da Gliki Sô.`)}">${I.whats}Chamar no WhatsApp</a></div>
     <p class="rotulo" style="margin-bottom:6px">Extrato</p>
@@ -334,14 +452,37 @@ function abrirFicha(id) {
   const f = $("ficha");
   if (!f.open) f.showModal();
   f.querySelector("[data-fechar]").addEventListener("click", () => f.close());
+  const pontosTexto = () => {
+    const n = C.analisarNota($("notaFicha").value);
+    const loja = n && n.valida && C.CNPJS[n.cnpj];
+    const x = loja ? dobroAqui(d, loja.canal) : dobroAqui(d);
+    $("qtdTexto").textContent = `${cookies > 1 ? "cookies" : "cookie"} = ${cookies * d.regras.pontosPorCookie * x} pontos${x > 1 ? " (em dobro)" : ""}`;
+  };
   f.querySelectorAll("[data-passo]").forEach((b) => b.addEventListener("click", () => {
     cookies = Math.max(1, Math.min(20, cookies + Number(b.dataset.passo)));
     $("qtd").textContent = cookies;
-    $("qtdTexto").textContent = `${cookies > 1 ? "cookies" : "cookie"} = ${cookies * d.regras.pontosPorCookie} pontos`;
+    pontosTexto();
   }));
+  const info = (texto, classe) => { const p = $("notaInfo"); p.textContent = texto; p.className = "nota-info " + (classe || ""); };
+  $("notaFicha").addEventListener("input", () => {
+    const v = $("notaFicha").value;
+    const n = C.analisarNota(v);
+    pontosTexto();
+    if (!v.trim()) return info(C.temCNPJ(balcaoAqui()) ? "A nota impede que a mesma compra pontue duas vezes." : "Caiobá ainda soma sem a nota: falta o CNPJ da loja.");
+    if (!n) return info(`${C.soDigitos(v).length} de 44 números`);
+    const ch = C.checarNota(C.ler(), n);
+    if (ch.erro) return info(ch.erro, "ruim");
+    const ja = C.ler().notas[n.chave];
+    if (ja && ja.membro !== m.id) return info("Essa nota já foi usada por outra pessoa.", "ruim");
+    if (ja && ja.balcao) return info("Essa nota já foi somada no balcão.", "ruim");
+    info(`Nota nº ${n.numero} · ${C.CANAIS[ch.loja.canal]}${ja ? ` · ela já leu no celular (+${ja.pontos}); o balcão completa a diferença` : ""}`, "boa");
+  });
+  $("lerNota").addEventListener("click", () => lerComCamera((texto) => { $("notaFicha").value = texto; $("notaFicha").dispatchEvent(new Event("input")); }));
   $("somarFicha").addEventListener("click", () => {
-    const r = C.pontuarBalcao(m.id, cookies, m.cidade === "Paranaguá" ? "loja-pgua" : "loja-cwb");
-    toast(`+${r.pontos} pontos para ${primeiro(m.nome)}`);
+    const r = C.pontuarBalcao(m.id, cookies, balcaoAqui(), $("notaFicha").value);
+    if (!r.ok) { info(r.erro, "ruim"); if (r.precisaNota) $("notaFicha").focus(); return; }
+    const extras = [r.dobro && "em dobro", r.selo && `selo ${r.selo.nome} (${r.selo.n} de ${r.selo.de})`, r.passaporte && "passaporte completo!", r.sequencia && `+${r.sequencia} de 3 meses seguidos`].filter(Boolean);
+    toast(r.pontos ? `+${r.pontos} pontos para ${primeiro(m.nome)}${extras.length ? " · " + extras.join(" · ") : ""}` : `A nota já tinha dado os ${r.jaTinha} pontos dessa compra`);
     abrirFicha(m.id);
     ir(pagina);
   });
@@ -351,7 +492,8 @@ $("ficha").addEventListener("click", (e) => { if (e.target === $("ficha")) $("fi
 /* ---------- Balcão ---------- */
 function telaBalcao(d) {
   const pendentes = d.resgates.filter((r) => !r.entregue).sort((a, b) => b.data - a.data);
-  return `<div class="cabeca"><div><p class="rotulo">Na loja</p><h1>Balcão</h1><p class="sub">Entregue os prêmios e some pontos de quem esqueceu a nota.</p></div></div>
+  return `<div class="cabeca"><div><p class="rotulo">Na loja</p><h1>Balcão</h1><p class="sub">Entregue os prêmios e some a compra lendo a nota: cada cookie pontua e a nota não vale de novo.</p></div>
+      <label class="onde">Este balcão é de<select id="balcaoAqui">${C.BALCOES.map((c) => `<option value="${c}" ${c === balcaoAqui() ? "selected" : ""}>${C.NOME_SELO[c]}</option>`).join("")}</select></label></div>
     <div class="grade g2">
       <div class="caixa">
         <h2>Entregar um prêmio</h2>
@@ -373,7 +515,7 @@ function telaBalcao(d) {
     </div>
     <div class="caixa" style="margin-top:14px">
       <h2>Últimas notas lidas</h2>
-      ${(() => { const ns = Object.values(d.notas).sort((a, b) => b.data - a.data).slice(0, 8); return ns.length ? `<ul class="tarefas">${ns.map((n) => `<li><span>Nota nº ${n.numero}<small>${(C.membro(d, n.membro) || {}).nome || ""} · ${C.CANAIS[n.canal]}</small></span><span>${C.dataHoraBR(n.data)}</span></li>`).join("")}</ul>` : `<p class="sub">Nenhuma nota ainda.</p>`; })()}
+      ${(() => { const ns = Object.values(d.notas).sort((a, b) => b.data - a.data).slice(0, 8); return ns.length ? `<ul class="tarefas">${ns.map((n) => `<li><span>Nota nº ${n.numero}${n.balcao ? '<span class="tag-balcao">balcão</span>' : ""}<small>${(C.membro(d, n.membro) || {}).nome || ""} · ${C.CANAIS[n.canal]}</small></span><span>${C.dataHoraBR(n.data)}</span></li>`).join("")}</ul>` : `<p class="sub">Nenhuma nota ainda.</p>`; })()}
     </div>`;
 }
 function achar(d, q) {
@@ -405,10 +547,33 @@ function telaCodigos(d) {
         <code style="font:500 18px var(--rotulo);letter-spacing:.14em">ABC-123</code>
       </div>
     </div>
+    <div class="caixa" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div><h2 style="margin-bottom:4px">Cartaz para o balcão e o delivery</h2><p class="sub" style="margin:0">QR do clube com a promessa do 1º prêmio. Cole no caixa, na máquina e mande no pacote do delivery.</p></div>
+      <button class="btn btn-escuro" type="button" id="imprimirCartaz">${I.imprimir}Imprimir cartaz</button>
+    </div>
     <div class="caixa" style="margin-top:14px">
       <h2>Etiquetas já impressas</h2>
       ${lotes.map((l) => { const usados = Object.values(d.codigos).filter((c) => c.lote === l.id && c.usadoPor).length; return `<div class="lote"><span><b>${C.CANAIS[l.canal]}</b><br><small style="color:var(--tinta-2)">${l.qtd} etiquetas de ${l.pontos} pontos · ${C.dataBR(l.data)}</small></span><span class="barra"><i style="width:${(usados / l.qtd) * 100}%"></i></span><span><b>${usados}</b> usadas</span></div>`; }).join("")}
     </div>`;
+}
+function imprimirCartaz() {
+  const d = C.ler();
+  const p = C.comprasAtePrimeiro(d);
+  const el = $("etiquetas");
+  el.className = "modo-cartaz";
+  el.innerHTML = [0, 1].map(() => `<div class="cartaz">
+      <img src="../comum/logo-escrita.svg" alt="Gliki Sô">
+      <p class="c-rotulo">Clube Glikilovers</p>
+      <h3>Comprou, apontou, ganhou.</h3>
+      <div class="c-qr">${qrSVG(LINK_CLUBE + "?origem=cartaz", 150)}</div>
+      <ol>
+        <li>Aponte a câmera do celular para o QR e entre com o seu número.</li>
+        <li>Depois de cada compra, aponte para o QR da nota fiscal.</li>
+        <li>Na <b>${p.n}ª compra</b> você já troca: <b>${p.premio.nome}</b>.</li>
+      </ol>
+      <p class="c-pe">Um selo em cada cidade e um na máquina do Jockey: passaporte completo vale ${d.regras.premioPassaporte}.</p>
+    </div>`).join("");
+  setTimeout(() => { window.print(); el.className = ""; }, 200);
 }
 function imprimir(codigos, pontos) {
   $("etiquetas").innerHTML = codigos.map((c) => `<div class="etq">${qrSVG(LINK_CLUBE + "#c=" + c, 100)}<div><b>Gliki Sô</b><span>+${pontos} pontos no Clube Glikilovers. Aponte a câmera.</span><code>${C.mostraCodigo(c)}</code></div></div>`).join("");
@@ -424,7 +589,7 @@ const MODELOS = [
   ["Saudade", "Faz tempo que você não aparece", "Seu cookie favorito está esperando. Passa na Gliki esta semana?"]
 ];
 function telaAvisos(d) {
-  const publicos = [["todos", "Todos"], ["Curitiba", "Curitiba"], ["Paranaguá", "Paranaguá"], ["Caiobá", "Caiobá"], ["aniversario", "Aniversariantes"], ["sumidos", "Sumidos há 30 dias"], ["premio", "Já podem trocar prêmio"]];
+  const publicos = [["todos", "Todos"], ["Curitiba", "Curitiba"], ["Paranaguá", "Paranaguá"], ["Caiobá", "Caiobá"], ["aniversario", "Aniversariantes"], ["sumidos", "Sumidos há 30 dias"], ["premio", "Já podem trocar prêmio"], ["quase", "A 1 compra do prêmio"], ["vencendo", "Pontos vencendo"], ["passaporte", "Falta 1 selo"]];
   return `<div class="cabeca"><div><p class="rotulo">Notificação no celular</p><h1>Avisos</h1><p class="sub">Chega na tela do celular de quem ativou os avisos no clube.</p></div></div>
     <div class="grade g-3-2">
       <div class="caixa">
@@ -442,7 +607,7 @@ function telaAvisos(d) {
         <div class="celular" aria-label="Como o aviso aparece no celular">
           <p class="hora">${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
           <p class="data">${new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</p>
-          <div class="notif"><img src="https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg" alt=""><div><small>CLUBE GLIKILOVERS · agora</small><b id="prevTitulo">Título do aviso</b><span id="prevTexto">A mensagem aparece aqui.</span></div></div>
+          <div class="notif"><img src="../icones/icone-192.png" alt=""><div><small>CLUBE GLIKILOVERS · agora</small><b id="prevTitulo">Título do aviso</b><span id="prevTexto">A mensagem aparece aqui.</span></div></div>
         </div>
       </div>
     </div>
@@ -487,7 +652,7 @@ function telaPremios(d) {
       <div class="grade g2">
         <div class="caixa">
           <h2>Prêmios por faixa</h2>
-          ${d.premios.map((p, i) => `<div class="grade" style="grid-template-columns:90px 1fr 90px;gap:10px;align-items:end">
+          ${d.premios.map((p, i) => `<div class="grade linha-premio" style="grid-template-columns:90px 1fr 90px;gap:10px;align-items:end">
             <label class="campo">Faixa<input name="faixa${i}" value="${p.faixa}"></label>
             <label class="campo">Prêmio<input name="nome${i}" value="${p.nome}"></label>
             <label class="campo">Pontos<input name="pontos${i}" type="number" min="1" value="${p.pontos}"></label></div>`).join("")}
@@ -500,6 +665,9 @@ function telaPremios(d) {
           <label class="campo">Pontos valem por (meses sem comprar)<input name="validadeMeses" type="number" min="1" max="24" value="${r.validadeMeses}"></label>
           <label class="campo">Boas-vindas ao entrar<input name="bonusCadastro" type="number" min="0" value="${r.bonusCadastro}"></label>
           <label class="campo">Indicação (para as duas)<input name="bonusIndicacao" type="number" min="0" value="${r.bonusIndicacao}"></label>
+          <label class="campo">Bônus de 3 meses seguidos comprando<input name="bonusSequencia" type="number" min="0" value="${r.bonusSequencia}"><span class="ajuda">0 desliga.</span></label>
+          <label class="campo">Presente do passaporte completo<input name="premioPassaporte" value="${r.premioPassaporte}"><span class="ajuda">Um selo em ${C.PASSAPORTE.map((c) => C.NOME_SELO[c]).join(", ")}. Não gasta ponto.</span></label>
+          <label class="campo">Pontos em dobro até o fim do mês<select name="dobro"><option value="">Nenhum lugar</option>${C.PASSAPORTE.map((c) => `<option value="${c}" ${C.dobroAtivo(d) === c ? "selected" : ""}>${C.NOME_SELO[c]}</option>`).join("")}</select><span class="ajuda">Bom para encher a loja que está mais parada.</span></label>
           <label class="campo">Presente de aniversário<input name="presenteAniversario" value="${r.presenteAniversario}"></label>
         </div>
       </div>
@@ -517,8 +685,15 @@ const ligar = {
       ir("tema");
     }));
   },
-  inicio() {
+  inicio(d) {
     document.querySelectorAll("[data-publico]").forEach((a) => a.addEventListener("click", () => { publicoEscolhido = a.dataset.publico; }));
+    const sug = C.sugestoes(d);
+    document.querySelectorAll("[data-sug]").forEach((b) => b.addEventListener("click", () => {
+      const x = sug[Number(b.dataset.sug)];
+      if (x.tipo === "dobro") { C.ligarDobro(x.canal); toast(`Pontos em dobro em ${C.NOME_SELO[x.canal]} até o fim do mês`); return ir("inicio"); }
+      if (x.tipo === "dobro-ligado") { C.ligarDobro(null); toast("Pontos em dobro desligados"); return ir("inicio"); }
+      publicoEscolhido = x.publico; modeloPendente = x.modelo; location.hash = "avisos";
+    }));
   },
   clientes(d) {
     linhasClientes(d);
@@ -532,6 +707,7 @@ const ligar = {
     });
   },
   balcao() {
+    $("balcaoAqui").addEventListener("change", (e) => { try { localStorage.setItem("glk_balcao", e.target.value); } catch (er) {} toast("Balcão de " + C.NOME_SELO[e.target.value]); });
     $("formEntregar").addEventListener("submit", (e) => {
       e.preventDefault();
       const cod = e.target.codigo.value;
@@ -555,6 +731,7 @@ const ligar = {
     });
   },
   codigos() {
+    $("imprimirCartaz").addEventListener("click", imprimirCartaz);
     $("formLote").addEventListener("submit", (e) => {
       e.preventDefault();
       const f = e.target;
@@ -579,6 +756,7 @@ const ligar = {
       const m = MODELOS[Number(b.dataset.modelo)];
       f.titulo.value = m[1]; f.texto.value = m[2]; prev();
     }));
+    if (modeloPendente) { f.titulo.value = modeloPendente[0]; f.texto.value = modeloPendente[1]; modeloPendente = null; }
     prev();
     f.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -595,9 +773,11 @@ const ligar = {
       const f = e.target;
       C.mexer((x) => {
         x.premios = x.premios.map((p, i) => ({ ...p, faixa: f["faixa" + i].value.trim() || p.faixa, nome: f["nome" + i].value.trim() || p.nome, pontos: Math.max(1, Number(f["pontos" + i].value) || p.pontos) }));
-        ["pontosPorNota", "notasPorDia", "pontosPorCookie", "validadeMeses", "bonusCadastro", "bonusIndicacao"].forEach((k) => { x.regras[k] = Math.max(0, Number(f[k].value) || 0); });
+        ["pontosPorNota", "notasPorDia", "pontosPorCookie", "validadeMeses", "bonusCadastro", "bonusIndicacao", "bonusSequencia"].forEach((k) => { x.regras[k] = Math.max(0, Number(f[k].value) || 0); });
         x.regras.presenteAniversario = f.presenteAniversario.value.trim() || x.regras.presenteAniversario;
+        x.regras.premioPassaporte = f.premioPassaporte.value.trim() || x.regras.premioPassaporte;
       });
+      if ((C.dobroAtivo(C.ler()) || "") !== f.dobro.value) C.ligarDobro(f.dobro.value || null);
       toast("Prêmios e regras salvos");
       ir("premios");
     });

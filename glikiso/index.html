@@ -603,6 +603,12 @@
     .q-palco { position: static !important; height: auto !important; }
     .q-palco .vitrine { overflow-x: auto !important; }
   }
+  /* alvos de toque de pelo menos 44 px (revisão de 12/11) */
+  .cidades button { min-height: 44px; }
+  #copiar { min-height: 44px; padding-inline: 16px; }
+  .endereco a, #verCardapio { display: inline-flex; align-items: center; min-height: 44px; }
+  .passos summary { min-height: 44px; }
+  .barra-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
 </style>
 </head>
 <body>
@@ -669,7 +675,7 @@
       <a class="clube-convite" id="clubeLink">
         <span class="rotulo" style="color:var(--cacau)">Clube Glikilovers</span>
         <strong id="t-clube">Comprou, apontou, ganhou</strong>
-        <span>Aponte a câmera para a nota, junte pontos e busque seu prêmio na loja.</span>
+        <span>Aponte a câmera para a nota e junte pontos. Na 4ª compra já sai um mini cookie, e cada cidade que você visita vira um selo no seu passaporte.</span>
         <span class="clube-acao">Entrar no clube →</span>
       </a>
       <div class="app-convite" data-instalar-caixa>
@@ -937,7 +943,7 @@ function desenharRota() {
       links.push(ladrilho(icone.maquina, "Como comprar", "#maquinaArea", "abre-passos"));
     } else {
       nome = p.nome; classe = "p-fim";
-      links.push(`<a class="ladrilho largo" href="${CONFIG.clube}">${icone.estrela}Clube Glikilovers: pontos em cada cookie</a>`);
+      links.push(`<a class="ladrilho largo" href="${CONFIG.clube}">${icone.estrela}Clube Glikilovers: na 4ª compra, mini cookie</a>`);
       links.push(ladrilho(icone.grupo, "Grupo VIP #glikilovers", CONFIG.grupoVip, "largo"));
       links.push(ladrilho(icone.estrela, "Avaliar no Google", CONFIG.avaliacao));
       links.push(ladrilho(icone.insta, "Instagram", CONFIG.instagram));

@@ -131,6 +131,41 @@
   .como div { display: grid; grid-template-columns: 38px 1fr; gap: 10px; align-items: center; font-size: 15px; color: var(--creme-2); }
   .como i { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--cacau-3); color: var(--led); font-style: normal; }
 
+  /* sua próxima jogada: o clube escolhe o que vale mais a pena para esta pessoa agora */
+  .jogadas { margin: 2px 0 14px; }
+  .jogadas .rotulo { color: var(--led); margin: 0 0 8px 4px; }
+  .jogada { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; padding: 14px 16px; margin-bottom: 8px; border-radius: 18px;
+    background: linear-gradient(100deg, rgba(255,233,184,.11), rgba(255,233,184,.02) 70%); border: 1px solid rgba(255,233,184,.22); }
+  .jogada i { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--cacau-3); color: var(--led); font-style: normal; box-shadow: 0 0 14px rgba(255,214,140,.18); }
+  .jogada .ic { width: 20px; height: 20px; }
+  .jogada b { display: block; font-size: 15px; line-height: 1.3; color: var(--creme); }
+  .jogada small { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--creme-2); }
+  .jogada.j-vence { border-color: rgba(246,197,208,.35); }
+  .jogada.j-vence i { color: var(--rose); }
+
+  /* passaporte: um selo por lugar, carimbado quando a pessoa compra lá */
+  .pass-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .pass-conta { font: 500 12px/1 var(--rotulo); letter-spacing: .14em; text-transform: uppercase; color: var(--led); }
+  .selos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 16px; text-align: center; }
+  .selo i { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; font-style: normal;
+    border: 2px dashed rgba(255,233,184,.26); color: rgba(243,230,211,.32); }
+  .selo .ic { width: 22px; height: 22px; }
+  .selo.tem i { border: 2px solid var(--led); color: var(--led); transform: rotate(var(--r));
+    background: radial-gradient(circle, rgba(255,233,184,.18), transparent 72%);
+    box-shadow: 0 0 0 4px var(--cacau-2), 0 0 0 5.5px rgba(255,233,184,.5), 0 0 18px rgba(255,214,140,.3); }
+  .selo b { display: block; font: 500 11px/1.15 var(--rotulo); letter-spacing: .07em; text-transform: uppercase; color: var(--creme); }
+  .selo small { font-size: 11px; color: var(--creme-2); }
+  .selo:not(.tem) b { color: var(--creme-2); }
+  .selo-novo { display: flex; align-items: center; gap: 16px; padding: 14px 16px; margin: 4px 0 14px; border-radius: 18px; border: 1.5px dashed rgba(255,233,184,.4); }
+  .selo-novo .selo i { margin: 0; }
+  .selo-novo p { margin: 0; color: var(--creme-2); font-size: 14px; }
+  .selo-novo b { display: block; color: var(--creme); font-size: 16px; }
+  .carimba i { animation: carimba .55s cubic-bezier(.2,1.6,.4,1) .25s both; }
+  @keyframes carimba { from { transform: scale(2.2) rotate(-28deg); opacity: 0; } }
+  .bonus-seq { color: var(--led); font-weight: 700; margin: -4px 0 8px; }
+  @media (max-width: 360px) { .selo i { width: 48px; height: 48px; } .selo b { font-size: 10px; } }
+  @media (prefers-reduced-motion: reduce) { .carimba i { animation: none; } }
+
   .lista { list-style: none; margin: 0; padding: 0; }
   .lista li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(243,230,211,.1); font-size: 15px; }
   .lista li:last-child { border-bottom: 0; }
@@ -228,6 +263,12 @@
   }
   .campo-fone input::placeholder { color: rgba(243,230,211,.42); }
   .campo-fone input:focus { outline: none; border-color: var(--led); box-shadow: 0 0 20px rgba(255,214,140,.32); }
+  .heroi-promessa { position: relative; margin: 14px 0 0; max-width: 32ch; font-size: 16px; line-height: 1.45; color: var(--creme-2); }
+  .heroi-promessa b { color: var(--led); font-weight: 700; }
+  button.jogada { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; grid-template-columns: 40px 1fr 18px; transition: border-color .2s, background .2s; }
+  button.jogada:hover, button.jogada:focus-visible { border-color: var(--led); }
+  button.jogada:active { background: rgba(255,233,184,.14); }
+  .jogada .seta { width: 18px; height: 18px; transform: rotate(180deg); color: var(--led); }
   .letrinha { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--creme-2); }
   .link-troca { display: block; margin: 4px auto 0; min-height: 44px; }
   .desce { display: grid; justify-items: center; gap: 2px; padding: 16px 0 26px; color: var(--creme-2); font-size: 14px; font-weight: 600; text-decoration: none; }
@@ -415,6 +456,7 @@
       <a href="../" class="heroi-volta" aria-label="Voltar ao site da Gliki Sô"><img class="heroi-logo" src="../comum/logo-escrita.svg" alt="Gliki Sô"></a>
       <p class="rotulo">Clube Glikilovers</p>
       <h1>Comprou, apontou, <em>ganhou.</em></h1>
+      <p class="heroi-promessa" id="promessa"></p>
     </div>
     <div class="aviso-codigo" id="avisoCodigo" hidden></div>
 
@@ -505,7 +547,7 @@
 const $ = (id) => document.getElementById(id);
 const C = window.Clube;
 const I = window.ICONE;
-const LOGO = "https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg";
+const LOGO = "../icones/icone-192.png";
 const LINK_CLUBE = new URL("./", location.href).href;
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -688,11 +730,21 @@ function mostrarConviteApp() {
   if (window.GlikiApp && GlikiApp.instalado()) return false;
   try { return Number(localStorage.getItem("glk_app_depois") || 0) < Date.now(); } catch (e) { return true; }
 }
+/* As paradas ficam espaçadas por igual (senão 50 e 100 se amontoam no começo);
+   a luz anda proporcional dentro de cada trecho. */
+function luzDaTrilha(lista, pts) {
+  const pos = (i) => ((i + 1) / lista.length) * 100;
+  const i = lista.findIndex((p) => pts < p.pontos);
+  if (i === -1) return 100;
+  const ant = i === 0 ? 0 : lista[i - 1].pontos;
+  const x0 = i === 0 ? 0 : pos(i - 1);
+  return x0 + ((pts - ant) / (lista[i].pontos - ant)) * (pos(i) - x0);
+}
 function cartao(d, m) {
   const { atual, proximo } = C.faixaDe(m.pontos, d.premios);
-  const teto = Math.max(...d.premios.map((p) => p.pontos));
-  const nos = [...d.premios].sort((a, b) => a.pontos - b.pontos).map((p) =>
-    `<i class="no" data-pts="${p.pontos}" style="left:${(p.pontos / teto) * 100}%"><span>${p.faixa}<br>${p.pontos}</span></i>`).join("");
+  const ordem = [...d.premios].sort((a, b) => a.pontos - b.pontos);
+  const nos = ordem.map((p, i) =>
+    `<i class="no" data-pts="${p.pontos}" style="left:${((i + 1) / ordem.length) * 100}%"><span>${p.faixa}<br>${p.pontos}</span></i>`).join("");
   const falta = proximo
     ? `Faltam <b>${proximo.pontos - m.pontos} pontos</b> para ${proximo.nome}`
     : `Você chegou ao topo. Troque por <b>${atual.nome}</b>`;
@@ -700,7 +752,7 @@ function cartao(d, m) {
     <div class="cartao-topo"><p class="rotulo" style="color:var(--creme-2)">Seus pontos</p>${atual ? `<span class="faixa-atual">${atual.faixa}</span>` : ""}</div>
     <p class="pontos">${m.pontos}<small>pontos</small></p>
     <p class="falta">${falta}</p>
-    <div class="trilha" data-luz="${Math.min(100, (m.pontos / teto) * 100)}"><div class="trilha-luz"></div>${nos}</div>
+    <div class="trilha" data-luz="${luzDaTrilha(ordem, m.pontos)}"><div class="trilha-luz"></div>${nos}</div>
     <p class="validade">${I.relogio}Valem até ${C.dataBR(C.expiraEm(m, d.regras))}. Cada compra nova renova o prazo.</p>
   </div>`;
 }
@@ -717,17 +769,24 @@ function telaInicio(d, m) {
   const ultimoAviso = avisosDe(d, m).slice(-1)[0];
   const paraRetirar = d.resgates.find((r) => r.membro === m.id && !r.entregue);
   const lojaRet = paraRetirar && C.LOJAS.find((l) => l.id === paraRetirar.loja);
+  const jogadas = C.missoes(d, m);
+  const dob = C.dobroAtivo(d);
   return `${cartao(d, m)}
     <button class="btn btn-led btn-pontuar" data-acao="scan">${I.qr}Pontuar minha compra</button>
+    ${jogadas.length ? `<div class="jogadas"><p class="rotulo">Sua próxima jogada</p>${jogadas.map((x) => { const vai = { troca: "premios", premio: "premios", selo: "passaporte" }[x.tipo]; const tag = vai ? "button" : "div"; return `<${tag} class="jogada j-${x.tipo}"${vai ? ` type="button" data-jogada="${vai}"` : ""}><i>${ICONE_JOGADA[x.tipo]}</i><span><b>${x.titulo}</b><small>${x.texto}</small></span>${vai ? I.voltar.replace('class="ic"', 'class="ic seta"') : ""}</${tag}>`; }).join("")}</div>` : ""}
     ${paraRetirar ? `<button class="bloco retira" data-resgate="${paraRetirar.codigo}">${I.presente}<span><h3>${paraRetirar.nome} te espera</h3><p>${lojaRet ? "Retire em " + lojaRet.nome : "Retire na loja"}. Toque para ver o código.</p></span></button>` : ""}
     ${C.aniversarioPerto(m) ? `<div class="bloco niver"><h3>Feliz aniversário, ${m.nome.split(" ")[0]}</h3><p>Seu presente: ${d.regras.presenteAniversario}. Mostre o seu QR na loja.</p></div>` : ""}
+    ${passaporte(d, m)}
     ${mostrarConviteApp() ? `<div class="bloco app-card"><img src="../icones/apple-180.png" alt="" width="56" height="56"><div><h3>Baixe o app da Gliki</h3><p>Abre com um toque e é por ele que chegam os avisos.</p></div><button class="btn btn-led" type="button" data-instalar><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Baixar o app</button><button class="link-troca" type="button" data-acao="app-depois">Agora não</button></div>` : ""}
     <a class="bloco pedir-card" href="../#pedir"><span><h3>Peça seu cookie</h3><p>Delivery em Curitiba e Paranaguá, iFood e WhatsApp.</p></span>${I.cookie}</a>
     <div class="bloco">
       <h3>Como ganhar pontos</h3>
       <div class="como">
         <div><i>${I.loja}</i>Na loja e no delivery: aponte para o QR da nota. +${d.regras.pontosPorNota}</div>
+        <div><i>${I.qr}</i>No balcão: mostre o seu QR junto com a nota e cada cookie vale +${d.regras.pontosPorCookie}.</div>
         <div><i>${I.maquina}</i>Na máquina: aponte para a etiqueta do cookie. +${d.regras.pontosPorCookie}</div>
+        ${d.regras.bonusSequencia > 0 ? `<div><i>${I.grafico}</i>Comprou 3 meses seguidos: +${d.regras.bonusSequencia} de bônus.</div>` : ""}
+        ${dob ? `<div><i>${I.estrela}</i>Até o fim do mês, compras em ${C.NOME_SELO[dob]} valem o dobro.</div>` : ""}
         <div><i>${I.presente}</i>O prêmio você busca na loja.</div>
       </div>
     </div>
@@ -738,6 +797,20 @@ function telaInicio(d, m) {
       <h3>Seus últimos pontos</h3>
       <ul class="lista">${ultimos.map(linhaExtrato).join("")}</ul>
     </div>`;
+}
+const ICONE_JOGADA = { troca: I.presente, premio: I.presente, vence: I.relogio, selo: I.pino, dobro: I.estrela, seq: I.grafico };
+const SELO_CURTO = { "loja-pgua": "Paranaguá", caioba: "Caiobá", "loja-cwb": "Curitiba", maquina: "Jockey" };
+const GIRO = [-8, 5, -4, 7];
+const seloIcone = (c) => (c === "maquina" ? I.maquina : I.loja);
+function passaporte(d, m) {
+  const s = C.selosDe(m);
+  const n = C.PASSAPORTE.filter((c) => s[c]).length;
+  const feito = !!m.passaporte;
+  return `<div class="bloco passaporte" id="passaporte">
+    <div class="pass-topo"><h3>Passaporte Gliki</h3><span class="pass-conta">${n} de ${C.PASSAPORTE.length}</span></div>
+    <p>${feito ? `Completo em ${C.dataBR(m.passaporte)}. Você conhece a Gliki inteira.` : `Um selo em cada cidade e um na máquina. Completo, vale ${d.regras.premioPassaporte}.`}</p>
+    <div class="selos">${C.PASSAPORTE.map((c, i) => `<div class="selo ${s[c] ? "tem" : ""}" style="--r:${GIRO[i]}deg"><i>${seloIcone(c)}</i><b>${SELO_CURTO[c]}</b><small>${s[c] ? C.dataBR(s[c]) : "falta"}</small></div>`).join("")}</div>
+  </div>`;
 }
 function linhaExtrato(e) {
   const onde = e.canal ? C.CANAIS[e.canal] + " · " : "";
@@ -810,6 +883,11 @@ function ligarTela() {
   document.querySelectorAll("[data-acao]").forEach((el) => el.addEventListener("click", () => acao(el.dataset.acao)));
   document.querySelectorAll("[data-trocar]").forEach((b) => b.addEventListener("click", () => confirmarTroca(b.dataset.trocar)));
   document.querySelectorAll("[data-resgate]").forEach((b) => b.addEventListener("click", () => mostrarResgate(b.dataset.resgate)));
+  document.querySelectorAll("[data-jogada]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.jogada === "premios") return ir("premios");
+    const alvo = $("passaporte");
+    if (alvo) alvo.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  }));
   const fn = $("formNiver");
   if (fn) fn.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -866,14 +944,19 @@ function celebrar(r, antes) {
   const { proximo } = C.faixaDe(r.saldo, d.premios);
   const alvo = proximo ? proximo.pontos : r.saldo;
   if (navigator.vibrate) navigator.vibrate([18, 40, 30]);
-  abrirFolha(`<p class="rotulo centro" style="color:var(--creme-2);margin-bottom:0">${C.CANAIS[r.canal]}</p>
+  abrirFolha(`<p class="rotulo centro" style="color:var(--creme-2);margin-bottom:0">${C.CANAIS[r.canal]}${r.dobro ? " · em dobro" : ""}</p>
     <p class="grande">+${r.pontos}</p>
+    ${r.sequencia ? `<p class="centro bonus-seq">+${r.sequencia} de bônus: 3 meses seguidos na Gliki</p>` : ""}
     <p class="centro" style="margin-bottom:10px">Agora você tem <b style="color:var(--creme)">${r.saldo} pontos</b>.</p>
     ${proximo ? `<div class="progresso" style="--de:${Math.min(100, (antes / alvo) * 100)}%"><i id="barraGanho"></i></div><p class="centro">Faltam ${proximo.pontos - r.saldo} para ${proximo.nome}</p>` : ""}
+    ${r.selo ? `<div class="selo-novo"><div class="selo tem carimba" style="--r:-7deg"><i>${seloIcone(r.selo.canal)}</i></div><p><b>Selo novo: ${r.selo.nome}</b>${r.selo.n} de ${r.selo.de} no passaporte</p></div>` : ""}
+    ${r.passaporte ? `<div class="bloco niver" style="margin-bottom:14px"><h3>Passaporte completo!</h3><p>${r.passaporte.nome} te espera na loja. É presente: não gasta ponto.</p></div>` : ""}
     ${cruzou ? `<div class="bloco niver" style="margin-bottom:14px"><h3>Você liberou: ${cruzou.nome}</h3><p>Troque na aba Prêmios e busque na loja.</p></div>` : ""}
-    <div class="botoes">${cruzou ? `<button class="btn btn-led" id="verPremios">Ver prêmios</button>` : ""}<button class="btn btn-creme" data-fechar>Pronto</button></div>`);
+    <div class="botoes">${r.passaporte ? `<button class="btn btn-led" id="verPassaporte">Ver o código do presente</button>` : cruzou ? `<button class="btn btn-led" id="verPremios">Ver prêmios</button>` : ""}<button class="btn btn-creme" data-fechar>Pronto</button></div>`);
   const v = $("verPremios");
   if (v) v.addEventListener("click", () => { $("folha").close(); ir("premios"); });
+  const vp = $("verPassaporte");
+  if (vp) vp.addEventListener("click", () => mostrarResgate(r.passaporte.codigo));
   requestAnimationFrame(() => requestAnimationFrame(() => { const b = $("barraGanho"); if (b) b.style.width = Math.min(100, (r.saldo / alvo) * 100) + "%"; }));
   ir(abaAtual);
 }
@@ -955,6 +1038,7 @@ function contaChave() {
   $("scanEnviar").disabled = n !== 44;
 }
 $("navPontuarIc").innerHTML = I.qr;
+{ const p = C.comprasAtePrimeiro(C.ler()); $("promessa").innerHTML = `Entrou, ganhou ${C.ler().regras.bonusCadastro} pontos. Na <b>${p.n}ª compra</b> você já troca: ${p.premio.nome}.`; }
 $("ladoQr").innerHTML = qrSVG(LINK_CLUBE, 166);
 $("navPontuar").addEventListener("click", abrirScan);
 $("scanFechar").innerHTML = I.fechar;
