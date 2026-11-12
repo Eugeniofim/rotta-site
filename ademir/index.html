@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simonetta Viagens · Painel do Ademir</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="topo">
+  <a class="topo-marca" href="#/cotacao" aria-label="Simonetta Viagens, início">
+    <img src="arte/logo-simonetta.png" alt="Simonetta Viagens" width="494" height="370">
+  </a>
+  <nav class="abas" aria-label="Seções">
+    <a href="#/cotacao" data-aba="cotacao">Cotação</a>
+    <a href="#/proposta" data-aba="proposta">Proposta</a>
+    <a href="#/voucher" data-aba="voucher">Voucher</a>
+    <a href="#/passaportes" data-aba="passaportes">Passaportes</a>
+    <a href="#/cnt" data-aba="cnt">CNT</a>
+  </nav>
+  <span class="selo" title="Tudo aqui roda no seu navegador, com dados de exemplo">Protótipo</span>
+</header>
+<main id="palco" tabindex="-1"></main>
+<div id="aviso" role="status" aria-live="polite"></div>
+<div id="faixa" class="nao-imprime"><b>Protótipo</b><span class="faixa-longa">Feito para a Simonetta Viagens por Ti Artes. </span>Passageiros e cotações são de exemplo: nada aqui é uma reserva real.</div>
+<script src="dados.js"></script>
+<script src="amadeus.js"></script>
+<script src="passaporte.js"></script>
+<script src="exemplos.js"></script>
+<script src="cnt.js"></script>
+<script src="cnt-regras.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
