@@ -6,8 +6,6 @@
 <title>Gliki Sô Cookeria · Seu momento feliz está aqui</title>
 <meta name="description" content="Cookies mega recheados, feitos à mão. Delivery em Curitiba e Paranaguá, loja em Caiobá e a 1ª máquina de cookies do Paraná no Jockey Plaza.">
 <meta name="theme-color" content="#2a1913">
-<!-- Prévia: fora do Google. Tirar quando virar o link oficial dela. -->
-<meta name="robots" content="noindex, nofollow">
 <meta property="og:title" content="Gliki Sô Cookeria">
 <meta property="og:description" content="Seu momento feliz está aqui. Peça seu cookie em Curitiba, Paranaguá ou Caiobá.">
 <meta property="og:type" content="website">
@@ -27,6 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<script src="comum/nuvem.js"></script>
 <script src="comum/tema.js"></script>
 <link rel="preload" as="image" href="abertura/g/001.webp" media="(min-width: 760px)">
 <link rel="preload" as="image" href="abertura/p/001.webp" media="(max-width: 759px)">
@@ -779,10 +778,10 @@
 <script>
 /* Tudo o que muda fica aqui. */
 const CONFIG = {
-  previa: true,
+  previa: false,
   logo: "https://storage.googleapis.com/prod-cardapio-web/uploads/company/logo/45954/c296f318252313829_1052011475631989_3083428952827392271_n.jpg",
   fotoTopo: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg",
-  instagram: "https://instagram.com/glikisocookeria",
+  instagram: "https://www.instagram.com/glikisocookeria/",
   grupoVip: "https://chat.whatsapp.com/GYfjm6gl9ni5Qy4bgsEXao",
   clube: "clube/",
   painel: "painel/",
@@ -814,6 +813,8 @@ const CONFIG = {
     },
     caioba: {
       nome: "Caiobá",
+      /* Caiobá ainda não tem WhatsApp próprio: por enquanto vai para o de Paranaguá (a loja do litoral). */
+      whatsapp: "https://wa.me/message/MN4TFKPZ2ZHAO1",
       aviso: "Endereço e horários de Caiobá estão nos destaques do nosso Instagram."
     }
   },
@@ -935,8 +936,9 @@ function desenharRota() {
       if (c.ifood) links.push(ladrilho(icone.talher, "iFood", c.ifood));
       if (c.whatsapp) links.push(ladrilho(icone.whats, "WhatsApp", c.whatsapp));
       if (c.mapa) links.push(ladrilho(icone.pino, "Mapa", mapa(c.mapa)));
-      if (!links.length) links.push(ladrilho(icone.insta, "Endereço e horário no Instagram", CONFIG.instagram, "largo"));
-      if (links.length % 2) links[links.length - 1] = links[links.length - 1].replace('class="ladrilho ', 'class="ladrilho largo ');
+      if (!c.mapa) links.push(ladrilho(icone.insta, "Endereço e horário no Instagram", CONFIG.instagram, "largo"));
+      if (!c.mapa) links = links.map((l) => (l.includes(" largo") ? l : l.replace('class="ladrilho ', 'class="ladrilho largo ')));
+      else if (links.length % 2) links[links.length - 1] = links[links.length - 1].replace('class="ladrilho ', 'class="ladrilho largo ');
     } else if (p.tipo === "maquina") {
       nome = p.nome; classe = "p-maquina";
       links.push(ladrilho(icone.pino, "Como chegar", CONFIG.maquina.mapa));
@@ -1108,8 +1110,9 @@ if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-in
   const tela = $("tela"), ctx = tela.getContext("2d");
   const abertura = $("abertura");
   let serie = null, quadros = [], prontos = [], atual = -1, alvoQuadro = 0;
-  const faixaQuadros = (window.GlikiTema && GlikiTema.T.quadros && GlikiTema.T.quadros.faixa) || [0.04, 0.88];
+  const faixaQ = () => (window.GlikiTema && GlikiTema.T && GlikiTema.T.quadros && GlikiTema.T.quadros.faixa) || [0.04, 0.88];
   function carregarSerie() {
+    if (window.GlikiTema && !GlikiTema.T) return; // o tema ainda está chegando da nuvem
     const grande = computador.matches;
     const nome = grande ? "g" : "p";
     if (serie === nome) return;
@@ -1179,7 +1182,7 @@ if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-in
       ctx.fillStyle = g2; ctx.fillRect(0, y + h * 0.8, W, h * 0.2 + 2);
     }
   }
-  carregarSerie();
+  (window.GlikiTema && GlikiTema.pronto ? GlikiTema.pronto : Promise.resolve()).then(carregarSerie);
   ajustarTela();
   addEventListener("resize", () => { carregarSerie(); ajustarTela(); });
 
@@ -1203,7 +1206,7 @@ if (window.GlikiApp && GlikiApp.instalado()) document.querySelectorAll("[data-in
     barra.classList.toggle("solida", r.bottom < innerHeight * 0.6 || -r.top > 40);
     $("zap").toggleAttribute("data-longe", r.bottom > innerHeight * 0.35);
     if (r.bottom < 0) return;
-    alvoQuadro = Math.round(suave(faixa(p, faixaQuadros[0], faixaQuadros[1])) * (quadros.length - 1));
+    alvoQuadro = Math.round(suave(faixa(p, faixaQ()[0], faixaQ()[1])) * (quadros.length - 1));
     desenhar(false);
     tela.style.transform = `scale(${1 + p * 0.06})`;
     if (R.reduz) return;

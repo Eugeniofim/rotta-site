@@ -1,11 +1,13 @@
 /* Temas da vitrine por época do ano: Natal, Páscoa e Namorados (ou o padrão).
    Quem escolhe é a Melissa, no painel (Tema do site). "Automático" segue o calendário.
-   No protótipo a escolha do painel vale no aparelho dela; para todo mundo vale o calendário
-   e o link com ?tema=natal (que serve de prévia). Na versão final a escolha fica na nuvem. */
+   Clube de verdade (comum/nuvem.js ligado): a escolha mora na nuvem e vale para todo mundo.
+   Quem já visitou usa a última escolha que viu (sem piscar) e já guarda a nova para a próxima vez;
+   quem chega pela 1ª vez espera a nuvem até 0,9 s. ?tema=natal mostra um tema na hora (prévia).
+   Demonstração (sem nuvem): a escolha do painel vale só no aparelho. */
 (function () {
   const TEMAS = {
     padrao:    { nome: "Padrão", rotulo: "Gliki Sô Cookeria" },
-    natal:     { nome: "Natal", rotulo: "Natal na Gliki Sô", particula: "neve", luzes: ["#ff6b6b", "#ffe9b8", "#6fdc95"], som: true,
+    natal:     { nome: "Natal", rotulo: "Natal na Gliki Sô", luzes: ["#ff6b6b", "#ffe9b8", "#6fdc95"], som: true,
                  /* abertura própria: o cookie de gorro, o gorro cai e o cookie se parte (vídeo de IA) */
                  quadros: { pasta: "abertura-natal", g: 133, p: 66, faixa: [0.02, 0.72] } },
     pascoa:    { nome: "Páscoa", rotulo: "Páscoa na Gliki Sô", particula: "ovo", luzes: ["#f6c5d0", "#ffe9b8", "#bfe3d9"] },
@@ -39,13 +41,45 @@
   }
 
   const soDados = document.currentScript && document.currentScript.dataset.so === "dados";
-  const id = escolhido();
+  const N = window.GLIKI_NUVEM;
+  function nuvemLigada() {
+    let m = null;
+    try {
+      const q = new URLSearchParams(location.search).get("nuvem");
+      m = q === "1" ? "nuvem" : q === "0" ? "demo" : localStorage.getItem("glk_modo");
+    } catch (e) {}
+    return !!(N && N.url && N.chave && N.sala && (m ? m === "nuvem" : N.ligado));
+  }
+  const resolve = (v) => (v && TEMAS[v] ? v : pelaData()); // "auto" ou nada = calendário
+  const daUrl = new URLSearchParams(location.search).get("tema");
+  const naNuvem = nuvemLigada();
+  let pronto;
+  if (daUrl && TEMAS[daUrl]) pronto = Promise.resolve(daUrl);
+  else if (!naNuvem) pronto = Promise.resolve(escolhido());
+  else {
+    let guardado = null;
+    try { guardado = localStorage.getItem("glk_tema_nuvem"); } catch (e) {}
+    const busca = fetch(N.url + "/rest/v1/rpc/estado", {
+      method: "POST",
+      headers: { apikey: N.chave, Authorization: "Bearer " + N.chave, "Content-Type": "application/json", "Content-Profile": N.sala },
+      body: '{"p_token":""}'
+    }).then((r) => (r.ok ? r.json() : null)).then((j) => {
+      const t = (j && j.regras && j.regras.tema) || "auto";
+      try { localStorage.setItem("glk_tema_nuvem", t); } catch (e) {}
+      return t;
+    }).catch(() => null);
+    pronto = guardado ? Promise.resolve(resolve(guardado))
+      : Promise.race([busca, new Promise((ok) => setTimeout(() => ok(null), 900))]).then(resolve);
+  }
+
+  window.GlikiTema = { id: null, T: null, TEMAS, pelaData, pronto, nuvem: naNuvem };
+  pronto.then((final) => { window.GlikiTema.id = final; window.GlikiTema.T = TEMAS[final]; if (!soDados) aplicar(final); });
+  if (soDados) return;
+
+  function aplicar(id) {
   const T = TEMAS[id];
-  if (soDados) { window.GlikiTema = { id, T, TEMAS, pelaData }; return; }
   document.documentElement.dataset.tema = id;
   const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  window.GlikiTema = { id, T, TEMAS, pelaData };
   if (id === "padrao") return;
 
   /* ---------- cores das fitas de LED e textos ---------- */
@@ -256,4 +290,5 @@
   const comecar = () => { trocarTextos(); particulas(); sininho(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", comecar);
   else comecar();
+  }
 })();

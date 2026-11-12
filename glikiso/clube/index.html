@@ -865,9 +865,12 @@ function telaAvisos(d, m) {
   const visto = vistoAvisos();
   const lista = avisosDe(d, m).reverse();
   const permitido = "Notification" in window && Notification.permission === "granted";
+  const convite = C.nuvem
+    ? `<div class="bloco"><h3>Saiba primeiro</h3><p>Sabor novo, reposição na máquina e promoções aparecem aqui, e num aviso na tela quando você abre o app.</p></div>`
+    : `<div class="bloco"><h3>Saiba primeiro</h3><p>Sabor novo, reposição na máquina e promoções direto no seu celular.</p>
+      <button class="btn btn-led" style="margin-top:14px" data-acao="ativar">${I.sino}Ativar avisos</button></div>`;
   return `<h2 class="titulo">Avisos</h2>
-    ${permitido ? "" : `<div class="bloco"><h3>Saiba primeiro</h3><p>Sabor novo, reposição na máquina e promoções direto no seu celular.</p>
-      <button class="btn btn-led" style="margin-top:14px" data-acao="ativar">${I.sino}Ativar avisos</button></div>`}
+    ${permitido && !C.nuvem ? "" : convite}
     ${lista.length ? lista.map((a) => `<div class="aviso ${a.data > visto ? "novo" : ""}"><h4>${a.titulo}</h4><p>${a.texto}</p><small>${C.dataHoraBR(a.data)}</small></div>`).join("") : `<p style="color:var(--creme-2)">Nenhum aviso ainda.</p>`}`;
 }
 
@@ -1164,6 +1167,7 @@ lerLink();
 (async () => {
   if (C.nuvem) {
     $("demo").hidden = true;
+    $("scanExemplo").hidden = true; // nota de exemplo NÃO pode existir no clube de verdade
     try { await C.iniciar(); } catch (e) { toast("Sem conexão agora", "Confira a internet e abra de novo."); }
     qtdAvisos = C.ler().avisos.length;
     { const p = C.comprasAtePrimeiro(C.ler()); $("promessa").innerHTML = `Entrou, ganhou ${C.ler().regras.bonusCadastro} pontos. Na <b>${p.n}ª compra</b> você já troca: ${p.premio.nome}.`; }

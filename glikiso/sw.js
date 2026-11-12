@@ -1,6 +1,6 @@
 /* Service worker do app Gliki Sô: site, clube e painel.
    SUBIR O NÚMERO A CADA PUBLICAÇÃO — senão o celular não vê que mudou. */
-const CACHE = "gliki-v5";
+const CACHE = "gliki-v6";
 const ESSENCIAL = [
   "./", "./clube/", "./painel/",
   "./comum/nuvem.js", "./comum/dados.js", "./comum/icones.js", "./comum/estilo.css", "./comum/rolagem.js", "./comum/app.js",

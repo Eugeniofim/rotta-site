@@ -607,7 +607,8 @@
     },
     salvarRegras(regras, premios) {
       return mexer((d) => { Object.assign(d.regras, regras); if (premios) d.premios = premios; return { regras: d.regras, premios: d.premios }; });
-    }
+    },
+    salvarTema(tema) { try { localStorage.setItem("glk_tema", tema); } catch (e) {} return { ok: true }; }
   };
 
   /* ---------- nuvem: o clube de verdade (Supabase do estúdio, sala glikiso) ----------
@@ -754,6 +755,11 @@
       avisar(titulo, texto, publico) { return chama("avisar", { p_titulo: titulo, p_texto: texto, p_publico: publico, p_alcance: cache ? K.publico(cache, publico).length : 0 }, true); },
       ligarDobro(canal) { return chama("ligar_dobro", { p_canal: canal || null }, true); },
       salvarRegras(regras, premios) { return chama("salvar_regras", { p_regras: regras, p_premios: premios || null }, true); },
+      async salvarTema(tema) {
+        const r = await chama("salvar_tema", { p_tema: tema }, true);
+        if (r && r.ok !== false) { try { localStorage.setItem("glk_tema_nuvem", tema); } catch (e) {} }
+        return r;
+      },
       zerar() {}
     });
   }

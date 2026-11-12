@@ -598,7 +598,7 @@ const MODELOS = [
 ];
 function telaAvisos(d) {
   const publicos = [["todos", "Todos"], ["Curitiba", "Curitiba"], ["Paranaguá", "Paranaguá"], ["Caiobá", "Caiobá"], ["aniversario", "Aniversariantes"], ["sumidos", "Sumidos há 30 dias"], ["premio", "Já podem trocar prêmio"], ["quase", "A 1 compra do prêmio"], ["vencendo", "Pontos vencendo"], ["passaporte", "Falta 1 selo"]];
-  return `<div class="cabeca"><div><p class="rotulo">Notificação no celular</p><h1>Avisos</h1><p class="sub">Chega na tela do celular de quem ativou os avisos no clube.</p></div></div>
+  return `<div class="cabeca"><div><p class="rotulo">Notificação no celular</p><h1>Avisos</h1><p class="sub">${C.nuvem ? "Aparece na aba Avisos do clube e num aviso na tela quando a cliente abre o app." : "Chega na tela do celular de quem ativou os avisos no clube."}</p></div></div>
     <div class="grade g-3-2">
       <div class="caixa">
         <form id="formAviso" novalidate>
@@ -630,11 +630,14 @@ function telaAvisos(d) {
 const TEMA_CARTOES = [
   { id: "auto", nome: "Automático", texto: "Muda sozinho pelo calendário: Natal de 1º/11 a 6/1, Páscoa nas 5 semanas antes do domingo de Páscoa e Namorados de 25/5 a 12/6. No resto do ano, o padrão.", cores: ["#ffe9b8", "#ff6b6b", "#f6c5d0"] },
   { id: "padrao", nome: "Padrão", texto: "A parede da Gliki: cacau, bordô e as fitas de LED.", cores: ["#2a1913", "#6e1f2a", "#ffe9b8"] },
-  { id: "natal", nome: "Natal", texto: "Gorrinho de Papai Noel no cookie, neve caindo, pisca-pisca nas fitas e o sininho que toca um carrilhão baixinho na rolagem.", cores: ["#ff6b6b", "#ffe9b8", "#6fdc95"] },
+  { id: "natal", nome: "Natal", texto: "O cookie de gorrinho de Papai Noel na abertura, pisca-pisca nas fitas e o sininho que toca um carrilhão baixinho na rolagem.", cores: ["#ff6b6b", "#ffe9b8", "#6fdc95"] },
   { id: "pascoa", nome: "Páscoa", texto: "Ovinhos coloridos caindo devagar e as fitas em tons pastel.", cores: ["#f6c5d0", "#ffe9b8", "#bfe3d9"] },
   { id: "namorados", nome: "Dia dos Namorados", texto: "Corações caindo e as fitas em rosa.", cores: ["#ff8fa3", "#ffe9b8", "#e9a9b2"] }
 ];
-function temaSalvo() { try { return localStorage.getItem("glk_tema") || "auto"; } catch (e) { return "auto"; } }
+function temaSalvo() {
+  if (C.nuvem) return C.ler().regras.tema || "auto";
+  try { return localStorage.getItem("glk_tema") || "auto"; } catch (e) { return "auto"; }
+}
 function telaTema() {
   const salvo = temaSalvo();
   const hoje = window.GlikiTema ? GlikiTema.TEMAS[GlikiTema.pelaData()].nome : "Padrão";
@@ -650,7 +653,7 @@ function telaTema() {
           ${c.id === "auto" ? "" : `<a class="btn btn-linha btn-peq" href="../?tema=${c.id}" target="_blank" rel="noopener">Ver como fica</a>`}
         </div>
       </div>`).join("")}</div>
-    <p class="sub" style="margin-top:14px">No protótipo, a escolha vale neste aparelho. Na versão final, vale para todo mundo na hora em que você tocar.</p>`;
+    <p class="sub" style="margin-top:14px">${C.nuvem ? "Vale para todo mundo: quem chega agora já vê o tema novo; quem já tinha visitado vê a partir da próxima visita." : "Na demonstração, a escolha vale só neste aparelho."}</p>`;
 }
 
 function telaPremios(d) {
@@ -686,8 +689,9 @@ function telaPremios(d) {
 /* ---------- o que cada tela faz ---------- */
 const ligar = {
   tema() {
-    document.querySelectorAll("[data-usar-tema]").forEach((b) => b.addEventListener("click", () => {
-      try { localStorage.setItem("glk_tema", b.dataset.usarTema); } catch (e) {}
+    document.querySelectorAll("[data-usar-tema]").forEach((b) => b.addEventListener("click", async () => {
+      if (C.nuvem) { const r = await C.salvarTema(b.dataset.usarTema); if (r && r.ok === false) return toast(r.erro || "Não deu para trocar agora"); }
+      else { try { localStorage.setItem("glk_tema", b.dataset.usarTema); } catch (e) {} }
       const c = TEMA_CARTOES.find((x) => x.id === b.dataset.usarTema);
       toast("Tema do site: " + c.nome);
       ir("tema");
