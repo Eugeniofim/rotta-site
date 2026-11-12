@@ -447,7 +447,7 @@
         const quem = indicacao && d.membros.find((x) => x.indicacao === limpaCodigo(indicacao));
         if (quem) { m.indicadoPor = quem.id; lancar(m, d.regras.bonusIndicacao, "Indicação de " + quem.nome.split(" ")[0]); }
         d.membros.push(m);
-        return { membro: m, novo: true, indicadoPor: quem || null };
+        return { ok: true, membro: m, novo: true, indicadoPor: quem || null };
       });
     },
 
@@ -593,7 +593,170 @@
     },
 
     zerar() { try { localStorage.removeItem(CHAVE); localStorage.removeItem(CHAVE_EU); } catch (e) {} },
-    CHAVE
+    CHAVE,
+
+    /* as mesmas portas da nuvem, para a tela não precisar saber onde mora o clube */
+    nuvem: false,
+    Sessao: null,
+    iniciar() { return Promise.resolve(ler()); },
+    recarregar() { return Promise.resolve(ler()); },
+    entrarFone(whats) {
+      const m = Clube.porWhats(ler(), whats);
+      if (m) { Clube.entrarComo(m.id); return { ok: true, membro: m }; }
+      return { precisaNome: true };
+    },
+    salvarRegras(regras, premios) {
+      return mexer((d) => { Object.assign(d.regras, regras); if (premios) d.premios = premios; return { regras: d.regras, premios: d.premios }; });
+    }
   };
+
+  /* ---------- nuvem: o clube de verdade (Supabase do estúdio, sala glikiso) ----------
+     As regras rodam no banco; aqui só pedimos e guardamos uma cópia para desenhar a tela.
+     Sem comum/nuvem.js ligado, tudo continua no aparelho (demonstração).
+     ?nuvem=1 liga neste aparelho; ?nuvem=0 volta para a demonstração. */
+  const N = window.GLIKI_NUVEM || {};
+  function querNuvem() {
+    let m = null;
+    try {
+      const q = new URLSearchParams(location.search).get("nuvem");
+      if (q === "1") localStorage.setItem("glk_modo", "nuvem");
+      if (q === "0") localStorage.setItem("glk_modo", "demo");
+      m = localStorage.getItem("glk_modo");
+    } catch (e) {}
+    return !!(N.url && N.chave && N.sala && (m ? m === "nuvem" : N.ligado));
+  }
+  function instalarNuvem(K) {
+    const TOKEN = "glk_token", SESSAO = "glk_sessao";
+    const pega = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    const poe = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
+    let cache = null, painel = false;
+
+    async function chamar(caminho, corpo, tok, extra) {
+      const ctrl = new AbortController();
+      const corta = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const r = await fetch(N.url + caminho, {
+          method: "POST", signal: ctrl.signal,
+          headers: { apikey: N.chave, Authorization: "Bearer " + (tok || N.chave), "Content-Type": "application/json", ...(extra || {}) },
+          body: JSON.stringify(corpo || {})
+        });
+        const t = await r.text();
+        let j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
+        if (!r.ok) {
+          const e = new Error((j && (j.message || j.msg || j.error_description)) || "Erro " + r.status);
+          e.status = r.status; e.codigo = j && j.code;
+          throw e;
+        }
+        return j;
+      } catch (e) {
+        if (e.name === "AbortError") throw new Error("A internet está lenta. Tente de novo.");
+        if (e instanceof TypeError) throw new Error("Sem internet agora. Tente de novo.");
+        throw e;
+      } finally { clearTimeout(corta); }
+    }
+    const rpc = (fn, args, tok) => chamar("/rest/v1/rpc/" + fn, args, tok, { "Content-Profile": N.sala, "Accept-Profile": N.sala });
+
+    /* a dona entra no painel com e-mail e senha (login criado no Supabase do estúdio) */
+    const Sessao = {
+      ler() { try { return JSON.parse(pega(SESSAO) || "null"); } catch (e) { return null; } },
+      gravar(s) { poe(SESSAO, s ? JSON.stringify(s) : null); },
+      async entrar(email, senha) {
+        try {
+          const d = await chamar("/auth/v1/token?grant_type=password", { email, password: senha });
+          Sessao.gravar({ access_token: d.access_token, refresh_token: d.refresh_token, expira: Date.now() + (d.expires_in || 3600) * 1000, email: d.user && d.user.email });
+          return { ok: true };
+        } catch (e) { return { ok: false, erro: e.status === 400 ? "E-mail ou senha não conferem." : e.message }; }
+      },
+      async valida() {
+        const s = Sessao.ler();
+        if (!s) return null;
+        if (s.expira - Date.now() > 60000) return s;
+        try {
+          const d = await chamar("/auth/v1/token?grant_type=refresh_token", { refresh_token: s.refresh_token });
+          const n = { ...s, access_token: d.access_token, refresh_token: d.refresh_token, expira: Date.now() + (d.expires_in || 3600) * 1000 };
+          Sessao.gravar(n);
+          return n;
+        } catch (e) {
+          if (e.status) Sessao.gravar(null); // o servidor recusou: sessão acabou. Sem internet, guarda e tenta depois.
+          return null;
+        }
+      },
+      sair() { Sessao.gravar(null); cache = null; }
+    };
+    async function comoDona(fn, args) {
+      const s = await Sessao.valida();
+      if (!s) { const e = new Error("Entre de novo no painel."); e.sessao = true; throw e; }
+      return rpc(fn, args, s.access_token);
+    }
+    const vazio = () => ({ regras: { ...REGRAS_PADRAO }, premios: PREMIOS_PADRAO.map((p) => ({ ...p })), membros: [], resgates: [], avisos: [], notas: {}, codigos: {}, lotes: [] });
+    function montaCliente(j) {
+      cache = { ...vazio(), regras: { ...REGRAS_PADRAO, ...(j.regras || {}) }, premios: j.premios || PREMIOS_PADRAO, membros: j.membro ? [j.membro] : [], resgates: j.resgates || [], avisos: j.avisos || [] };
+      return cache;
+    }
+    function montaPainel(j) {
+      cache = { ...vazio(), ...j, regras: { ...REGRAS_PADRAO, ...(j.regras || {}) } };
+      return cache;
+    }
+    async function recarregar() {
+      if (painel) return montaPainel(await comoDona("painel_estado", {}));
+      const tok = pega(TOKEN);
+      const j = await rpc("estado", { p_token: tok || "" });
+      if (tok && !j.membro) poe(TOKEN, null); // a chave deste aparelho não vale mais
+      return montaCliente(j);
+    }
+    const depois = async (r) => { try { await recarregar(); } catch (e) {} return r; };
+    const falhou = (e) => ({ ok: false, erro: e.message || "Não deu certo. Tente de novo.", sessao: !!e.sessao });
+    const tok = () => pega(TOKEN) || "";
+    const chama = async (fn, args, dona) => { try { return await depois(await (dona ? comoDona(fn, args) : rpc(fn, args))); } catch (e) { return falhou(e); } };
+
+    Object.assign(K, {
+      nuvem: true,
+      Sessao,
+      iniciar(opc = {}) { painel = !!opc.painel; return recarregar(); },
+      recarregar,
+      ler() { return cache || montaCliente({}); },
+      mexer() { throw new Error("Na nuvem, use as funções do clube."); },
+      gravarLocal() {},
+      eu() { return cache && !painel && cache.membros[0] ? cache.membros[0].id : null; },
+      entrarComo(id) {
+        if (id) return;
+        const t = pega(TOKEN);
+        poe(TOKEN, null);
+        if (t) rpc("sair", { p_token: t }).catch(() => {});
+        montaCliente({ regras: cache && cache.regras, premios: cache && cache.premios });
+      },
+      async entrarFone(whats) {
+        try {
+          const j = await rpc("entrar", { p_fone: whats });
+          if (j.erro) return { ok: false, erro: j.erro };
+          if (j.precisaNome) return { precisaNome: true };
+          poe(TOKEN, j.token);
+          await recarregar();
+          return { ok: true, membro: cache.membros[0] };
+        } catch (e) { return falhou(e); }
+      },
+      async cadastrar({ nome, whats, niver = null, cidade = null, indicacao }) {
+        try {
+          const j = await rpc("entrar", { p_fone: whats, p_nome: nome, p_niver: niver, p_cidade: cidade, p_indicacao: indicacao || null });
+          if (j.erro) return { ok: false, erro: j.erro };
+          poe(TOKEN, j.token);
+          await recarregar();
+          return { ok: true, membro: cache.membros[0], novo: j.novo, indicadoPor: j.indicadoPor ? { nome: j.indicadoPor } : null };
+        } catch (e) { return falhou(e); }
+      },
+      usarNota(_, texto) { return chama("usar_nota", { p_token: tok(), p_texto: texto }); },
+      usarCodigo(_, cod) { return chama("usar_codigo", { p_token: tok(), p_codigo: cod }); },
+      trocar(_, premio, loja) { return chama("trocar", { p_token: tok(), p_premio: premio, p_loja: loja || null }); },
+      guardarAniversario(_, niver) { return chama("guardar_aniversario", { p_token: tok(), p_niver: niver }); },
+      pontuarBalcao(id, cookies, canal, nota) { return chama("pontuar_balcao", { p_membro: id, p_cookies: cookies, p_canal: canal, p_nota: nota || "" }, true); },
+      entregar(cod) { return chama("entregar", { p_codigo: cod }, true); },
+      gerarLote(qtd, canal, pontos) { return chama("gerar_lote", { p_qtd: qtd, p_canal: canal, p_pontos: pontos }, true); },
+      avisar(titulo, texto, publico) { return chama("avisar", { p_titulo: titulo, p_texto: texto, p_publico: publico, p_alcance: cache ? K.publico(cache, publico).length : 0 }, true); },
+      ligarDobro(canal) { return chama("ligar_dobro", { p_canal: canal || null }, true); },
+      salvarRegras(regras, premios) { return chama("salvar_regras", { p_regras: regras, p_premios: premios || null }, true); },
+      zerar() {}
+    });
+  }
+  if (querNuvem()) instalarNuvem(Clube);
   window.Clube = Clube;
 })();

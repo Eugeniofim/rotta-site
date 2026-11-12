@@ -539,6 +539,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="../comum/nuvem.js"></script>
 <script src="../comum/dados.js"></script>
 <script src="../comum/icones.js"></script>
 <script src="../comum/app.js"></script>
@@ -580,30 +581,39 @@ function mostrarEntrar() {
   } else if (indicacaoPendente) {
     const d = C.ler();
     const quem = d.membros.find((m) => m.indicacao === indicacaoPendente);
-    aviso.hidden = !quem;
-    if (quem) aviso.innerHTML = `${I.presente}<span>${quem.nome.split(" ")[0]} te convidou: você entra com <b>+${d.regras.bonusIndicacao} pontos</b>.</span>`;
+    aviso.hidden = !quem && !C.nuvem;
+    if (quem || C.nuvem) aviso.innerHTML = `${I.presente}<span>${quem ? quem.nome.split(" ")[0] + " te convidou" : "Você foi convidada"}: entra com <b>+${d.regras.bonusIndicacao} pontos</b>.</span>`;
   } else aviso.hidden = true;
   montarTunel();
 }
 $("fone").addEventListener("input", (e) => { e.target.value = C.mascaraFone(e.target.value); $("erroFone").textContent = ""; });
-$("formFone").addEventListener("submit", (e) => {
+/* botão esperando a nuvem: trava, mostra que está indo e volta ao normal */
+async function esperando(botao, texto, fn) {
+  if (!botao) return fn();
+  const antes = botao.innerHTML;
+  botao.disabled = true; botao.setAttribute("aria-busy", "true"); botao.textContent = texto;
+  try { return await fn(); } finally { botao.disabled = false; botao.removeAttribute("aria-busy"); botao.innerHTML = antes; }
+}
+$("formFone").addEventListener("submit", async (e) => {
   e.preventDefault();
   const w = $("fone").value;
   const n = C.soDigitos(w).length;
   if (n < 10 || n > 11) return ($("erroFone").textContent = "Confira o número com DDD. Exemplo: (41) 99999-9999.");
   foneDigitado = w;
-  const m = C.porWhats(C.ler(), w);
-  if (m) { C.entrarComo(m.id); return abrirApp("Oi de novo, " + m.nome.split(" ")[0], `Você tem ${m.pontos} pontos.`); }
+  const r = await esperando(e.target.querySelector("button[type=submit]"), "Entrando…", () => C.entrarFone(w));
+  if (r.ok) return abrirApp("Oi de novo, " + r.membro.nome.split(" ")[0], `Você tem ${r.membro.pontos} pontos.`);
+  if (r.erro) return ($("erroFone").textContent = r.erro);
   $("formFone").hidden = true;
   $("formNome").hidden = false;
   $("nome").focus();
 });
 $("corrigeFone").addEventListener("click", () => { $("formNome").hidden = true; $("formFone").hidden = false; $("fone").focus(); });
-$("formNome").addEventListener("submit", (e) => {
+$("formNome").addEventListener("submit", async (e) => {
   e.preventDefault();
   const nome = $("nome").value.trim();
   if (nome.length < 2) return ($("erroNome").textContent = "Escreva seu nome.");
-  const r = C.cadastrar({ nome, whats: foneDigitado, indicacao: indicacaoPendente });
+  const r = await esperando(e.target.querySelector("button[type=submit]"), "Entrando…", () => C.cadastrar({ nome, whats: foneDigitado, indicacao: indicacaoPendente }));
+  if (!r.ok) return ($("erroNome").textContent = r.erro || "Não deu certo. Tente de novo.");
   C.entrarComo(r.membro.id);
   indicacaoPendente = null;
   abrirApp("Você entrou no clube", `Já começa com ${r.membro.pontos} pontos.`);
@@ -623,8 +633,7 @@ function montarTunel() {
   if (tunelPronto) return;
   tunelPronto = true;
   const d = C.ler();
-  const menor = Math.min(...d.premios.map((p) => p.pontos));
-  const compras = Math.ceil(menor / d.regras.pontosPorNota);
+  const compras = C.comprasAtePrimeiro(d).n;
   const D = 900;
   const passos = [
     `<img class="porta-foto" src="${FOTOS.redvelvet}" alt="" loading="lazy"><p class="rotulo">Passo 1</p><h2>Compre na Gliki</h2><p>Na loja, no delivery ou na máquina do Jockey Plaza.</p>`,
@@ -889,10 +898,10 @@ function ligarTela() {
     if (alvo) alvo.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
   }));
   const fn = $("formNiver");
-  if (fn) fn.addEventListener("submit", (e) => {
+  if (fn) fn.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!fn.dia.value || !fn.mes.value) return toast("Falta o dia ou o mês", "Escolha os dois para guardar.");
-    C.guardarAniversario(C.eu(), `${fn.mes.value}-${fn.dia.value}`);
+    await C.guardarAniversario(C.eu(), `${fn.mes.value}-${fn.dia.value}`);
     toast("Aniversário guardado", "Na semana do seu dia tem presente.");
     ir(abaAtual);
   });
@@ -905,7 +914,7 @@ function acao(a) {
   if (a === "ir-avisos") return ir("avisos");
   if (a === "ativar") return ativarAvisos();
   if (a === "indicar") return indicar();
-  if (a === "sair") { C.entrarComo(null); abaAtual = "inicio"; return mostrarEntrar(); }
+  if (a === "sair") { C.entrarComo(null); abaAtual = "inicio"; return mostrarEntrar(); } // na nuvem, apaga a chave deste celular
 }
 
 function abrirFolha(html) {
@@ -930,10 +939,10 @@ function folhaCodigo(erro = "") {
   f.addEventListener("submit", (e) => { e.preventDefault(); somarCodigo(f.codigo.value); });
 }
 
-function somarCodigo(bruto) {
+async function somarCodigo(bruto) {
   const { m } = eu();
   const antes = m.pontos;
-  const r = C.usarCodigo(m.id, bruto);
+  const r = await C.usarCodigo(m.id, bruto);
   if (!r.ok) return folhaCodigo(r.erro);
   celebrar(r, antes);
 }
@@ -1018,14 +1027,15 @@ async function lacoScan() {
   if (texto) receberLeitura(texto);
   if (Scan.ativo) setTimeout(lacoScan, 160);
 }
-function receberLeitura(texto) {
+async function receberLeitura(texto) {
   const agora = Date.now();
-  if (texto === Scan.ultimo && agora - Scan.quando < 4000) return;
-  Scan.ultimo = texto; Scan.quando = agora;
+  if (Scan.ocupado || (texto === Scan.ultimo && agora - Scan.quando < 4000)) return;
+  Scan.ultimo = texto; Scan.quando = agora; Scan.ocupado = true;
   const { m } = eu();
   const antes = m.pontos;
   const etiqueta = texto.match(/[#&?]c=([A-Za-z0-9-]+)/);
-  const r = etiqueta ? C.usarCodigo(m.id, etiqueta[1]) : C.usarNota(m.id, texto);
+  let r;
+  try { r = await (etiqueta ? C.usarCodigo(m.id, etiqueta[1]) : C.usarNota(m.id, texto)); } finally { Scan.ocupado = false; }
   if (!r.ok) return erroScan(r.erro);
   fecharScan();
   celebrar(r, antes);
@@ -1070,8 +1080,9 @@ function confirmarTroca(id) {
       ${C.LOJAS.map((l) => `<button class="loja-opcao" data-loja="${l.id}">${I.pino}<span><b>${l.nome}</b><small>${l.end}</small></span></button>`).join("")}
       <button class="btn btn-linha" data-fechar>Agora não</button>
     </div>`);
-  document.querySelectorAll("[data-loja]").forEach((b) => b.addEventListener("click", () => {
-    const r = C.trocar(C.eu(), id, b.dataset.loja);
+  document.querySelectorAll("[data-loja]").forEach((b) => b.addEventListener("click", async () => {
+    document.querySelectorAll("[data-loja]").forEach((x) => (x.disabled = true));
+    const r = await C.trocar(C.eu(), id, b.dataset.loja);
     if (!r.ok) return abrirFolha(`<h3>Não deu</h3><p>${r.erro}</p><button class="btn btn-creme" data-fechar>Pronto</button>`);
     ir("premios");
     mostrarResgate(r.resgate.codigo);
@@ -1080,6 +1091,7 @@ function confirmarTroca(id) {
 function mostrarResgate(codigo) {
   const { d } = eu();
   const r = d.resgates.find((x) => x.codigo === codigo);
+  if (!r) return;
   const l = C.LOJAS.find((x) => x.id === r.loja);
   abrirFolha(`<h3>${r.nome}</h3><p>${l ? `Mostre este código na loja de <b style="color:var(--creme)">${l.nome}</b>.` : "Mostre este código na loja."} Vale por 30 dias.</p>
     <div class="qr-caixa">${qrSVG("GLIKI-PREMIO:" + r.codigo, 190)}<b>${C.mostraCodigo(r.codigo)}</b></div>
@@ -1149,12 +1161,28 @@ $("simular").addEventListener("click", () => {
 
 /* ---------- começo ---------- */
 lerLink();
-{
+(async () => {
+  if (C.nuvem) {
+    $("demo").hidden = true;
+    try { await C.iniciar(); } catch (e) { toast("Sem conexão agora", "Confira a internet e abra de novo."); }
+    qtdAvisos = C.ler().avisos.length;
+    { const p = C.comprasAtePrimeiro(C.ler()); $("promessa").innerHTML = `Entrou, ganhou ${C.ler().regras.bonusCadastro} pontos. Na <b>${p.n}ª compra</b> você já troca: ${p.premio.nome}.`; }
+    /* voltou para o app: busca o que mudou (aviso novo, ponto do balcão) */
+    document.addEventListener("visibilitychange", async () => {
+      if (document.visibilityState !== "visible" || !C.eu() || document.querySelector("dialog[open]")) return;
+      const antes = C.ler().avisos.length;
+      try { await C.recarregar(); } catch (e) { return; }
+      const { d, m } = eu();
+      if (!m) return mostrarEntrar();
+      d.avisos.slice(antes).filter((a) => C.publico(d, a.publico).some((x) => x.id === m.id)).forEach((a) => toast(a.titulo, a.texto));
+      ir(abaAtual);
+    });
+  }
   const q = new URLSearchParams(location.search);
   if (q.get("aba") && ["inicio", "premios", "avisos", "eu"].includes(q.get("aba"))) abaAtual = q.get("aba");
   if (q.get("acao") === "pontuar") setTimeout(() => { if (C.membro(C.ler(), C.eu())) abrirScan(); }, 400);
-}
-if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar();
+  if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar();
+})();
 addEventListener("hashchange", () => { lerLink(); if (codigoPendente || indicacaoPendente) { if (C.membro(C.ler(), C.eu())) abrirApp(); else mostrarEntrar(); } });
 </script>
 </body>

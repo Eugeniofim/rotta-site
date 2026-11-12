@@ -156,6 +156,8 @@
   .toast .ic { color: var(--led); }
   @keyframes sobe { from { transform: translateY(12px); opacity: 0; } }
 
+  .entrar-painel { max-width: 420px; margin: 8vh auto 0; }
+  .entrar-painel h1 { margin-top: 2px; }
   /* o clube sugere: cada linha já vem com o botão que resolve */
   .sugere { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   .sugere li { display: grid; grid-template-columns: 40px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 16px; background: #fbf4ea; border: 1px solid var(--linha); }
@@ -241,7 +243,8 @@
     </div>
     <nav class="menu" id="menu" aria-label="Painel"></nav>
     <div class="lado-pe">
-      <span>Protótipo com dados de exemplo.</span>
+      <span id="ladoModo">Protótipo com dados de exemplo.</span>
+      <a href="#" id="sairPainel" hidden>Sair do painel</a>
       <a href="#" data-instalar>Instalar o painel no celular</a>
       <a href="../clube/" target="_blank" rel="noopener">Abrir o clube (cliente)</a>
       <a href="../" target="_blank" rel="noopener">Página de links</a>
@@ -258,6 +261,7 @@
 <div id="etiquetas" aria-hidden="true"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="../comum/nuvem.js"></script>
 <script src="../comum/dados.js"></script>
 <script src="../comum/icones.js"></script>
 <script src="../comum/app.js"></script>
@@ -280,6 +284,7 @@ const PAGINAS = {
 let pagina = "inicio";
 
 function ir(p) {
+  if (C.nuvem && !C.Sessao.ler()) return pedirLogin();
   pagina = PAGINAS[p] ? p : "inicio";
   const d = C.ler();
   const pendentes = d.resgates.filter((r) => !r.entregue).length;
@@ -378,7 +383,7 @@ function telaInicio(d) {
   const maior = Math.max(1, ...porCanal.map((x) => x.n));
   const icCanal = { maquina: I.maquina, "loja-cwb": I.loja, "loja-pgua": I.loja, delivery: I.sacola, caioba: I.loja };
   const hora = new Date().getHours();
-  return `<div class="cabeca"><div><p class="rotulo">Clube Glikilovers</p><h1>${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, Melissa</h1><p class="sub">Exemplo de como o painel fica depois de um mês de clube.</p></div>
+  return `<div class="cabeca"><div><p class="rotulo">Clube Glikilovers</p><h1>${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, Melissa</h1><p class="sub">${C.nuvem ? `${d.membros.length ? "Atualizado agora." : "O clube está pronto. Imprima o cartaz em Etiquetas e espalhe o QR."}` : "Exemplo de como o painel fica depois de um mês de clube."}</p></div>
       <a class="btn btn-escuro" href="#avisos">${I.megafone}Mandar um aviso</a></div>
     <div class="grade g4">
       <div class="caixa destaque"><p class="rotulo">No clube</p><p class="numero">${d.membros.length}</p><p class="numero-nota">${semana} ${semana === 1 ? "entrou" : "entraram"} esta semana</p></div>
@@ -478,8 +483,11 @@ function abrirFicha(id) {
     info(`Nota nº ${n.numero} · ${C.CANAIS[ch.loja.canal]}${ja ? ` · ela já leu no celular (+${ja.pontos}); o balcão completa a diferença` : ""}`, "boa");
   });
   $("lerNota").addEventListener("click", () => lerComCamera((texto) => { $("notaFicha").value = texto; $("notaFicha").dispatchEvent(new Event("input")); }));
-  $("somarFicha").addEventListener("click", () => {
-    const r = C.pontuarBalcao(m.id, cookies, balcaoAqui(), $("notaFicha").value);
+  $("somarFicha").addEventListener("click", async () => {
+    $("somarFicha").disabled = true;
+    const r = await C.pontuarBalcao(m.id, cookies, balcaoAqui(), $("notaFicha").value);
+    $("somarFicha").disabled = false;
+    if (r.sessao) return pedirLogin("Entre de novo para somar.");
     if (!r.ok) { info(r.erro, "ruim"); if (r.precisaNota) $("notaFicha").focus(); return; }
     const extras = [r.dobro && "em dobro", r.selo && `selo ${r.selo.nome} (${r.selo.n} de ${r.selo.de})`, r.passaporte && "passaporte completo!", r.sequencia && `+${r.sequencia} de 3 meses seguidos`].filter(Boolean);
     toast(r.pontos ? `+${r.pontos} pontos para ${primeiro(m.nome)}${extras.length ? " · " + extras.join(" · ") : ""}` : `A nota já tinha dado os ${r.jaTinha} pontos dessa compra`);
@@ -688,10 +696,10 @@ const ligar = {
   inicio(d) {
     document.querySelectorAll("[data-publico]").forEach((a) => a.addEventListener("click", () => { publicoEscolhido = a.dataset.publico; }));
     const sug = C.sugestoes(d);
-    document.querySelectorAll("[data-sug]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-sug]").forEach((b) => b.addEventListener("click", async () => {
       const x = sug[Number(b.dataset.sug)];
-      if (x.tipo === "dobro") { C.ligarDobro(x.canal); toast(`Pontos em dobro em ${C.NOME_SELO[x.canal]} até o fim do mês`); return ir("inicio"); }
-      if (x.tipo === "dobro-ligado") { C.ligarDobro(null); toast("Pontos em dobro desligados"); return ir("inicio"); }
+      if (x.tipo === "dobro") { await C.ligarDobro(x.canal); toast(`Pontos em dobro em ${C.NOME_SELO[x.canal]} até o fim do mês`); return ir("inicio"); }
+      if (x.tipo === "dobro-ligado") { await C.ligarDobro(null); toast("Pontos em dobro desligados"); return ir("inicio"); }
       publicoEscolhido = x.publico; modeloPendente = x.modelo; location.hash = "avisos";
     }));
   },
@@ -718,7 +726,12 @@ const ligar = {
       const m = C.membro(d, r.membro);
       if (r.entregue) { caixa.innerHTML = `<div class="resultado erro">Já entregue em ${C.dataHoraBR(r.entregue)} para ${m.nome}</div>`; return; }
       caixa.innerHTML = `<div class="resultado"><b>${r.nome}</b> para <b>${m.nome}</b><br><small>Trocado em ${C.dataBR(r.data)} por ${r.pontos} pontos</small><div style="margin-top:12px"><button class="btn btn-escuro" id="okEntregar">${I.check}Entregar agora</button></div></div>`;
-      $("okEntregar").addEventListener("click", () => { C.entregar(r.codigo); toast(`${r.nome} entregue para ${primeiro(m.nome)}`); ir("balcao"); });
+      $("okEntregar").addEventListener("click", async () => {
+        $("okEntregar").disabled = true;
+        const x = await C.entregar(r.codigo);
+        if (!x.ok) { caixa.innerHTML = `<div class="resultado erro">${x.erro}</div>`; return; }
+        toast(`${r.nome} entregue para ${primeiro(m.nome)}`); ir("balcao");
+      });
     });
     $("formSomar").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -732,12 +745,13 @@ const ligar = {
   },
   codigos() {
     $("imprimirCartaz").addEventListener("click", imprimirCartaz);
-    $("formLote").addEventListener("submit", (e) => {
+    $("formLote").addEventListener("submit", async (e) => {
       e.preventDefault();
       const f = e.target;
       const qtd = Math.max(1, Math.min(600, Number(f.qtd.value) || 0));
       const pontos = Math.max(1, Number(f.pontos.value) || 10);
-      const r = C.gerarLote(qtd, f.canal.value, pontos);
+      const r = await C.gerarLote(qtd, f.canal.value, pontos);
+      if (!r || !r.codigos) return toast((r && r.erro) || "Não deu para gerar agora");
       toast(`${qtd} etiquetas geradas para ${C.CANAIS[f.canal.value]}`);
       ir("codigos");
       imprimir(r.codigos, pontos);
@@ -758,34 +772,89 @@ const ligar = {
     }));
     if (modeloPendente) { f.titulo.value = modeloPendente[0]; f.texto.value = modeloPendente[1]; modeloPendente = null; }
     prev();
-    f.addEventListener("submit", (e) => {
+    f.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!f.titulo.value.trim() || !f.texto.value.trim()) { toast("Escreva o título e a mensagem"); return; }
       publicoEscolhido = f.publico.value;
-      const a = C.avisar(f.titulo.value.trim(), f.texto.value.trim(), f.publico.value);
+      const a = await C.avisar(f.titulo.value.trim(), f.texto.value.trim(), f.publico.value);
+      if (!a || a.ok === false) return toast((a && a.erro) || "Não deu para enviar agora");
       toast(`Aviso enviado para ${a.alcance} pessoas`);
       ir("avisos");
     });
   },
   premios(d) {
-    $("formRegras").addEventListener("submit", (e) => {
+    $("formRegras").addEventListener("submit", async (e) => {
       e.preventDefault();
       const f = e.target;
-      C.mexer((x) => {
-        x.premios = x.premios.map((p, i) => ({ ...p, faixa: f["faixa" + i].value.trim() || p.faixa, nome: f["nome" + i].value.trim() || p.nome, pontos: Math.max(1, Number(f["pontos" + i].value) || p.pontos) }));
-        ["pontosPorNota", "notasPorDia", "pontosPorCookie", "validadeMeses", "bonusCadastro", "bonusIndicacao", "bonusSequencia"].forEach((k) => { x.regras[k] = Math.max(0, Number(f[k].value) || 0); });
-        x.regras.presenteAniversario = f.presenteAniversario.value.trim() || x.regras.presenteAniversario;
-        x.regras.premioPassaporte = f.premioPassaporte.value.trim() || x.regras.premioPassaporte;
-      });
-      if ((C.dobroAtivo(C.ler()) || "") !== f.dobro.value) C.ligarDobro(f.dobro.value || null);
+      const x = C.ler();
+      const premios = x.premios.map((p, i) => ({ ...p, faixa: f["faixa" + i].value.trim() || p.faixa, nome: f["nome" + i].value.trim() || p.nome, pontos: Math.max(1, Number(f["pontos" + i].value) || p.pontos) }));
+      const regras = {};
+      ["pontosPorNota", "notasPorDia", "pontosPorCookie", "validadeMeses", "bonusCadastro", "bonusIndicacao", "bonusSequencia"].forEach((k) => { regras[k] = Math.max(0, Number(f[k].value) || 0); });
+      regras.presenteAniversario = f.presenteAniversario.value.trim() || x.regras.presenteAniversario;
+      regras.premioPassaporte = f.premioPassaporte.value.trim() || x.regras.premioPassaporte;
+      const r = await C.salvarRegras(regras, premios);
+      if (r && r.ok === false) return toast(r.erro || "Não deu para salvar agora");
+      if ((C.dobroAtivo(C.ler()) || "") !== f.dobro.value) await C.ligarDobro(f.dobro.value || null);
       toast("Prêmios e regras salvos");
       ir("premios");
     });
+    $("zerar").hidden = C.nuvem;
     $("zerar").addEventListener("click", () => { C.zerar(); C.ler(); toast("Dados de exemplo de volta"); ir("inicio"); });
   }
 };
 
-ir(location.hash.slice(1) || "inicio");
+/* ---------- entrar no painel (só no clube de verdade) ---------- */
+function pedirLogin(msg) {
+  $("menu").innerHTML = "";
+  $("sairPainel").hidden = true;
+  $("ladoModo").textContent = "Clube de verdade (nuvem).";
+  $("conteudo").innerHTML = `<div class="entrar-painel caixa">
+      <p class="rotulo">Clube Glikilovers</p>
+      <h1>Painel da loja</h1>
+      <p class="sub" style="margin:6px 0 18px">${msg || "Entre com o e-mail e a senha do painel."}</p>
+      <form id="formLogin" novalidate>
+        <label class="campo">E-mail<input name="email" type="email" autocomplete="username" required></label>
+        <label class="campo">Senha<input name="senha" type="password" autocomplete="current-password" required></label>
+        <p class="nota-info ruim" id="erroLogin" role="alert"></p>
+        <button class="btn btn-escuro" type="submit" style="width:100%">Entrar</button>
+      </form>
+    </div>`;
+  $("formLogin").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = e.target, b = f.querySelector("button");
+    b.disabled = true; b.textContent = "Entrando…";
+    const r = await C.Sessao.entrar(f.email.value.trim(), f.senha.value);
+    if (!r.ok) { b.disabled = false; b.textContent = "Entrar"; $("erroLogin").textContent = r.erro; return; }
+    abrirPainel();
+  });
+}
+async function abrirPainel() {
+  try { await C.iniciar({ painel: true }); }
+  catch (e) {
+    if (e.sessao || e.status === 401) return pedirLogin("Entre de novo no painel.");
+    if (/dona/.test(e.message)) { C.Sessao.sair(); return pedirLogin("Esta conta não é a dona do clube. Entre com o login da Gliki."); }
+    $("conteudo").innerHTML = `<div class="caixa"><h2>Sem conexão agora</h2><p class="sub">${e.message}</p><button class="btn btn-escuro" type="button" id="tentar">Tentar de novo</button></div>`;
+    $("tentar").addEventListener("click", abrirPainel);
+    return;
+  }
+  $("ladoModo").textContent = "Clube de verdade · " + ((C.Sessao.ler() || {}).email || "");
+  $("sairPainel").hidden = false;
+  ir(location.hash.slice(1) || "inicio");
+}
+$("sairPainel").addEventListener("click", (e) => { e.preventDefault(); C.Sessao.sair(); pedirLogin("Você saiu do painel."); });
+/* de minuto em minuto (e ao voltar para a aba) busca o que mudou, sem atrapalhar quem está digitando */
+async function atualizar() {
+  if (!C.nuvem || !C.Sessao.ler() || document.visibilityState !== "visible") return;
+  if (document.querySelector("dialog[open]") || /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || "")) return;
+  try { await C.recarregar(); ir(pagina); } catch (e) {}
+}
+if (C.nuvem) {
+  setInterval(atualizar, 60000);
+  document.addEventListener("visibilitychange", atualizar);
+  C.Sessao.ler() ? abrirPainel() : pedirLogin();
+} else {
+  ir(location.hash.slice(1) || "inicio");
+}
 </script>
 </body>
 </html>
