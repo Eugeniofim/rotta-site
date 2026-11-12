@@ -108,6 +108,7 @@ legend { font-size: 13.5px; font-weight: 600; color: var(--cinza); }
 .conta .final small { display: block; font: 400 13px var(--f-corpo); color: #c9cfe6; letter-spacing: 0; }
 .ajustes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .ajustes .largo { grid-column: 1 / -1; }
+.ajustes .dupla { flex-wrap: wrap; }   /* no celular o valor do assento desce para a linha de baixo em vez de estourar a tela */
 .ajustes .dupla select { width: auto; flex: 0 0 150px; }
 .ajustes #assento-valor { display: flex; align-items: center; gap: 8px; }
 .ajustes #assento-valor input { width: 130px; }
@@ -352,21 +353,34 @@ body[data-tela="cliente"] { background: #edf2ea; }
 .grade2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .grade2 .largo { grid-column: 1 / -1; }
 .arquivo { font: 500 13px var(--f-mono); color: var(--cinza); max-width: 880px; margin: 0 auto 10px; word-break: break-word; }
-.voucher { padding: clamp(20px, 4vw, 44px); display: grid; gap: 10px; }
-.v-topo { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 10px; }
-.v-topo img { height: 92px; width: auto; }
-.v-topo address { font-style: normal; display: grid; font-size: 12.5px; color: var(--cinza); }
-.v-topo address b { color: var(--marinho); }
-.v-faixa { background: var(--menta); border: 2px solid var(--marinho); padding: 6px 14px; font: 700 20px/1.25 var(--f-corpo); color: var(--marinho); }
-.v-faixa.centro { text-align: center; font-size: 22px; }
-.v-caixa { border: 2px solid var(--marinho); padding: 14px; display: grid; gap: 12px; margin-bottom: 6px; }
-.v-caixa.alta { min-height: 76px; white-space: pre-wrap; display: block; }
-.v-nome { font-weight: 700; font-size: 17px; }
-.v-grade { display: grid; grid-template-columns: 118px minmax(0, 1fr) 118px minmax(0, 1fr); gap: 4px 10px; font-size: 14.5px; align-items: baseline; }
-.v-grade dt { color: var(--cinza); }
-.v-grade dd { font-weight: 700; }
-.v-grade dd span { font-weight: 600; margin-left: 10px; }
-.v-grade .largo:last-child { grid-column: 2 / -1; }
+/* voucher de hotel no padrão da proposta: topo com foto, cartões, quadro da agência */
+.vou-doc .pp { max-width: 794px; }
+.vc { padding-bottom: 22px; }
+.vc-topo { position: relative; width: 100%; aspect-ratio: 794 / 330; min-height: 260px; overflow: hidden; margin-bottom: 4px;
+  background: radial-gradient(120% 130% at 88% 0%, #2f3a78, var(--marinho) 62%); }
+.vc-foto { position: absolute; inset: 0; background-size: cover; background-position: center 60%; }
+.vc-topo::after { content: ""; position: absolute; left: -10%; width: 120%; height: 40px; bottom: -26px; background: var(--pp-fundo); transform: rotate(-2deg); }
+.vc-topo .pp-logo { top: 8%; }
+.vc-txt { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 6% 42px; background: linear-gradient(180deg, rgba(23, 28, 58, 0), rgba(23, 28, 58, .9) 58%); color: #fff; }
+.vc-txt .pp-capak { font: 700 13.5px var(--f-placa); letter-spacing: .18em; text-transform: uppercase; color: var(--verde); margin: 0 0 6px; }
+.vc-txt h1 { font: 700 clamp(34px, 6.6vw, 50px)/.95 var(--f-placa); text-transform: uppercase; color: #fff; }
+.vc .pp-kick { margin-top: 18px; }
+.vc-estrelas { color: var(--verde-txt); font-size: .62em; letter-spacing: .12em; white-space: nowrap; vertical-align: .18em; }
+.vc-linhas { display: grid; gap: 12px; padding-bottom: 18px; }
+.vc-linhas p { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: center; font-size: 15.5px; font-weight: 600; color: var(--marinho); }
+.vc-linhas i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--menta); color: var(--verde-txt); }
+.vc-linhas svg, .vc-hosp svg { width: 18px; height: 18px; }
+.vc-linhas small { display: block; font: 700 11.5px var(--f-placa); letter-spacing: .14em; text-transform: uppercase; color: var(--cinza); }
+.vc-estadia .iata { text-transform: uppercase; letter-spacing: .12em; font-size: 13.5px; color: var(--verde-txt); }
+.vc-estadia .hora { text-transform: uppercase; }
+.vc-estadia .traco svg { transform: none; width: 15px; height: 15px; }
+.vc-hosp { display: grid; gap: 8px; margin-bottom: 4px; }
+.vc-hosp li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 12px 8px 8px; border: 1.5px solid var(--linha); border-radius: 12px; }
+.vc-hosp i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--nevoa); color: var(--marinho); }
+.vc-hosp b { font: 700 19px var(--f-placa); letter-spacing: .06em; color: var(--marinho); overflow-wrap: anywhere; }
+.vc-ag { display: grid; gap: 3px; margin-top: 18px; margin-bottom: 0; }
+.vc-ag b { font: 700 25px/1.1 var(--f-placa); letter-spacing: .02em; color: #fff; margin-bottom: 4px; }
+.vc-ag span { font-size: 13.5px; color: #c9cfe6; }
 
 /* ---------- passaportes ---------- */
 .pas { display: grid; grid-template-columns: minmax(300px, 440px) minmax(0, 1fr); gap: clamp(18px, 2.4vw, 32px); align-items: start; }
@@ -417,8 +431,8 @@ body[data-tela="cliente"] { background: #edf2ea; }
   .onde { font-size: 12.5px; }
   .num { display: none; }
   .ponta, .ponta.fim { grid-template-areas: "hora" "iata" "onde"; grid-template-columns: 1fr; }
-  .v-grade, .pass dl { grid-template-columns: 104px minmax(0, 1fr); }
-  .v-topo { flex-direction: column; align-items: flex-start; }
+  .pass dl { grid-template-columns: 104px minmax(0, 1fr); }
+  .vc-estadia .hora { font-size: 24px; }
   .trecho .tipo { margin-left: 0; flex-basis: 100%; }
   .op-prazo { margin-left: 0; flex-basis: 100%; }
   .pp-tars.n2, .pp-res.n2, .pp-res.n3, .pp-invg { grid-template-columns: minmax(0, 1fr); }
@@ -457,4 +471,9 @@ body[data-tela="cliente"] { background: #edf2ea; }
   .pp-inv { margin-top: 18px; }
   .pp-resumo { border: 1px solid var(--linha); }
   .pp-tar .cond li { font-size: 13.5px; }
+  /* voucher: uma folha inteira, sem margem de página (o topo com foto vai até a borda) */
+  .vc { page: capa; padding-bottom: 0; }
+  .vc-topo { width: 210mm; height: 78mm; min-height: 0; aspect-ratio: auto; }
+  .vc-topo::after { background: #fff; }
+  .vc .pp-sec, .vc .pp-inv { margin-left: 13mm; margin-right: 13mm; }
 }

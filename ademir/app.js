@@ -606,34 +606,54 @@
   }
 
   function exemploVoucher() {
-    const h = HOTEIS[0];
-    E.vou = { hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas, checkin: '2026-11-10', checkout: '2026-11-16', horaIn: '15:00', horaOut: '12:00',
+    /* o mesmo roteiro da proposta de exemplo: chega a Paris em 19/11 e volta em 24/11 */
+    const h = HOTEIS.find(x => x.cidade === 'Paris') || HOTEIS[0];
+    E.vou = { hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas, cidade: h.cidade, foto: '', checkin: '2026-11-19', checkout: '2026-11-24', horaIn: '15:00', horaOut: '12:00',
       regime: 'com café da manhã', quartos: [{ tipo: 'SINGLE', hospedes: ['Marina Monteiro Lima'], obs: '' }, { tipo: 'TWIN BED', hospedes: ['Rafael Augusto Monteiro', 'Helena Duarte Prado'], obs: '' }], info: '', ativo: 0 };
     salva();
   }
 
+  const ICO_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>';
+  const ICO_FONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 3.5h3l1.4 4-2 1.6a12 12 0 0 0 5.9 5.9l1.6-2 4 1.4v3a2 2 0 0 1-2.2 2A16.6 16.6 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2Z"/></svg>';
+  const ICO_LUA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4 8.5 8.5 0 1 0 20 14.6Z" fill="currentColor"/></svg>';
+  const ICO_PESSOA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>';
+
+  /* o voucher, uma folha por quarto, no mesmo padrão da proposta: topo com foto, cartões e quadro da agência */
   function voucherHtml(q, n, total) {
-    const v = E.vou, nt = noites(v);
-    const hs = q.hospedes.slice(0, camas(q.tipo));
-    return `<article class="folha voucher">
-      <header class="v-topo"><img src="arte/logo-simonetta.png" alt="Simonetta Viagens">
-        <address><b>${esc(AG.razao)}</b><span>${esc(AG.cidade)}</span>${AG.fones.map(f => `<span>Tel.: ${esc(f)}</span>`).join('')}<span>${esc(AG.email)}</span></address></header>
-      <h1 class="v-faixa centro">${esc(v.hotel || 'Nome do hotel')}</h1>
-      <h2 class="v-faixa">Hotel</h2>
-      <div class="v-caixa">
-        <p class="v-nome">${esc(v.hotel || '—')}</p>
-        <dl class="v-grade"><dt>Endereço:</dt><dd class="largo">${esc(v.endereco || '—')}</dd><dt>Telefone:</dt><dd>${esc(v.fone || '—')}</dd></dl>
-        <dl class="v-grade"><dt>Data Check-in:</dt><dd>${v.checkin ? diaNum(v.checkin) : '—'} <span>${esc(v.horaIn)}h</span></dd><dt>Data Check-out:</dt><dd>${v.checkout ? diaNum(v.checkout) : '—'} <span>${esc(v.horaOut)}h</span></dd></dl>
-        <dl class="v-grade"><dt>Regime:</dt><dd>${esc(v.regime)}</dd><dt>Nº de noites:</dt><dd>${nt || '—'}</dd></dl>
-      </div>
-      <h2 class="v-faixa">Room${total > 1 ? ' ' + (n + 1) : ''}</h2>
-      <div class="v-caixa">
-        <dl class="v-grade"><dt>Tipo de quarto:</dt><dd>${esc(q.tipo)}</dd><dt>Categoria:</dt><dd>${v.estrelas ? v.estrelas + '*' : '—'}</dd></dl>
-        <dl class="v-grade nomes">${hs.map(h => `<dt>Nome:</dt><dd>${esc((h || '').toUpperCase() || '—')}</dd>`).join('')}</dl>
-        <dl class="v-grade"><dt>Observação:</dt><dd class="largo">${esc(q.obs)}</dd></dl>
-      </div>
-      <h2 class="v-faixa">Informações adicionais</h2>
-      <div class="v-caixa alta">${esc(v.info)}</div>
+    const v = E.vou, nt = noites(v), hs = q.hospedes.slice(0, camas(q.tipo));
+    const foto = v.foto || (FOTOS_DESTINO[v.cidade] || [])[0] || '';
+    const dia = (iso) => iso ? { curto: dt(iso).getDate() + ' ' + MESES[dt(iso).getMonth()], sem: SEMANA[dt(iso).getDay()] } : { curto: '—', sem: '' };
+    const a = dia(v.checkin), z = dia(v.checkout), est = +v.estrelas || 0;
+    const tagEstadia = ['Estadia', v.checkin && v.checkout ? diaNum(v.checkin) + ' a ' + diaNum(v.checkout) : '', nt ? plural(nt, 'noite', 'noites') : '', v.regime].filter(Boolean).join(' | ');
+    const tagQuarto = ['Room' + (total > 1 ? ' ' + (n + 1) + ' de ' + total : ''), q.tipo, est ? est + ' estrelas' : ''].filter(Boolean).join(' | ');
+    return `<article class="pp vc">
+      <section class="vc-topo">
+        ${foto ? `<div class="vc-foto" style="background-image:url('${esc(foto)}')" aria-hidden="true"></div>` : ''}
+        <div class="pp-logo"><img src="arte/logo-simonetta.png" alt="${esc(AG.nome)}"></div>
+        <div class="vc-txt"><p class="pp-capak">${esc(AG.nome)}${v.cidade ? ' <i>|</i> ' + esc(v.cidade) : ''}</p><h1>Voucher de<br>hospedagem</h1></div>
+      </section>
+      <section class="pp-sec">
+        <p class="pp-kick">Hotel</p>
+        <h2 class="pp-h2">${esc(v.hotel || 'Nome do hotel')}${est ? ` <span class="vc-estrelas" role="img" aria-label="${est} estrelas">${'★'.repeat(est)}</span>` : ''}</h2>
+        <div class="pp-card vc-linhas">
+          <p><i>${ICO_PIN}</i><span><small>Endereço</small>${esc(v.endereco || '—')}</span></p>
+          <p><i>${ICO_FONE}</i><span><small>Telefone</small>${esc(v.fone || '—')}</span></p>
+        </div>
+        <section class="pp-card pp-voo vc-estadia"><div class="pp-tag">${esc(tagEstadia)}</div>
+          <div class="perna">
+            <div class="ponta"><span class="hora">${esc(a.curto)}</span><b class="iata">Check-in</b><span class="onde">${esc([a.sem, v.horaIn ? 'a partir das ' + v.horaIn : ''].filter(Boolean).join(' · '))}</span></div>
+            <div class="linha-voo"><span class="dur">${nt ? plural(nt, 'noite', 'noites') : ''}</span><span class="traco"><i>${ICO_LUA}</i></span><span class="num">${esc(v.regime)}</span></div>
+            <div class="ponta fim"><span class="hora">${esc(z.curto)}</span><b class="iata">Check-out</b><span class="onde">${esc([z.sem, v.horaOut ? 'até as ' + v.horaOut : ''].filter(Boolean).join(' · '))}</span></div>
+          </div></section>
+        <section class="pp-card"><div class="pp-tag">${esc(tagQuarto)}</div>
+          <h3 class="pp-tit">${hs.length > 1 ? 'Hóspedes' : 'Hóspede'}</h3>
+          <ul class="vc-hosp">${hs.map(h => `<li><i>${ICO_PESSOA}</i><b>${esc((h || '').toUpperCase() || '—')}</b></li>`).join('')}</ul>
+          ${q.obs ? `<div class="pp-obs">${ICO_ZAP}<p><b>Observação:</b> ${esc(q.obs)}</p></div>` : ''}
+        </section>
+        ${v.info ? `<section class="pp-card"><h3 class="pp-tit">Informações adicionais</h3><p>${esc(v.info).replace(/\n/g, '<br>')}</p></section>` : ''}
+      </section>
+      <section class="pp-inv vc-ag"><p class="pp-inv-t">Reserva feita por</p><b>${esc(AG.razao)}</b>
+        <span>${AG.fones.map(esc).join(' · ')} · ${esc(AG.email)}</span><span>${esc(AG.cidade)}</span></section>
     </article>`;
   }
 
@@ -664,6 +684,8 @@
           <label>Observação deste quarto<input id="v-obs" value="${esc(q.obs)}"></label>
         </fieldset>
         <label>Informações adicionais<textarea id="v-info" rows="2">${esc(v.info)}</textarea></label>
+        <div class="acoes"><label class="btn fantasma">Foto do topo<input type="file" id="v-foto" accept="image/*" hidden></label>
+          ${v.foto ? '<button class="btn fantasma" id="v-semfoto">Tirar a foto</button>' : ''}</div>
         <div class="acoes"><button class="btn primario" id="v-pdf">Baixar PDF deste quarto</button>
           <button class="btn fantasma" id="v-nome">Copiar o nome do arquivo</button></div>
       </section>
@@ -672,7 +694,8 @@
 
     const repinta = () => { salva(); $('#v-folha').innerHTML = voucherHtml(q, v.ativo, v.quartos.length); $('.arquivo').textContent = nomeArquivoVoucher(q) + '.pdf'; };
     const campo = (id, k) => { $('#' + id).oninput = (e) => { v[k] = e.target.value; repinta(); }; };
-    campo('v-hotel', 'hotel'); campo('v-endereco', 'endereco'); campo('v-fone', 'fone'); campo('v-estrelas', 'estrelas');
+    $('#v-hotel').oninput = (e) => { v.hotel = e.target.value; v.cidade = ''; repinta(); };   /* outro hotel: a cidade (e a foto dela) deixa de valer */
+    campo('v-endereco', 'endereco'); campo('v-fone', 'fone'); campo('v-estrelas', 'estrelas');
     campo('v-checkin', 'checkin'); campo('v-checkout', 'checkout'); campo('v-info', 'info');
     $('#v-obs').oninput = (e) => { q.obs = e.target.value; repinta(); };
     $$('[data-hosp]').forEach(c => c.oninput = () => { q.hospedes[+c.dataset.hosp] = c.value; repinta(); });
@@ -684,9 +707,11 @@
     $('#v-busca').onclick = () => {
       const h = buscaHotel(v.hotel);
       if (!h) { $('#v-nota').textContent = 'Não conheço esse hotel aqui no protótipo. Preencha à mão, ou tente “savoy marrakech”.'; $('#v-nota').classList.add('alerta'); return; }
-      Object.assign(v, { hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas }); salva(); telaVoucher(); aviso('Endereço, telefone e categoria preenchidos');
+      Object.assign(v, { hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas, cidade: h.cidade }); salva(); telaVoucher(); aviso('Endereço, telefone e categoria preenchidos');
     };
     $('#v-ex').onclick = () => { exemploVoucher(); telaVoucher(); };
+    $('#v-foto').onchange = (e) => { const f = e.target.files[0]; if (f) reduzFoto(f, (url) => { v.foto = url; salva(); telaVoucher(); }); };
+    const sf = $('#v-semfoto'); if (sf) sf.onclick = () => { v.foto = ''; salva(); telaVoucher(); };
     $('#v-pdf').onclick = () => imprime(nomeArquivoVoucher(q));
     $('#v-nome').onclick = () => copia(nomeArquivoVoucher(q), 'Nome do arquivo copiado');
   }
@@ -877,7 +902,13 @@
     window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', rota);
-  /* index.html?exemplo#/proposta abre já com a cotação e o voucher de exemplo (para mostrar e para conferir o PDF) */
-  if (/[?&]exemplo\b/.test(location.search)) { montaExemploInteiro(); exemploVoucher(); if (/quarto=2/.test(location.search)) E.vou.ativo = 1; }
+  /* index.html?exemplo#/cliente abre já com a cotação e o voucher de exemplo: é o link para mandar a quem
+     vai ver pela primeira vez. Só monta o exemplo se ainda não houver cotação (não apaga o que a pessoa já fez),
+     e tira o "?exemplo" do endereço para que recarregar a página não refaça nada. */
+  if (/[?&]exemplo\b/.test(location.search)) {
+    if (!E.cot.opcoes.length) { montaExemploInteiro(); exemploVoucher(); }
+    if (/quarto=2/.test(location.search) && E.vou.quartos.length > 1) { E.vou.ativo = 1; salva(); }
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* abrindo do arquivo: segue com o endereço como está */ }
+  }
   rota();
 })();
