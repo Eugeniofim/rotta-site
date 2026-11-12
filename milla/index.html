@@ -346,6 +346,32 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   .relogio { display: none }
 }
 @media (prefers-reduced-motion: reduce) { .btn, .bilhete, .oferta-fixa { transition: none } .btn:hover, .bilhete:hover { transform: none } }
+
+/* TESTAR AGORA (12/11/2026): antes do WhatsApp, o contato vai para o CRM de vendas (com o vendedor do link) */
+.testar { padding: 0; border: 0; background: transparent; color: var(--marfim); width: min(480px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain }
+.testar::backdrop { background: rgba(3,6,9,.74); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px) }
+.testar-caixa { position: relative; background: var(--noite-2); border: 1px solid var(--linha-noite); border-radius: var(--balao); padding: 30px 26px 24px }
+.testar-passo { display: flex; flex-direction: column; gap: 14px }
+.testar-passo[hidden] { display: none }
+.testar h2 { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1.05; letter-spacing: -.02em; padding-right: 36px }
+.testar-sub { color: var(--dim-noite); font-size: 16px }
+.testar-campo { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600 }
+.testar-campo input { font: inherit; font-weight: 400; font-size: 17px; color: var(--marfim); background: var(--noite); border: 1px solid var(--linha-noite); border-radius: 12px 12px 12px 3px; padding: 12px 14px; min-height: 50px; width: 100% }
+.testar-campo input:focus { outline: none; border-color: var(--janela); box-shadow: 0 0 0 3px rgba(255,181,46,.18) }
+.testar-campo input[aria-invalid="true"] { border-color: #FF8A7A }
+.testar-dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.testar-aceite { display: flex; align-items: flex-start; gap: 10px; color: var(--dim-noite); font-size: 14px; cursor: pointer }
+.testar-aceite input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--janela); flex: none }
+.testar-armadilha { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0 }
+.testar-erro { color: #FF8A7A; font-size: 14px; font-weight: 600 }
+.testar-erro:empty { display: none }
+.testar .btn { width: 100%; margin-top: 2px; font-family: inherit; border: 0; cursor: pointer }
+.testar .btn[disabled] { opacity: .6; transform: none; cursor: progress }
+.testar-x { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border: 0; background: transparent; color: var(--dim-noite); font-size: 28px; line-height: 1; border-radius: 12px; cursor: pointer }
+.testar-x:hover { color: var(--marfim); background: rgba(246,243,236,.06) }
+.testar-nota { color: var(--dim-noite); font-size: 13.5px; text-align: center }
+.testar-nota b { color: var(--marfim) }
+@media (max-width: 520px) { .testar-caixa { padding: 26px 18px 20px } .testar h2 { font-size: 26px } .testar-dupla { grid-template-columns: 1fr } }
 </style>
 </head>
 <body>
@@ -364,7 +390,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <a href="#funcoes" data-voz="funcoes">O que ela faz</a>
       <button class="som" id="somMenu" type="button" aria-pressed="true" aria-label="Resumo falado no menu: ligado. Toque para desligar" title="Resumo falado no menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="alto" d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="onda o1" d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="onda o2" d="M18 7a7 7 0 0 1 0 10"/><path class="corte" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>
       <a class="entrar" href="entrar/">Entrar</a>
-      <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">Testar agora</a>
+      <a class="teste" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener" data-testar>Testar agora</a>
     </nav>
   </div>
 </header>
@@ -381,7 +407,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
         <h1 class="d1" data-entra>Sua imobiliária dorme.<br>A&nbsp;Milla&nbsp;não.</h1>
         <p class="lead" data-entra>Ela atende seu cliente no WhatsApp e no Instagram em segundos, a qualquer hora, com os imóveis da sua carteira. Quando ele quer visitar, ela chama o corretor.</p>
         <div class="hero-acao" data-entra>
-          <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
+          <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener" data-testar><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
           <span class="hero-num"><b>(41) 96349-3440</b><span class="online">online agora · mande um oi</span></span>
         </div>
         <div class="hero-planos" data-entra>
@@ -678,7 +704,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
         <h2 class="d1">Mande um oi. Ela responde.</h2>
         <a class="numero num" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener">(41) 96349-3440</a>
         <div class="final-acao">
-          <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
+          <a class="btn" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener" data-testar><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</a>
           <div class="qr"><svg viewBox="0 0 33 33" role="img" aria-label="Código QR para abrir a conversa com a Milla no WhatsApp"><path fill="#0A1118" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM20 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM29 0h1v1h-1zM30 0h1v1h-1zM31 0h1v1h-1zM32 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM21 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM22 5h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM29 6h1v1h-1zM30 6h1v1h-1zM31 6h1v1h-1zM32 6h1v1h-1zM8 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM21 7h1v1h-1zM24 7h1v1h-1zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM32 8h1v1h-1zM0 9h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM25 9h1v1h-1zM29 9h1v1h-1zM30 9h1v1h-1zM31 9h1v1h-1zM32 9h1v1h-1zM0 10h1v1h-1zM3 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM18 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM29 10h1v1h-1zM31 10h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM13 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM31 11h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM6 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM19 12h1v1h-1zM22 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM26 12h1v1h-1zM29 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM27 13h1v1h-1zM29 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM30 14h1v1h-1zM31 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM15 15h1v1h-1zM16 15h1v1h-1zM17 15h1v1h-1zM18 15h1v1h-1zM21 15h1v1h-1zM23 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM27 15h1v1h-1zM28 15h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM12 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM0 17h1v1h-1zM3 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM23 17h1v1h-1zM29 17h1v1h-1zM30 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM3 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM0 19h1v1h-1zM1 19h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h1v1h-1zM10 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM21 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM27 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM10 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM18 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM28 20h1v1h-1zM29 20h1v1h-1zM32 20h1v1h-1zM0 21h1v1h-1zM1 21h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM9 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM16 21h1v1h-1zM19 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM25 21h1v1h-1zM31 21h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM7 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM16 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM31 22h1v1h-1zM2 23h1v1h-1zM3 23h1v1h-1zM4 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM9 23h1v1h-1zM11 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM21 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM29 23h1v1h-1zM31 23h1v1h-1zM32 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM25 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM31 24h1v1h-1zM8 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM17 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM0 26h1v1h-1zM1 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM20 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM29 26h1v1h-1zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM15 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM16 28h1v1h-1zM19 28h1v1h-1zM22 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM31 28h1v1h-1zM0 29h1v1h-1zM2 29h1v1h-1zM3 29h1v1h-1zM4 29h1v1h-1zM6 29h1v1h-1zM10 29h1v1h-1zM11 29h1v1h-1zM14 29h1v1h-1zM18 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM29 29h1v1h-1zM30 29h1v1h-1zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM6 30h1v1h-1zM10 30h1v1h-1zM11 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM15 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM20 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM14 31h1v1h-1zM15 31h1v1h-1zM16 31h1v1h-1zM17 31h1v1h-1zM21 31h1v1h-1zM22 31h1v1h-1zM23 31h1v1h-1zM24 31h1v1h-1zM25 31h1v1h-1zM26 31h1v1h-1zM29 31h1v1h-1zM0 32h1v1h-1zM1 32h1v1h-1zM2 32h1v1h-1zM3 32h1v1h-1zM4 32h1v1h-1zM5 32h1v1h-1zM6 32h1v1h-1zM8 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM14 32h1v1h-1zM16 32h1v1h-1zM17 32h1v1h-1zM18 32h1v1h-1zM19 32h1v1h-1zM21 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM25 32h1v1h-1zM26 32h1v1h-1zM29 32h1v1h-1zM32 32h1v1h-1z"/></svg></div>
           <span class="qr-txt">No computador? Aponte a câmera do celular.</span>
         </div>
@@ -703,6 +729,34 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   </div>
 </footer>
 
+<dialog class="testar" id="testar" aria-labelledby="testarTit" data-lenis-prevent>
+  <form class="testar-caixa" id="testarForm" novalidate>
+    <button type="button" class="testar-x" data-fecha aria-label="Fechar">&times;</button>
+    <div class="testar-passo" id="testarP1">
+      <span class="rot">Teste grátis · leva 1 minuto</span>
+      <h2 id="testarTit">Fale com a Milla agora</h2>
+      <p class="testar-sub">Deixe o seu contato e a conversa abre no WhatsApp. Fale com ela como um cliente procurando imóvel.</p>
+      <div class="testar-dupla">
+        <label class="testar-campo">Seu nome<input name="nome" autocomplete="name" maxlength="80" required></label>
+        <label class="testar-campo">Imobiliária<input name="imobiliaria" autocomplete="organization" maxlength="80"></label>
+      </div>
+      <label class="testar-campo">WhatsApp<input name="whats" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(41) 99999-9999" required></label>
+      <label class="testar-campo">E-mail<input name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" required></label>
+      <input class="testar-armadilha" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="testar-aceite"><input type="checkbox" name="aceite" required>Aceito receber contato da Ti Artes sobre a Milla pelo WhatsApp e por e-mail.</label>
+      <p class="testar-erro" id="testarErro" role="alert"></p>
+      <button class="btn" type="submit" id="testarEnviar"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Testar a Milla no WhatsApp</button>
+      <p class="testar-nota" id="testarIndicacao" hidden></p>
+    </div>
+    <div class="testar-passo" id="testarP2" hidden>
+      <span class="rot">Pronto</span>
+      <h2 tabindex="-1" id="testarTit2">Agora mande um oi para a Milla</h2>
+      <p class="testar-sub">A conversa abre no WhatsApp. Pergunte por um imóvel, peça fotos, marque uma visita: ela responde em segundos.</p>
+      <a class="btn" id="testarWa" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Abrir o WhatsApp</a>
+      <p class="testar-nota">Depois, a gente fala com você para mostrar o painel e tirar as dúvidas.</p>
+    </div>
+  </form>
+</dialog>
 <aside class="oferta-fixa" id="ofertaFixa" aria-label="Planos da Milla">
   <p><b class="num">R$ 460 por mês</b> nos 20 primeiros contratos<span class="num">Implantação pela metade no ano à vista</span></p>
   <a class="btn" href="#planos">Ver planos</a>
@@ -795,6 +849,91 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     b.addEventListener("click", function () {
       var v = b.parentNode.querySelector("video");
       b.hidden = true; v.controls = true; v.play();
+    });
+  });
+})();
+</script>
+<script>
+/* TESTAR AGORA (12/11/2026). O link do vendedor (?de=tiago) fica guardado 90 dias neste aparelho; quem chegou
+   primeiro vale. O formulário grava o contato no CRM de vendas (sala millavendas, só a função pedir_teste
+   aceita gravar) e depois abre o WhatsApp da Milla. Se a internet falhar, o teste segue e o envio tenta de novo depois. */
+(function () {
+  var API = "https://uopfqlogjzuqpabptxkb.supabase.co/rest/v1/rpc/pedir_teste", CHAVE = "sb_publishable_VKIdd2RNpMf3e4IEDprxJw_TOKPIHT2";
+  var NOMES = { tiago: "Tiago", betao: "Betão" };
+  var de = "";
+  try {
+    var g = JSON.parse(localStorage.getItem("milla_de") || "null");
+    if (g && g.ate > Date.now() && /^[a-z0-9-]{2,30}$/.test(g.de)) de = g.de;
+  } catch (e) {}
+  var q = (new URLSearchParams(location.search).get("de") || "").toLowerCase();
+  if (!de && /^[a-z0-9-]{2,30}$/.test(q)) {
+    de = q;
+    try { localStorage.setItem("milla_de", JSON.stringify({ de: q, ate: Date.now() + 90 * 864e5 })); } catch (e) {}
+  }
+  var quem = de ? (NOMES[de] || "") : "";
+  /* quem quer comprar fala com o estúdio: a mensagem já leva quem indicou */
+  if (de) document.querySelectorAll('a[href*="wa.me/5541991566444"]').forEach(function (a) {
+    try { var u = new URL(a.href); u.searchParams.set("text", (u.searchParams.get("text") || "") + " Vim pela indicação de " + (quem || de) + "."); a.href = u.toString(); } catch (e) {}
+  });
+
+  var dlg = document.getElementById("testar"), f = document.getElementById("testarForm");
+  if (!dlg || !f) return;
+  var p1 = document.getElementById("testarP1"), p2 = document.getElementById("testarP2"), erro = document.getElementById("testarErro"), enviar = document.getElementById("testarEnviar");
+  if (quem) { var ind = document.getElementById("testarIndicacao"); ind.innerHTML = "Indicação de <b></b>"; ind.querySelector("b").textContent = quem; ind.hidden = false; }
+  function manda(d) {
+    return fetch(API, { method: "POST", headers: { apikey: CHAVE, Authorization: "Bearer " + CHAVE, "Content-Type": "application/json", "Content-Profile": "millavendas" }, body: JSON.stringify({ p: d }) })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  /* um pedido que não saiu da última vez */
+  try { var pend = JSON.parse(localStorage.getItem("milla_teste_pendente") || "null"); if (pend) manda(pend).then(function (r) { if (r && r.ok !== false) localStorage.removeItem("milla_teste_pendente"); }).catch(function () {}); } catch (e) {}
+
+  function abre(ev) {
+    if (typeof dlg.showModal !== "function") return;   /* navegador antigo: o link vai direto ao WhatsApp */
+    ev.preventDefault();
+    erro.textContent = ""; p1.hidden = false; p2.hidden = true;
+    if (window.__lenis) window.__lenis.stop();
+    dlg.showModal();
+    setTimeout(function () { f.nome.focus(); }, 30);
+  }
+  function fecha() { dlg.close(); }
+  dlg.addEventListener("close", function () { if (window.__lenis) window.__lenis.start(); });
+  dlg.addEventListener("click", function (e) { if (e.target === dlg) fecha(); });
+  f.querySelectorAll("[data-fecha]").forEach(function (b) { b.addEventListener("click", fecha); });
+  document.querySelectorAll("[data-testar]").forEach(function (a) { a.addEventListener("click", abre); });
+  document.getElementById("testarWa").addEventListener("click", function () { setTimeout(fecha, 400); });
+
+  function falha(msg, campo) {
+    erro.textContent = msg;
+    f.querySelectorAll("[aria-invalid]").forEach(function (c) { c.removeAttribute("aria-invalid"); });
+    if (campo) { campo.setAttribute("aria-invalid", "true"); campo.focus(); }
+  }
+  function pronto() {
+    p1.hidden = true; p2.hidden = false;
+    document.getElementById("testarTit2").focus();
+  }
+  /* o aviso some quando a pessoa corrige */
+  f.addEventListener("input", function (e) { if (e.target.getAttribute("aria-invalid")) { e.target.removeAttribute("aria-invalid"); erro.textContent = ""; } });
+  f.addEventListener("change", function (e) { if (e.target.name === "aceite" && e.target.getAttribute("aria-invalid")) { e.target.removeAttribute("aria-invalid"); erro.textContent = ""; } });
+  f.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var dig = f.whats.value.replace(/\D/g, "");
+    var d = { nome: f.nome.value.trim(), imobiliaria: f.imobiliaria.value.trim(), whats: dig.length <= 11 ? "55" + dig : dig,
+      email: f.email.value.trim(), aceite: f.aceite.checked, armadilha: f.site.value, de: de, pagina: location.pathname + (q ? "?de=" + q : "") };
+    if (!d.nome) return falha("Escreva o seu nome.", f.nome);
+    if (dig.length < 10) return falha("Confira o WhatsApp, com o DDD.", f.whats);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email)) return falha("Confira o e-mail.", f.email);
+    if (!d.aceite) return falha("Marque que aceita o contato para seguir.", f.aceite);
+    falha("");
+    enviar.disabled = true;
+    manda(d).then(function (r) {
+      enviar.disabled = false;
+      if (r && r.ok === false && r.erro === "whats") return falha("Confira o WhatsApp, com o DDD.", f.whats);
+      if (r && r.ok === false && r.erro === "email") return falha("Confira o e-mail.", f.email);
+      pronto();
+    }).catch(function () {
+      enviar.disabled = false;
+      try { localStorage.setItem("milla_teste_pendente", JSON.stringify(d)); } catch (e) {}
+      pronto();
     });
   });
 })();
@@ -1091,6 +1230,7 @@ if (!cena) document.documentElement.classList.add('sem3d');
 if (window.gsap && window.ScrollTrigger && !CALMO && !SO3D) {
   gsap.registerPlugin(ScrollTrigger);
   const lenis = new Lenis({ lerp: .11, smoothWheel: true });
+  window.__lenis = lenis;   /* o formulário Testar agora para a rolagem enquanto está aberto */
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
