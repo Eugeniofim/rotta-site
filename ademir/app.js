@@ -1224,8 +1224,10 @@
     }
     async function entrar(email, senha) {
       ses = daSessao(await auth('token?grant_type=password', { email, password: senha })); guardaSes();
-      try { await rest('GET', 'estado?select=id&limit=1'); }
-      catch (e) { ses = null; guardaSes(); throw new Error('Este login existe, mas não tem acesso ao painel da Simonetta. Fale com a Ti Artes.'); }
+      /* o banco devolve lista vazia (e não erro) para quem não é dono: por isso a pergunta é direta */
+      let dono = false;
+      try { dono = (await rest('POST', 'rpc/is_owner', {})) === true; } catch (e) { dono = false; }
+      if (!dono) { ses = null; guardaSes(); throw new Error('Este login existe, mas não tem acesso ao painel da Simonetta. Fale com a Ti Artes.'); }
       await sincroniza(true);
     }
     async function sair() {
