@@ -90,6 +90,18 @@
     if (c.tipo === 'pacote') { const v = c.pac.precos.map(x => +x.valor).filter(Boolean); return v.length ? 'a partir de ' + dinheiro(Math.min(...v), c.pac.moeda) : ''; }
     const v = c.opcoes.flatMap(o => o.tarifas.map(precoFinal)); return v.length ? 'a partir de ' + usd(Math.min(...v)) + ' por pessoa' : '';
   }
+  /* pedido que chegou pelo site: acha o cliente pelo WhatsApp (8 últimos dígitos) ou pelo nome; se não houver, cria */
+  const ult8 = (s) => String(s || '').replace(/\D/g, '').slice(-8);
+  function registraPedido(p) {
+    let cli = (ult8(p.whats) && E.clientes.find(c => ult8(c.fone) === ult8(p.whats))) || E.clientes.find(c => norm(c.nome) === norm(p.nome));
+    if (!cli) { cli = { id: uid(), nome: p.nome, fone: '', email: '', obs: '', criado: (p.criado_em || '').slice(0, 10) || isoHoje(), origem: 'site' }; E.clientes.push(cli); }
+    if (!cli.fone && p.whats) cli.fone = p.whats;
+    if (!cli.email && p.email) cli.email = p.email;
+    cli.pedidos = cli.pedidos || [];
+    if (!cli.pedidos.some(x => x.id === p.id)) cli.pedidos.push({ id: p.id, em: p.criado_em, destino: p.destino, quando: p.quando, pessoas: p.pessoas, tipo: p.tipo, mensagem: p.mensagem });
+    cli.novo = true;
+    return cli;
+  }
   function arquiva() {
     const c = E.cot, nome = (c.cliente || '').trim();
     if (!nome || !temConteudo(c)) return;
@@ -1205,6 +1217,19 @@
       clearTimeout(timer); timer = setTimeout(sobe, 2000);
     }
     /* ao abrir: se a nuvem tem algo mais novo, traz; se este computador tem algo que não subiu, manda */
+    async function puxaPedidos() {
+      if (!ses) return;
+      try {
+        const l = await rest('GET', 'pedidos?importado=eq.false&order=criado_em.asc&select=*');
+        if (!l || !l.length) return;
+        const nomes = l.map(p => registraPedido(p).nome);
+        salva();
+        await rest('PATCH', 'pedidos?id=in.(' + l.map(p => p.id).join(',') + ')', { importado: true });
+        aviso(l.length === 1 ? 'Pedido novo pelo site: ' + nomes[0] + '. Está em Clientes.' : l.length + ' pedidos novos pelo site. Estão em Clientes.');
+        if (/clientes/.test(location.hash)) rota();
+        pintaAba();
+      } catch (e) { /* tenta de novo na próxima volta */ }
+    }
     async function sincroniza(primeira) {
       if (!ses) return;
       marca('subindo');
@@ -1221,6 +1246,7 @@
         if (sujo()) { await sobe(); return; }
         marca('ok');
       } catch (e) { marca(ses ? 'falha' : 'fora', 'Não consegui falar com a nuvem agora.'); }
+      finally { puxaPedidos(); }
     }
     async function entrar(email, senha) {
       ses = daSessao(await auth('token?grant_type=password', { email, password: senha })); guardaSes();
@@ -1278,6 +1304,7 @@
       if (ses) sincroniza(false);
       addEventListener('online', () => { if (ses && sujo()) sobe(); });
       setInterval(() => { if (ses && sujo() && !subindo) sobe(); }, 30000);
+      setInterval(() => { if (ses && document.visibilityState === 'visible') puxaPedidos(); }, 60000);
       /* voltou para esta aba depois de um tempo: vê se outro computador salvou */
       document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && ses && !sujo()) sincroniza(false); });
     }
@@ -1422,6 +1449,11 @@
   let CLI = '';   /* o cliente aberto na tela */
   const dataHora = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
   function propostasDe(id) { return E.propostas.filter(p => p.clienteId === id).sort((a, b) => (b.atualizada || '').localeCompare(a.atualizada || '')); }
+  function pintaAba() {
+    const a = document.querySelector('.abas a[data-aba="clientes"]'); if (!a) return;
+    const n = E.clientes.filter(c => c.novo).length;
+    a.dataset.novos = n || ''; a.setAttribute('aria-label', 'Clientes' + (n ? ', ' + n + ' com pedido novo' : ''));
+  }
   function telaClientes() {
     if (CLI && !E.clientes.some(x => x.id === CLI)) CLI = '';
     $('#palco').innerHTML = `
@@ -1464,9 +1496,9 @@
     const l = E.clientes.map(c => ({ c, ps: propostasDe(c.id) })).filter(x => !b || norm(x.c.nome).includes(b))
       .sort((a, b) => ((b.ps[0] || {}).atualizada || '').localeCompare((a.ps[0] || {}).atualizada || ''));
     el.innerHTML = l.length ? l.map(({ c, ps }) => `<li><button class="cli-nome${c.id === CLI ? ' on' : ''}" data-cli="${c.id}"><b>${esc(c.nome)}</b>
-        <span>${[ps.length ? plural(ps.length, 'proposta', 'propostas') : '', (n => n ? plural(n, 'voucher', 'vouchers') : '')(E.vouchers.filter(x => norm(x.cliente) === norm(c.nome)).length)].filter(Boolean).join(' · ') || 'sem nada ainda'}${ps[0] ? ' · última em ' + esc(new Date(ps[0].atualizada).toLocaleDateString('pt-BR')) : ''}</span></button></li>`).join('')
+        ${c.novo ? '<span class="cli-novo">pedido novo pelo site</span>' : ''}<span>${[c.pedidos && c.pedidos.length ? plural(c.pedidos.length, 'pedido', 'pedidos') + ' pelo site' : '', ps.length ? plural(ps.length, 'proposta', 'propostas') : '', (n => n ? plural(n, 'voucher', 'vouchers') : '')(E.vouchers.filter(x => norm(x.cliente) === norm(c.nome)).length)].filter(Boolean).join(' · ') || 'sem nada ainda'}${ps[0] ? ' · última em ' + esc(new Date(ps[0].atualizada).toLocaleDateString('pt-BR')) : ''}</span></button></li>`).join('')
       : `<li class="nota">${b ? 'Nenhum cliente com esse nome.' : 'Ainda não há clientes. Faça uma cotação com o nome do cliente e ele aparece aqui.'}</li>`;
-    $$('[data-cli]', el).forEach(x => x.onclick = () => { CLI = x.dataset.cli; pintaNomes(); pintaFicha(); if (innerWidth < 940) $('#cli-ficha').scrollIntoView({ behavior: 'smooth' }); });
+    $$('[data-cli]', el).forEach(x => x.onclick = () => { CLI = x.dataset.cli; const cc = E.clientes.find(y => y.id === CLI); if (cc && cc.novo) { cc.novo = false; salva(); pintaAba(); } pintaNomes(); pintaFicha(); if (innerWidth < 940) $('#cli-ficha').scrollIntoView({ behavior: 'smooth' }); });
   }
   function pintaFicha() {
     const el = $('#cli-ficha'); if (!el) return;
@@ -1482,6 +1514,11 @@
         <label>Cliente desde<input value="${esc(diaNum(c.criado))}" disabled></label>
         <label class="largo">Observações<textarea data-cli-campo="obs" rows="2" placeholder="Prefere janela, viaja com a esposa, cartão Amex...">${esc(c.obs)}</textarea></label>
       </div>
+      ${(c.pedidos || []).length ? `<h3 class="cli-sub">Pedidos pelo site</h3><ul class="cli-props">${c.pedidos.slice().reverse().map(p => `<li class="cli-prop">
+          <div><span class="cia-tag">Site</span><b>${esc(p.destino || 'Sem destino definido')}</b>
+            <span>${esc([p.quando, p.pessoas ? plural(+p.pessoas, 'pessoa', 'pessoas') : '', p.tipo, 'chegou em ' + dataHora(p.em)].filter(Boolean).join(' · '))}</span>
+            ${p.mensagem ? `<span class="cli-msg">“${esc(p.mensagem)}”</span>` : ''}</div>
+          <div class="cli-acoes"><button class="btn primario" data-cot-pedido="${p.id}">Começar a cotação</button></div></li>`).join('')}</ul>` : ''}
       ${(() => { const vs = E.vouchers.filter(x => norm(x.cliente) === norm(c.nome)).sort((a, b) => (b.atualizado || '').localeCompare(a.atualizado || ''));
         return vs.length ? `<h3 class="cli-sub">Vouchers</h3><ul class="cli-props" id="cli-vouchers">${vs.map(itemVoucher).join('')}</ul>` : ''; })()}
       <h3 class="cli-sub">Propostas</h3>
@@ -1497,6 +1534,11 @@
       salva(); if (k === 'nome') pintaNomes();
     });
     const cv = $('#cli-vouchers'); if (cv) ligaVouchers(cv, () => { pintaNomes(); pintaFicha(); });
+    $$('[data-cot-pedido]', el).forEach(b => b.onclick = () => {
+      const p = c.pedidos.find(x => x.id === b.dataset.cotPedido);
+      E.cot = Object.assign(novaCot(), { cliente: c.nome, clienteId: c.id, destino: p.destino || '', pax: +p.pessoas || 2, tipo: +p.pessoas >= 10 || /grupo|empresa|incentivo/i.test(p.tipo || '') ? 'pacote' : 'aereo' });
+      R = null; E.texto = ''; salva(); location.hash = '#/cotacao';
+    });
     $('#cli-cot').onclick = () => { E.cot = Object.assign(novaCot(), { cliente: c.nome, clienteId: c.id }); R = null; E.texto = ''; salva(); location.hash = '#/cotacao'; };
     $$('[data-abre]', el).forEach(b => b.onclick = () => abreCot(E.propostas.find(p => p.id === b.dataset.abre).cot, '#/proposta'));
     $$('[data-dup]', el).forEach(b => b.onclick = () => {
@@ -1532,5 +1574,6 @@
     try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* abrindo do arquivo: segue com o endereço como está */ }
   }
   rota();
+  pintaAba();
   Nuvem.liga();
 })();

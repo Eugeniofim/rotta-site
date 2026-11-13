@@ -605,3 +605,10 @@ body[data-tela="cliente"] { background: #edf2ea; }
 .jn p { color: var(--cinza); }
 .jn .acoes { margin-top: 4px; }
 #faixa .sem-caps { font: inherit; letter-spacing: 0; text-transform: none; color: #fff; margin: 0; }
+
+/* pedido novo pelo site */
+.abas a[data-aba="clientes"] { position: relative; }
+.abas a[data-aba="clientes"][data-novos]:not([data-novos=""])::after { content: attr(data-novos); position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px; background: var(--verde); color: var(--marinho); font: 700 11px/18px var(--f-corpo); text-align: center; }
+.cli-novo { justify-self: start; font-size: 11.5px !important; font-weight: 700; color: var(--verde-txt) !important; background: var(--menta); padding: 1px 8px; border-radius: 999px; }
+.cli-msg { font-style: italic; color: var(--tinta) !important; }
