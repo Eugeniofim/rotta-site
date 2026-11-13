@@ -40,7 +40,8 @@ em { font-style: italic; }
 .btn svg { width: 22px; height: 22px; }
 
 /* ---------- topo ---------- */
-.topo { position: fixed; inset: 0 0 auto 0; z-index: 50; display: flex; align-items: center; gap: 28px; padding: 14px var(--margem);
+.topo { position: fixed; inset: 0 0 auto 0; z-index: 50; display: flex; align-items: center; gap: 24px; padding: 14px var(--margem);
+  background: linear-gradient(180deg, rgba(14,18,44,.6), rgba(14,18,44,0));
   transition: background .35s ease, box-shadow .35s ease, padding .35s ease; }
 .topo.cheio { background: rgba(237, 240, 236, .92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 1px 0 var(--linha); padding-top: 10px; padding-bottom: 10px; }
 .marca { background: #fff; border-radius: 12px; padding: 8px 14px; flex: none; box-shadow: 0 8px 22px -14px rgba(0,0,0,.5); }
@@ -58,6 +59,12 @@ em { font-style: italic; }
 .topo.cheio.escuro { background: rgba(23, 28, 58, .88); box-shadow: 0 1px 0 rgba(255,255,255,.08); }
 .topo.cheio.escuro .menu a, .topo.cheio.escuro .rede { color: #fff; }
 .topo.cheio.escuro .marca { background: #fff; padding-left: 14px; }
+.botao-painel { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,.55);
+  color: #fff; text-decoration: none; font: 600 14px var(--f-texto); white-space: nowrap; transition: background .2s ease, border-color .2s ease; }
+.botao-painel svg { width: 18px; height: 18px; }
+.botao-painel:hover { background: rgba(255,255,255,.14); border-color: #fff; }
+.topo.cheio:not(.escuro) .botao-painel { color: var(--noite); border-color: rgba(23,28,58,.35); }
+.topo.cheio:not(.escuro) .botao-painel:hover { background: rgba(23,28,58,.06); }
 .botao-zap { font: 600 14px var(--f-texto); text-decoration: none; background: var(--verde); color: var(--noite); padding: 10px 18px; border-radius: 999px; white-space: nowrap; }
 
 /* ---------- abertura: a foto vira quadro ---------- */
@@ -66,11 +73,14 @@ em { font-style: italic; }
 .abertura-quadro { position: absolute; inset: 0; overflow: hidden; background: #0e1230; will-change: transform, border-radius;
   box-shadow: 0 0 0 0 #fff; }
 .abertura-quadro img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
-.abertura-quadro::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,28,58,.35) 0%, rgba(23,28,58,.15) 40%, rgba(23,28,58,.78) 100%); }
-.abertura-texto { position: relative; z-index: 2; width: min(1180px, 100%); padding: 0 var(--margem); align-self: end; margin-bottom: clamp(70px, 12vh, 140px); color: #fff; }
-.abertura-texto h1 { font: 500 clamp(44px, 7.4vw, 112px)/.98 var(--f-titulo); text-shadow: 0 2px 30px rgba(10,14,40,.35); letter-spacing: -.02em; max-width: 12.5em; }
+.abertura-quadro img { filter: brightness(.78) saturate(.92); }
+.abertura-quadro::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(14,18,44,.88) 0%, rgba(14,18,44,.62) 38%, rgba(14,18,44,.12) 72%), linear-gradient(180deg, rgba(14,18,44,.55) 0%, transparent 22%, transparent 60%, rgba(14,18,44,.7) 100%); }
+.abertura-texto { position: relative; z-index: 2; width: min(1280px, 100%); padding: 0 var(--margem); align-self: end; margin-bottom: clamp(70px, 12vh, 140px); color: #fff; }
+.abertura-texto h1 { font: 500 clamp(42px, 6.4vw, 96px)/1 var(--f-titulo); text-shadow: 0 2px 24px rgba(10,14,40,.5); letter-spacing: -.02em; max-width: 12.5em; }
 .abertura-texto h1 em { color: var(--verde); }
-.abertura-sub { max-width: 34em; margin: 22px 0 30px; font-size: clamp(17px, 1.5vw, 20px); color: #dfe3f2; }
+.abertura-sub { max-width: 32em; margin: 24px 0 32px; font: 500 clamp(17px, 1.5vw, 20px)/1.55 var(--f-texto); color: #fff; text-shadow: 0 1px 12px rgba(10,14,40,.6); }
+.abertura .etiqueta { color: #a6e483; }
 .acoes { display: flex; flex-wrap: wrap; gap: 12px; }
 .rolar { position: absolute; z-index: 2; left: 50%; bottom: 22px; transform: translateX(-50%); font: 500 11px var(--f-etiqueta); letter-spacing: .16em; text-transform: uppercase; color: #c9cfe6;
   display: grid; justify-items: center; gap: 8px; }
@@ -88,7 +98,7 @@ em { font-style: italic; }
 .numero span { display: block; font: 400 clamp(56px, 7vw, 96px)/1 var(--f-titulo); color: var(--verde-escuro); letter-spacing: -.02em; margin-bottom: 6px; }
 
 /* ---------- galeria em 3D ---------- */
-.galeria { position: relative; height: 640vh; background: radial-gradient(130% 90% at 50% 0%, var(--noite-2), var(--noite) 60%); color: #fff; }
+.galeria { position: relative; height: 520vh; background: radial-gradient(130% 90% at 50% 0%, var(--noite-2), var(--noite) 60%); color: #fff; }
 .galeria-palco { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .galeria-cab { position: absolute; z-index: 3; left: var(--margem); top: clamp(88px, 13vh, 130px); max-width: 30em; }
 .galeria-cab h2 { color: #fff; font-size: clamp(30px, 3.6vw, 52px); }
@@ -107,6 +117,46 @@ em { font-style: italic; }
 .galeria-pe a { color: #fff; text-underline-offset: 3px; }
 .barra-galeria { position: absolute; z-index: 3; right: var(--margem); top: clamp(96px, 14vh, 140px); width: 2px; height: 160px; background: rgba(255,255,255,.15); }
 .barra-galeria i { position: absolute; inset: 0 0 auto 0; height: 0; background: var(--verde); }
+
+/* ---------- para quem viajamos (grade suíça: 3 colunas iguais, régua no topo) ---------- */
+.caminhos { padding: 0 var(--margem) clamp(90px, 12vw, 150px); max-width: 1320px; margin: 0 auto; }
+.caminhos-cab { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; border-top: 1px solid var(--linha); padding-top: 28px; margin-bottom: 36px; }
+.caminhos-cab .etiqueta { margin: 0; flex-basis: 100%; }
+.caminhos-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); }
+.caminho { position: relative; display: grid; align-content: start; gap: 12px; padding: 28px 26px 30px; background: #fff; border-radius: 4px; text-decoration: none; color: inherit;
+  border: 1px solid var(--linha); transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; min-height: 280px; }
+.caminho:hover { transform: translateY(-4px); border-color: var(--noite); box-shadow: 0 26px 50px -32px rgba(23,28,58,.5); }
+.caminho-tag { font: 500 11.5px var(--f-etiqueta); letter-spacing: .14em; text-transform: uppercase; color: var(--verde-escuro); }
+.caminho h3 { font: 500 clamp(24px, 2.2vw, 30px)/1.15 var(--f-titulo); color: var(--noite); }
+.caminho p { font-size: 16px; color: #4a5068; }
+.caminho-ir { margin-top: auto; padding-top: 10px; font-weight: 600; color: var(--noite); display: inline-flex; gap: 8px; align-items: center; }
+.caminho-ir i { font-style: normal; transition: transform .25s ease; }
+.caminho:hover .caminho-ir i { transform: translateX(5px); }
+
+/* ---------- agenda do design ---------- */
+.agenda { padding: clamp(90px, 12vw, 150px) var(--margem) 0; max-width: 1320px; margin: 0 auto; }
+.agenda-cab { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px 60px; align-items: end; margin-bottom: 44px; }
+.agenda-cab .etiqueta { grid-column: 1 / -1; margin: 0; }
+.agenda-nota { font-size: 16px; color: #4a5068; }
+.agenda-linha { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: 2px solid var(--noite); }
+.agenda-linha li { position: relative; display: grid; align-content: start; gap: 6px; padding: 22px 16px 26px 0; border-right: 1px solid var(--linha); padding-left: 14px; }
+.agenda-linha li:first-child { padding-left: 0; }
+.agenda-linha li:last-child { border-right: 0; }
+.agenda-linha li::before { content: ""; position: absolute; top: -7px; left: 14px; width: 12px; height: 12px; border-radius: 50%; background: var(--papel); border: 2px solid var(--noite); }
+.agenda-linha li:first-child::before { left: 0; }
+.agenda-linha li.forte::before { background: var(--verde); border-color: var(--verde-escuro); }
+.agenda-linha .mes { font: 500 13px var(--f-etiqueta); letter-spacing: .16em; text-transform: uppercase; color: var(--verde-escuro); }
+.agenda-linha b { font: 500 19px/1.2 var(--f-titulo); color: var(--noite); }
+.agenda-linha span:last-child { font-size: 14px; color: #5b6178; }
+
+/* ---------- como funciona ---------- */
+.passos { padding: 0 var(--margem) clamp(90px, 12vw, 150px); max-width: 1320px; margin: 0 auto; }
+.passos h2 { border-top: 1px solid var(--linha); padding-top: 28px; margin-bottom: 36px; }
+.passos-lista { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 48px); }
+.passos-lista li { display: grid; gap: 10px; align-content: start; }
+.passo-n { font: 500 clamp(56px, 6vw, 84px)/1 var(--f-titulo); color: var(--verde-escuro); }
+.passos-lista h3 { font: 500 24px/1.2 var(--f-titulo); color: var(--noite); }
+.passos-lista p { font-size: 16px; color: #4a5068; }
 
 /* ---------- o que fazemos ---------- */
 .servicos { padding: clamp(90px, 14vw, 170px) var(--margem); max-width: 1320px; margin: 0 auto; }
@@ -163,8 +213,17 @@ em { font-style: italic; }
 .zap-flutuante svg { width: 32px; height: 32px; }
 
 /* ---------- celular ---------- */
+@media (max-width: 1100px) {
+  .menu { display: none; }
+}
 @media (max-width: 900px) {
   .menu { display: none; }
+  .caminhos-grade, .passos-lista { grid-template-columns: minmax(0, 1fr); }
+  .caminho { min-height: 0; }
+  .agenda-cab { grid-template-columns: minmax(0, 1fr); }
+  .agenda-linha { grid-template-columns: minmax(0, 1fr); border-top: 0; border-left: 2px solid var(--noite); }
+  .agenda-linha li, .agenda-linha li:first-child { padding: 14px 0 18px 22px; border-right: 0; border-bottom: 1px solid var(--linha); }
+  .agenda-linha li::before, .agenda-linha li:first-child::before { top: 18px; left: -8px; }
   .quadro { width: min(70vw, 380px) !important; }
   .quem-grade, .contato-grade { grid-template-columns: minmax(0, 1fr); }
   .quem-titulo h2 { position: static; }
@@ -173,6 +232,10 @@ em { font-style: italic; }
 @media (max-width: 560px) {
   body { font-size: 16px; }
   .botao-zap { display: none; }
+  .botao-painel { padding: 8px 12px; font-size: 13px; gap: 5px; }
+  .botao-painel span::before { content: "Painel"; }
+  .botao-painel span { font-size: 0; }
+  .botao-painel span::before { font-size: 13px; }
   .topo { gap: 10px; }
   .redes { margin-left: auto; }
   .marca img { height: 26px; }

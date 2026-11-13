@@ -19,6 +19,14 @@
 
   if (!calmo && window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
+    /* rolagem suave (Lenis), sincronizada com as animações da página */
+    if (window.Lenis) {
+      document.documentElement.style.scrollBehavior = 'auto';
+      const lenis = new Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: 0.9 });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((t) => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0);
+      $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => { const alvo = a.getAttribute('href'); if (alvo.length > 1 && $(alvo)) { e.preventDefault(); lenis.scrollTo(alvo, { offset: -70 }); } }));
+    }
 
     /* abertura: a foto de tela cheia encolhe até virar um quadro emoldurado na parede */
     const ab = gsap.timeline({ scrollTrigger: { trigger: '.abertura', start: 'top top', end: 'bottom bottom', scrub: 0.8 } });
@@ -62,6 +70,9 @@
     /* sobre as partes escuras, o topo fica escuro */
 
     /* entradas discretas no resto da página */
+    gsap.from('.caminho', { opacity: 0, y: 40, stagger: 0.09, duration: 0.8, ease: 'power2.out', scrollTrigger: { trigger: '.caminhos-grade', start: 'top 85%' } });
+    gsap.from('.agenda-linha li', { opacity: 0, y: 24, stagger: 0.07, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: '.agenda-linha', start: 'top 85%' } });
+    gsap.from('.passos-lista li', { opacity: 0, y: 30, stagger: 0.12, duration: 0.7, ease: 'power2.out', scrollTrigger: { trigger: '.passos-lista', start: 'top 85%' } });
     $$('.quem-texto > *, .servico, .servicos-cab, .contato-texto, .pedido').forEach((el) =>
       gsap.from(el, { opacity: 0, y: 36, duration: 0.9, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 88%' } }));
     gsap.from('.servico', { rotationX: -18, transformOrigin: '50% 100%', stagger: 0.08, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.servicos-grade', start: 'top 85%' } });
@@ -100,6 +111,9 @@
     ok.hidden = false; ok.focus();
     if (!janela) $('#pedido-zap').textContent = 'toque aqui para abrir o WhatsApp com a mensagem';
   });
+
+  /* "Qual é a sua viagem?": o caminho escolhido já chega marcado no formulário */
+  $$('[data-tipo]').forEach((a) => a.addEventListener('click', () => { const r = $('input[name="tipo"][value="' + a.dataset.tipo + '"]'); if (r) r.checked = true; setTimeout(() => f.nome.focus({ preventScroll: true }), 900); }));
 
   /* botões de WhatsApp soltos abrem com uma saudação pronta */
   $$('[data-zap]').forEach((a) => { a.href = linkZap('Olá, Simonetta! Vim pelo site e quero conversar sobre uma viagem.'); });
