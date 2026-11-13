@@ -58,11 +58,12 @@
     precos: [{ valor: '', rotulo: 'Quarto individual' }, { valor: '', rotulo: 'Quarto duplo por pessoa' }],
     inclui: '', hoteis: [], dias: [], opcionais: [], obs: '' });
   const novaCot = () => ({ id: uid(), destino: '', cliente: '', clienteId: '', pax: 2, criada: isoHoje(), opcoes: [], capa: '', tipo: 'aereo', pac: pacVazio() });
+  const novoVou = () => ({ id: uid(), cliente: '', hotel: '', endereco: '', fone: '', estrelas: 0, cidade: '', foto: '', checkin: '', checkout: '', horaIn: '15:00', horaOut: '12:00',
+    regime: 'com café da manhã', quartos: [{ tipo: 'SINGLE', hospedes: [''], obs: '' }], info: '', ativo: 0, criado: isoHoje() });
   const vazio = () => ({
-    cot: novaCot(), clientes: [], propostas: [],
+    cot: novaCot(), clientes: [], propostas: [], vouchers: [],
     texto: '',
-    vou: { hotel: '', endereco: '', fone: '', estrelas: 0, checkin: '', checkout: '', horaIn: '15:00', horaOut: '12:00',
-      regime: 'com café da manhã', quartos: [{ tipo: 'SINGLE', hospedes: [''], obs: '' }], info: '', ativo: 0 },
+    vou: novoVou(),
     pass: [],
   });
   let E = vazio();
@@ -70,6 +71,8 @@
   /* o que foi guardado antes do histórico existir ganha os campos novos */
   E.cot = Object.assign(novaCot(), E.cot, { pac: Object.assign(pacVazio(), E.cot.pac || {}) });
   for (const p of E.propostas) if (!p.cot) p.cot = E.cot;   /* a aberta é guardada uma vez só, em E.cot */
+  E.vou = Object.assign(novoVou(), E.vou);
+  for (const x of E.vouchers) if (!x.vou) x.vou = E.vou;
 
   /* ---------- clientes e histórico: toda cotação com nome de cliente entra sozinha ---------- */
   const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
@@ -100,10 +103,22 @@
     if (!p) { p = { id: c.id, criada: c.criada }; E.propostas.push(p); }
     Object.assign(p, { clienteId: cli.id, cot: c, tipo: c.tipo, titulo: tituloCot(c), resumo: resumoCot(c), atualizada: new Date().toISOString() });
   }
+  /* voucher com hotel e pelo menos um hóspede entra sozinho no histórico; dá para abrir e mudar depois */
+  const temVoucher = (v) => !!(v.hotel || '').trim() && v.quartos.some(q => q.hospedes.some(h => (h || '').trim()));
+  function arquivaVoucher() {
+    const v = E.vou;
+    if (!temVoucher(v)) return;
+    let x = E.vouchers.find(y => y.id === v.id);
+    if (!x) { x = { id: v.id, criado: v.criado || isoHoje() }; E.vouchers.push(x); }
+    const nomes = v.quartos.flatMap(q => q.hospedes.slice(0, camas(q.tipo))).map(h => (h || '').trim()).filter(Boolean);
+    Object.assign(x, { vou: v, hotel: v.hotel, cliente: (v.cliente || '').trim(), hospedes: nomes, checkin: v.checkin, checkout: v.checkout,
+      quartos: v.quartos.length, atualizado: new Date().toISOString() });
+  }
   const salva = () => {
-    arquiva();
-    /* a cotação aberta mora em E.cot; no histórico ela não é gravada de novo (as fotos ocupariam o dobro) */
-    const copia = Object.assign({}, E, { propostas: E.propostas.map(p => p.cot === E.cot ? Object.assign({}, p, { cot: null }) : p) });
+    arquiva(); arquivaVoucher();
+    /* o que está aberto mora em E.cot / E.vou; no histórico não é gravado de novo (as fotos ocupariam o dobro) */
+    const copia = Object.assign({}, E, { propostas: E.propostas.map(p => p.cot === E.cot ? Object.assign({}, p, { cot: null }) : p),
+      vouchers: E.vouchers.map(x => x.vou === E.vou ? Object.assign({}, x, { vou: null }) : x) });
     try { localStorage.setItem(CHAVE, JSON.stringify(copia)); }
     catch (e) { if (!salva.avisou) { salva.avisou = true; setTimeout(() => aviso('O navegador ficou sem espaço (fotos demais). O que você mudou agora vale até fechar a página.'), 0); } }
   };
@@ -889,8 +904,8 @@
   function exemploVoucher() {
     /* o mesmo roteiro da proposta de exemplo: chega a Paris em 19/11 e volta em 24/11 */
     const h = HOTEIS.find(x => x.cidade === 'Paris') || HOTEIS[0];
-    E.vou = { hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas, cidade: h.cidade, foto: '', checkin: '2026-11-19', checkout: '2026-11-24', horaIn: '15:00', horaOut: '12:00',
-      regime: 'com café da manhã', quartos: [{ tipo: 'SINGLE', hospedes: ['Marina Monteiro Lima'], obs: '' }, { tipo: 'TWIN BED', hospedes: ['Rafael Augusto Monteiro', 'Helena Duarte Prado'], obs: '' }], info: '', ativo: 0 };
+    E.vou = Object.assign(novoVou(), { cliente: 'Rafael Monteiro', hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas, cidade: h.cidade, checkin: '2026-11-19', checkout: '2026-11-24',
+      quartos: [{ tipo: 'SINGLE', hospedes: ['Marina Monteiro Lima'], obs: '' }, { tipo: 'TWIN BED', hospedes: ['Rafael Augusto Monteiro', 'Helena Duarte Prado'], obs: '' }] });
     salva();
   }
 
@@ -938,6 +953,37 @@
     </article>`;
   }
 
+  const periodoVoucher = (x) => x.checkin ? diaNum(x.checkin) + (x.checkout ? ' a ' + diaNum(x.checkout) : '') : '';
+  function itemVoucher(x) {
+    return `<li class="cli-prop${x.vou === E.vou ? ' aberto' : ''}">
+      <div><span class="cia-tag">Voucher${x.quartos > 1 ? ' · ' + x.quartos + ' quartos' : ''}</span>${x.vou === E.vou ? '<span class="cli-aberta">aberto agora</span>' : ''}
+        <b>${esc(x.hotel || 'Hotel')}</b><span>${esc([x.hospedes.join(', '), periodoVoucher(x), x.cliente ? 'cliente: ' + x.cliente : ''].filter(Boolean).join(' · '))}</span>
+        <span>mudado em ${esc(dataHora(x.atualizado))}</span></div>
+      <div class="cli-acoes"><button class="btn primario" data-vabre="${x.id}">Abrir e editar</button><button class="btn fantasma" data-vdup="${x.id}">Duplicar</button><button class="tira" data-vapaga="${x.id}">Apagar</button></div></li>`;
+  }
+  function ligaVouchers(el, depois) {
+    $$('[data-vabre]', el).forEach(b => b.onclick = () => { E.vou = E.vouchers.find(x => x.id === b.dataset.vabre).vou; E.vou.ativo = 0; salva(); if (location.hash === '#/voucher') telaVoucher(); else location.hash = '#/voucher'; window.scrollTo(0, 0); });
+    $$('[data-vdup]', el).forEach(b => b.onclick = () => {
+      const o = E.vouchers.find(x => x.id === b.dataset.vdup).vou;
+      E.vou = Object.assign(JSON.parse(JSON.stringify(o)), { id: uid(), criado: isoHoje(), ativo: 0 }); salva();
+      if (location.hash === '#/voucher') telaVoucher(); else location.hash = '#/voucher'; window.scrollTo(0, 0); aviso('Cópia aberta. O original continua guardado.');
+    });
+    $$('[data-vapaga]', el).forEach(b => b.onclick = () => {
+      const o = E.vouchers.find(x => x.id === b.dataset.vapaga);
+      if (!confirm('Apagar o voucher do ' + (o.hotel || 'hotel') + '? Não dá para desfazer.')) return;
+      E.vouchers = E.vouchers.filter(x => x !== o);
+      if (o.vou === E.vou) E.vou = novoVou();
+      salva(); depois();
+    });
+  }
+  function pintaHistVoucher() {
+    const el = $('#v-lista'); if (!el) return;
+    const b = norm(($('#v-busca-hist') || {}).value);
+    const l = E.vouchers.filter(x => !b || norm([x.hotel, x.cliente, ...x.hospedes].join(' ')).includes(b)).sort((a, c) => (c.atualizado || '').localeCompare(a.atualizado || ''));
+    el.innerHTML = l.map(itemVoucher).join('') || `<li class="nota">${b ? 'Nenhum voucher com isso.' : 'Nenhum voucher salvo ainda.'}</li>`;
+    ligaVouchers(el, () => telaVoucher());
+  }
+
   function telaVoucher() {
     const v = E.vou;
     const q = v.quartos[v.ativo] || v.quartos[0];
@@ -945,7 +991,10 @@
     $('#palco').innerHTML = `
     <div class="vou">
       <section class="vou-form nao-imprime">
-        <div class="mont-cab"><h1>Voucher de hotel</h1><button class="btn fantasma" id="v-ex">Preencher com o exemplo</button></div>
+        <div class="mont-cab"><h1>Voucher de hotel</h1><span class="dupla"><button class="btn primario" id="v-novo">Novo voucher</button><button class="btn fantasma" id="v-ex">Exemplo</button></span></div>
+        <p class="nota">${E.vouchers.some(x => x.vou === v) ? 'Você está mudando um voucher salvo. Cada mudança fica guardada sozinha.' : 'Fica guardado sozinho quando tiver hotel e hóspede.'} <button class="link" id="v-ir-hist">Ver os vouchers salvos (${E.vouchers.length})</button></p>
+        <label>Cliente (quem comprou)<input id="v-cliente" value="${esc(v.cliente || '')}" list="v-clientes" placeholder="Nome do cliente, para achar depois"></label>
+        <datalist id="v-clientes">${E.clientes.map(c => `<option value="${esc(c.nome)}">`).join('')}</datalist>
         <label class="busca">Qual é o hotel?<span class="dupla"><input id="v-hotel" value="${esc(v.hotel)}" placeholder="Ex.: savoy marrakech"><button class="btn" id="v-busca">Buscar dados</button></span></label>
         <p class="nota" id="v-nota">Digite o nome e a cidade do hotel e aperte Enter: endereço, telefone e categoria se preenchem sozinhos.</p>
         <ul class="hot-achados" id="v-achados" hidden></ul>
@@ -972,9 +1021,22 @@
           <button class="btn fantasma" id="v-nome">Copiar o nome do arquivo</button></div>
       </section>
       <section class="vou-doc"><p class="arquivo nao-imprime">${esc(nomeArquivoVoucher(q))}.pdf</p><div id="v-folha">${voucherHtml(q, v.ativo, v.quartos.length)}</div></section>
-    </div>`;
+    </div>
+    <section class="cartao vou-hist nao-imprime" id="v-hist">
+      <div class="cartao-topo"><h2>Vouchers salvos</h2><input id="v-busca-hist" type="search" placeholder="Procurar hotel, hóspede ou cliente" aria-label="Procurar voucher"></div>
+      <ul class="cli-props" id="v-lista"></ul>
+    </section>`;
+    pintaHistVoucher();
+    $('#v-busca-hist').oninput = pintaHistVoucher;
+    $('#v-ir-hist').onclick = () => $('#v-hist').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('#v-novo').onclick = () => { E.vou = novoVou(); salva(); telaVoucher(); window.scrollTo(0, 0); aviso('Voucher novo em branco. O anterior está guardado em “Vouchers salvos”.'); };
+    $('#v-cliente').oninput = (e) => { v.cliente = e.target.value; salva(); };
+    $('#v-cliente').onchange = (e) => {   /* ao sair do campo: o cliente entra no cadastro, se ainda não estiver */
+      const n = e.target.value.trim(); if (!n) return;
+      if (!E.clientes.some(c => norm(c.nome) === norm(n))) { E.clientes.push({ id: uid(), nome: n, fone: '', email: '', obs: '', criado: isoHoje() }); salva(); }
+    };
 
-    const repinta = () => { salva(); $('#v-folha').innerHTML = voucherHtml(q, v.ativo, v.quartos.length); $('.arquivo').textContent = nomeArquivoVoucher(q) + '.pdf'; };
+    const repinta = () => { salva(); $('#v-folha').innerHTML = voucherHtml(q, v.ativo, v.quartos.length); $('.arquivo').textContent = nomeArquivoVoucher(q) + '.pdf'; pintaHistVoucher(); };
     const campo = (id, k) => { $('#' + id).oninput = (e) => { v[k] = e.target.value; repinta(); }; };
     $('#v-hotel').oninput = (e) => { v.hotel = e.target.value; v.cidade = ''; repinta(); };   /* outro hotel: a cidade (e a foto dela) deixa de valer */
     campo('v-endereco', 'endereco'); campo('v-fone', 'fone'); campo('v-estrelas', 'estrelas');
@@ -1209,13 +1271,33 @@
     <div class="cli">
       <section class="cli-lista">
         <div class="mont-cab"><h1>Clientes</h1><button class="btn primario" id="cli-nova">Nova cotação</button></div>
-        <p class="sub">Toda cotação com o nome do cliente entra aqui sozinha, com o histórico das propostas.</p>
+        <p class="sub">Toda cotação com o nome do cliente entra aqui sozinha, com o histórico das propostas e dos vouchers.</p>
+        <div class="seguranca"><b>Cópia de segurança</b><span>Tudo fica só neste computador. Baixe a cópia toda semana: se o navegador for limpo, é com ela que você recupera.</span>
+          <span class="dupla"><button class="btn fantasma" id="cop-baixa">Baixar a cópia</button><label class="btn fantasma">Restaurar<input type="file" id="cop-volta" accept=".json,application/json" hidden></label></span></div>
         <input id="cli-busca" type="search" placeholder="Procurar cliente" aria-label="Procurar cliente">
         <ul id="cli-nomes" class="cli-nomes"></ul>
       </section>
       <section class="cli-ficha" id="cli-ficha"></section>
     </div>`;
     $('#cli-busca').oninput = pintaNomes;
+    $('#cop-baixa').onclick = () => {
+      salva();
+      const dado = Object.assign({}, E, { propostas: E.propostas.map(p => p.cot === E.cot ? Object.assign({}, p, { cot: null }) : p), vouchers: E.vouchers.map(x => x.vou === E.vou ? Object.assign({}, x, { vou: null }) : x) });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'simonetta-painel', versao: 1, salvoEm: new Date().toISOString(), dado })], { type: 'application/json' }));
+      a.download = 'Simonetta - copia de seguranca ' + isoHoje() + '.json'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000); localStorage.setItem(CHAVE + '_copia', isoHoje());
+      aviso('Cópia baixada. Guarde o arquivo numa pasta segura.');
+    };
+    $('#cop-volta').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      f.text().then(txt => {
+        const j = JSON.parse(txt);
+        if (!j || j.app !== 'simonetta-painel' || !j.dado || !j.dado.cot) throw new Error('arquivo errado');
+        if (!confirm('Restaurar a cópia de ' + new Date(j.salvoEm).toLocaleDateString('pt-BR') + '? O que está agora neste computador será trocado por ela.')) return;
+        localStorage.setItem(CHAVE, JSON.stringify(j.dado)); location.reload();
+      }).catch(() => aviso('Esse arquivo não é uma cópia de segurança deste painel.'));
+    };
     $('#cli-nova').onclick = () => { E.cot = novaCot(); R = null; E.texto = ''; salva(); location.hash = '#/cotacao'; };
     pintaNomes(); pintaFicha();
   }
@@ -1225,7 +1307,7 @@
     const l = E.clientes.map(c => ({ c, ps: propostasDe(c.id) })).filter(x => !b || norm(x.c.nome).includes(b))
       .sort((a, b) => ((b.ps[0] || {}).atualizada || '').localeCompare((a.ps[0] || {}).atualizada || ''));
     el.innerHTML = l.length ? l.map(({ c, ps }) => `<li><button class="cli-nome${c.id === CLI ? ' on' : ''}" data-cli="${c.id}"><b>${esc(c.nome)}</b>
-        <span>${plural(ps.length, 'proposta', 'propostas')}${ps[0] ? ' · última em ' + esc(new Date(ps[0].atualizada).toLocaleDateString('pt-BR')) : ''}</span></button></li>`).join('')
+        <span>${[ps.length ? plural(ps.length, 'proposta', 'propostas') : '', (n => n ? plural(n, 'voucher', 'vouchers') : '')(E.vouchers.filter(x => norm(x.cliente) === norm(c.nome)).length)].filter(Boolean).join(' · ') || 'sem nada ainda'}${ps[0] ? ' · última em ' + esc(new Date(ps[0].atualizada).toLocaleDateString('pt-BR')) : ''}</span></button></li>`).join('')
       : `<li class="nota">${b ? 'Nenhum cliente com esse nome.' : 'Ainda não há clientes. Faça uma cotação com o nome do cliente e ele aparece aqui.'}</li>`;
     $$('[data-cli]', el).forEach(x => x.onclick = () => { CLI = x.dataset.cli; pintaNomes(); pintaFicha(); if (innerWidth < 940) $('#cli-ficha').scrollIntoView({ behavior: 'smooth' }); });
   }
@@ -1243,6 +1325,8 @@
         <label>Cliente desde<input value="${esc(diaNum(c.criado))}" disabled></label>
         <label class="largo">Observações<textarea data-cli-campo="obs" rows="2" placeholder="Prefere janela, viaja com a esposa, cartão Amex...">${esc(c.obs)}</textarea></label>
       </div>
+      ${(() => { const vs = E.vouchers.filter(x => norm(x.cliente) === norm(c.nome)).sort((a, b) => (b.atualizado || '').localeCompare(a.atualizado || ''));
+        return vs.length ? `<h3 class="cli-sub">Vouchers</h3><ul class="cli-props" id="cli-vouchers">${vs.map(itemVoucher).join('')}</ul>` : ''; })()}
       <h3 class="cli-sub">Propostas</h3>
       <ul class="cli-props">${ps.map(p => `<li class="cli-prop">
           <div><span class="cia-tag">${p.tipo === 'pacote' ? 'Pacote' : 'Aéreo'}</span>${p.cot === E.cot ? '<span class="cli-aberta">aberta agora</span>' : ''}
@@ -1251,9 +1335,11 @@
         </li>`).join('') || '<li class="nota">Nenhuma proposta ainda.</li>'}</ul>`;
     $$('[data-cli-campo]', el).forEach(x => x.oninput = () => {
       const k = x.dataset.cliCampo; c[k] = x.value;
-      if (k === 'nome') { for (const p of E.propostas) if (p.clienteId === c.id && p.cot) p.cot.cliente = x.value; }
+      if (k === 'nome') { const antes = norm(x.dataset.antes || c.nome); for (const p of E.propostas) if (p.clienteId === c.id && p.cot) p.cot.cliente = x.value;
+        for (const y of E.vouchers) if (norm(y.cliente) === antes && y.vou) { y.vou.cliente = x.value; y.cliente = x.value; } x.dataset.antes = x.value; }
       salva(); if (k === 'nome') pintaNomes();
     });
+    const cv = $('#cli-vouchers'); if (cv) ligaVouchers(cv, () => { pintaNomes(); pintaFicha(); });
     $('#cli-cot').onclick = () => { E.cot = Object.assign(novaCot(), { cliente: c.nome, clienteId: c.id }); R = null; E.texto = ''; salva(); location.hash = '#/cotacao'; };
     $$('[data-abre]', el).forEach(b => b.onclick = () => abreCot(E.propostas.find(p => p.id === b.dataset.abre).cot, '#/proposta'));
     $$('[data-dup]', el).forEach(b => b.onclick = () => {

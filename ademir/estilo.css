@@ -574,3 +574,15 @@ body[data-tela="cliente"] { background: #edf2ea; }
   .pp-pacote .pp-sec { break-inside: auto; }
   .pp-pacote .pp-card { break-inside: avoid; }
 }
+
+/* ---------- uso real: histórico de vouchers e cópia de segurança ---------- */
+.link { all: unset; cursor: pointer; color: var(--marinho); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.link:focus-visible { outline: 3px solid var(--verde); outline-offset: 2px; }
+.vou-hist { margin-top: clamp(18px, 2.4vw, 32px); }
+.vou-hist .cartao-topo input { width: min(320px, 100%); }
+.cli-prop.aberto { border-color: var(--marinho); background: var(--menta-2); }
+.seguranca { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--ambar-bg); color: var(--ambar); font-size: 13.5px; }
+.seguranca b { color: #6b3a05; font-size: 14.5px; }
+.seguranca .dupla { flex-wrap: wrap; }
+.seguranca .btn { min-height: 40px; padding: 6px 14px; background: var(--papel); }
+#faixa a { color: var(--verde); font-weight: 700; }
