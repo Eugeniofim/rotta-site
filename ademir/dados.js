@@ -113,5 +113,9 @@
     for (const [k, v] of Object.entries(BASE.avioes)) if (!AERONAVES[k]) AERONAVES[k] = v;
   }
 
-  return { CIAS, AEROPORTOS, AERONAVES, AGENCIA, HOTEIS, FOTOS_DESTINO };
+  /* a sala 'ademir' no Supabase do estúdio. A chave é a publicável (pública por desenho): quem protege
+     os dados é a regra do banco, que só deixa o dono logado ler e escrever. */
+  const NUVEM = { url: 'https://uopfqlogjzuqpabptxkb.supabase.co', chave: 'sb_publishable_VKIdd2RNpMf3e4IEDprxJw_TOKPIHT2', sala: 'ademir' };
+
+  return { CIAS, AEROPORTOS, AERONAVES, AGENCIA, HOTEIS, FOTOS_DESTINO, NUVEM };
 });

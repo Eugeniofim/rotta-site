@@ -67,12 +67,16 @@
     pass: [],
   });
   let E = vazio();
-  try { const g = JSON.parse(localStorage.getItem(CHAVE) || 'null'); if (g && g.cot && g.vou) E = Object.assign(vazio(), g); } catch (e) { /* começa vazio */ }
-  /* o que foi guardado antes do histórico existir ganha os campos novos */
-  E.cot = Object.assign(novaCot(), E.cot, { pac: Object.assign(pacVazio(), E.cot.pac || {}) });
-  for (const p of E.propostas) if (!p.cot) p.cot = E.cot;   /* a aberta é guardada uma vez só, em E.cot */
-  E.vou = Object.assign(novoVou(), E.vou);
-  for (const x of E.vouchers) if (!x.vou) x.vou = E.vou;
+  function aplicaEstado(g) {
+    E = Object.assign(vazio(), g && g.cot && g.vou ? g : {});
+    delete E.fee;
+    /* o que foi guardado antes do histórico existir ganha os campos novos */
+    E.cot = Object.assign(novaCot(), E.cot, { pac: Object.assign(pacVazio(), E.cot.pac || {}) });
+    for (const p of E.propostas) if (!p.cot) p.cot = E.cot;   /* a aberta é guardada uma vez só, em E.cot */
+    E.vou = Object.assign(novoVou(), E.vou);
+    for (const x of E.vouchers) if (!x.vou) x.vou = E.vou;
+  }
+  try { aplicaEstado(JSON.parse(localStorage.getItem(CHAVE) || 'null')); } catch (e) { aplicaEstado(null); }
 
   /* ---------- clientes e histórico: toda cotação com nome de cliente entra sozinha ---------- */
   const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
@@ -114,11 +118,13 @@
     Object.assign(x, { vou: v, hotel: v.hotel, cliente: (v.cliente || '').trim(), hospedes: nomes, checkin: v.checkin, checkout: v.checkout,
       quartos: v.quartos.length, atualizado: new Date().toISOString() });
   }
+  /* o que está aberto mora em E.cot / E.vou; no histórico não é gravado de novo (as fotos ocupariam o dobro) */
+  const estadoGravavel = () => Object.assign({}, E, { propostas: E.propostas.map(p => p.cot === E.cot ? Object.assign({}, p, { cot: null }) : p),
+    vouchers: E.vouchers.map(x => x.vou === E.vou ? Object.assign({}, x, { vou: null }) : x) });
   const salva = () => {
     arquiva(); arquivaVoucher();
-    /* o que está aberto mora em E.cot / E.vou; no histórico não é gravado de novo (as fotos ocupariam o dobro) */
-    const copia = Object.assign({}, E, { propostas: E.propostas.map(p => p.cot === E.cot ? Object.assign({}, p, { cot: null }) : p),
-      vouchers: E.vouchers.map(x => x.vou === E.vou ? Object.assign({}, x, { vou: null }) : x) });
+    const copia = estadoGravavel();
+    if (typeof Nuvem !== 'undefined') Nuvem.mudou();
     try { localStorage.setItem(CHAVE, JSON.stringify(copia)); }
     catch (e) { if (!salva.avisou) { salva.avisou = true; setTimeout(() => aviso('O navegador ficou sem espaço (fotos demais). O que você mudou agora vale até fechar a página.'), 0); } }
   };
@@ -1127,6 +1133,155 @@
     $$('[data-tirap]').forEach(b => b.onclick = () => { E.pass.splice(+b.dataset.tirap, 1); salva(); telaPassaportes(); });
   }
 
+  /* =====================================================================
+     NUVEM — a sala 'ademir' no Supabase do estúdio. Com login, tudo o que ele salva sobe sozinho
+     (2 s depois da última mudança) e desce em qualquer computador onde ele entrar.
+     Sem login, o painel funciona como antes, só neste navegador.
+     ===================================================================== */
+  const Nuvem = (() => {
+    const CFG = DADOS.NUVEM || {}, CH_SES = 'ademir_sessao_v1', CH_EM = 'ademir_nuvem_em', CH_SUJO = 'ademir_nuvem_sujo';
+    let ses = null, estado = 'fora', timer = 0, subindo = false, ultimaFalha = '';
+    try { ses = JSON.parse(localStorage.getItem(CH_SES) || 'null'); } catch (e) { ses = null; }
+    const ligada = () => !!(CFG.url && CFG.chave && CFG.sala);
+    const guardaSes = () => { try { ses ? localStorage.setItem(CH_SES, JSON.stringify(ses)) : localStorage.removeItem(CH_SES); } catch (e) { /* sem espaço */ } };
+    const em = () => localStorage.getItem(CH_EM) || '';
+    const sujo = () => localStorage.getItem(CH_SUJO) === '1';
+    const marca = (s, txt) => { estado = s; ultimaFalha = txt || ''; pinta(); };
+
+    async function auth(caminho, corpo) {
+      const r = await fetch(CFG.url + '/auth/v1/' + caminho, { method: 'POST', headers: { apikey: CFG.chave, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw Object.assign(new Error(j.error_description || j.msg || j.message || 'falhou'), { status: r.status });
+      return j;
+    }
+    const daSessao = (j) => ({ access_token: j.access_token, refresh_token: j.refresh_token, expira: Date.now() + (j.expires_in || 3600) * 1000, email: (j.user || {}).email || (ses && ses.email) || '', uid: (j.user || {}).id || (ses && ses.uid) || '' });
+    async function token() {
+      if (!ses) return null;
+      if (Date.now() < ses.expira - 60000) return ses.access_token;
+      try { ses = daSessao(await auth('token?grant_type=refresh_token', { refresh_token: ses.refresh_token })); guardaSes(); return ses.access_token; }
+      catch (e) { if (e.status === 400 || e.status === 401) { ses = null; guardaSes(); marca('fora', 'A sessão venceu. Entre de novo.'); } throw e; }
+    }
+    async function rest(metodo, caminho, corpo, prefer) {
+      const tk = await token(); if (!tk) throw new Error('sem login');
+      const h = { apikey: CFG.chave, Authorization: 'Bearer ' + tk, 'Content-Type': 'application/json' };
+      h[metodo === 'GET' ? 'Accept-Profile' : 'Content-Profile'] = CFG.sala;
+      if (prefer) h.Prefer = prefer;
+      const r = await fetch(CFG.url + '/rest/v1/' + caminho, { method: metodo, headers: h, body: corpo ? JSON.stringify(corpo) : undefined });
+      const txt = await r.text();
+      if (!r.ok) throw Object.assign(new Error(txt.slice(0, 200)), { status: r.status });
+      return txt ? JSON.parse(txt) : null;
+    }
+    const remoto = async (tudo) => (await rest('GET', 'estado?id=eq.painel&select=' + (tudo ? 'dados,atualizado_em' : 'atualizado_em')))[0] || null;
+    const pacote = () => Object.assign(estadoGravavel(), { fee: FEE });
+    function aplica(linha) {
+      const d = linha.dados || {};
+      aplicaEstado(d);
+      if (d.fee && d.fee.atual) { FEE = d.fee; salvaFee(); }
+      try { localStorage.setItem(CHAVE, JSON.stringify(estadoGravavel())); } catch (e) { /* sem espaço */ }
+      localStorage.setItem(CH_EM, linha.atualizado_em); localStorage.removeItem(CH_SUJO);
+      R = null; rota();
+    }
+    async function sobe() {
+      if (!ses || subindo) return;
+      subindo = true; marca('subindo');
+      try {
+        const r = await remoto(false);
+        if (r && em() && r.atualizado_em > em()) {
+          /* outro computador salvou depois do último que este viu */
+          if (confirm('Outro computador salvou mudanças depois deste.\n\nOK = trazer a versão da nuvem (as mudanças deste computador desde a última vez se perdem)\nCancelar = mandar a deste computador por cima')) {
+            aplica(await remoto(true)); marca('ok'); return;
+          }
+        }
+        const volta = await rest('POST', 'estado?on_conflict=id', { id: 'painel', dados: pacote() }, 'resolution=merge-duplicates,return=representation');
+        localStorage.setItem(CH_EM, volta[0].atualizado_em); localStorage.removeItem(CH_SUJO);
+        marca('ok');
+      } catch (e) {
+        marca(ses ? 'falha' : 'fora', e.status === 401 || e.status === 403 || e.status === 42501 ? 'Este login não tem acesso a esta sala.' : navigator.onLine ? 'A nuvem não respondeu. Tento de novo sozinho.' : 'Sem internet. Guardo aqui e mando quando voltar.');
+      } finally { subindo = false; }
+    }
+    function mudou() {
+      if (!ses) return;
+      localStorage.setItem(CH_SUJO, '1'); marca('pendente');
+      clearTimeout(timer); timer = setTimeout(sobe, 2000);
+    }
+    /* ao abrir: se a nuvem tem algo mais novo, traz; se este computador tem algo que não subiu, manda */
+    async function sincroniza(primeira) {
+      if (!ses) return;
+      marca('subindo');
+      try {
+        const r = await remoto(true);
+        const local = temConteudo(E.cot) || E.vouchers.length || E.propostas.length || E.clientes.length;
+        if (!r) { await sobe(); return; }
+        if (!em()) {
+          /* primeira vez neste computador */
+          if (local && primeira && !confirm('A nuvem já tem dados salvos.\n\nOK = usar os da nuvem (recomendado)\nCancelar = mandar o que está neste computador por cima')) { await sobe(); return; }
+          aplica(r); marca('ok'); return;
+        }
+        if (r.atualizado_em > em()) { if (sujo()) { await sobe(); return; } aplica(r); marca('ok'); return; }
+        if (sujo()) { await sobe(); return; }
+        marca('ok');
+      } catch (e) { marca(ses ? 'falha' : 'fora', 'Não consegui falar com a nuvem agora.'); }
+    }
+    async function entrar(email, senha) {
+      ses = daSessao(await auth('token?grant_type=password', { email, password: senha })); guardaSes();
+      try { await rest('GET', 'estado?select=id&limit=1'); }
+      catch (e) { ses = null; guardaSes(); throw new Error('Este login existe, mas não tem acesso ao painel da Simonetta. Fale com a Ti Artes.'); }
+      await sincroniza(true);
+    }
+    async function sair() {
+      if (sujo() && !confirm('Ainda tem mudança que não subiu para a nuvem. Sair mesmo assim?')) return;
+      try { const tk = ses && ses.access_token; if (tk) await fetch(CFG.url + '/auth/v1/logout', { method: 'POST', headers: { apikey: CFG.chave, Authorization: 'Bearer ' + tk } }); } catch (e) { /* tanto faz */ }
+      ses = null; guardaSes(); localStorage.removeItem(CH_EM); localStorage.removeItem(CH_SUJO); marca('fora');
+    }
+    const TXT = { fora: 'Entrar', pendente: 'Salvando…', subindo: 'Salvando…', ok: 'Salvo na nuvem', falha: 'Não salvou ainda' };
+    function pinta() {
+      const b = document.getElementById('nuvem'); if (!b) return;
+      b.className = 'nuvem ' + estado; b.textContent = ses ? TXT[estado] || 'Nuvem' : 'Entrar';
+      b.title = ses ? (ses.email + (ultimaFalha ? ' · ' + ultimaFalha : '')) : 'Entrar para salvar na nuvem';
+      const f = document.getElementById('faixa'); if (f) f.hidden = !!ses;
+      document.body.classList.toggle('logado', !!ses);
+    }
+    function janela() {
+      const d = document.getElementById('janela-nuvem');
+      d.innerHTML = ses ? `<form method="dialog" class="jn">
+          <h2>Nuvem</h2><p>Entrou como <b>${esc(ses.email)}</b>.</p>
+          <p class="${estado === 'falha' ? 'alerta' : 'certo'}">${estado === 'ok' ? 'Tudo salvo. Em qualquer computador onde você entrar, aparece igual.' : esc(ultimaFalha || TXT[estado])}</p>
+          <div class="acoes"><button class="btn primario" value="ok">Fechar</button><button class="btn fantasma" type="button" id="jn-sync">Salvar agora</button><button class="tira" type="button" id="jn-sair">Sair</button></div></form>`
+        : `<form method="dialog" class="jn" id="jn-form">
+          <h2>Entrar</h2><p>Com o seu login, tudo o que você faz fica salvo na nuvem e aparece em qualquer computador.</p>
+          <label>E-mail<input name="email" type="email" autocomplete="username" required></label>
+          <label>Senha<input name="senha" type="password" autocomplete="current-password" required></label>
+          <p class="alerta" id="jn-erro" hidden></p>
+          <div class="acoes"><button class="btn primario" id="jn-entrar" value="">Entrar</button><button class="btn fantasma" value="x" formnovalidate>Agora não</button></div></form>`;
+      if (ses) {
+        d.querySelector('#jn-sync').onclick = async () => { await sobe(); janela(); };
+        d.querySelector('#jn-sair').onclick = async () => { await sair(); d.close(); };
+      } else {
+        const f = d.querySelector('#jn-form');
+        f.addEventListener('submit', async (e) => {
+          if (e.submitter && e.submitter.value === 'x') return;
+          e.preventDefault();
+          const b = d.querySelector('#jn-entrar'), err = d.querySelector('#jn-erro');
+          b.disabled = true; b.textContent = 'Entrando…'; err.hidden = true;
+          try { await entrar(f.email.value.trim(), f.senha.value); d.close(); aviso('Pronto: agora tudo fica salvo na nuvem.'); }
+          catch (x) { err.textContent = /invalid/i.test(x.message) ? 'E-mail ou senha não conferem.' : x.message; err.hidden = false; b.disabled = false; b.textContent = 'Entrar'; }
+        });
+      }
+      if (!d.open) d.showModal();
+    }
+    function liga() {
+      if (!ligada()) return;
+      const b = document.getElementById('nuvem'); if (b) { b.hidden = false; b.onclick = janela; }
+      pinta();
+      if (ses) sincroniza(false);
+      addEventListener('online', () => { if (ses && sujo()) sobe(); });
+      setInterval(() => { if (ses && sujo() && !subindo) sobe(); }, 30000);
+      /* voltou para esta aba depois de um tempo: vê se outro computador salvou */
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && ses && !sujo()) sincroniza(false); });
+    }
+    return { liga, mudou, logado: () => !!ses };
+  })();
+
   /* ---------- rotas ---------- */
   /* =====================================================================
      TELA 5 — CNT (as duas tabelas da consolidadora)
@@ -1375,4 +1530,5 @@
     try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* abrindo do arquivo: segue com o endereço como está */ }
   }
   rota();
+  Nuvem.liga();
 })();

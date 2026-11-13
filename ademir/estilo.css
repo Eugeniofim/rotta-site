@@ -586,3 +586,22 @@ body[data-tela="cliente"] { background: #edf2ea; }
 .seguranca .dupla { flex-wrap: wrap; }
 .seguranca .btn { min-height: 40px; padding: 6px 14px; background: var(--papel); }
 #faixa a { color: var(--verde); font-weight: 700; }
+
+/* ---------- nuvem: botão no topo e janela de entrar ---------- */
+.nuvem { margin-left: auto; min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--linha); background: var(--papel);
+  font: 600 13.5px var(--f-corpo); color: var(--marinho); cursor: pointer; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.nuvem::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #b3bccf; }
+.nuvem.fora { background: var(--marinho); color: #fff; border-color: var(--marinho); }
+.nuvem.fora::before { display: none; }
+.nuvem.ok::before { background: var(--verde); }
+.nuvem.pendente::before, .nuvem.subindo::before { background: var(--ambar); animation: pisca 1s infinite; }
+.nuvem.falha { color: var(--rubro); border-color: #e9b8b3; }
+.nuvem.falha::before { background: var(--rubro); }
+@keyframes pisca { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .nuvem::before { animation: none !important; } }
+.janela { border: 0; border-radius: 16px; padding: 0; width: min(420px, calc(100vw - 32px)); box-shadow: 0 30px 70px -20px rgba(23, 28, 58, .6); }
+.janela::backdrop { background: rgba(23, 28, 58, .45); }
+.jn { display: grid; gap: 12px; padding: 22px; }
+.jn p { color: var(--cinza); }
+.jn .acoes { margin-top: 4px; }
+#faixa .sem-caps { font: inherit; letter-spacing: 0; text-transform: none; color: #fff; margin: 0; }

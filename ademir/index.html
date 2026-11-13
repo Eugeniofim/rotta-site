@@ -37,11 +37,12 @@
     <a href="#/passaportes" data-aba="passaportes">Passaportes</a>
     <a href="#/cnt" data-aba="cnt">CNT</a>
   </nav>
-  <span class="selo" title="O que você salva fica só neste navegador">Versão de teste</span>
+  <button class="nuvem fora" id="nuvem" hidden>Entrar</button>
 </header>
 <main id="palco" tabindex="-1"></main>
 <div id="aviso" role="status" aria-live="polite"></div>
-<div id="faixa" class="nao-imprime"><b>Versão de teste</b><span class="faixa-longa">O que você salva fica só neste computador. </span><a href="#/clientes">Baixe a cópia de segurança</a> de vez em quando.</div>
+<dialog id="janela-nuvem" class="janela"></dialog>
+<div id="faixa" class="nao-imprime"><b>Sem login</b><span class="faixa-longa">O que você faz agora fica só neste computador. </span>Toque em <b class="sem-caps">Entrar</b>, lá em cima, para salvar na nuvem.</div>
 <script src="codigos.js"></script>
 <script src="dados.js"></script>
 <script src="amadeus.js"></script>
