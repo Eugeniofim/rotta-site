@@ -11,6 +11,9 @@
     AA: 'American Airlines', UA: 'United', DL: 'Delta', EK: 'Emirates', QR: 'Qatar Airways',
     TK: 'Turkish Airlines', AT: 'Royal Air Maroc', ET: 'Ethiopian', AC: 'Air Canada', AM: 'Aeroméxico',
     AR: 'Aerolíneas Argentinas', CM: 'Copa Airlines', AV: 'Avianca', EY: 'Etihad', MS: 'Egyptair',
+    JJ: 'LATAM', JA: 'JetSMART', H2: 'SKY Airline', DM: 'Arajet', OB: 'BoA', DT: 'TAAG', SA: 'South African Airways',
+    NH: 'ANA', JL: 'Japan Airlines', CA: 'Air China', QF: 'Qantas', SQ: 'Singapore Airlines', LY: 'EL AL', HR: 'Hahn Air', NZ: 'Air New Zealand',
+    KE: 'Korean Air', CX: 'Cathay Pacific', TS: 'Air Transat', VR: 'Cabo Verde Airlines', DE: 'Condor', GP: 'APG Airlines', MF: 'Xiamen Airlines',
   };
 
   /* código: [cidade, nome do aeroporto, fuso] */
@@ -100,6 +103,15 @@
   const FOTOS_DESTINO = {
     Paris: ['arte/destinos/paris-1.jpg', 'arte/destinos/paris-2.jpg', 'arte/destinos/paris-3.jpg'],
   };
+
+  /* A base completa (codigos.js, gerada de fontes abertas) fica por baixo; o que está escrito à mão aqui
+     vale por cima, porque é o nome curto que o cliente reconhece ("Guarulhos", "LATAM"). */
+  const BASE = (typeof CODIGOS !== 'undefined' && CODIGOS) || (typeof require === 'function' ? (() => { try { return require('./codigos.js'); } catch (e) { return null; } })() : null);
+  if (BASE) {
+    for (const [k, v] of Object.entries(BASE.cias)) if (!CIAS[k]) CIAS[k] = v;
+    for (const [k, v] of Object.entries(BASE.aeroportos)) if (!AEROPORTOS[k]) AEROPORTOS[k] = v;
+    for (const [k, v] of Object.entries(BASE.avioes)) if (!AERONAVES[k]) AERONAVES[k] = v;
+  }
 
   return { CIAS, AEROPORTOS, AERONAVES, AGENCIA, HOTEIS, FOTOS_DESTINO };
 });

@@ -13,6 +13,9 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Math.random().toString(36).slice(2, 9);
   const usd = (v) => 'USD ' + Math.round(v).toLocaleString('pt-BR');
+  /* valor do pacote na moeda que ele escolheu: R$ 4.499,00 · € 4.230 · USD 4.230 */
+  const dinheiro = (v, m) => m === 'BRL' ? 'R$ ' + (+v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : (m === 'EUR' ? '€ ' : 'USD ') + (+v || 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
   const brl = (v) => 'R$ ' + (+v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -50,8 +53,13 @@
   };
 
   /* ---------- estado ---------- */
+  /* pacote de grupo (Inhotim, Albânia...): preço por quarto, o que inclui, hotéis, roteiro e passeios opcionais */
+  const pacVazio = () => ({ titulo: '', minimo: '', moeda: 'EUR',
+    precos: [{ valor: '', rotulo: 'Quarto individual' }, { valor: '', rotulo: 'Quarto duplo por pessoa' }],
+    inclui: '', hoteis: [], dias: [], opcionais: [], obs: '' });
+  const novaCot = () => ({ id: uid(), destino: '', cliente: '', clienteId: '', pax: 2, criada: isoHoje(), opcoes: [], capa: '', tipo: 'aereo', pac: pacVazio() });
   const vazio = () => ({
-    cot: { destino: '', cliente: '', pax: 2, criada: isoHoje(), opcoes: [], capa: '' },
+    cot: novaCot(), clientes: [], propostas: [],
     texto: '',
     vou: { hotel: '', endereco: '', fone: '', estrelas: 0, checkin: '', checkout: '', horaIn: '15:00', horaOut: '12:00',
       regime: 'com café da manhã', quartos: [{ tipo: 'SINGLE', hospedes: [''], obs: '' }], info: '', ativo: 0 },
@@ -59,7 +67,47 @@
   });
   let E = vazio();
   try { const g = JSON.parse(localStorage.getItem(CHAVE) || 'null'); if (g && g.cot && g.vou) E = Object.assign(vazio(), g); } catch (e) { /* começa vazio */ }
-  const salva = () => { try { localStorage.setItem(CHAVE, JSON.stringify(E)); } catch (e) { /* sem espaço: segue só na memória */ } };
+  /* o que foi guardado antes do histórico existir ganha os campos novos */
+  E.cot = Object.assign(novaCot(), E.cot, { pac: Object.assign(pacVazio(), E.cot.pac || {}) });
+  for (const p of E.propostas) if (!p.cot) p.cot = E.cot;   /* a aberta é guardada uma vez só, em E.cot */
+
+  /* ---------- clientes e histórico: toda cotação com nome de cliente entra sozinha ---------- */
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const temConteudo = (c) => c.opcoes.length > 0 || (c.tipo === 'pacote' && !!(c.pac.titulo || c.pac.precos.some(x => +x.valor) || c.pac.hoteis.length || c.pac.dias.length));
+  function tituloCot(c) {
+    if (c.tipo === 'pacote') return c.pac.titulo || 'Pacote ' + (c.destino || '');
+    const cias = [...new Set(c.opcoes.map(o => nomeCia(o.cia)))];
+    return 'Aéreo ' + (c.destino || '') + (cias.length ? ' · ' + cias.join(', ') : '');
+  }
+  function resumoCot(c) {
+    if (c.tipo === 'pacote') { const v = c.pac.precos.map(x => +x.valor).filter(Boolean); return v.length ? 'a partir de ' + dinheiro(Math.min(...v), c.pac.moeda) : ''; }
+    const v = c.opcoes.flatMap(o => o.tarifas.map(precoFinal)); return v.length ? 'a partir de ' + usd(Math.min(...v)) + ' por pessoa' : '';
+  }
+  function arquiva() {
+    const c = E.cot, nome = (c.cliente || '').trim();
+    if (!nome || !temConteudo(c)) return;
+    let cli = E.clientes.find(x => x.id === c.clienteId);
+    const igual = E.clientes.find(x => norm(x.nome) === norm(nome));
+    if (!cli || norm(cli.nome) !== norm(nome)) {
+      /* o nome mudou (ou ainda está sendo digitado): vai para quem já tem esse nome, ou o cadastro acompanha o nome novo */
+      const so = cli && !E.propostas.some(p => p.clienteId === cli.id && p.id !== c.id);
+      if (igual) { if (so) E.clientes = E.clientes.filter(x => x.id !== cli.id); cli = igual; }
+      else if (so) cli.nome = nome;
+      else { cli = { id: uid(), nome, fone: '', email: '', obs: '', criado: isoHoje() }; E.clientes.push(cli); }
+    }
+    c.clienteId = cli.id;
+    let p = E.propostas.find(x => x.id === c.id);
+    if (!p) { p = { id: c.id, criada: c.criada }; E.propostas.push(p); }
+    Object.assign(p, { clienteId: cli.id, cot: c, tipo: c.tipo, titulo: tituloCot(c), resumo: resumoCot(c), atualizada: new Date().toISOString() });
+  }
+  const salva = () => {
+    arquiva();
+    /* a cotação aberta mora em E.cot; no histórico ela não é gravada de novo (as fotos ocupariam o dobro) */
+    const copia = Object.assign({}, E, { propostas: E.propostas.map(p => p.cot === E.cot ? Object.assign({}, p, { cot: null }) : p) });
+    try { localStorage.setItem(CHAVE, JSON.stringify(copia)); }
+    catch (e) { if (!salva.avisou) { salva.avisou = true; setTimeout(() => aviso('O navegador ficou sem espaço (fotos demais). O que você mudou agora vale até fechar a página.'), 0); } }
+  };
+  function abreCot(c, para) { E.cot = c; R = null; E.texto = ''; salva(); const h = para || '#/proposta'; if (location.hash === h) rota(); else location.hash = h; }
 
   /* rascunho da leitura atual (o que foi colado e ainda não entrou na proposta) */
   let R = null;
@@ -142,6 +190,12 @@
   }
   function opcaoIgual() { return R && !R.vazio ? E.cot.opcoes.find(o => o.chave === chaveVoos(R.l.segmentos)) : null; }
 
+  function adicionaVoosPacote() {
+    if (!R || R.vazio || !R.l.segmentos.length) return false;
+    if (!opcaoIgual()) E.cot.opcoes.push({ id: uid(), cia: R.l.cia, chave: chaveVoos(R.l.segmentos), segmentos: R.l.segmentos, tarifas: [] });
+    if (!E.cot.destino) { const tr = Amadeus.trechos(R.l.segmentos, AEROPORTOS); E.cot.destino = cidade(tr[0].segmentos[tr[0].segmentos.length - 1].destino); }
+    salva(); return true;
+  }
   function adicionaRascunho() {
     if (!R || R.vazio || !R.l.segmentos.length || !R.baseUSD) return false;
     const nova = tarifaDoRascunho();
@@ -162,7 +216,7 @@
 
   function montaExemploInteiro() {
     /* a data é a do vídeo dele, para a cotação e os prazos das tarifas contarem a mesma história */
-    E.cot = { destino: '', cliente: 'Rafael Monteiro', pax: 2, criada: '2026-11-09', opcoes: [], capa: E.cot.capa || '' };
+    E.cot = Object.assign(novaCot(), { cliente: 'Rafael Monteiro', criada: '2026-11-09' });
     for (const t of EXEMPLOS.telas) { R = rascunhoDe(t.texto, t); adicionaRascunho(); }
     R = null; E.texto = ''; salva();
   }
@@ -198,11 +252,18 @@
      ===================================================================== */
   function telaCotacao() {
     const ex = EXEMPLOS.telas.map(t => `<button class="chip" data-ex="${t.id}">${esc(t.nome)}</button>`).join('');
+    const pacote = E.cot.tipo === 'pacote';
     $('#palco').innerHTML = `
+    <div class="tipo-cot" role="radiogroup" aria-label="Tipo de cotação">
+      <button class="tipo${pacote ? '' : ' on'}" data-tipo-cot="aereo" role="radio" aria-checked="${!pacote}"><b>Só aéreo</b><span>Voos e tarifas para o cliente escolher</span></button>
+      <button class="tipo${pacote ? ' on' : ''}" data-tipo-cot="pacote" role="radio" aria-checked="${pacote}"><b>Pacote ou grupo</b><span>Valor por quarto, hotéis, roteiro e passeios</span></button>
+      <button class="btn fantasma" id="nova-cot">Nova cotação</button>
+    </div>
+    ${pacote ? '<section class="pac" id="pac"></section>' : ''}
     <div class="cot">
       <section class="col-term">
-        <h1>Cole aqui a tela do Amadeus</h1>
-        <p class="sub">Pode colar tudo de uma vez: <kbd>RT</kbd>, <kbd>TQT</kbd>, <kbd>FXB</kbd> e <kbd>FQN1*PE</kbd>. Eu separo os voos, o preço e as regras.</p>
+        <h1>${pacote ? 'Aéreo proposto: cole a tela do Amadeus' : 'Cole aqui a tela do Amadeus'}</h1>
+        <p class="sub">${pacote ? 'Basta o <kbd>RT</kbd>: os voos entram no pacote sem preço separado.' : 'Pode colar tudo de uma vez: <kbd>RT</kbd>, <kbd>TQT</kbd>, <kbd>FXB</kbd> e <kbd>FQN1*PE</kbd>. Eu separo os voos, o preço e as regras.'}</p>
         <div class="terminal">
           <div class="term-barra"><span>SAOXX0000 · Página de comando</span><button class="term-limpa" id="limpa">Limpar</button></div>
           <textarea id="tela" spellcheck="false" autocomplete="off" aria-label="Tela do Amadeus" placeholder="&gt; rt&#10;&gt; tqt&#10;&gt; fqn1*pe&#10;&#10;Selecione tudo no terminal (Ctrl+A), copie e cole aqui.">${esc(E.texto)}</textarea>
@@ -213,6 +274,9 @@
     </div>
     <section class="montagem" id="montagem"></section>`;
 
+    $$('[data-tipo-cot]').forEach(b => b.onclick = () => { E.cot.tipo = b.dataset.tipoCot; salva(); telaCotacao(); });
+    $('#nova-cot').onclick = () => { const tipo = E.cot.tipo; E.cot = novaCot(); E.cot.tipo = tipo; R = null; E.texto = ''; salva(); telaCotacao(); aviso('Cotação nova em branco. A anterior está guardada em Clientes.'); };
+    if (pacote) pintaPacote();
     const tela = $('#tela');
     let t;
     tela.addEventListener('input', () => { E.texto = tela.value; clearTimeout(t); t = setTimeout(() => { R = rascunhoDe(tela.value); pintaLido(); salva(); }, 180); });
@@ -236,6 +300,15 @@
       return;
     }
     const l = R.l, t = l.tarifa, trs = Amadeus.trechos(l.segmentos, AEROPORTOS), rots = rotulosTrechos(trs);
+    if (E.cot.tipo === 'pacote') {
+      const ja = opcaoIgual();
+      el.innerHTML = `<div class="lido-topo"><h2>O que eu li</h2><span class="cia-tag">${esc(nomeCia(l.cia))}</span></div>
+        <div class="voos">${trs.map((x, i) => trechoHtml(x, rots[i])).join('')}</div>
+        ${l.segmentos.length ? `<button class="btn primario" id="add-voos"${ja ? ' disabled' : ''}>${ja ? 'Estes voos já estão no pacote' : 'Usar estes voos no pacote'}</button>` : '<p class="alerta">Não achei os voos. Cole a tela do RT.</p>'}`;
+      const b = $('#add-voos');
+      if (b && !ja) b.onclick = () => { if (adicionaVoosPacote()) { aviso('Voos no pacote'); R = null; E.texto = ''; $('#tela').value = ''; salva(); pintaLido(); pintaMontagem(); } };
+      return;
+    }
     const igual = opcaoIgual();
     const avisos = l.avisos.map(a => `<p class="alerta">${esc(a)}</p>`).join('');
     const up = t.upsell && t.bsr ? `<li>Subir de ${esc(t.upsell.de)} para ${esc(t.upsell.para)} custa ${brl(t.upsell.valor)} (${usd(Amadeus.paraUSD(t.upsell.valor, t.bsr))}) por pessoa.</li>` : '';
@@ -357,25 +430,130 @@
 
   const nomeOpcao = (o) => 'Opção ' + (E.cot.opcoes.indexOf(o) + 1) + ' · ' + nomeCia(o.cia);
 
+  /* o pacote: cada campo grava sozinho; listas (valores, hotéis, dias, passeios) têm + e Tirar */
+  const MOEDAS = [['EUR', 'Euro (€)'], ['BRL', 'Real (R$)'], ['USD', 'Dólar (USD)']];
+  function pegaCaminho(o, cam) { return cam.split('.').reduce((x, k) => x == null ? x : x[k], o); }
+  function poeCaminho(o, cam, v) { const k = cam.split('.'), u = k.pop(); k.reduce((x, y) => x[y], o)[u] = v; }
+  function campo(cam, rot, extra) {
+    extra = extra || {};
+    const v = pegaCaminho(E.cot.pac, cam);
+    const at = `data-pac="${cam}" ${extra.ph ? `placeholder="${esc(extra.ph)}"` : ''}`;
+    const ctl = extra.area ? `<textarea ${at} rows="${extra.area}">${esc(v || '')}</textarea>`
+      : `<input ${at} value="${esc(v == null ? '' : v)}"${extra.num ? ' type="number" inputmode="decimal" min="0" step="any"' : ''}>`;
+    return `<label${extra.largo ? ' class="largo"' : ''}>${rot}${extra.dica ? `<em class="dica">${extra.dica}</em>` : ''}${ctl}</label>`;
+  }
+  function pintaPacote() {
+    const el = $('#pac'); if (!el) return;
+    const p = E.cot.pac;
+    const fotosHotel = (h, i) => `<div class="pac-fotos">${(h.fotos || []).map((f, k) => `<span class="pac-foto" style="background-image:url('${esc(f)}')"><button class="tira" data-tira-foto="${i}.${k}" aria-label="Tirar a foto ${k + 1}">×</button></span>`).join('')}
+      ${(h.fotos || []).length < 3 ? `<label class="btn fantasma pac-addfoto">+ foto<input type="file" accept="image/*" data-foto-hotel="${i}" hidden></label>` : ''}</div>`;
+    el.innerHTML = `
+      <div class="pac-cab"><h1>Pacote ou grupo</h1><button class="btn fantasma" id="pac-ex">Preencher com o exemplo</button></div>
+      <div class="pac-grade">
+        <section class="cartao"><h2>O pacote</h2>
+          <div class="grade2">
+            ${campo('titulo', 'Título da proposta', { ph: 'Albânia 2027 – Nome do grupo', largo: true })}
+            <label>Destino<input id="pac-destino" value="${esc(E.cot.destino)}" placeholder="Tirana"></label>
+            <label>Cliente ou grupo<input id="pac-cliente" value="${esc(E.cot.cliente)}" placeholder="Nome da empresa ou do grupo"></label>
+            ${campo('minimo', 'Mínimo de pessoas', { num: true, ph: '15' })}
+            <label>Moeda<select data-pac="moeda">${MOEDAS.map(([k, n]) => `<option value="${k}"${p.moeda === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+          </div></section>
+        <section class="cartao"><h2>Valores</h2>
+          ${p.precos.map((x, i) => `<div class="pac-linha">${campo('precos.' + i + '.valor', 'Valor', { num: true })}${campo('precos.' + i + '.rotulo', 'Para quem', { ph: 'Quarto duplo por pessoa' })}<button class="tira" data-tira-pac="precos.${i}">Tirar</button></div>`).join('')}
+          <button class="chip mais" data-mais-pac="precos">+ outro valor</button></section>
+        <section class="cartao largo"><h2>O pacote inclui</h2>
+          ${campo('inclui', 'Um item por linha', { area: 7, largo: true, ph: 'Aéreo – ITA Airways (sugerido)\n03 noites no Hotel X com café da manhã\nTransporte em todos os deslocamentos\nAcompanhante / Assistência local - Simonetta Viagens\nSeguro-viagem - Cobertura €60.000' })}</section>
+        <section class="cartao largo"><h2>Hotéis</h2>
+          ${p.hoteis.map((h, i) => `<div class="pac-item"><div class="pac-item-cab"><b>Hotel ${i + 1}</b><button class="tira" data-tira-pac="hoteis.${i}">Tirar</button></div>
+            <div class="grade3">
+              ${campo('hoteis.' + i + '.nome', 'Nome', { ph: 'Hilton Garden Inn' })}${campo('hoteis.' + i + '.cidade', 'Cidade', { ph: 'Tirana' })}${campo('hoteis.' + i + '.noites', 'Noites', { num: true })}
+              ${campo('hoteis.' + i + '.regime', 'Regime', { ph: 'café da manhã' })}${campo('hoteis.' + i + '.endereco', 'Endereço')}${campo('hoteis.' + i + '.site', 'Site', { ph: 'hilton.com' })}
+            </div>
+            ${campo('hoteis.' + i + '.descricao', 'Descrição', { area: 3, largo: true })}${campo('hoteis.' + i + '.obs', 'Observação', { ph: 'Este hotel não possui beach club.' })}
+            ${fotosHotel(h, i)}</div>`).join('')}
+          <button class="chip mais" data-mais-pac="hoteis">+ hotel</button></section>
+        <section class="cartao largo"><h2>Roteiro dia a dia</h2>
+          ${p.dias.map((d, i) => `<div class="pac-item"><div class="pac-item-cab"><b>Dia ${i + 1}</b><button class="tira" data-tira-pac="dias.${i}">Tirar</button></div>
+            ${campo('dias.' + i + '.titulo', 'Título do dia', { ph: 'Chegada em Tirana & jantar de boas-vindas', largo: true })}
+            ${campo('dias.' + i + '.texto', 'O que acontece, uma linha por atividade', { area: 4, largo: true, ph: 'Recepção no aeroporto e traslado ao hotel\nAlmoço livre\nJantar de boas-vindas (incluído)' })}</div>`).join('')}
+          <button class="chip mais" data-mais-pac="dias">+ dia</button></section>
+        <section class="cartao largo"><h2>Passeios opcionais</h2>
+          ${p.opcionais.map((o, i) => `<div class="pac-item"><div class="pac-item-cab"><b>Passeio ${i + 1}</b><button class="tira" data-tira-pac="opcionais.${i}">Tirar</button></div>
+            <div class="grade3">${campo('opcionais.' + i + '.nome', 'Nome', { ph: 'Kruja & o Bazar Otomano' })}${campo('opcionais.' + i + '.preco', 'Preço por pessoa', { num: true })}${campo('opcionais.' + i + '.tipo', 'Duração', { ph: 'Meio dia' })}</div>
+            ${campo('opcionais.' + i + '.minimo', 'Condição', { ph: 'mínimo 60 pessoas' })}
+            ${campo('opcionais.' + i + '.descricao', 'Descrição', { area: 2, largo: true })}
+            ${campo('opcionais.' + i + '.programa', 'Programação, uma linha por horário', { area: 4, largo: true, dica: 'ex.: 08:30 - 09:15 Traslado em ônibus' })}</div>`).join('')}
+          <button class="chip mais" data-mais-pac="opcionais">+ passeio</button></section>
+        <section class="cartao largo"><h2>Observações finais</h2>
+          ${campo('obs', 'Aparece no fim da proposta', { area: 3, largo: true, ph: 'Valores sujeitos à alteração sem aviso prévio.' })}</section>
+      </div>`;
+    $$('[data-pac]', el).forEach(c => c.addEventListener(c.tagName === 'SELECT' ? 'change' : 'input', () => {
+      poeCaminho(E.cot.pac, c.dataset.pac, c.type === 'number' ? (c.value === '' ? '' : +c.value) : c.value); salva(); pintaMontagem();
+    }));
+    $('#pac-destino').oninput = (e) => { E.cot.destino = e.target.value; salva(); };
+    $('#pac-cliente').oninput = (e) => { E.cot.cliente = e.target.value; salva(); pintaMontagem(); };
+    const NOVO = { precos: () => ({ valor: '', rotulo: '' }), hoteis: () => ({ nome: '', cidade: '', noites: '', regime: '', endereco: '', site: '', descricao: '', obs: '', fotos: [] }),
+      dias: () => ({ titulo: '', texto: '' }), opcionais: () => ({ nome: '', preco: '', tipo: '', minimo: '', descricao: '', programa: '' }) };
+    $$('[data-mais-pac]', el).forEach(b => b.onclick = () => { p[b.dataset.maisPac].push(NOVO[b.dataset.maisPac]()); salva(); pintaPacote(); });
+    $$('[data-tira-pac]', el).forEach(b => b.onclick = () => { const [k, i] = b.dataset.tiraPac.split('.'); p[k].splice(+i, 1); salva(); pintaPacote(); pintaMontagem(); });
+    $$('[data-foto-hotel]', el).forEach(c => c.onchange = () => { const f = c.files[0], h = p.hoteis[+c.dataset.fotoHotel]; if (f) reduzFoto(f, (url) => { (h.fotos = h.fotos || []).push(url); salva(); pintaPacote(); }, 1100); });
+    $$('[data-tira-foto]', el).forEach(b => b.onclick = () => { const [i, k] = b.dataset.tiraFoto.split('.').map(Number); p.hoteis[i].fotos.splice(k, 1); salva(); pintaPacote(); });
+    $$('[data-pac$=".nome"]', el).forEach(c => { if (!/^hoteis\./.test(c.dataset.pac)) return; c.addEventListener('change', async () => {
+      const i = +c.dataset.pac.split('.')[1], h = p.hoteis[i], q = [h.nome, h.cidade].filter(Boolean).join(' ');
+      if (h.endereco || q.length < 4) return;   /* só completa o que está vazio */
+      try {
+        const l = await buscaHotelOnline(q); if (!l.length) return aviso('Não achei esse hotel na base aberta. Preencha à mão.');
+        const x = l[0]; h.cidade = h.cidade || x.cidade; h.endereco = x.endereco; h.site = h.site || x.site; salva(); pintaPacote();
+        aviso('Achei ' + x.nome + ': endereço' + (x.site ? ' e site' : '') + ' preenchidos. Confira.');
+      } catch (e) { aviso('A busca do hotel não respondeu agora.'); }
+    }); });
+    $('#pac-ex').onclick = () => { exemploPacote(); telaCotacao(); aviso('Pacote de exemplo montado (grupo inventado)'); };
+  }
+
+  function exemploPacote() {
+    /* grupo inventado; os voos são os do exemplo de Paris do vídeo */
+    E.cot = Object.assign(novaCot(), { tipo: 'pacote', destino: 'Paris', cliente: 'Grupo de exemplo', pax: 20, criada: '2026-11-09' });
+    E.cot.pac = { titulo: 'Paris 2027 – Grupo de exemplo', minimo: 20, moeda: 'EUR',
+      precos: [{ valor: 4280, rotulo: 'Quarto individual' }, { valor: 3690, rotulo: 'Quarto duplo por pessoa' }],
+      inclui: 'Aéreo – Air France (sugerido)\n05 noites no Hôtel de Crillon com café da manhã\nTransporte em todos os deslocamentos\nJantar de boas-vindas e de despedida\nCity tour em Paris com guia em português\nAcompanhante / Assistência local - Simonetta Viagens\nSeguro-viagem - Cobertura €60.000',
+      hoteis: [{ nome: 'Hôtel de Crillon, A Rosewood Hotel', cidade: 'Paris', noites: 5, regime: 'café da manhã', endereco: '10 Place de la Concorde, 75008 Paris', site: 'rosewoodhotels.com',
+        descricao: 'Palácio do século XVIII na Place de la Concorde, a poucos passos do Louvre e dos Champs-Élysées. Base ideal para um grupo que quer viver Paris a pé.', obs: '', fotos: [] }],
+      dias: [
+        { titulo: 'Chegada a Paris & jantar de boas-vindas', texto: 'Recepção no aeroporto Charles de Gaulle e traslado privativo ao hotel\nCheck-in e tarde livre\nJantar de boas-vindas (incluído, bebidas não incluídas)' },
+        { titulo: 'City tour & tarde livre', texto: 'City tour com guia em português: Champs-Élysées, Arco do Triunfo, Torre Eiffel e Île de la Cité\nAlmoço livre\nTarde livre para compras' },
+        { titulo: 'Passeios opcionais', texto: 'Dia livre ou um dos passeios opcionais abaixo' },
+        { titulo: 'Montmartre a pé', texto: 'Manhã livre\nTarde em Montmartre com guia: Sacré-Cœur e Place du Tertre' },
+        { titulo: 'Dia livre & jantar de despedida', texto: 'Dia livre\nJantar de despedida (incluído, bebidas não incluídas)' },
+        { titulo: 'Traslado & regresso', texto: 'Check-out e dia livre\nTraslado ao aeroporto de acordo com o horário do voo' }],
+      opcionais: [
+        { nome: 'Palácio de Versalhes', preco: 85, tipo: 'Meio dia', minimo: '', descricao: 'Palácio e jardins de Versalhes com guia em português.',
+          programa: '08:30 - 09:15 Traslado privativo em ônibus (Paris ➔ Versalhes)\n09:15 - 11:45 Visita guiada ao palácio e aos jardins\n12:00 - 12:45 Retorno a Paris para almoço livre' },
+        { nome: 'Cruzeiro no Sena com jantar', preco: 145, tipo: 'Noite', minimo: 'mínimo 20 pessoas', descricao: 'Jantar a bordo com vista dos monumentos iluminados.',
+          programa: '19:30 Embarque no Port de la Bourdonnais\n20:00 - 22:30 Jantar de 3 tempos navegando pelo Sena\n22:45 Retorno ao hotel' }],
+      obs: 'Valores para mínimo de 20 pessoas e sujeitos à alteração sem aviso prévio.' };
+    R = rascunhoDe(EXEMPLOS.telas[0].texto); adicionaVoosPacote(); R = null; E.texto = ''; salva();
+  }
+
   function pintaMontagem() {
     const el = $('#montagem'); if (!el) return;
     const c = E.cot;
-    const ops = c.opcoes.map(o => `<li><div><b>${esc(nomeOpcao(o))}</b><span>${o.tarifas.map(t => esc(t.rotulo) + ' ' + usd(precoFinal(t))).join(' · ')}</span></div>
+    const ops = c.opcoes.map(o => `<li><div><b>${esc(nomeOpcao(o))}</b><span>${o.tarifas.length ? o.tarifas.map(t => esc(t.rotulo) + ' ' + usd(precoFinal(t))).join(' · ') : esc(Amadeus.trechos(o.segmentos, AEROPORTOS).map(tr => cidade(tr.segmentos[0].origem) + ' → ' + cidade(tr.segmentos[tr.segmentos.length - 1].destino)).join(' · '))}</span></div>
       <button class="tira" data-tira="${o.id}" aria-label="Tirar ${esc(nomeOpcao(o))} da proposta">Tirar</button></li>`).join('');
     el.innerHTML = `
       <div class="mont-cab"><h2>Proposta em montagem</h2>
-        <button class="btn fantasma" id="tudo">Montar a cotação inteira do vídeo</button></div>
+        <button class="btn fantasma" id="tudo">${E.cot.tipo === 'pacote' ? 'Montar o pacote de exemplo' : 'Montar a cotação inteira do vídeo'}</button></div>
       <div class="mont-campos">
         <label>Destino<input id="m-destino" value="${esc(c.destino)}" placeholder="Paris"></label>
         <label>Cliente<input id="m-cliente" value="${esc(c.cliente)}" placeholder="Nome de quem pediu"></label>
         <label>Passageiros<input id="m-pax" type="number" min="1" max="20" value="${c.pax}"></label>
       </div>
-      ${ops ? `<ul class="mont-ops">${ops}</ul>` : `<p class="mont-vazia">Nenhuma opção ainda. Cole uma tela do Amadeus acima e toque em “Adicionar à proposta”.</p>`}
-      <a class="btn primario ${ops ? '' : 'apagado'}" href="#/proposta">Abrir a proposta</a>`;
+      ${ops ? `<ul class="mont-ops">${ops}</ul>` : `<p class="mont-vazia">${E.cot.tipo === 'pacote' ? 'Nenhum voo ainda. Cole a tela do Amadeus e toque em “Usar estes voos no pacote”.' : 'Nenhuma opção ainda. Cole uma tela do Amadeus acima e toque em “Adicionar à proposta”.'}</p>`}
+      ${c.cliente ? `<p class="nota">Fica guardada em <a href="#/clientes">Clientes</a>, na ficha de ${esc(c.cliente)}.</p>` : '<p class="nota">Ponha o nome do cliente e a cotação fica guardada sozinha em Clientes.</p>'}
+      <a class="btn primario ${temConteudo(c) ? '' : 'apagado'}" href="#/proposta">Abrir a proposta</a>`;
     $('#m-destino').oninput = (e) => { c.destino = e.target.value; salva(); };
     $('#m-cliente').oninput = (e) => { c.cliente = e.target.value; salva(); };
     $('#m-pax').oninput = (e) => { c.pax = Math.max(1, +e.target.value || 1); salva(); };
-    $('#tudo').onclick = () => { montaExemploInteiro(); aviso('2 opções e 4 tarifas montadas'); telaCotacao(); };
+    $('#tudo').onclick = () => { if (E.cot.tipo === 'pacote') { exemploPacote(); aviso('Pacote de exemplo montado (grupo inventado)'); } else { montaExemploInteiro(); aviso('2 opções e 4 tarifas montadas'); } telaCotacao(); };
     $$('[data-tira]').forEach(b => b.onclick = () => { c.opcoes = c.opcoes.filter(o => o.id !== b.dataset.tira); salva(); pintaMontagem(); pintaLido(); });
   }
 
@@ -451,8 +629,76 @@
     </section>`;
   }
 
+  const linhas = (s) => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
+  /* "08:30 - 09:15 Traslado em ônibus" -> ['08:30 - 09:15', 'Traslado em ônibus'] */
+  const horaETexto = (l) => { const m = /^(\d{1,2}[:h]\d{2}(?:\s*[-–]\s*\d{1,2}[:h]\d{2})?)\s+(.*)$/.exec(l); return m ? [m[1].replace(/\s*[-–]\s*/, ' – '), m[2]] : ['', l]; };
+
+  function pacoteDoc() {
+    const c = E.cot, p = c.pac, per = periodo(), m = p.moeda;
+    const precos = p.precos.filter(x => +x.valor);
+    const fotos = c.capa ? [c.capa] : (FOTOS_DESTINO[c.destino] || p.hoteis.flatMap(h => h.fotos || [])).slice(0, 3), tres = fotos.length >= 3;
+    const fundo = fotos.length
+      ? `<div class="pp-fotos${tres ? '' : ' pp-uma'}" aria-hidden="true">${(tres ? fotos : fotos.slice(0, 1)).map((f, k) => `<div class="pp-f pp-f${k + 1}" style="background-image:url('${esc(f)}')"></div>`).join('')}${tres ? '<i class="pp-corte pp-c1"></i><i class="pp-corte pp-c2"></i>' : ''}</div>`
+      : '<div class="pp-graf" aria-hidden="true"></div>';
+    const noites = p.hoteis.reduce((s, h) => s + (+h.noites || 0), 0);
+    const quando = per.ida ? per.ida + (per.volta ? ' a ' + per.volta : '') + ' de ' + per.ano : '';
+    const capa = `<section class="pp-capa">${fundo}
+      <div class="pp-logo"><img src="arte/logo-simonetta.png" alt="${esc(AG.nome)}"></div>
+      <div class="pp-capatxt">
+        <p class="pp-capak">${esc(AG.nome)}${c.destino ? ' <i>|</i> ' + esc(c.destino) : ''}</p>
+        <h1>${esc(p.titulo || 'Proposta de viagem')}</h1>
+        ${c.cliente || p.minimo ? `<p>${esc([c.cliente, p.minimo ? 'mínimo de ' + p.minimo + ' pessoas' : ''].filter(Boolean).join(' | '))}</p>` : ''}
+        ${quando || noites ? `<p>${esc([quando, noites ? plural(noites, 'noite', 'noites') : ''].filter(Boolean).join(' · '))}</p>` : ''}
+        ${p.hoteis.length ? `<p>${esc(p.hoteis.map(h => h.nome).filter(Boolean).join(' · '))}</p>` : ''}
+      </div></section>`;
+    const valores = precos.length ? `<section class="pp-inv pp-inv-pac"><p class="pp-inv-t">Valores</p>
+      <div class="pp-invg">${precos.map(x => `<div><small>${esc(x.rotulo || 'Por pessoa')}</small><b>${esc(dinheiro(x.valor, m))}</b></div>`).join('')}</div>
+      <div class="pp-ind">${p.minimo ? 'Valores para mínimo de ' + esc(p.minimo) + ' pessoas e sujeitos' : 'Valores sujeitos'} à alteração sem aviso prévio</div></section>` : '';
+    /* cada seção: o título vai junto do primeiro cartão (no papel não fica título sozinho no pé da folha) */
+    const sec = (kick, titulo, cartoes) => cartoes.length ? `<section class="pp-sec"><div class="pp-bloco"><p class="pp-kick">${kick}</p><h2 class="pp-h2">${titulo}</h2>${cartoes[0]}</div>${cartoes.slice(1).join('')}</section>` : '';
+    const inclui = sec('O pacote', 'O que está incluído', linhas(p.inclui).length
+      ? [`<div class="pp-card"><ul class="cond pp-inclui">${linhas(p.inclui).map(l => `<li class="ok"><i>${ICO.ok}</i>${esc(l)}</li>`).join('')}</ul></div>`] : []);
+    const hoteis = sec('Hospedagem', p.hoteis.length > 1 ? 'Os hotéis' : 'O hotel', p.hoteis.map(h => `<section class="pp-card pp-hotel">
+        <div class="pp-tag">${esc([h.cidade, h.noites ? plural(+h.noites, 'noite', 'noites') : '', h.regime].filter(Boolean).join(' | ') || 'Hotel')}</div>
+        <h3 class="pp-tit">${esc(h.nome || 'Hotel')}</h3>
+        ${(h.fotos || []).length ? `<div class="pp-fotos3 n${Math.min(h.fotos.length, 3)}">${h.fotos.slice(0, 3).map(f => `<div class="pp-foto" style="background-image:url('${esc(f)}')"></div>`).join('')}</div>` : ''}
+        ${h.descricao ? `<p>${esc(h.descricao).replace(/\n/g, '<br>')}</p>` : ''}
+        ${h.endereco || h.site ? `<p class="pp-onde">${h.endereco ? `<span>${ICO_PIN}${esc(h.endereco)}</span>` : ''}${h.site ? `<span>${esc(h.site)}</span>` : ''}</p>` : ''}
+        ${h.obs ? `<div class="pp-obs">${ICO_ZAP}<p><b>Obs.:</b> ${esc(h.obs)}</p></div>` : ''}
+      </section>`));
+    const roteiro = sec('Roteiro', 'Dia a dia', p.dias.map((d, i) => `<section class="pp-card pp-dia-c"><div class="pp-tag">Dia ${i + 1}</div>
+        <h3 class="pp-tit">${esc(d.titulo || '')}</h3>
+        <ul class="pp-ativ">${linhas(d.texto).map(l => `<li>${esc(l)}</li>`).join('')}</ul></section>`));
+    const opc = sec('Para escolher', 'Passeios opcionais', p.opcionais.map(o => `<section class="pp-card pp-opc">
+        <div class="pp-tag">${esc([o.tipo, o.minimo].filter(Boolean).join(' | ') || 'Opcional')}</div>
+        <h3 class="pp-tit">${esc(o.nome || 'Passeio')}${+o.preco ? ` <span class="pp-preco">${esc(dinheiro(o.preco, m))}</span>` : ''}</h3>
+        ${+o.preco ? '<p class="pp-sub">por pessoa</p>' : ''}
+        ${o.descricao ? `<p>${esc(o.descricao)}</p>` : ''}
+        ${linhas(o.programa).length ? `<table class="pp-prog"><tbody>${linhas(o.programa).map(l => { const [h, x] = horaETexto(l); return `<tr><th>${esc(h)}</th><td>${esc(x)}</td></tr>`; }).join('')}</tbody></table>` : ''}
+      </section>`));
+    const voos = sec('Aéreo proposto', 'Os voos' + (c.opcoes.length === 1 ? ' <span>| ' + esc(nomeCia(c.opcoes[0].cia)) + '</span>' : ''),
+      c.opcoes.flatMap((o, i) => { const trs = Amadeus.trechos(o.segmentos, AEROPORTOS), rots = rotulosTrechos(trs);
+        return trs.map((x, k) => (c.opcoes.length > 1 && k === 0 ? `<p class="pp-kick">Opção ${i + 1} · ${esc(nomeCia(o.cia))}</p>` : '') + ppVoo(x, rots[k])); }));
+    return `<article class="pp pp-pacote">
+      ${capa}
+      ${valores}
+      ${inclui}
+      ${hoteis}
+      ${roteiro}
+      ${opc}
+      ${voos}
+      <section class="pp-box"><h3>Como reservar</h3>
+        <p>Responda confirmando o interesse e o número de participantes. Para emitir as passagens, preciso da foto do passaporte de cada um.</p>
+        ${p.obs ? `<p class="pp-forte">${esc(p.obs).replace(/\n/g, '<br>')}</p>` : `<p class="pp-forte">${esc(AG.aviso)}.</p>`}
+        <p>Proposta feita em ${diaNum(c.criada)} por ${esc(AG.consultor)}.</p></section>
+      <footer class="pp-pe">${[AG.razao, AG.cidade, ...AG.fones, AG.email].map(x => `<span>${esc(x)}</span>`).join('<i aria-hidden="true">|</i>')}</footer>
+    </article>`;
+  }
+
   function propostaDoc() {
-    const c = E.cot, per = periodo(), prazo = prazoMaisCurto(), n = c.opcoes.length;
+    if (E.cot.tipo === 'pacote') return pacoteDoc();
+    /* só entram as opções com tarifa (voos de pacote sem preço ficam fora do aéreo) */
+    const c = Object.assign({}, E.cot, { opcoes: E.cot.opcoes.filter(o => o.tarifas.length) }), per = periodo(), prazo = prazoMaisCurto(), n = c.opcoes.length;
     const cabines = [...new Set(c.opcoes.flatMap(o => o.tarifas.map(t => t.cabine)))];
     const primeiro = Amadeus.trechos(c.opcoes[0].segmentos, AEROPORTOS)[0].segmentos;
     const de = primeiro[0].origem, para = primeiro[primeiro.length - 1].destino;
@@ -498,7 +744,8 @@
     </article>`;
   }
 
-  const nomePdf = () => 'Proposta ' + (E.cot.destino || '') + (E.cot.cliente ? ' - ' + E.cot.cliente : '');
+  const nomePdf = () => E.cot.tipo === 'pacote' && E.cot.pac.titulo ? E.cot.pac.titulo : 'Proposta ' + (E.cot.destino || '') + (E.cot.cliente ? ' - ' + E.cot.cliente : '');
+  const temProposta = () => E.cot.tipo === 'pacote' ? temConteudo(E.cot) : E.cot.opcoes.some(o => o.tarifas.length);
   function ligaDoc() {
     const c = E.cot;
     $$('[data-vai]').forEach(b => b.onclick = () => document.getElementById(b.dataset.vai).scrollIntoView({ behavior: 'smooth', block: 'start' }));
@@ -511,7 +758,7 @@
   /* a proposta dentro do painel: com os botões de quem monta */
   function telaProposta() {
     const c = E.cot;
-    if (!c.opcoes.length) {
+    if (!temProposta()) {
       $('#palco').innerHTML = `<div class="vazio central"><h1>A proposta ainda está vazia</h1>
         <p>Ela se monta sozinha com o que você cola na Cotação. Para ver uma pronta agora, use a cotação do vídeo (São Paulo–Paris, executiva, Air France e Air Europa).</p>
         <button class="btn primario" id="tudo2">Montar a cotação do vídeo</button> <a class="btn fantasma" href="#/cotacao">Ir para a Cotação</a></div>`;
@@ -538,7 +785,7 @@
 
   /* a mesma proposta do jeito que o cliente abre: só o documento, o PDF e o botão de falar com a agência */
   function telaCliente() {
-    if (!E.cot.opcoes.length) { location.hash = '#/proposta'; return; }
+    if (!temProposta()) { location.hash = '#/proposta'; return; }
     $('#palco').innerHTML = `
     <div class="pp-pg">
       <header class="pp-topo nao-imprime"><img src="arte/logo-simonetta.png" alt="${esc(AG.nome)}">
@@ -552,6 +799,14 @@
   }
 
   function resumoZap() {
+    if (E.cot.tipo === 'pacote') {
+      const p = E.cot.pac, l = ['*' + (p.titulo || 'Pacote ' + E.cot.destino) + '* · ' + AG.nome];
+      if (p.minimo) l.push('Mínimo de ' + p.minimo + ' pessoas');
+      l.push(''); p.precos.filter(x => +x.valor).forEach(x => l.push('• ' + dinheiro(x.valor, p.moeda) + ' ' + (x.rotulo || '')));
+      if (linhas(p.inclui).length) { l.push('', '*Inclui:*'); linhas(p.inclui).forEach(x => l.push('• ' + x)); }
+      l.push('', 'Hotéis, roteiro dia a dia e passeios opcionais estão no PDF em anexo.');
+      return l.join('\n');
+    }
     const c = E.cot, per = periodo(), prazo = prazoMaisCurto();
     const l = ['*Cotação ' + (c.destino || '') + '* · ' + AG.nome, per.origem + ' e ' + c.destino + ' · ida em ' + per.ida + (per.volta ? ' · volta em ' + per.volta : '') + ' · ' + plural(c.pax, 'passageiro', 'passageiros'), ''];
     c.opcoes.forEach((o, i) => {
@@ -565,10 +820,10 @@
     return l.join('\n');
   }
 
-  function reduzFoto(arq, pronto) {
+  function reduzFoto(arq, pronto, max) {
     const img = new Image(), url = URL.createObjectURL(arq);
     img.onload = () => {
-      const k = Math.min(1, 1500 / img.width), cv = document.createElement('canvas');
+      const k = Math.min(1, (max || 1500) / img.width), cv = document.createElement('canvas');
       cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
       cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
       URL.revokeObjectURL(url); pronto(cv.toDataURL('image/jpeg', 0.8));
@@ -604,6 +859,32 @@
     for (const h of HOTEIS) { const p = palavras.filter(w => h.chaves.some(k => k.startsWith(w) || w.startsWith(k))).length; if (p > pts) { pts = p; melhor = h; } }
     return melhor;
   }
+
+  /* Busca o hotel de verdade no OpenStreetMap (base aberta, sem chave): endereço, telefone, categoria e site.
+     Telefone e estrelas nem sempre estão lá: o que faltar fica em branco, com aviso, e nunca é inventado.
+     No app de verdade a busca pode ser no Google, que tem telefone de quase todo hotel. */
+  const CACHE_HOTEL = {};
+  async function buscaHotelOnline(q) {
+    q = String(q || '').trim();
+    if (q.length < 4) return [];
+    if (CACHE_HOTEL[q]) return CACHE_HOTEL[q];
+    const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1&limit=6&accept-language=pt-BR&q=' + encodeURIComponent(q);
+    const r = await fetch(u, { headers: { Accept: 'application/json' } });
+    if (!r.ok) throw new Error('busca ' + r.status);
+    const l = (await r.json()).filter(x => x.category === 'tourism' && /hotel|guest_house|apartment|hostel|motel|resort/.test(x.type) || /hotel|resort|inn|pousada/i.test(x.name || ''));
+    const res = l.map(x => {
+      const a = x.address || {}, e = x.extratags || {};
+      const cidade = a.city || a.town || a.village || a.municipality || a.county || '';
+      const rua = [a.road || a.pedestrian || '', a.house_number || ''].filter(Boolean).join(', ');
+      const endereco = [rua, [a.postcode, cidade].filter(Boolean).join(' '), a.country].filter(Boolean).join(', ');
+      const site = (e.website || e['contact:website'] || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+      return { nome: x.name || q, endereco, cidade, pais: a.country || '', fone: e.phone || e['contact:phone'] || '', estrelas: parseInt(e.stars, 10) || 0, site };
+    });
+    CACHE_HOTEL[q] = res;
+    return res;
+  }
+  /* o que faltou, dito em uma frase */
+  const faltouHotel = (h) => { const f = [!h.fone && 'telefone', !h.estrelas && 'categoria'].filter(Boolean); return f.length ? 'Não achei ' + f.join(' nem ') + ' deste hotel na base aberta: preencha à mão' + (h.site ? ' (o site é ' + h.site + ')' : '') + '.' : ''; };
 
   function exemploVoucher() {
     /* o mesmo roteiro da proposta de exemplo: chega a Paris em 19/11 e volta em 24/11 */
@@ -666,7 +947,8 @@
       <section class="vou-form nao-imprime">
         <div class="mont-cab"><h1>Voucher de hotel</h1><button class="btn fantasma" id="v-ex">Preencher com o exemplo</button></div>
         <label class="busca">Qual é o hotel?<span class="dupla"><input id="v-hotel" value="${esc(v.hotel)}" placeholder="Ex.: savoy marrakech"><button class="btn" id="v-busca">Buscar dados</button></span></label>
-        <p class="nota" id="v-nota">Endereço, telefone e categoria vêm da busca. Neste protótipo eu conheço três hotéis (Savoy Marrakech, Sofitel Lisboa, Crillon Paris); no app de verdade a busca é no Google.</p>
+        <p class="nota" id="v-nota">Digite o nome e a cidade do hotel e aperte Enter: endereço, telefone e categoria se preenchem sozinhos.</p>
+        <ul class="hot-achados" id="v-achados" hidden></ul>
         <div class="grade2">
           <label class="largo">Endereço<input id="v-endereco" value="${esc(v.endereco)}"></label>
           <label>Telefone<input id="v-fone" value="${esc(v.fone)}"></label>
@@ -704,11 +986,34 @@
     $$('[data-quarto]').forEach(b => b.onclick = () => { v.ativo = +b.dataset.quarto; salva(); telaVoucher(); });
     $('#v-mais').onclick = () => { v.quartos.push({ tipo: 'TWIN BED', hospedes: ['', ''], obs: '' }); v.ativo = v.quartos.length - 1; salva(); telaVoucher(); };
     const menos = $('#v-menos'); if (menos) menos.onclick = () => { v.quartos.splice(v.ativo, 1); v.ativo = 0; salva(); telaVoucher(); };
-    $('#v-busca').onclick = () => {
-      const h = buscaHotel(v.hotel);
-      if (!h) { $('#v-nota').textContent = 'Não conheço esse hotel aqui no protótipo. Preencha à mão, ou tente “savoy marrakech”.'; $('#v-nota').classList.add('alerta'); return; }
-      Object.assign(v, { hotel: h.nome, endereco: h.endereco, fone: h.fone, estrelas: h.estrelas, cidade: h.cidade }); salva(); telaVoucher(); aviso('Endereço, telefone e categoria preenchidos');
+    const nota = (txt, alerta) => { const n = $('#v-nota'); n.textContent = txt; n.classList.toggle('alerta', !!alerta); };
+    const usa = (h) => {
+      Object.assign(v, { hotel: h.nome, endereco: h.endereco, fone: h.fone || '', estrelas: h.estrelas || 0, cidade: h.cidade || '', buscado: h.nome }); salva(); telaVoucher();
+      const f = faltouHotel(h); nota(f || 'Endereço, telefone e categoria preenchidos. Confira antes de mandar.', !!f);
     };
+    let ultimo = '';
+    const busca = async () => {
+      const q = v.hotel.trim(); if (q.length < 4 || q === ultimo) return; ultimo = q;
+      const local = buscaHotel(q);
+      nota('Procurando “' + q + '”…');
+      try {
+        const l = await buscaHotelOnline(q);
+        if (!l.length && !local && v.buscado && v.buscado !== v.hotel) {   /* o endereço que está ali é do hotel anterior: não pode ficar */
+          Object.assign(v, { endereco: '', fone: '', estrelas: 0, cidade: '', buscado: '' }); salva(); telaVoucher();
+        }
+        if (!l.length) { if (local) return usa(local); return nota('Não achei esse hotel. Tente com o nome e a cidade (ex.: “Hilton Garden Inn Tirana”), ou preencha à mão.', true); }
+        if (l.length === 1 || norm(l[0].nome) === norm(q)) return usa(l[0]);
+        const ul = $('#v-achados'); ul.hidden = false; nota('Achei mais de um. Qual é?');
+        ul.innerHTML = l.map((h, i) => `<li><button data-achado="${i}"><b>${esc(h.nome)}</b><span>${esc(h.endereco)}</span></button></li>`).join('');
+        $$('[data-achado]', ul).forEach(b => b.onclick = () => usa(l[+b.dataset.achado]));
+      } catch (e) {
+        if (local) return usa(local);
+        nota('A busca não respondeu agora. Tente de novo em instantes, ou preencha à mão.', true); ultimo = '';
+      }
+    };
+    $('#v-busca').onclick = () => { ultimo = ''; busca(); };
+    $('#v-hotel').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ultimo = ''; busca(); } });
+    $('#v-hotel').addEventListener('change', busca);   /* ao sair do campo, já busca */
     $('#v-ex').onclick = () => { exemploVoucher(); telaVoucher(); };
     $('#v-foto').onchange = (e) => { const f = e.target.files[0]; if (f) reduzFoto(f, (url) => { v.foto = url; salva(); telaVoucher(); }); };
     const sf = $('#v-semfoto'); if (sf) sf.onclick = () => { v.foto = ''; salva(); telaVoucher(); };
@@ -892,7 +1197,80 @@
     </details>`).join('');
   }
 
-  const TELAS = { cotacao: telaCotacao, proposta: telaProposta, voucher: telaVoucher, passaportes: telaPassaportes, cnt: telaCnt, cliente: telaCliente };
+  /* =====================================================================
+     TELA — CLIENTES: o cadastro que se faz sozinho e o histórico das propostas
+     ===================================================================== */
+  let CLI = '';   /* o cliente aberto na tela */
+  const dataHora = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
+  function propostasDe(id) { return E.propostas.filter(p => p.clienteId === id).sort((a, b) => (b.atualizada || '').localeCompare(a.atualizada || '')); }
+  function telaClientes() {
+    if (CLI && !E.clientes.some(x => x.id === CLI)) CLI = '';
+    $('#palco').innerHTML = `
+    <div class="cli">
+      <section class="cli-lista">
+        <div class="mont-cab"><h1>Clientes</h1><button class="btn primario" id="cli-nova">Nova cotação</button></div>
+        <p class="sub">Toda cotação com o nome do cliente entra aqui sozinha, com o histórico das propostas.</p>
+        <input id="cli-busca" type="search" placeholder="Procurar cliente" aria-label="Procurar cliente">
+        <ul id="cli-nomes" class="cli-nomes"></ul>
+      </section>
+      <section class="cli-ficha" id="cli-ficha"></section>
+    </div>`;
+    $('#cli-busca').oninput = pintaNomes;
+    $('#cli-nova').onclick = () => { E.cot = novaCot(); R = null; E.texto = ''; salva(); location.hash = '#/cotacao'; };
+    pintaNomes(); pintaFicha();
+  }
+  function pintaNomes() {
+    const el = $('#cli-nomes'); if (!el) return;
+    const b = norm($('#cli-busca').value);
+    const l = E.clientes.map(c => ({ c, ps: propostasDe(c.id) })).filter(x => !b || norm(x.c.nome).includes(b))
+      .sort((a, b) => ((b.ps[0] || {}).atualizada || '').localeCompare((a.ps[0] || {}).atualizada || ''));
+    el.innerHTML = l.length ? l.map(({ c, ps }) => `<li><button class="cli-nome${c.id === CLI ? ' on' : ''}" data-cli="${c.id}"><b>${esc(c.nome)}</b>
+        <span>${plural(ps.length, 'proposta', 'propostas')}${ps[0] ? ' · última em ' + esc(new Date(ps[0].atualizada).toLocaleDateString('pt-BR')) : ''}</span></button></li>`).join('')
+      : `<li class="nota">${b ? 'Nenhum cliente com esse nome.' : 'Ainda não há clientes. Faça uma cotação com o nome do cliente e ele aparece aqui.'}</li>`;
+    $$('[data-cli]', el).forEach(x => x.onclick = () => { CLI = x.dataset.cli; pintaNomes(); pintaFicha(); if (innerWidth < 940) $('#cli-ficha').scrollIntoView({ behavior: 'smooth' }); });
+  }
+  function pintaFicha() {
+    const el = $('#cli-ficha'); if (!el) return;
+    const c = E.clientes.find(x => x.id === CLI);
+    if (!c) { el.innerHTML = '<div class="vazio"><h2>Escolha um cliente</h2><p>Aqui aparecem os dados dele e todas as propostas, da mais nova para a mais antiga. Dá para abrir, duplicar para outra data ou apagar.</p></div>'; return; }
+    const ps = propostasDe(c.id);
+    el.innerHTML = `
+      <div class="mont-cab"><h2>${esc(c.nome)}</h2><button class="btn fantasma" id="cli-cot">Nova cotação para ${esc(c.nome.split(' ')[0])}</button></div>
+      <div class="grade2">
+        <label>Nome<input data-cli-campo="nome" value="${esc(c.nome)}"></label>
+        <label>WhatsApp<input data-cli-campo="fone" value="${esc(c.fone)}" inputmode="tel" placeholder="(11) 99999-9999"></label>
+        <label>E-mail<input data-cli-campo="email" value="${esc(c.email)}" type="email"></label>
+        <label>Cliente desde<input value="${esc(diaNum(c.criado))}" disabled></label>
+        <label class="largo">Observações<textarea data-cli-campo="obs" rows="2" placeholder="Prefere janela, viaja com a esposa, cartão Amex...">${esc(c.obs)}</textarea></label>
+      </div>
+      <h3 class="cli-sub">Propostas</h3>
+      <ul class="cli-props">${ps.map(p => `<li class="cli-prop">
+          <div><span class="cia-tag">${p.tipo === 'pacote' ? 'Pacote' : 'Aéreo'}</span>${p.cot === E.cot ? '<span class="cli-aberta">aberta agora</span>' : ''}
+            <b>${esc(p.titulo || 'Proposta')}</b><span>${esc([p.resumo, 'mudada em ' + dataHora(p.atualizada)].filter(Boolean).join(' · '))}</span></div>
+          <div class="cli-acoes"><button class="btn primario" data-abre="${p.id}">Abrir</button><button class="btn fantasma" data-dup="${p.id}">Duplicar</button><button class="tira" data-apaga="${p.id}">Apagar</button></div>
+        </li>`).join('') || '<li class="nota">Nenhuma proposta ainda.</li>'}</ul>`;
+    $$('[data-cli-campo]', el).forEach(x => x.oninput = () => {
+      const k = x.dataset.cliCampo; c[k] = x.value;
+      if (k === 'nome') { for (const p of E.propostas) if (p.clienteId === c.id && p.cot) p.cot.cliente = x.value; }
+      salva(); if (k === 'nome') pintaNomes();
+    });
+    $('#cli-cot').onclick = () => { E.cot = Object.assign(novaCot(), { cliente: c.nome, clienteId: c.id }); R = null; E.texto = ''; salva(); location.hash = '#/cotacao'; };
+    $$('[data-abre]', el).forEach(b => b.onclick = () => abreCot(E.propostas.find(p => p.id === b.dataset.abre).cot, '#/proposta'));
+    $$('[data-dup]', el).forEach(b => b.onclick = () => {
+      const o = E.propostas.find(p => p.id === b.dataset.dup);
+      const nova = Object.assign(JSON.parse(JSON.stringify(o.cot)), { id: uid(), criada: isoHoje() });
+      abreCot(nova, '#/cotacao'); aviso('Cópia aberta na Cotação. A original continua guardada.');
+    });
+    $$('[data-apaga]', el).forEach(b => b.onclick = () => {
+      const o = E.propostas.find(p => p.id === b.dataset.apaga);
+      if (!confirm('Apagar a proposta "' + (o.titulo || '') + '"? Não dá para desfazer.')) return;
+      E.propostas = E.propostas.filter(p => p !== o);
+      if (o.cot === E.cot) E.cot = novaCot();
+      salva(); pintaNomes(); pintaFicha();
+    });
+  }
+
+  const TELAS = { cotacao: telaCotacao, proposta: telaProposta, voucher: telaVoucher, passaportes: telaPassaportes, cnt: telaCnt, cliente: telaCliente, clientes: telaClientes };
   function rota() {
     const aba = (location.hash.replace(/^#\/?/, '').split('/')[0]) || 'cotacao';
     const tela = TELAS[aba] ? aba : 'cotacao';
@@ -906,7 +1284,7 @@
      vai ver pela primeira vez. Só monta o exemplo se ainda não houver cotação (não apaga o que a pessoa já fez),
      e tira o "?exemplo" do endereço para que recarregar a página não refaça nada. */
   if (/[?&]exemplo\b/.test(location.search)) {
-    if (!E.cot.opcoes.length) { montaExemploInteiro(); exemploVoucher(); }
+    if (!temConteudo(E.cot)) { if (/exemplo=pacote/.test(location.search)) exemploPacote(); else montaExemploInteiro(); exemploVoucher(); }
     if (/quarto=2/.test(location.search) && E.vou.quartos.length > 1) { E.vou.ativo = 1; salva(); }
     try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* abrindo do arquivo: segue com o endereço como está */ }
   }

@@ -477,3 +477,100 @@ body[data-tela="cliente"] { background: #edf2ea; }
   .vc-topo::after { background: #fff; }
   .vc .pp-sec, .vc .pp-inv { margin-left: 13mm; margin-right: 13mm; }
 }
+
+/* ---------- tipo da cotação: só aéreo ou pacote ---------- */
+.tipo-cot { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin-bottom: clamp(16px, 2vw, 24px); }
+.tipo { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 2px; min-width: 220px; padding: 12px 16px; border-radius: 12px; border: 2px solid var(--linha); background: var(--papel); }
+.tipo b { font-size: 16px; color: var(--marinho); }
+.tipo span { font-size: 13px; color: var(--cinza); }
+.tipo:hover { border-color: #b3bccf; }
+.tipo.on { border-color: var(--marinho); background: var(--menta-2); box-shadow: inset 0 0 0 1px var(--marinho); }
+.tipo:focus-visible { outline: 3px solid var(--verde); outline-offset: 2px; }
+.tipo-cot #nova-cot { margin-left: auto; align-self: center; }
+
+/* ---------- formulário do pacote ---------- */
+.pac { margin-bottom: clamp(18px, 2.4vw, 32px); }
+.pac-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.pac-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.pac-grade > .largo { grid-column: 1 / -1; }
+.pac-grade > * { min-width: 0; }
+.pac .cartao h2 { font-size: 17px; }
+.grade3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.grade2 > *, .grade3 > * { min-width: 0; }
+.pac-linha { display: grid; grid-template-columns: 130px minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.pac-item { display: grid; gap: 10px; padding: 14px; border: 1.5px solid var(--linha); border-radius: 12px; background: var(--nevoa); }
+.pac-item-cab { display: flex; justify-content: space-between; align-items: center; }
+.pac-item-cab b { font: 700 14px var(--f-placa); letter-spacing: .12em; text-transform: uppercase; color: var(--marinho); }
+.pac .chip.mais { justify-self: start; }
+.dica { display: block; font-style: normal; font-weight: 500; font-size: 12px; color: var(--cinza); }
+.pac-fotos { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pac-foto { position: relative; width: 96px; height: 66px; border-radius: 8px; background-size: cover; background-position: center; }
+.pac-foto .tira { position: absolute; top: 2px; right: 2px; min-height: 26px; padding: 0 8px; background: rgba(255,255,255,.92); }
+.pac-addfoto { min-height: 40px; }
+
+/* busca do hotel: quando acha mais de um */
+.hot-achados { display: grid; gap: 6px; }
+.hot-achados button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 2px; width: 100%; padding: 9px 12px; border: 1.5px solid var(--linha); border-radius: 10px; background: var(--papel); }
+.hot-achados button:hover, .hot-achados button:focus-visible { border-color: var(--marinho); background: var(--menta-2); }
+.hot-achados b { color: var(--marinho); }
+.hot-achados span { font-size: 13px; color: var(--cinza); }
+
+/* ---------- proposta do pacote ---------- */
+.pp-inv-pac { margin-top: 0; }
+.pp-inclui li { font-size: 15px; }
+.pp-fotos3 { display: grid; gap: 8px; margin: 0 0 12px; }
+.pp-fotos3.n2 { grid-template-columns: 1fr 1fr; }
+.pp-fotos3.n3 { grid-template-columns: repeat(3, 1fr); }
+.pp-fotos3 .pp-foto { height: 150px; border-radius: 10px; background-size: cover; background-position: center; }
+.pp-fotos3.n1 .pp-foto { height: 240px; }
+.pp-onde { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 6px; font-size: 13.5px !important; }
+.pp-onde span { display: inline-flex; align-items: center; gap: 6px; }
+.pp-onde svg { width: 15px; height: 15px; color: var(--verde-txt); flex: none; }
+.pp-ativ { display: grid; gap: 6px; }
+.pp-ativ li { position: relative; padding-left: 16px; font-size: 14.5px; color: var(--pp-t); line-height: 1.45; }
+.pp-ativ li::before { content: ""; position: absolute; left: 0; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--verde); }
+.pp-prog { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+.pp-prog th, .pp-prog td { text-align: left; padding: 7px 8px; border-top: 1px solid var(--linha); vertical-align: top; }
+.pp-prog th { white-space: nowrap; font: 700 14px var(--f-placa); letter-spacing: .03em; color: var(--marinho); width: 1%; }
+.pp-prog td { color: var(--pp-t); }
+.pp-opc .pp-sub { border-bottom: 0; padding-bottom: 0; margin-bottom: 8px; }
+
+/* ---------- clientes ---------- */
+.cli { display: grid; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); gap: clamp(18px, 2.4vw, 32px); align-items: start; }
+.cli > * { min-width: 0; }
+.cli-lista, .cli-ficha { background: var(--papel); border: 1px solid var(--linha); border-radius: var(--raio); padding: clamp(16px, 2vw, 24px); display: grid; gap: 12px; }
+.cli-lista .sub { margin: 0; }
+.cli-nomes { display: grid; gap: 6px; }
+.cli-nome { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 2px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid transparent; }
+.cli-nome b { color: var(--marinho); }
+.cli-nome span { font-size: 13px; color: var(--cinza); }
+.cli-nome:hover { background: var(--nevoa); }
+.cli-nome.on { border-color: var(--marinho); background: var(--menta-2); }
+.cli-nome:focus-visible { outline: 3px solid var(--verde); outline-offset: 1px; }
+.cli-sub { font: 700 13px var(--f-placa); letter-spacing: .16em; text-transform: uppercase; color: var(--cinza); margin-top: 6px; }
+.cli-props { display: grid; gap: 8px; }
+.cli-prop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 14px; padding: 12px 14px; border: 1.5px solid var(--linha); border-radius: 12px; }
+.cli-prop > div:first-child { display: grid; gap: 3px; min-width: 0; flex: 1 1 260px; }
+.cli-prop .cia-tag { justify-self: start; font-size: 12px; padding: 3px 10px; }
+.cli-prop b { color: var(--marinho); font-size: 16px; }
+.cli-prop span { font-size: 13px; color: var(--cinza); }
+.cli-aberta { color: var(--verde-txt) !important; font-weight: 700; }
+.cli-acoes { display: flex; gap: 8px; align-items: center; }
+.cli-acoes .btn { min-height: 40px; padding: 6px 14px; }
+
+@media (max-width: 940px) {
+  .cli, .pac-grade { grid-template-columns: minmax(0, 1fr); }
+  .grade3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .tipo { min-width: 0; flex: 1 1 140px; }
+  .tipo-cot #nova-cot { margin-left: 0; flex-basis: 100%; }
+  .grade3, .grade2 { grid-template-columns: minmax(0, 1fr); }
+  .pac-linha { grid-template-columns: 110px minmax(0, 1fr); }
+  .pac-linha .tira { grid-column: 1 / -1; justify-self: start; }
+  .pp-fotos3.n3, .pp-fotos3.n2 { grid-template-columns: 1fr 1fr; }
+}
+@media print {
+  .pp-pacote .pp-sec { break-inside: auto; }
+  .pp-pacote .pp-card { break-inside: avoid; }
+}
