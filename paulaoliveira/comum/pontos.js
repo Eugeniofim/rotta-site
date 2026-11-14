@@ -149,6 +149,14 @@
         '<details class="ent-outro"><summary>Usar outro e-mail</summary><form onsubmit="Pontos._entEmail(event)"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Entrar</button></form></details>' +
         '<button type="button" class="ent-depois" onclick="Pontos._entPasso(\'avisos\')">Agora não</button>' +
         '<p class="ent-nota">Prévia: o botão do Google entra com uma conta de exemplo.</p>';
+    } else if (qual === 'cadastro') {
+      h = '<p class="ent-sobre">' + esc(c.loja) + '</p><h1>Só mais um passo</h1>' +
+        '<p>Com o seu WhatsApp, as compras que você fizer na loja viram pontos sozinhas. E no seu aniversário tem presente.</p>' +
+        '<form onsubmit="Pontos._entCadastro(event)"><label class="campo">WhatsApp com DDD<input required name="wa" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999" oninput="Rec.mascaraTel(this)"></label>' +
+        '<label class="campo">Aniversário (opcional, +' + regras(m).aniversario + ' pontos)<input name="d" type="date" autocomplete="bday"></label>' +
+        '<label class="op"><input type="checkbox" name="em">Quero receber lançamentos e novidades por e-mail.</label>' +
+        '<button class="acao">Continuar</button></form>' +
+        '<button type="button" class="ent-depois" onclick="Pontos._entPasso(\'avisos\')">Pular</button>';
     } else if (qual === 'avisos') {
       var r = regras(m), sem = !suportaAvisos(), negado = permissao() === 'denied';
       h = '<p class="ent-sobre">' + esc(c.loja) + '</p><h1>' + esc(c.avisoTitulo) + '</h1>' +
@@ -173,7 +181,15 @@
     ent.dataset.passo = qual;
     var foco = ent.querySelector('h1'); if (foco) { foco.setAttribute('tabindex', '-1'); foco.focus({ preventScroll: true }); }
   }
-  function proximoDepoisDoLogin() { passo(permissao() === 'granted' ? 'pronto' : 'avisos'); }
+  function proximoDepoisDoLogin() { if (CFG[entM].pedeCelular && !estado(entM).feitos.celular) return passo('cadastro'); passo(permissao() === 'granted' ? 'pronto' : 'avisos'); }
+  function cadastro(e) {
+    e.preventDefault();
+    var f = e.target, m = entM, s = estado(m);
+    s.feitos.celular = f.wa.value.trim(); s.feitos.emailOk = !!f.em.checked; salva(m, s);
+    var c = logado(m); if (c) Rec.entrar(m, Object.assign({}, c, { wa: s.feitos.celular }));
+    if (f.d.value) { marca(m, 'nascimento', f.d.value); ganhar(m, 'aniversario', regras(m).aniversario, 'Contou o aniversário', true); }
+    passo(permissao() === 'granted' ? 'pronto' : 'avisos');
+  }
   function entrada(m, forcar) {
     if (ent) return;
     if (!forcar && ler('pp_entrada_' + m)) return;
@@ -373,7 +389,8 @@
     _entGoogle: function () { google(entM, proximoDepoisDoLogin); },
     _entEmail: function (e) { e.preventDefault(); Rec.entrar(entM, { nome: e.target.nome.value.trim(), email: e.target.email.value.trim() }); avisa(); proximoDepoisDoLogin(); },
     _entAvisos: function () { ativarAvisos(entM, function () { passo('pronto'); }); },
-    _entPasso: passo, _entFim: fechaEntrada
+    _entPasso: passo, _entFim: fechaEntrada, _entCadastro: cadastro, estado: estado,
+    debitar: function (m, pts, t) { var s = estado(m); s.extrato.unshift({ t: t, pts: -Math.abs(pts), em: hoje() }); salva(m, s); }
   };
 
   /* abre a entrada: no app instalado (1ª vez) ou com ?app=1 no endereço (para mostrar na prévia) */
