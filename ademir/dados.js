@@ -109,13 +109,18 @@
   const BASE = (typeof CODIGOS !== 'undefined' && CODIGOS) || (typeof require === 'function' ? (() => { try { return require('./codigos.js'); } catch (e) { return null; } })() : null);
   if (BASE) {
     for (const [k, v] of Object.entries(BASE.cias)) if (!CIAS[k]) CIAS[k] = v;
-    for (const [k, v] of Object.entries(BASE.aeroportos)) if (!AEROPORTOS[k]) AEROPORTOS[k] = v;
+    for (const [k, v] of Object.entries(BASE.aeroportos)) {
+      if (!AEROPORTOS[k]) AEROPORTOS[k] = v;
+      else if (!AEROPORTOS[k][3] && v[3]) AEROPORTOS[k][3] = v[3];   /* o país vem da base: a tabela de fee da CNT pergunta por ele */
+    }
     for (const [k, v] of Object.entries(BASE.avioes)) if (!AERONAVES[k]) AERONAVES[k] = v;
   }
 
   /* a sala 'ademir' no Supabase do estúdio. A chave é a publicável (pública por desenho): quem protege
      os dados é a regra do banco, que só deixa o dono logado ler e escrever. */
-  const NUVEM = { url: 'https://uopfqlogjzuqpabptxkb.supabase.co', chave: 'sb_publishable_VKIdd2RNpMf3e4IEDprxJw_TOKPIHT2', sala: 'ademir' };
+  /* login: o Ademir digita só o PIN de 6 números; o e-mail é interno, fixo aqui, e não recebe mensagem nenhuma */
+  const NUVEM = { url: 'https://uopfqlogjzuqpabptxkb.supabase.co', chave: 'sb_publishable_VKIdd2RNpMf3e4IEDprxJw_TOKPIHT2', sala: 'ademir',
+    login: 'painel.simonetta@rottaguide.com' };
 
   return { CIAS, AEROPORTOS, AERONAVES, AGENCIA, HOTEIS, FOTOS_DESTINO, NUVEM };
 });

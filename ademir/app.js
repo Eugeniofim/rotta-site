@@ -292,6 +292,7 @@
       <button class="tipo${pacote ? ' on' : ''}" data-tipo-cot="pacote" role="radio" aria-checked="${pacote}"><b>Pacote ou grupo</b><span>Valor por quarto, hotéis, roteiro e passeios</span></button>
       <button class="btn fantasma" id="nova-cot">Nova cotação</button>
     </div>
+    <section class="para-quem" id="para-quem" aria-label="Para quem é a cotação"></section>
     ${pacote ? '<section class="pac" id="pac"></section>' : ''}
     <div class="cot">
       <section class="col-term">
@@ -309,6 +310,7 @@
 
     $$('[data-tipo-cot]').forEach(b => b.onclick = () => { E.cot.tipo = b.dataset.tipoCot; salva(); telaCotacao(); });
     $('#nova-cot').onclick = () => { const tipo = E.cot.tipo; E.cot = novaCot(); E.cot.tipo = tipo; R = null; E.texto = ''; salva(); telaCotacao(); aviso('Cotação nova em branco. A anterior está guardada em Clientes.'); };
+    pintaParaQuem();
     if (pacote) pintaPacote();
     const tela = $('#tela');
     let t;
@@ -321,6 +323,37 @@
     });
     if (E.texto && !R) R = rascunhoDe(E.texto);
     pintaLido(); pintaMontagem();
+  }
+
+  /* cliente, destino e passageiros ficam no topo: o nome do cliente é o que guarda a cotação na ficha */
+  function notaCliente() {
+    const n = (E.cot.cliente || '').trim();
+    if (!n) return 'Com o nome do cliente, a cotação entra sozinha na ficha dele em Clientes.';
+    const c = E.clientes.find(x => norm(x.nome) === norm(n));
+    if (!c) return 'Cliente novo: a ficha dele é criada sozinha em Clientes.';
+    const q = propostasDe(c.id).filter(p => p.id !== E.cot.id).length;
+    return `Já é cliente: entra na ficha de <a href="#/clientes">${esc(c.nome)}</a>${q ? ` (${q} cotaç${q === 1 ? 'ão' : 'ões'} antes desta)` : ''}.`;
+  }
+  function pintaParaQuem() {
+    const el = $('#para-quem'); if (!el) return;
+    const c = E.cot;
+    el.innerHTML = `
+      <label class="pq-cli">Cliente<input id="q-cliente" list="q-clientes" value="${esc(c.cliente)}" placeholder="Nome de quem pediu" autocomplete="off"></label>
+      <datalist id="q-clientes">${E.clientes.map(x => `<option value="${esc(x.nome)}">`).join('')}</datalist>
+      <label>Destino<input id="q-destino" value="${esc(c.destino)}" placeholder="sai sozinho dos voos"></label>
+      <label class="pq-pax">Passageiros<input id="q-pax" type="number" inputmode="numeric" min="1" max="999" value="${c.pax}"></label>
+      <p class="pq-nota" id="q-nota">${notaCliente()}</p>`;
+    $('#q-cliente').oninput = (e) => { c.cliente = e.target.value; e.target.classList.remove('falta'); $('#q-nota').innerHTML = notaCliente(); salva(); pintaMontagem(); };
+    $('#q-destino').oninput = (e) => { c.destino = e.target.value; salva(); };
+    $('#q-pax').oninput = (e) => { c.pax = Math.max(1, +e.target.value || 1); salva(); pintaPrevia(); };
+  }
+  /* depois de pôr voos, o destino e os passageiros podem ter vindo do Amadeus */
+  function atualizaParaQuem() {
+    const d = $('#q-destino'), p = $('#q-pax');
+    if (d && document.activeElement !== d) d.value = E.cot.destino || '';
+    if (p && document.activeElement !== p) p.value = E.cot.pax;
+    if (!(E.cot.cliente || '').trim()) { const c = $('#q-cliente'); if (c) { c.classList.add('falta'); aviso('Entrou. Falta o nome do cliente, lá em cima, para guardar na ficha.'); } return false; }
+    return true;
   }
 
   function pintaLido() {
@@ -339,7 +372,7 @@
         <div class="voos">${trs.map((x, i) => trechoHtml(x, rots[i])).join('')}</div>
         ${l.segmentos.length ? `<button class="btn primario" id="add-voos"${ja ? ' disabled' : ''}>${ja ? 'Estes voos já estão no pacote' : 'Usar estes voos no pacote'}</button>` : '<p class="alerta">Não achei os voos. Cole a tela do RT.</p>'}`;
       const b = $('#add-voos');
-      if (b && !ja) b.onclick = () => { if (adicionaVoosPacote()) { aviso('Voos no pacote'); R = null; E.texto = ''; $('#tela').value = ''; salva(); pintaLido(); pintaMontagem(); } };
+      if (b && !ja) b.onclick = () => { if (adicionaVoosPacote()) { if (atualizaParaQuem()) aviso('Voos no pacote'); R = null; E.texto = ''; $('#tela').value = ''; salva(); pintaLido(); pintaMontagem(); } };
       return;
     }
     const igual = opcaoIgual();
@@ -396,9 +429,20 @@
         const b = $('.cnt-linhas'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-      if (adicionaRascunho()) { aviso('Entrou na proposta'); R = null; E.texto = ''; $('#tela').value = ''; salva(); pintaLido(); pintaMontagem(); $('#montagem').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+      if (adicionaRascunho()) { if (atualizaParaQuem()) aviso('Entrou na proposta'); R = null; E.texto = ''; $('#tela').value = ''; salva(); pintaLido(); pintaMontagem(); $('#montagem').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
     };
     pintaPrevia();
+  }
+
+  /* a viagem, do jeito que a tabela de fee da CNT pergunta */
+  function viagemDe(l, cab) {
+    const segs = l.segmentos; if (!segs.length) return null;
+    const tr = Amadeus.trechos(segs, AEROPORTOS), dest = tr[0].segmentos[tr[0].segmentos.length - 1].destino;
+    const pais = (c) => (AEROPORTOS[c] || [])[3] || '';
+    const dias = segs[0].data ? Math.round((dt(segs[0].data) - new Date(HOJE.toDateString() + ' 12:00')) / 864e5) : null;
+    return { dest, pais: pais(dest), cidade: cidade(dest), orig: segs[0].origem, origemBR: pais(segs[0].origem) === 'BR',
+      interno: segs.every(s => pais(s.origem) === 'BR' && pais(s.destino) === 'BR'), online: segs.every(s => s.cia === l.cia),
+      classes: [...new Set(segs.map(s => s.classe).filter(Boolean))], cabine: cab, familia: l.tarifa.familia || '', dias };
   }
 
   /* bloco "CNT · companhia" da cotação: de onde saíram as parcelas e o fee */
@@ -424,15 +468,18 @@
     } else if (p) parc = `<div class="cnt-item"><h4>Parcelamento</h4><p>A CNT não lista a ${esc(nome)} na página de parcelamento. Preencha as parcelas à mão.</p></div>`;
     if (c.cond) {
       const unico = c.feeUnico != null;
+      const sug = !unico && window.CNT_LINHA ? CNT_LINHA.sugere(c.cond, viagemDe(R.l, R.cabine)) : null;
       const lista = c.cond.map((x, i) => {
         const ganho = [x.incentivo ? 'incentivo ' + pctBr(x.incentivo) : '', x.comissao ? 'comissão ' + pctBr(x.comissao) : ''].filter(Boolean).join(' · ');
-        const miolo = `<span class="desc">${esc(x.descricao)}</span><span class="nums"><b>fee ${x.fee}</b>${ganho ? `<i>${ganho}</i>` : ''}</span>`;
-        return unico ? `<li class="cnt-linha">${miolo}</li>` : `<label class="cnt-linha"><input type="radio" name="cnt-cond" value="${i}"${R.condIdx === i ? ' checked' : ''}>${miolo}</label>`;
+        const s = sug && sug.idx === i;
+        const miolo = `<span class="desc">${s ? '<em class="sug-tag">bate com a viagem</em>' : ''}${esc(x.descricao)}</span><span class="nums"><b>fee ${x.fee}</b>${ganho ? `<i>${ganho}</i>` : ''}</span>`;
+        return unico ? `<li class="cnt-linha">${miolo}</li>` : `<label class="cnt-linha${s ? ' sug' : ''}"><input type="radio" name="cnt-cond" value="${i}"${R.condIdx === i ? ' checked' : ''}>${miolo}</label>`;
       }).join('');
       cond = `<div class="cnt-item"><h4>Fee e incentivo</h4>` + (unico
         ? `<p>${c.feeUnico > 0 ? `Toda linha da ${esc(nome)} tem fee de <b>USD ${c.feeUnico}</b> por bilhete. Já somei ao preço.` : `A ${esc(nome)} não tem fee em nenhuma linha.`}</p>
            <details><summary>Ver ${c.cond.length === 1 ? 'a linha' : 'as ' + c.cond.length + ' linhas'} da tabela</summary><ul class="cnt-linhas">${lista}</ul></details>`
         : `<p>Na ${esc(nome)} o fee muda com a rota e a classe. Marque a linha que vale para esta cotação e eu somo.</p>
+           ${sug ? `<p class="cnt-sug">Pela viagem (${esc(sug.porque.filter(Boolean).join(', ') || 'rota e companhia')}), a linha em verde é a que bate. Confira e marque.${sug.duvidas ? ' Há linha que depende de tarifa privada ou base tarifária, que eu não vejo: veja se alguma vale.' : ''}</p>` : ''}
            <div class="cnt-linhas" role="radiogroup" aria-label="Linha da tabela da CNT">${lista}</div><p class="cnt-ganho" id="cnt-ganho" aria-live="polite"></p>`) + `</div>`;
     }
     const lido = [p && p.regra && p.lidoEm ? 'parcelamento lido em ' + diaNum(p.lidoEm) : '', c.cond && conds().lidoEm ? 'fee lido em ' + diaNum(conds().lidoEm) : ''].filter(Boolean).join(' · ');
@@ -486,8 +533,6 @@
         <section class="cartao"><h2>O pacote</h2>
           <div class="grade2">
             ${campo('titulo', 'Título da proposta', { ph: 'Albânia 2027 – Nome do grupo', largo: true })}
-            <label>Destino<input id="pac-destino" value="${esc(E.cot.destino)}" placeholder="Tirana"></label>
-            <label>Cliente ou grupo<input id="pac-cliente" value="${esc(E.cot.cliente)}" placeholder="Nome da empresa ou do grupo"></label>
             ${campo('minimo', 'Mínimo de pessoas', { num: true, ph: '15' })}
             <label>Moeda<select data-pac="moeda">${MOEDAS.map(([k, n]) => `<option value="${k}"${p.moeda === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
           </div></section>
@@ -523,8 +568,6 @@
     $$('[data-pac]', el).forEach(c => c.addEventListener(c.tagName === 'SELECT' ? 'change' : 'input', () => {
       poeCaminho(E.cot.pac, c.dataset.pac, c.type === 'number' ? (c.value === '' ? '' : +c.value) : c.value); salva(); pintaMontagem();
     }));
-    $('#pac-destino').oninput = (e) => { E.cot.destino = e.target.value; salva(); };
-    $('#pac-cliente').oninput = (e) => { E.cot.cliente = e.target.value; salva(); pintaMontagem(); };
     const NOVO = { precos: () => ({ valor: '', rotulo: '' }), hoteis: () => ({ nome: '', cidade: '', noites: '', regime: '', endereco: '', site: '', descricao: '', obs: '', fotos: [] }),
       dias: () => ({ titulo: '', texto: '' }), opcionais: () => ({ nome: '', preco: '', tipo: '', minimo: '', descricao: '', programa: '' }) };
     $$('[data-mais-pac]', el).forEach(b => b.onclick = () => { p[b.dataset.maisPac].push(NOVO[b.dataset.maisPac]()); salva(); pintaPacote(); });
@@ -575,17 +618,9 @@
     el.innerHTML = `
       <div class="mont-cab"><h2>Proposta em montagem</h2>
         <button class="btn fantasma" id="tudo">${E.cot.tipo === 'pacote' ? 'Montar o pacote de exemplo' : 'Montar a cotação inteira do vídeo'}</button></div>
-      <div class="mont-campos">
-        <label>Destino<input id="m-destino" value="${esc(c.destino)}" placeholder="Paris"></label>
-        <label>Cliente<input id="m-cliente" value="${esc(c.cliente)}" placeholder="Nome de quem pediu"></label>
-        <label>Passageiros<input id="m-pax" type="number" min="1" max="20" value="${c.pax}"></label>
-      </div>
       ${ops ? `<ul class="mont-ops">${ops}</ul>` : `<p class="mont-vazia">${E.cot.tipo === 'pacote' ? 'Nenhum voo ainda. Cole a tela do Amadeus e toque em “Usar estes voos no pacote”.' : 'Nenhuma opção ainda. Cole uma tela do Amadeus acima e toque em “Adicionar à proposta”.'}</p>`}
-      ${c.cliente ? `<p class="nota">Fica guardada em <a href="#/clientes">Clientes</a>, na ficha de ${esc(c.cliente)}.</p>` : '<p class="nota">Ponha o nome do cliente e a cotação fica guardada sozinha em Clientes.</p>'}
+      ${c.cliente ? `<p class="nota">Fica guardada em <a href="#/clientes">Clientes</a>, na ficha de ${esc(c.cliente)}.</p>` : '<p class="nota">Falta o nome do cliente, no topo da página, para guardar a cotação na ficha dele.</p>'}
       <a class="btn primario ${temConteudo(c) ? '' : 'apagado'}" href="#/proposta">Abrir a proposta</a>`;
-    $('#m-destino').oninput = (e) => { c.destino = e.target.value; salva(); };
-    $('#m-cliente').oninput = (e) => { c.cliente = e.target.value; salva(); };
-    $('#m-pax').oninput = (e) => { c.pax = Math.max(1, +e.target.value || 1); salva(); };
     $('#tudo').onclick = () => { if (E.cot.tipo === 'pacote') { exemploPacote(); aviso('Pacote de exemplo montado (grupo inventado)'); } else { montaExemploInteiro(); aviso('2 opções e 4 tarifas montadas'); } telaCotacao(); };
     $$('[data-tira]').forEach(b => b.onclick = () => { c.opcoes = c.opcoes.filter(o => o.id !== b.dataset.tira); salva(); pintaMontagem(); pintaLido(); });
   }
@@ -1276,9 +1311,9 @@
           <p class="${estado === 'falha' ? 'alerta' : 'certo'}">${estado === 'ok' ? 'Tudo salvo. Em qualquer computador onde você entrar, aparece igual.' : esc(ultimaFalha || TXT[estado])}</p>
           <div class="acoes"><button class="btn primario" value="ok">Fechar</button><button class="btn fantasma" type="button" id="jn-sync">Salvar agora</button><button class="tira" type="button" id="jn-sair">Sair</button></div></form>`
         : `<form method="dialog" class="jn" id="jn-form">
-          <h2>Entrar</h2><p>Com o seu login, tudo o que você faz fica salvo na nuvem e aparece em qualquer computador.</p>
-          <label>E-mail<input name="email" type="email" autocomplete="username" required></label>
-          <label>Senha<input name="senha" type="password" autocomplete="current-password" required></label>
+          <h2>Entrar no painel</h2><p>Digite o seu PIN. Em cada computador é só uma vez: depois o painel lembra de você.</p>
+          <input name="usuario" type="email" autocomplete="username" value="${esc(CFG.login || '')}" hidden>
+          <label>PIN<input name="senha" class="pin" type="password" inputmode="numeric" autocomplete="current-password" pattern="[0-9]{6}" maxlength="6" required placeholder="••••••"></label>
           <p class="alerta" id="jn-erro" hidden></p>
           <div class="acoes"><button class="btn primario" id="jn-entrar" value="">Entrar</button><button class="btn fantasma" value="x" formnovalidate>Agora não</button></div></form>`;
       if (ses) {
@@ -1291,8 +1326,10 @@
           e.preventDefault();
           const b = d.querySelector('#jn-entrar'), err = d.querySelector('#jn-erro');
           b.disabled = true; b.textContent = 'Entrando…'; err.hidden = true;
-          try { await entrar(f.email.value.trim(), f.senha.value); d.close(); aviso('Pronto: agora tudo fica salvo na nuvem.'); }
-          catch (x) { err.textContent = /invalid/i.test(x.message) ? 'E-mail ou senha não conferem.' : x.message; err.hidden = false; b.disabled = false; b.textContent = 'Entrar'; }
+          const pin = f.senha.value.replace(/\D/g, '');
+          if (pin.length !== 6) { err.textContent = 'O PIN tem 6 números.'; err.hidden = false; b.disabled = false; b.textContent = 'Entrar'; f.senha.focus(); return; }
+          try { await entrar(CFG.login, pin); d.close(); aviso('Pronto: agora tudo fica salvo na nuvem.'); }
+          catch (x) { err.textContent = /invalid/i.test(x.message) ? 'PIN errado. Confira e tente de novo.' : /rate|many/i.test(x.message) ? 'Muitas tentativas. Espere alguns minutos e tente de novo.' : x.message; err.hidden = false; b.disabled = false; b.textContent = 'Entrar'; f.senha.value = ''; f.senha.focus(); }
         });
       }
       if (!d.open) d.showModal();
