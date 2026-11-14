@@ -71,10 +71,17 @@
         <p class="destaque">A Simonetta Viagens é comandada por <b>Simonetta Occhionero</b>, com mais de três décadas de estrada.</p>
         <p>Somos especializados em roteiros personalizados e exclusivos, em viagens nacionais e internacionais, sobretudo para grupos corporativos e empresas de pequeno a grande porte.</p>
         <p>Ao longo dos anos, viramos referência no atendimento ao universo da arquitetura, do design, da decoração, da arte e do lifestyle, viajando com as principais empresas brasileiras e multinacionais do setor.</p>
-        <p class="numero"><span>180 mil</span> passageiros já embarcaram com a gente.</p>
       </div>
     </div>
+    <dl class="provas">
+      <div><dt>30<em class="mais">+</em></dt><dd>anos de estrada</dd></div>
+      <div><dt>180<em> mil</em></dt><dd>passageiros embarcados</dd></div>
+      <div><dt class="provas-texto">Brasil <em>&amp;</em> mundo</dt><dd>viagens nacionais e internacionais</dd></div>
+    </dl>
   </section>
+
+  <!-- FAIXA: os destinos passando devagar, entre as duas partes claras -->
+  <div class="faixa" aria-hidden="true"><div class="faixa-trilho"><span>Milão</span><i></i><span>Miami</span><i></i><span>Inhotim</span><i></i><span>Paris</span><i></i><span>Praga</span><i></i><span>Budapeste</span><i></i><span>Copenhague</span><i></i><span>Basileia</span><i></i><span>Lisboa</span><i></i><span>Rio de Janeiro</span><i></i><span>Milão</span><i></i><span>Miami</span><i></i><span>Inhotim</span><i></i><span>Paris</span><i></i><span>Praga</span><i></i><span>Budapeste</span><i></i><span>Copenhague</span><i></i><span>Basileia</span><i></i><span>Lisboa</span><i></i><span>Rio de Janeiro</span><i></i></div></div>
 
   <!-- PARA QUEM: o visitante escolhe o caminho, e o formulário já chega marcado -->
   <section class="caminhos" aria-labelledby="caminhos-titulo">
@@ -84,18 +91,21 @@
     </div>
     <div class="caminhos-grade">
       <a class="caminho" href="#contato" data-tipo="Grupo ou empresa">
+        <img src="img/prada.jpg" alt="Galeria de quadros da Fondazione Prada, em Milão" loading="lazy">
         <span class="caminho-tag">Empresas</span>
         <h3>Grupos corporativos e incentivo</h3>
         <p>Viagens de premiação, convenções e roteiros para equipes, de 10 a mais de 100 pessoas, com acompanhamento no destino.</p>
         <span class="caminho-ir">Pedir uma proposta <i aria-hidden="true">→</i></span>
       </a>
       <a class="caminho" href="#contato" data-tipo="Feira ou evento">
+        <img src="img/vitra.jpg" alt="Vitra Design Museum, de Frank Gehry, iluminado à noite" loading="lazy">
         <span class="caminho-tag">Arquitetura e design</span>
         <h3>Feiras, bienais e semanas de design</h3>
         <p>Salão do Móvel, Maison&amp;Objet, Art Basel: aéreo, hotel perto da feira, ingressos e visitas técnicas em grupo.</p>
         <span class="caminho-ir">Planejar a feira <i aria-hidden="true">→</i></span>
       </a>
       <a class="caminho" href="#contato" data-tipo="Pessoal">
+        <img src="img/louisiana.jpg" alt="Jardim com escultura no Louisiana Museum of Modern Art, na Dinamarca" loading="lazy">
         <span class="caminho-tag">Pessoal</span>
         <h3>A dois, em família ou com amigos</h3>
         <p>O mesmo cuidado dos grupos para a sua viagem: hotéis de design, restaurantes e um roteiro com a sua cara.</p>
@@ -167,28 +177,12 @@
       <p class="etiqueta escura">O que fazemos</p>
       <h2>Do convite ao voo de volta, ou só a parte que faltar.</h2>
     </div>
-    <div class="servicos-grade">
-      <article class="servico">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 36h36M10 36V20l14-8 14 8v16M20 36v-9h8v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        <h3>Viagem completa</h3>
-        <p>Definimos com a sua empresa o destino, o roteiro e os passeios, e cuidamos de passagens, traslados e hotéis com carinho e agilidade.</p>
-      </article>
-      <article class="servico">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 28l30-14 4 4-30 14-6-2zM16 31l3 7 4-2-1-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        <h3>Passagens</h3>
-        <p>Só o aéreo, nacional ou internacional, para grupos pequenos, médios e grandes: os melhores horários e o melhor custo, com atenção do início ao fim.</p>
-      </article>
-      <article class="servico">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="20" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M24 42s-13-11.5-13-22a13 13 0 0 1 26 0c0 10.5-13 22-13 22z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-        <h3>Programação no destino</h3>
-        <p>Já tem voo e hotel? Escolhemos e reservamos os museus, restaurantes e passeios mais exclusivos para o grupo.</p>
-      </article>
-      <article class="servico">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V12h20v28M28 20h12v20M14 18h4M14 25h4M14 32h4M33 26h3M33 33h3M5 40h38" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        <h3>Hotéis</h3>
-        <p>Butique, histórico ou de design: o lugar certo, bem localizado e no orçamento do grupo.</p>
-      </article>
-    </div>
+    <ul class="servicos-lista">
+      <li class="servico"><figure><img src="img/amanha.jpg" alt="Museu do Amanhã, no Rio de Janeiro, ao anoitecer" loading="lazy"></figure><h3>Viagem completa</h3><p>Definimos com a sua empresa o destino, o roteiro e os passeios, e cuidamos de passagens, traslados e hotéis com carinho e agilidade.</p></li>
+      <li class="servico"><figure><img src="img/paris.jpg" alt="Paris ao entardecer, com a Torre Eiffel" loading="lazy"></figure><h3>Passagens</h3><p>Só o aéreo, nacional ou internacional, para grupos pequenos, médios e grandes: os melhores horários e o melhor custo, com atenção do início ao fim.</p></li>
+      <li class="servico"><figure><img src="img/praga.jpg" alt="Ponte Carlos, em Praga" loading="lazy"></figure><h3>Programação no destino</h3><p>Já tem voo e hotel? Escolhemos e reservamos os museus, restaurantes e passeios mais exclusivos para o grupo.</p></li>
+      <li class="servico"><figure><img src="img/hotel.jpg" alt="Saguão de hotel com lustre de cristal" loading="lazy"></figure><h3>Hotéis</h3><p>Butique, histórico ou de design: o lugar certo, bem localizado e no orçamento do grupo.</p></li>
+    </ul>
   </section>
 
   <!-- COMO FUNCIONA: uma sequência de verdade, por isso numerada -->
@@ -250,7 +244,7 @@
   <img src="img/logo-original.png" alt="Simonetta Viagens" width="553" height="138" loading="lazy">
   <p>Simonetta Viagens e Turismo · São Paulo, SP</p>
   <p class="redes-rodape"><a href="https://www.instagram.com/simonettaviagens/" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/simonettaviagens/" target="_blank" rel="noopener">Facebook</a> · <a href="https://wa.me/5511998410681" target="_blank" rel="noopener" data-zap>WhatsApp</a></p>
-  <p class="creditos">Fotos: Bruno Cordioli (CC BY 2.0), Robbschultz69 (CC BY-SA 4.0), Carlos Varela (CC BY 2.0), Valerii Tkachenko (CC BY 2.0), Prolete (CC0), via Wikimedia Commons; Unsplash. Site por Ti Artes.</p>
+  <p class="creditos">Fotos: Sailko (CC BY 3.0), Taxiarchos228 (FAL), Lars Plougmann (CC BY-SA 2.0), Basile Morin (CC BY-SA 4.0), Bruno Tamm Rabello (CC BY-SA 4.0), Bruno Cordioli (CC BY 2.0), Robbschultz69 (CC BY-SA 4.0), Carlos Varela (CC BY 2.0), Valerii Tkachenko (CC BY 2.0), Prolete (CC0), via Wikimedia Commons; Unsplash. Site por Ti Artes.</p>
 </footer>
 
 <a class="zap-flutuante" href="https://wa.me/5511998410681" target="_blank" rel="noopener" aria-label="Falar com a Simonetta no WhatsApp" data-zap>

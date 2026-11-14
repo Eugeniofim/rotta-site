@@ -73,9 +73,9 @@
     gsap.from('.caminho', { opacity: 0, y: 40, stagger: 0.09, duration: 0.8, ease: 'power2.out', scrollTrigger: { trigger: '.caminhos-grade', start: 'top 85%' } });
     gsap.from('.agenda-linha li', { opacity: 0, y: 24, stagger: 0.07, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: '.agenda-linha', start: 'top 85%' } });
     gsap.from('.passos-lista li', { opacity: 0, y: 30, stagger: 0.12, duration: 0.7, ease: 'power2.out', scrollTrigger: { trigger: '.passos-lista', start: 'top 85%' } });
+    gsap.from('.provas > div', { opacity: 0, y: 40, stagger: 0.12, duration: 0.9, ease: 'power2.out', scrollTrigger: { trigger: '.provas', start: 'top 85%' } });
     $$('.quem-texto > *, .servico, .servicos-cab, .contato-texto, .pedido').forEach((el) =>
       gsap.from(el, { opacity: 0, y: 36, duration: 0.9, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 88%' } }));
-    gsap.from('.servico', { rotationX: -18, transformOrigin: '50% 100%', stagger: 0.08, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.servicos-grade', start: 'top 85%' } });
   }
 
   /* ---------- formulário: grava o pedido no painel da agência e abre o WhatsApp ---------- */
