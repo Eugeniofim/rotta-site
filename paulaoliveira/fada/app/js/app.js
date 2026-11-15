@@ -150,12 +150,19 @@ function produto(id){
   ${notas.length?`<h2 class="rotulo rv" style="margin-top:22px">Notas</h2><div class="notas rv">${notas.map(n=>`<span>${esc(n)}</span>`).join('')}</div>`:''}
   ${hist.length?`<div class="p-hist rv">${hist.map(t=>`<p>${esc(t)}</p>`).join('')}</div>`:''}
  </article>
- ${sim.length?`<section class="secao"><h2 class="rv">Combina com</h2><div class="trilho">${sim.map(cartaoP).join('')}</div></section>`:''}`
+ ${sim.length?`<section class="secao"><h2 class="rv">Combina com</h2><div class="trilho">${sim.map(cartaoP).join('')}</div></section>`:''}
+ <div class="p-compra" id="p-compra"><div class="pc-preco"><b>${R(p.preco)}</b><small>${esc(p.status==='disponivel'?Loja.parcela(p.preco,4).replace(/ sem juros$/,''):p.status==='estreia'?quando(p.estreia):p.fila?p.fila+' na fila':'Foi com a maré')}</small></div>${botaoP(p)}</div>`
+}
+/* o botão de compra mora na cápsula de vidro do pé da página (revisão de 15/11/2026: no iPhone, o botão da
+   folha ficava atrás do menu de baixo na primeira tela). Na folha fica só a explicação. */
+function botaoP(p){
+ if(p.status==='disponivel')return `<button class="acao" onclick="colocar('${p.id}')">Colocar na sacola</button>`;
+ return `<button class="acao" onclick="fila('${p.id}')">Entrar na fila</button>`
 }
 function acaoP(p){
- if(p.status==='disponivel')return `<button class="acao" onclick="colocar('${p.id}')">Colocar na sacola</button>`;
- if(p.status==='estreia')return `<button class="acao" onclick="fila('${p.id}')">Me avise quando abrir</button><p class="miudo">Lote de ${p.lote||'poucas'} unidades. Membros entram 1 hora antes.</p>`;
- return `<button class="acao" onclick="fila('${p.id}')">Me avise quando voltar</button><p class="miudo">Volta em lote pequeno. Quem está na fila sabe antes de todo mundo.</p>`
+ if(p.status==='disponivel')return '';
+ if(p.status==='estreia')return `<p class="miudo">Lote de ${p.lote||'poucas'} unidades. Quem entra na fila recebe o aviso, e membros do Clube entram 1 hora antes.</p>`;
+ return `<p class="miudo">Volta em lote pequeno. Quem está na fila recebe o aviso antes de todo mundo.</p>`
 }
 
 function escola(){return `<header class="cab">${EST}<h1 class="titulo">Escola da Fada</h1><p class="lead">Cursos de perfumaria, cosméticos naturais e formulações botânicas.</p></header>
@@ -286,7 +293,7 @@ function contaSacola(){const it=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.
  if(cupomEscolhido&&!cs.find(c=>c.id===cupomEscolhido))cupomEscolhido=null;if(cupomEscolhido===null&&cs.length)cupomEscolhido=cs[0].id;
  const cp=cs.find(c=>c.id===cupomEscolhido),desc=cp&&typeof cp.valor==='number'&&sub>=100?cp.valor:0;return {it,sub,cs,br,cp,desc,v:sub-desc}}
 function abreSacola(){const {it,sub,cs,br,cp,desc,v}=contaSacola();
- abre(`<h2>Sacola</h2>${it.length?`<ul class="itens">${it.map(x=>`<li>${fotoTag(x.p.fotos[0],240,'')}<div><b>${esc(x.p.nome)}</b><small class="miudo">${esc(x.p.medida)} · ${R(x.p.preco)}</small></div><div class="qtd"><button onclick="qtd('${x.id}',-1)" aria-label="Tirar um">−</button><b>${x.qtd}</b><button onclick="qtd('${x.id}',1)" aria-label="Colocar mais um">+</button></div></li>`).join('')}</ul>${br.length?`<ul class="itens">${br.map(b=>`<li class="li-brinde"><span class="brinde-ic">${EST}</span><div><b>${esc(b.t)}</b><small class="miudo">Brinde do Clube da Fada</small></div><b>R$ 0</b></li>`).join('')}</ul>`:''}
+ abre(`<h2>Sacola</h2>${it.length?`<ul class="itens">${it.map(x=>`<li>${fotoTag(x.p.fotos[0],240,'')}<div><b>${esc(x.p.nome)}</b><small class="miudo">${esc(x.p.medida)}<br>${R(x.p.preco)}</small></div><div class="qtd"><button onclick="qtd('${x.id}',-1)" aria-label="Tirar um">−</button><b>${x.qtd}</b><button onclick="qtd('${x.id}',1)" aria-label="Colocar mais um">+</button></div></li>`).join('')}</ul>${br.length?`<ul class="itens">${br.map(b=>`<li class="li-brinde"><span class="brinde-ic">${EST}</span><div><b>${esc(b.t)}</b><small class="miudo">Brinde do Clube da Fada</small></div><b>R$ 0</b></li>`).join('')}</ul>`:''}
  ${cs.length?`<div class="cupons-s">${cs.map(c=>`<label class="op"><input type="radio" name="cp" ${cp&&cp.id===c.id?'checked':''} onchange="cupomEscolhido='${c.id}';abreSacola()"><span><b>${c.codigo}</b> · ${esc(c.t)}${typeof c.valor==='number'&&sub<100?' (compras acima de R$ 100)':''}</span></label>`).join('')}<label class="op"><input type="radio" name="cp" ${cp?'':'checked'} onchange="cupomEscolhido='';abreSacola()"><span>Guardar o cupom para depois</span></label></div>`:''}
  ${desc?`<div class="soma" style="font-weight:500;font-size:15px"><span>Cupom ${cp.codigo}</span><span>−${R(desc)}</span></div>`:''}${cp&&cp.valor==='frete'?`<div class="soma" style="font-weight:500;font-size:15px"><span>Frete</span><span>Grátis</span></div>`:''}
  <div class="soma"><span>Total</span><span>${R(v)}</span></div><p class="miudo">${Loja.parcela(v,4)} ou Pix. Rende ${Pontos.rende(M,v).toLocaleString('pt-BR')} pontos no Clube da Fada.</p><button class="acao" onclick="pagar()">Finalizar compra</button>`:'<p>Sua sacola está vazia.</p><a class="acao" href="#/loja" onclick="dlg.close()">Ver a loja</a>'}`)}

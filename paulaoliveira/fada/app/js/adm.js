@@ -40,16 +40,18 @@
   function alvo(k) { const p = publicos().find(x => x[0] === k); if (p) return p; if (/^pessoa:/.test(k)) { const m = membros().find(x => x.id === k.slice(7)); return [k, m ? m.nome : 'Uma cliente', 1]; } return publicos()[0]; }
   function quandoTx(iso) { const d = new Date(iso); return d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).replace('.', '') + ', ' + String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0'); }
   function presentes() { return Est.ler().cupons; }
+  /* quem está usando este aparelho também é membro: conta nos números do painel (antes: 20 membros, mas 19 nos níveis) */
+  function eu() { if (!Rec.conta(M)) return null; const nm = Pontos.meu(M).nivel.atual.n; return { nivelI: Math.max(0, NIVEIS().findIndex(x => x.n === nm)), push: Pontos.permissao() === 'granted' }; }
 
   /* ---------- abas ---------- */
   function hoje() {
-    const ms = membros(), push = ms.filter(m => m.push).length, abertos = ms.reduce((s, m) => s + m.pts, 0) + Pontos.meu(M).saldo;
+    const ms = membros(), e = eu(), total = ms.length + (e ? 1 : 0), push = ms.filter(m => m.push).length + (e && e.push ? 1 : 0), abertos = ms.reduce((s, m) => s + m.pts, 0) + Pontos.meu(M).saldo;
     const sep = presentes().filter(c => c.tipo === 'brinde' && !c.entregue).length, l = lanc()[0], lp = l && Loja.produto(M, l.produto);
     const env = Est.ler().avisos.slice().sort((a, b) => a.quando < b.quando ? 1 : -1).slice(0, 3), h = new Date().getHours();
     return `<header class="adm-cab"><p class="rotulo">${h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'}, Paula</p><h1>O Clube hoje</h1></header>
     <div class="kpis">
-     <div class="kpi"><span>Membros</span><b>${n(ms.length + 1)}</b></div>
-     <div class="kpi"><span>Com avisos ligados</span><b>${n(push)}</b><small>${Math.round(100 * push / Math.max(1, ms.length))}% dos membros</small></div>
+     <div class="kpi"><span>Membros</span><b>${n(total)}</b></div>
+     <div class="kpi"><span>Com avisos ligados</span><b>${n(push)}</b><small>${Math.round(100 * push / Math.max(1, total))}% dos membros</small></div>
      <div class="kpi"><span>Pontos em aberto</span><b>${n(abertos)}</b></div>
      <a class="kpi" href="#/adm/clube"><span>Brindes para separar</span><b>${sep}</b>${sep ? '<small>Ver quem →</small>' : ''}</a>
     </div>
@@ -109,7 +111,7 @@
      <label class="campo">Perfume<select name="p">${esg.map(p => `<option value="${p.id}">${esc(p.nome)}${p.fila ? ' · ' + p.fila + ' na fila' : ''}</option>`).join('')}</select></label>
      <label class="campo">Dia e hora<input type="datetime-local" name="q" required value="${v}"></label>
      <label class="campo">Quantas unidades<input name="u" inputmode="numeric" required value="60"></label>
-     <button class="acao">Marcar o lote e os avisos</button></form></section>`;
+     <button class="acao">Marcar o lote</button></form></section>`;
   }
 
   function clube() {
@@ -117,7 +119,7 @@
     const RG = [['compra', 'Pontos por real gasto'], ['app', 'Baixar o app'], ['avisos', 'Ligar os avisos'], ['voto', 'Votar no próximo lote'], ['senha', 'Entrar na fila de um lote'], ['aniversario', 'Contar o aniversário'], ['aniversarioMes', 'No mês do aniversário'], ['avaliar', 'Avaliar um perfume'], ['amiga', 'Amiga que comprou']];
     const sep = ps.filter(c => c.tipo === 'brinde' && !c.entregue), cup = ps.filter(c => c.tipo === 'cupom');
     return `<header class="adm-cab"><h1>Clube da Fada</h1><p class="miudo">Cada compra vira ponto. Os pontos viram desconto ou brinde. Você decide quanto vale cada coisa.</p></header>
-    <div class="kpis kpis-3">${NIVEIS().map((x, i) => `<div class="kpi"><span>${x.n}${x.de ? ' · ' + n(x.de) + '+' : ''}</span><b>${ms.filter(m => m.nivelI === i).length}</b></div>`).join('')}</div>
+    <div class="kpis kpis-3">${NIVEIS().map((x, i) => `<div class="kpi"><span>${x.n}${x.de ? ' · ' + n(x.de) + '+' : ''}</span><b>${ms.filter(m => m.nivelI === i).length + (eu() && eu().nivelI === i ? 1 : 0)}</b></div>`).join('')}</div>
     ${sep.length ? `<section class="bl"><h2>Brindes para separar</h2><ul class="hist">${sep.map(c => `<li><div><b>${esc(c.t)}</b><span>${esc(c.nome)} · vai junto no próximo pedido</span><small>Trocado em ${quandoTx(c.em)}${c.usado ? ' · pedido já feito' : ''}</small></div><button class="mini-b" onclick="Adm.separado('${c.id}')">Separado</button></li>`).join('')}</ul></section>` : ''}
     <section class="bl"><h2>Quanto vale cada coisa</h2><div class="regras">${RG.map(([k, t]) => `<label class="rg"><span>${t}</span><input inputmode="numeric" value="${r[k]}" onchange="Adm.pts('regras','${k}',this.value)"></label>`).join('')}</div></section>
     <section class="bl"><h2>Prêmios <small>em pontos</small></h2><div class="regras">${pr.map(p => `<label class="rg"><span>${esc(p.t)}<small>${p.tipo === 'cupom' ? 'Cupom na loja' : 'Brinde no pedido'}</small></span><input inputmode="numeric" value="${p.pts}" onchange="Adm.pts('premios','${p.id}',this.value)"></label>`).join('')}</div></section>

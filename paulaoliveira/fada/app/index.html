@@ -4,12 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Fada Marinha</title>
-<meta name="description" content="O app da Fada Marinha: perfumaria botânica, cosméticos naturais, Escola da Fada e Receitas exclusivas para membros.">
+<meta name="description" content="Baixe o app da Fada Marinha e ganhe pontos: cada compra vira ponto, e os pontos viram presentes. Perfumes, Escola da Fada e Receitas exclusivas.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F5EBDF">
-<meta property="og:title" content="Fada Marinha · o app">
-<meta property="og:description" content="Perfumes, Escola da Fada, Receitas exclusivas e o Clube da Fada.">
-<meta property="og:image" content="compartilhar.jpg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fada Marinha">
+<meta property="og:url" content="https://rottaguide.com/paulaoliveira/fada/app/">
+<meta property="og:title" content="Baixe o app da Fada Marinha e ganhe pontos">
+<meta property="og:description" content="Cada compra vira ponto, e os pontos viram presentes. Ganhe 50 pontos ao baixar. Grátis, direto pelo link.">
+<meta property="og:image" content="https://rottaguide.com/paulaoliveira/fada/app/compartilhar-app.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Baixe o app da Fada Marinha e ganhe pontos: o app no celular e o aviso de 50 pontos de boas-vindas">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icone-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -22,7 +30,7 @@
 <link rel="preload" as="image" href="arte/agua.webp">
 <style>
 /* Paleta e letras tiradas da prancha que a Fada mandou: creme, areia, azul-claro, ardósia, pérola; Montserrat + Cormorant Garamond */
-:root{--creme:#F5EBDF;--creme2:#EFE2D3;--cartao:#FBF5EE;--areia:#D9BC9A;--azul:#B9C9CC;--ardosia:#5F7D82;--perola:#E9D9D1;--ouro:#A98451;--ouro-c:#C9A46A;--ouro-e:#7A5A2E;--tinta:#33241A;--tinta2:#6F5B4A;--linha:#33241a1c;
+:root{--creme:#F5EBDF;--creme2:#EFE2D3;--cartao:#FBF5EE;--areia:#D9BC9A;--azul:#B9C9CC;--ardosia:#5F7D82;--ardosia-t:#46626A;--perola:#E9D9D1;--ouro:#A98451;--ouro-c:#C9A46A;--ouro-e:#7A5A2E;--tinta:#33241A;--tinta2:#6F5B4A;--linha:#33241a1c;
  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Montserrat',system-ui,-apple-system,sans-serif;
  --topo:calc(56px + env(safe-area-inset-top));--nav:calc(66px + env(safe-area-inset-bottom));--ease:cubic-bezier(.2,.8,.2,1);
  --dourado:linear-gradient(180deg,#A07D4E,#7E5D34)}
@@ -71,7 +79,7 @@ body.sem-topo .topo{display:none}
 .cab .lead{max-width:24ch;margin:10px auto 0}
 .secao{padding:28px 18px 0}
 .secao h2{font:italic 500 28px/1.05 var(--serif);margin-bottom:12px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.secao h2 a{font:500 12px/1 var(--sans);font-style:normal;color:var(--ouro-e);text-decoration:none;white-space:nowrap}
+.secao h2 a{font:500 12px/1 var(--sans);font-style:normal;color:var(--ouro-e);text-decoration:none;white-space:nowrap;padding:16px 6px;margin:-16px -6px}
 
 /* botões */
 .acao{display:flex;width:100%;min-height:52px;align-items:center;justify-content:center;gap:10px;margin-top:16px;padding:0 22px;border:0;border-radius:30px;background:var(--dourado);color:#FFF8EE;font:600 12.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;text-decoration:none;box-shadow:0 12px 24px -14px #7a5a2ecc,inset 0 1px 0 #ffffff40;cursor:pointer;transition:transform .2s var(--ease),filter .2s}
@@ -81,7 +89,7 @@ body.sem-topo .topo{display:none}
 .campo{display:block;margin-top:12px;font:500 13px/1.3 var(--sans);color:var(--tinta2)}
 .campo input,.campo select,.campo textarea{display:block;width:100%;margin-top:6px;padding:13px 14px;border:0;border-radius:14px;background:#fff;color:var(--tinta);font:400 16px/1.3 var(--sans);box-shadow:inset 0 0 0 1.2px #33241a26}
 .miudo{font-size:13px;line-height:1.4;color:var(--tinta2);margin-top:10px}
-.op{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13.5px;line-height:1.35;color:var(--tinta2)}
+.op{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding-top:4px;margin-top:8px;font-size:13.5px;line-height:1.35;color:var(--tinta2)}
 .op input{margin-top:2px;accent-color:var(--ouro-e);width:18px;height:18px;flex:none}
 
 /* revelar ao rolar */
@@ -123,12 +131,12 @@ body.sem-topo .topo{display:none}
 .ladrilhos a:active{transform:scale(.96)}
 .ladrilhos .i{width:32px;height:32px;color:var(--ouro);stroke-width:1.2}
 .mare{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:14px;align-items:center;padding:20px 18px;border-radius:24px;background:linear-gradient(135deg,#EEF1EE,#E3E9E8 55%,#F1E6DA);overflow:hidden;text-decoration:none;box-shadow:0 0 0 1px #33241a0d}
-.mare .rotulo{color:var(--ardosia)}
+.mare .rotulo{color:var(--ardosia-t)}
 .mare h3{font:italic 500 32px/1 var(--serif);margin:8px 0 6px}
 .mare p{font-size:13.5px;line-height:1.4;color:var(--tinta2)}
 .mare .conta{display:flex;gap:6px;margin-top:12px}
 .mare .conta b{display:grid;place-items:center;min-width:44px;height:44px;padding:0 6px;border-radius:12px;background:#ffffffb3;font:600 16px/1 var(--sans);font-variant-numeric:tabular-nums;color:var(--tinta)}
-.mare .conta small{display:block;font:500 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2);margin-top:2px}
+.mare .conta small{display:block;font:500 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2);margin-top:2px}
 .mare .conta span{display:flex;flex-direction:column;align-items:center}
 .mare figure{position:relative;height:190px;border-radius:18px;overflow:hidden;box-shadow:0 14px 30px -18px #33241a99}
 .trilho{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 18px 14px;margin:0 -18px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -181,7 +189,7 @@ body.tela-p .topo{display:none}
 .p-flut .ib{pointer-events:auto;background:#ffffff8c;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 6px 18px -10px #33241a66}
 .p-flut .ib[aria-pressed=true]{color:#B5523E}
 .p-flut .ib[aria-pressed=true] .i{fill:currentColor}
-.p-barra{position:fixed;z-index:40;top:0;left:50%;transform:translateX(-50%);width:min(100%,480px);height:var(--topo);padding:env(safe-area-inset-top) 64px 0;display:flex;align-items:center;justify-content:center;font:italic 500 21px/1 var(--serif);background:color-mix(in srgb,var(--creme) 82%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 1px 0 var(--linha);opacity:0;pointer-events:none;transition:opacity .25s}
+.p-barra{position:fixed;z-index:40;top:0;left:50%;transform:translateX(-50%);width:min(100%,480px);height:var(--topo);padding:env(safe-area-inset-top) 64px 0;display:flex;align-items:center;justify-content:center;font:italic 500 21px/1 var(--serif);background:color-mix(in srgb,var(--creme) 93%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 1px 0 var(--linha);opacity:0;pointer-events:none;transition:opacity .25s}
 .p-barra.on{opacity:1}
 .p-tit{position:absolute;z-index:2;left:0;right:0;bottom:22px;text-align:center;padding:0 20px;will-change:transform,opacity}
 .p-tit h1{font:italic 500 50px/.95 var(--serif);color:var(--tinta)}
@@ -194,7 +202,7 @@ body.tela-p .topo{display:none}
 .p-preco{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
 .p-preco b{font:500 28px/1 var(--sans)}
 .p-preco s{display:block;font-size:13px;color:var(--tinta2);margin-bottom:4px}
-.p-preco .est{text-align:right;font:500 12px/1.35 var(--sans);color:var(--ardosia)}
+.p-preco .est{text-align:right;font:500 12px/1.35 var(--sans);color:var(--ardosia-t)}
 .p-frase{margin-top:18px;font:italic 500 23px/1.25 var(--serif)}
 .notas{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .notas span{padding:8px 13px;border-radius:18px;background:#fff9;box-shadow:inset 0 0 0 1px #33241a14;font:500 12.5px/1 var(--sans)}
@@ -305,8 +313,22 @@ body{padding-bottom:calc(64px + 30px + env(safe-area-inset-bottom))}
 .nav-pilula{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/5);border-radius:26px;background:linear-gradient(180deg,#C9A46A33,#A9845126);box-shadow:inset 0 0 0 1px #A9845140,inset 0 1px 0 #ffffffb3;transition:transform .5s var(--ease),opacity .3s}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.nav,.topo.rolou,.adm-topo{background:var(--cartao)}}
 .sacola-f{bottom:calc(64px + 24px + env(safe-area-inset-bottom))}
-#toast{bottom:calc(64px + 26px + env(safe-area-inset-bottom))}
+#toast{bottom:calc(64px + 84px + env(safe-area-inset-bottom))}
 body.modo-adm #topo,body.modo-adm #nav-app,body.modo-adm #sacola-f{display:none!important}
+
+/* ===== página do perfume: a compra numa cápsula de vidro, no lugar do menu (revisão 15/11/2026) ===== */
+body.tela-p #nav-app{display:none}
+.p-compra{position:fixed;z-index:40;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 24px),456px);min-height:64px;padding:6px 6px 6px 22px;border-radius:32px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+ background:linear-gradient(180deg,#ffffffb8,#ffffff8c),color-mix(in srgb,var(--cartao) 84%,transparent);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);
+ box-shadow:inset 0 0 0 1px #ffffffb3,inset 0 1px 0 #fff,0 18px 40px -16px #5a3f2470,0 2px 8px -4px #5a3f2433}
+.p-compra .pc-preco{display:flex;flex-direction:column;gap:4px;min-width:0}
+.p-compra .pc-preco b{font:500 19px/1 var(--sans);color:var(--tinta)}
+.p-compra .pc-preco small{font:500 12px/1.2 var(--sans);color:var(--tinta2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-compra .acao{width:auto;flex:none;margin:0;min-height:52px;padding:0 22px;letter-spacing:.16em}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.p-compra{background:var(--cartao)}}
+
+/* caixas de escolha com a cara dos campos (no iPhone vinham cinza e baixinhas) */
+.campo select{-webkit-appearance:none;appearance:none;min-height:48px;padding-right:44px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237A5A2E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center}
 
 /* ===== clube: presentes ===== */
 .pres-t{margin:30px 0 6px;font:italic 500 28px/1.05 var(--serif)}
@@ -466,13 +488,13 @@ body.modo-adm #topo,body.modo-adm #nav-app,body.modo-adm #sacola-f{display:none!
  </div>
 </section>
 
-<script src="../../comum/dados-fada.js?v=8"></script>
-<script src="../../comum/loja.js?v=8"></script>
-<script src="../../comum/instalar.js?v=8"></script>
-<script src="../../comum/recursos.js?v=8"></script>
-<script src="../../comum/pontos.js?v=8"></script>
-<script src="js/emails.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
-<script src="js/adm.js?v=8"></script>
+<script src="../../comum/dados-fada.js?v=9"></script>
+<script src="../../comum/loja.js?v=9"></script>
+<script src="../../comum/instalar.js?v=9"></script>
+<script src="../../comum/recursos.js?v=9"></script>
+<script src="../../comum/pontos.js?v=9"></script>
+<script src="js/emails.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
+<script src="js/adm.js?v=9"></script>
 </body>
 </html>
