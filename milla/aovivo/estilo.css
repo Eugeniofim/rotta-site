@@ -457,10 +457,6 @@ body.entrar .meio { padding: 0; }
 .s-venda { background: var(--s-venda); } .s-aluguel { background: var(--s-aluguel); } .s-temporada { background: var(--s-temporada); } .s-captacao { background: var(--s-captacao); } .s-outro { background: var(--s-outro); }
 .mi-gestao { margin-top: 10px; }
 .mi-gestao::after { content: ""; position: absolute; left: 12px; right: 12px; top: -6px; height: 1px; background: var(--linha); }
-.rl-abas { display: flex; gap: 6px; padding: 4px; border-radius: 14px; background: var(--sup); border: 1px solid var(--linha); width: fit-content; max-width: 100%; margin-top: -6px; }
-.rl-abas a { padding: 9px 16px; border-radius: 10px; color: var(--dim); font-weight: 600; font-size: 14px; min-height: 40px; display: inline-flex; align-items: center; }
-.rl-abas a:hover { color: var(--texto); }
-.rl-abas a.on { background: var(--sup3); color: var(--texto); box-shadow: inset 0 -2px 0 var(--ambar); }
 .rl-kpi b { font-size: 40px; }
 .rl-var { font-size: 12.5px; color: var(--dim); line-height: 1.4; }
 .rl-var i { font-style: normal; font-size: 10px; margin-right: 2px; }
@@ -543,8 +539,6 @@ body.entrar .meio { padding: 0; }
   .rl-barras li:has(img) .rl-b-trilho { grid-column: 2; }
   .rl-barras img { width: 40px; height: 40px; }
   .rl-eq th, .rl-eq td { padding: 11px 12px; }
-  .rl-abas { width: 100%; }
-  .rl-abas a { flex: 1 1 0; justify-content: center; padding: 9px 10px; }
 }
 /* 16/11: no celular o seletor longo do rodízio ("o aviso chega, mas só passa adiante…") alargava a página */
 .eq-modo-box > *:not(.eq-modo) { min-width: 0; }

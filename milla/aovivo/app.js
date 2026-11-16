@@ -33,12 +33,14 @@ const ICO = {
   gestao: 'M3 21h18M6 17v-5M11 17V6M16 17v-8M20 17v-3',
   equipe: 'M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM21 20v-1a4 4 0 0 0-3-3.9M15.5 4.1a3.5 3.5 0 0 1 0 6.8',
 };
-/* as camadas (16/11/2026): o menu tem o que a equipe usa todo dia; quem gere ganha UM item a mais,
-   Gestão, com as abas Relatórios e Equipe e acessos. No celular cabe tudo na barra (até 5). */
-const MENU = [['inicio', 'Início'], ['whats', 'WhatsApp'], ['leads', 'Leads'], ['imoveis', 'Imóveis'], ['gestao', 'Gestão']];
-const TELAS = MENU.map(([id]) => id).concat(['equipe']);
-const menuVisivel = () => MENU.filter(([id]) => id !== 'gestao' || GESTOR());
-const menuOn = (id, tela) => tela === id || (id === 'gestao' && tela === 'equipe');
+/* as camadas (16/11/2026): o menu tem o que a equipe usa todo dia; quem gere ganha mais dois itens,
+   separados por um traço: Equipe (avisos e quem entra no app, como sempre foi) e Gestão (os relatórios).
+   Cada coisa num lugar só. */
+const MENU = [['inicio', 'Início'], ['whats', 'WhatsApp'], ['leads', 'Leads'], ['imoveis', 'Imóveis'], ['equipe', 'Equipe'], ['gestao', 'Gestão']];
+const SO_GESTOR = ['equipe', 'gestao'];
+const TELAS = MENU.map(([id]) => id);
+const menuVisivel = () => MENU.filter(([id]) => !SO_GESTOR.includes(id) || GESTOR());
+const menuOn = (id, tela) => tela === id;
 const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
 
 /* ---------- estado ---------- */
@@ -150,8 +152,8 @@ function vSenhaNova() {
 function vNaoDona() {
   return `${faixaCel()}<div class="topo"><h1>App da Milla</h1></div><div class="box"><b>Esta conta ainda não tem acesso ao app da ${esc(MARCA)}.</b><div class="sm">${authEmail() ? 'Você entrou como ' + esc(authEmail()) + '. ' : ''}Peça ao responsável da ${esc(MARCA)} para pôr este e-mail em Equipe → Quem entra no app. Depois, é só entrar de novo.</div><button type="button" class="btn btn-line btn-p" data-act="sair">Sair desta conta</button></div>`;
 }
-function vSoGestor() {
-  return `${faixaCel()}<div class="topo"><h1>Gestão</h1></div><div class="box"><b>Só quem gere a ${esc(MARCA)} vê a Gestão.</b><div class="sm">Os relatórios, a equipe e quem entra no app ficam com o dono. As conversas, os leads e os imóveis estão no menu.</div></div>`;
+function vSoGestor(titulo) {
+  return `${faixaCel()}<div class="topo"><h1>${esc(titulo)}</h1></div><div class="box"><b>Só quem gere a ${esc(MARCA)} vê a ${esc(titulo)}.</b><div class="sm">Os relatórios, a equipe e quem entra no app ficam com o dono. As conversas, os leads e os imóveis estão no menu.</div></div>`;
 }
 /* quem é esta conta nesta sala: 'admin' (o estúdio), 'dono', 'corretor' ou nada */
 async function confereDona() {
@@ -197,7 +199,7 @@ function renderLado() {
   $('lado').innerHTML = `
     <a class="marca" href="#/inicio" aria-label="Milla, início">${LOGO}</a>
     <div class="conta"><span class="conta-rot">Imobiliária</span><b>${esc(MARCA)}</b><span class="online"><i aria-hidden="true"></i>Milla atendendo · 24 h</span></div>
-    <nav class="menu" aria-label="Menu">${menuVisivel().map(([id, l]) => `<a class="mi ${menuOn(id, r.tela) ? 'on' : ''} ${id === 'gestao' ? 'mi-gestao' : ''}" href="#/${id}" ${menuOn(id, r.tela) ? 'aria-current="page"' : ''}>${svg(ICO[id])}<span>${l}</span>${n[id] ? `<span class="n">${n[id]}</span>` : ''}</a>`).join('')}</nav>
+    <nav class="menu" aria-label="Menu">${menuVisivel().map(([id, l]) => `<a class="mi ${menuOn(id, r.tela) ? 'on' : ''} ${id === SO_GESTOR[0] ? 'mi-gestao' : ''}" href="#/${id}" ${menuOn(id, r.tela) ? 'aria-current="page"' : ''}>${svg(ICO[id])}<span>${l}</span>${n[id] ? `<span class="n">${n[id]}</span>` : ''}</a>`).join('')}</nav>
     <div class="rodape">A Milla responde 24 h pelo número da ${esc(MARCA)}. Quem responde aqui assume a conversa; a Milla volta quando você devolver.</div>
     ${SITE ? `<a class="mi site" href="${esc(SITE)}" target="_blank" rel="noopener">${svg(ICO.site)}<span>Ver o site</span></a>` : ''}
     <div class="quem"><span class="sm">${esc(quem)}</span>${REAL() && LOGADO() ? `<button type="button" class="btn btn-line btn-p" data-act="sair">${svg(ICO.sair)}Sair</button>` : (REAL() ? '' : `<button type="button" class="btn btn-line btn-p" data-act="demo-sair">${svg(ICO.sair)}Trocar de pessoa</button>`)}</div>`;
@@ -394,8 +396,7 @@ function vEquipe() {
   const prods = x => `<span class="eq-prods" role="group" aria-label="O que ${esc(x.nome)} atende">${EQ_PRODUTOS.map(([v, t]) => `<button type="button" class="chip ${eqProds(x).includes(v) ? 'on' : ''}" data-act="eq-prod" data-n="${esc(x.numero)}" data-p="${v}" aria-pressed="${eqProds(x).includes(v)}">${t}</button>`).join('')}</span>`;
   const linha = x => `<div class="lead eq-linha">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span>${rz ? prods(x) : ''}</span>
     <span class="lr"><button type="button" class="btn btn-line btn-p" data-act="eq-tirar" data-n="${esc(x.numero)}" aria-label="Tirar ${esc(x.nome)} da lista">Tirar</button></span></div>`;
-  return `${faixaCel()}<div class="topo"><div><h1>Gestão <small>· equipe e acessos</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: a lista não é gravada.</div>'}</div></div>
-    ${vGestaoAbas('equipe')}
+  return `${faixaCel()}<div class="topo"><div><h1>Equipe <small>· quem recebe os avisos e quem entra no app</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: a lista não é gravada.</div>'}</div></div>
     <h2 class="ac-tit">Quem recebe o aviso de cada pedido</h2>
     <div class="box eq-modo-box">
       <div class="b">Como avisar a equipe</div>
@@ -625,15 +626,15 @@ function render() {
   else if (r.tela === 'inicio') html = vInicio();
   else if (r.tela === 'leads') html = vLeads();
   else if (r.tela === 'imoveis') html = vImoveis();
-  else if (r.tela === 'equipe') html = GESTOR() ? vEquipe() : vSoGestor();
-  else if (r.tela === 'gestao') html = GESTOR() ? vRelatorios() : vSoGestor();
+  else if (r.tela === 'equipe') html = GESTOR() ? vEquipe() : vSoGestor('Equipe');
+  else if (r.tela === 'gestao') html = GESTOR() ? vRelatorios() : vSoGestor('Gestão');
   else html = vWhats(r.param);
   $('meio').innerHTML = html;
   renderLado();
   document.body.classList.toggle('tela-whats', r.tela === 'whats');
   document.body.classList.toggle('tela-inicio', r.tela === 'inicio');
   if (r.tela === 'whats' && !(real && WZ.dona === false)) wzLiga();
-  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe e acessos' }[r.tela]);
+  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe' }[r.tela]);
 }
 window.addEventListener('hashchange', render);
 

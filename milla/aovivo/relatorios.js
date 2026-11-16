@@ -6,7 +6,7 @@
 
    As camadas do app:
      todo mundo da equipe   Início (o que é para agora), WhatsApp, Leads, Imóveis
-     quem gere (dono)       Gestão = Relatórios (este arquivo) + Equipe e acessos
+     quem gere (dono)       + Equipe (avisos e acessos) e Gestão (os relatórios, este arquivo)
    O Início fala de HOJE; os Relatórios falam do MÊS e da tendência. Não repetem números.
 
    De onde vem: só dos leads que a Milla anota (pedidos), os mesmos da tela Leads (LD.lista,
@@ -181,11 +181,8 @@ function rlBarras(itens) {
 }
 
 /* ---------- a tela ---------- */
-function vGestaoAbas(on) {
-  return `<nav class="rl-abas" aria-label="Gestão"><a href="#/gestao" class="${on === 'gestao' ? 'on' : ''}" ${on === 'gestao' ? 'aria-current="page"' : ''}>Relatórios</a><a href="#/equipe" class="${on === 'equipe' ? 'on' : ''}" ${on === 'equipe' ? 'aria-current="page"' : ''}>Equipe e acessos</a></nav>`;
-}
 function vRelatorios() {
-  const topo = `${faixaCel()}<div class="topo"><div><h1>Gestão <small>· como a ${esc(MARCA)} está indo</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: seis meses de leads de exemplo.</div>'}</div></div>${vGestaoAbas('gestao')}`;
+  const topo = `${faixaCel()}<div class="topo"><div><h1>Gestão <small>· como a ${esc(MARCA)} está indo</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: seis meses de leads de exemplo.</div>'}</div></div>`;
   if (!LD.carregou) return `${topo}<div class="sm">Carregando os números…</div>`;
   if (LD.erro) return `${topo}<div class="wz-aviso sm">${esc(LD.erro)}</div>`;
   const R = rlContas(), P = R.P;
@@ -216,7 +213,7 @@ function vRelatorios() {
       <section class="bloco" aria-labelledby="rl-t-imv"><div class="bloco-cab"><div><h2 id="rl-t-imv">Imóveis mais pedidos</h2><div class="sm rl-sub">Leads nos últimos 30 dias</div></div><a class="sm rl-cab-link" href="#/imoveis">Imóveis</a></div>${imv.length ? rlBarras(imv) : '<div class="vazio"><span class="sm">Nenhum lead com imóvel nos últimos 30 dias.</span></div>'}</section>
       <section class="bloco" aria-labelledby="rl-t-bal"><div class="bloco-cab"><div><h2 id="rl-t-bal">Balneários mais procurados</h2><div class="sm rl-sub">Leads nos últimos 30 dias, pelo balneário do imóvel</div></div></div>${bal.length ? rlBarras(bal) : '<div class="vazio"><span class="sm">Ainda sem balneário nos leads dos últimos 30 dias.</span></div>'}</section>
     </div>
-    ${eqLinhas ? `<section class="bloco" aria-labelledby="rl-t-eq"><div class="bloco-cab"><div><h2 id="rl-t-eq">Quem atendeu</h2><div class="sm rl-sub">Últimos 90 dias: quem tocou no aviso da Milla, em quanto tempo (metade das vezes) e quantos fechou</div></div><a class="sm rl-cab-link" href="#/equipe">Equipe e acessos</a></div>
+    ${eqLinhas ? `<section class="bloco" aria-labelledby="rl-t-eq"><div class="bloco-cab"><div><h2 id="rl-t-eq">Quem atendeu</h2><div class="sm rl-sub">Últimos 90 dias: quem tocou no aviso da Milla, em quanto tempo (metade das vezes) e quantos fechou</div></div><a class="sm rl-cab-link" href="#/equipe">Ver a Equipe</a></div>
       <div class="rl-tab-rolo"><table class="rl-eq"><thead><tr><th scope="col">Pessoa</th><th scope="col">Leads</th><th scope="col">Resposta</th><th scope="col">Fechados</th><th scope="col">Taxa</th></tr></thead><tbody>${eqLinhas}</tbody></table></div></section>` : ''}
     <div class="sm rl-pe">Os números saem dos leads que a Milla anota${LD.lista.length >= 500 ? ' (os 500 mais recentes)' : ''}. ${R.semData ? 'Os fechados de antes de 16/11/2026 contam no mês em que o lead chegou. ' : ''}Para um lead contar como venda, locação ou temporada, vale o imóvel dele; sem imóvel, o que o cliente pediu.</div>`;
 }
