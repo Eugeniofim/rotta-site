@@ -70,7 +70,7 @@ header.cab.fixa .logo img, body.sem-heroi header.cab .logo img { height: 34px; }
 .menu-cel a:hover { color: var(--dourado); }
 
 /* herói do início */
-.hero { position: relative; min-height: 760px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 160px 20px 80px; background: var(--marinho2) center 40% / cover no-repeat; background-image: url(arte/capa.svg); }
+.hero { position: relative; min-height: 760px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 190px 20px 80px; background: var(--marinho2) center 40% / cover no-repeat; background-image: url(arte/capa.svg); }
 
 @media (min-width: 900px), (min-resolution: 2dppx) {
 }
@@ -340,7 +340,7 @@ footer.rod .social { display: flex; gap: 14px; margin: 12px 0 6px; } footer.rod 
   .cab-links > a.area { display: inline; max-width: none; }
   header.cab .cab-row { min-height: 84px; } .logo img { height: 30px; }
   body.inicio header.cab:not(.fixa) .logo img { height: 42px; } body.inicio header.cab:not(.fixa) .cab-row { min-height: 110px; }
-  .hero { min-height: 560px; padding: 120px 16px 56px; } .hero h1 { font-size: 36px; } .hero p { font-size: 16px; }
+  .hero { min-height: 560px; padding: 168px 16px 56px; } .hero h1 { font-size: 36px; } .hero p { font-size: 16px; }
   .busca { flex-direction: column; border-radius: 16px; padding: 8px; }
   .busca select, .busca select:first-of-type { border-radius: 0; border-right: 0; border-bottom: 1px solid var(--linha); width: 100%; height: 52px; }
   .busca .mais { width: 100%; justify-content: center; height: 52px; }
