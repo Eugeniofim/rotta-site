@@ -494,3 +494,14 @@ footer.rod .social { display: flex; gap: 14px; margin: 12px 0 6px; } footer.rod 
 .baln:hover { transform: translateY(-3px); }
 @media (prefers-reduced-motion: reduce) { .baln { transition: none; } .baln:hover { transform: none; } }
 @media (max-width: 900px) { .faixa-milla { padding: 64px 0; } .faixa-milla .wrap { grid-template-columns: 1fr; gap: 36px; } }
+
+/* botão destacado: Painel Milla CRM (o app da equipe) */
+.btn-crm { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 14px 14px 14px 4px; background: var(--dourado); color: var(--marinho) !important; font-weight: 700; font-size: 14px; text-decoration: none; white-space: nowrap; box-shadow: 0 6px 18px rgba(255,181,46,.28); }
+.btn-crm:hover { filter: brightness(1.06); }
+.btn-crm img { width: 18px; height: 18px; }
+#menu .btn-crm { margin: 12px 0 4px; }
+.fm-botoes { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn-line-claro { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.4); box-shadow: none; }
+.btn-line-claro:hover { border-color: #fff; color: #fff; }
+.cab-links > a.btn-crm { max-width: none; text-align: left; text-shadow: none; color: var(--marinho); }
+.cab-links > a.btn-crm:hover { color: var(--marinho); }
