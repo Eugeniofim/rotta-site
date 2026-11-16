@@ -1,0 +1,18 @@
+{
+  "id": "/glikiso/painel/",
+  "name": "Gliki Sô · Painel",
+  "short_name": "Gliki ADM",
+  "description": "Clientes, notas, etiquetas, prêmios e avisos do Clube Glikilovers.",
+  "start_url": "./?origem=app",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6efe4",
+  "theme_color": "#2a1913",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "../icones/icone-adm-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "../icones/icone-adm-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "../icones/mascara-adm-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "../icones/mascara-adm-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simonetta Viagens · Painel do Ademir</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Cole a tela do Amadeus e a proposta sai pronta: voos, preço em dólar, regras e parcelamento. Voucher e passaportes no mesmo lugar.">
+<!-- prévia do link no WhatsApp: os endereços precisam ser completos -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Simonetta Viagens · protótipo">
+<meta property="og:title" content="Cole a tela do Amadeus. A proposta sai pronta.">
+<meta property="og:description" content="Protótipo do painel de cotações da Simonetta Viagens: proposta, voucher e passaportes. Por Ti Artes.">
+<meta property="og:url" content="https://rottaguide.com/ademir/">
+<meta property="og:image" content="https://rottaguide.com/ademir/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Capa da proposta de viagem da Simonetta Viagens ao lado da frase: cole a tela do Amadeus, a proposta sai pronta.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#171c3a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="topo">
+  <a class="topo-marca" href="#/cotacao" aria-label="Simonetta Viagens, início">
+    <img src="arte/logo-simonetta.png" alt="Simonetta Viagens" width="494" height="370">
+  </a>
+  <nav class="abas" aria-label="Seções">
+    <a href="#/clientes" data-aba="clientes">Clientes</a>
+    <a href="#/cotacao" data-aba="cotacao">Cotação</a>
+    <a href="#/proposta" data-aba="proposta">Proposta</a>
+    <a href="#/voucher" data-aba="voucher">Voucher</a>
+    <a href="#/passaportes" data-aba="passaportes">Passaportes</a>
+    <a href="#/cnt" data-aba="cnt">CNT</a>
+  </nav>
+  <button class="nuvem fora" id="nuvem" hidden>Entrar</button>
+</header>
+<main id="palco" tabindex="-1"></main>
+<div id="aviso" role="status" aria-live="polite"></div>
+<dialog id="janela-nuvem" class="janela"></dialog>
+<div id="faixa" class="nao-imprime"><b>Sem login</b><span class="faixa-longa">O que você faz agora fica só neste computador. </span>Toque em <b class="sem-caps">Entrar</b>, lá em cima, para salvar na nuvem.</div>
+<script src="codigos.js"></script>
+<script src="dados.js"></script>
+<script src="amadeus.js"></script>
+<script src="passaporte.js"></script>
+<script src="exemplos.js"></script>
+<script src="cnt.js"></script>
+<script src="cnt-regras.js"></script>
+<script src="cnt-linha.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
