@@ -384,6 +384,12 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .testar-nota b { color: var(--marfim) }
 .testar-codigo { margin: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px 12px 12px 3px; background: rgba(255,181,46,.1); border: 1px solid rgba(255,181,46,.35); font-size: 14px; color: var(--dim-noite) }
 .testar-codigo b { font-family: var(--mono); font-weight: 500; font-size: 22px; letter-spacing: .12em; color: var(--janela) }
+.testar-qr { display: flex; gap: 14px; align-items: center; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(246,243,236,.12) }
+.testar-qr[hidden] { display: none }
+.testar-qr .qr { flex: none; width: 104px; height: 104px; padding: 8px; border-radius: 8px; background: #fff }
+.testar-qr .qr svg { display: block; width: 100%; height: 100% }
+.testar-qr p { margin: 0; color: var(--dim-noite); font-size: 13.5px; line-height: 1.45 }
+.testar-qr p b { color: var(--marfim) }
 .testar-vivo { text-align: center; color: var(--janela); font-weight: 600; font-size: 15.5px; text-underline-offset: 4px }
 @media (max-width: 520px) { .testar-caixa { padding: 26px 18px 20px } .testar h2 { font-size: 26px } .testar-dupla { grid-template-columns: 1fr } }
 </style>
@@ -787,6 +793,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <p class="testar-sub">A conversa abre no WhatsApp. Pergunte por um imóvel, peça fotos, marque uma visita: ela responde em segundos.</p>
       <p class="testar-codigo" id="testarCodigo" hidden>Seu código de teste <b></b></p>
       <a class="btn" id="testarWa" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Abrir o WhatsApp</a>
+      <div class="testar-qr" id="testarQr" hidden><span class="qr" aria-hidden="true"></span><p><b>Não abriu?</b> Você não tem o WhatsApp no computador. Aponte a câmera do celular para o código e a conversa abre no seu WhatsApp.</p></div>
       <a class="testar-vivo" id="testarVivo" href="testar/" hidden>Acompanhar o CRM ao vivo</a>
       <p class="testar-nota" id="testarNota">Depois, a gente fala com você para mostrar o painel e tirar as dúvidas.</p>
     </div>
@@ -935,17 +942,35 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   dlg.addEventListener("click", function (e) { if (e.target === dlg) fecha(); });
   f.querySelectorAll("[data-fecha]").forEach(function (b) { b.addEventListener("click", fecha); });
   document.querySelectorAll("[data-testar]").forEach(function (a) { a.addEventListener("click", abre); });
-  /* no computador (16/11/2026, pedido do Eugênio: "a tela do CRM original já abre ao lado"): o WhatsApp Web abre
-     numa janela estreita à direita e esta aba vira o CRM ao vivo, que abre espaço para ela. No celular, o WhatsApp
-     abre o app e esta aba vira o CRM em meio segundo. */
+  /* 16/11/2026 (noite), pedido do Eugênio: "queria que o WhatsApp abrisse o WhatsApp da pessoa mesmo, sem ser o Web".
+     No computador, o botão abre o WhatsApp instalado (whatsapp://send). Quando a janela perde o foco (o app abriu),
+     esta aba vira o CRM ao vivo. Se em 2,5 s nada abriu (a pessoa não tem o app no computador), aparece um QR para
+     abrir a conversa no celular. No celular, o link wa.me já abre o app e esta aba vira o CRM em meio segundo. */
+  function qrNoCelular(link) {
+    var caixa = document.getElementById("testarQr");
+    if (!caixa || !caixa.hidden) return;
+    function desenha() {
+      try { var q = qrcode(0, "M"); q.addData(link); q.make(); caixa.querySelector(".qr").innerHTML = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); } catch (x) { return; }
+      caixa.hidden = false;
+    }
+    if (typeof qrcode === "function") return desenha();
+    var sc = document.createElement("script"); sc.src = "testar/qrcode.js"; sc.onload = desenha; document.head.appendChild(sc);
+  }
   document.getElementById("testarWa").addEventListener("click", function (e) {
     var pc = false;
-    try { pc = matchMedia("(hover: hover) and (pointer: fine) and (min-width: 1100px)").matches; } catch (x) {}
-    if (vivo && pc) {
-      var sw = Math.max(screen.availWidth || 0, outerWidth || 0, innerWidth || 0), sh = Math.max(screen.availHeight || 0, 600);
-      var w = window.open("https://web.whatsapp.com/send?phone=5541963493440&text=" + encodeURIComponent("Oi Milla! Meu código de teste é " + vivo.codigo + "."), "milla-whats",
-        "popup=yes,width=460,height=" + sh + ",left=" + Math.max(0, (screen.availLeft || 0) + sw - 460) + ",top=" + Math.max(0, screen.availTop || 0));
-      if (w) { e.preventDefault(); try { sessionStorage.setItem("milla_teste_lado", "1"); } catch (x) {} location.href = "testar/"; return; }
+    try { pc = matchMedia("(hover: hover) and (pointer: fine)").matches; } catch (x) {}
+    var link = this.href, m = /wa\.me\/(\d+)(?:\?text=([^#]*))?/.exec(link);
+    if (pc && m) {
+      e.preventDefault();
+      var foi = false;
+      var vai = function () {
+        if (foi) return; foi = true; window.removeEventListener("blur", vai);
+        if (vivo) location.href = "testar/"; else setTimeout(fecha, 400);
+      };
+      window.addEventListener("blur", vai);
+      location.href = "whatsapp://send?phone=" + m[1] + (m[2] ? "&text=" + m[2] : "");
+      setTimeout(function () { if (!foi) qrNoCelular(link); }, 2500);
+      return;
     }
     setTimeout(function () { if (vivo) location.href = "testar/"; else fecha(); }, 500);
   });
