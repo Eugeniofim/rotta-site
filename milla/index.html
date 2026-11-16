@@ -355,6 +355,10 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 @media (prefers-reduced-motion: reduce) { .btn, .bilhete, .oferta-fixa { transition: none } .btn:hover, .bilhete:hover { transform: none } }
 
 /* TESTAR AGORA (12/11/2026): antes do WhatsApp, o contato vai para o CRM de vendas (com o vendedor do link) */
+.adm-pe { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start }
+.adm-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid rgba(255,181,46,.5); border-radius: 10px 10px 10px 3px; color: var(--janela); font-weight: 600; text-decoration: none }
+.adm-link:hover { background: rgba(255,181,46,.1) }
+.adm-pe span { font-size: 12.5px; color: var(--dim-noite) }
 .testar { padding: 0; border: 0; background: transparent; color: var(--marfim); width: min(480px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain }
 .testar::backdrop { background: rgba(3,6,9,.74); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px) }
 .testar-caixa { position: relative; background: var(--noite-2); border: 1px solid var(--linha-noite); border-radius: var(--balao); padding: 30px 26px 24px }
@@ -741,6 +745,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <p>+55 41 99156-6444 · @estudio_ti_artes</p>
       <p>Empresa verificada pela Meta · Tech Provider</p>
       <p><a href="entrar/">Já é cliente? Entrar no app da Milla</a></p>
+      <p class="adm-pe"><a class="adm-link" href="adm/">Painel ADM · studio Ti Artes</a><span>clientes, mensalidades e custos de IA · só com o login do estúdio</span></p>
     </div>
     <div>
       <p>Preços em reais. A mensalidade de R$ 399 vale para os 20 primeiros contratos e continua a mesma a cada renovação, com 2.000 mensagens por mês e R$ 0,20 por mensagem a mais. Contrato de 6 meses pagando por mês, ou de 1 ano pagando à vista, renovado sozinho; na renovação, a franquia e o preço da mensagem a mais podem ser revistos, com 30 dias de aviso. A implantação é R$ 2.000, paga uma vez; nos 20 primeiros contratos, quem paga o ano à vista (R$ 4.788) paga metade da implantação, R$ 1.000.</p>
