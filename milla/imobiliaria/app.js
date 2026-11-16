@@ -87,7 +87,7 @@ const ICO = {
 const EMBLEMA = '<img class="ico" src="arte/emblema.svg" alt="" width="40" height="40">';
 const EMBLEMA_FAIXA = '<img src="arte/emblema-claro.svg" alt="" width="56" height="56">';
 
-function tituloGenerico(im) { return im.tipo + ' ' + TRANS_VERBO[im.transacao] + ' em ' + im.cidade + ' no ' + im.bairro; }
+function tituloGenerico(im) { return im.tipo + ' ' + TRANS_VERBO[im.transacao] + ' em ' + im.bairro + ', ' + im.cidade; }
 function linhaExtra(im) {
   const t = String(im.titulo || '').trim();
   const generico = new RegExp('^' + im.tipo + '\\s+em\\s', 'i').test(t) || !t;
@@ -133,15 +133,15 @@ function vInicio() {
   const outros = filtrar({ neg: 'venda' }).filter(im => im.tipo !== 'Casa').slice(0, 6);
   const r = resumoCatalogo();
   const estilos = [['Frente ao mar', { mar: '1' }], ['Casa de família', { dorm: '3', neg: 'venda' }], ['Temporada', { neg: 'temporada' }], ['Com piscina', { piscina: '1' }], ['Mobiliados', { mobiliado: '1' }], ['Comercial', { perfil: 'Comercial' }], ['Terrenos para construir', { tipo: 'Terreno' }], ['Sobrados', { tipo: 'Sobrado' }]];
-  const ladrilhos = estilos.map(([nome, f]) => { const im = filtrar(f)[0]; return '<a class="ladrilho" href="' + linkBusca(f) + '" style="background-image:url(' + esc(im ? im.capa : 'arte/capa.svg') + ')"><span>' + esc(nome) + '</span></a>'; }).join('');
+  const ladrilhos = estilos.map(([nome, f]) => { const im = filtrar(f)[0]; return '<a class="ladrilho" href="' + linkBusca(f) + '" style="background-image:url(' + esc(im ? im.capa : 'arte/capa-1400.jpg') + ')"><span>' + esc(nome) + '</span></a>'; }).join('');
   const porTipo = ['Casa', 'Apartamento', 'Sobrado', 'Terreno'].map(t => '<a href="' + linkBusca({ neg: 'venda', tipo: t }) + '">' + t + (t === 'Terreno' ? 's' : 's') + ' à venda em Pontal do Paraná</a>').join('');
   const porBairro = r.bairros.slice(0, 7).map(b => '<a href="' + linkBusca({ bairro: b }) + '">Imóveis em ' + esc(b) + '</a>').join('');
   const porTemporada = ['Casa', 'Apartamento', 'Sobrado'].map(t => '<a href="' + linkBusca({ neg: 'temporada', tipo: t }) + '">' + t + ' para temporada no litoral</a>').join('') + '<a href="' + linkBusca({ neg: 'temporada', mar: '1' }) + '">Temporada frente ao mar</a>';
   const oport = vitrineLista('oportunidade'), slide = vitrineLista('slide'), vistosL = vistos().map(porRef).filter(Boolean).slice(0, 3);
   const videos = (C.videos || []).map(v => videoHtml(youtubeId(v.url || v), v.titulo || 'Vídeo')).join('');
   return '<section class="hero" aria-label="Busca de imóveis"><div>'
-    + '<h1>A sua imobiliária no litoral do Paraná</h1>'
-    + '<p>Na Imobiliária Milla você tem a melhor e mais completa experiência imobiliária em Pontal do Paraná: compra, venda, aluguel e temporada.</p>'
+    + '<h1>Do Pontal do Sul a Praia de Leste, o seu lugar no litoral</h1>'
+    + '<p>Compra, venda, aluguel e temporada em todos os balneários de Pontal do Paraná. E a Milla responde no WhatsApp na hora, a qualquer hora.</p>'
     + '<form class="busca" data-form="busca" aria-label="Buscar imóvel">'
     + '<label class="oculto" for="b-neg">Negócio</label><select id="b-neg" name="neg"><option value="">Alugar ou Comprar?</option><option value="venda">Quero Comprar</option><option value="aluguel">Quero Alugar</option><option value="temporada">Temporada</option></select>'
     + '<label class="oculto" for="b-tipo">Tipo</label><select id="b-tipo" name="tipo">' + opts(o.tipos, '', 'Qual Tipo?') + '</select>'
@@ -153,11 +153,13 @@ function vInicio() {
     + '</div></section>'
     + (oport.length ? secao('Ótima oportunidade', 'Os imóveis que a Imobiliária Milla separou esta semana: preço bom, documentação em dia, pronto para fechar.', carrossel('c-oport', oport), '#/imoveis?neg=venda') : '')
     + (slide.length ? secao('Destaques da Milla', 'Escolhidos a dedo pela equipe.', carrossel('c-slide', slide), '#/imoveis') : '')
+    + faixaMilla()
     + secao('Temporada no litoral do Paraná', 'Casas e apartamentos mobiliados a passos da praia, em Pontal do Paraná e região, com calendário de datas disponíveis. Reserve o fim de ano antes que acabe.', carrossel('c-temporada', temporada), linkBusca({ neg: 'temporada' }))
     + secao('Casas à Venda em Pontal do Paraná', 'Da casa de praia simples ao sobrado em condomínio: imóveis escriturados, com a documentação conferida pela Imobiliária Milla antes de anunciar.', carrossel('c-casas', casas), linkBusca({ neg: 'venda', tipo: 'Casa' }))
-    + secao('Apartamentos, Sobrados e Terrenos', 'No Centro de Pontal, frente ao mar ou em Curitiba: prontos para morar, lançamentos e lotes para construir a casa que você quer.', carrossel('c-outros', outros), linkBusca({ neg: 'venda' }))
+    + secao('Apartamentos, Sobrados e Terrenos', 'Em Praia de Leste, frente ao mar ou no sossego de Atami: prontos para morar, lançamentos e lotes para construir a casa que você quer.', carrossel('c-outros', outros), linkBusca({ neg: 'venda' }))
+    + secaoBalnearios()
     + '<section class="sec" id="estilo"><div class="wrap">' + EMBLEMA + '<h2>Estilo de Vida: imóveis que refletem a sua essência</h2><p class="sub">Comece pelo jeito que você quer viver no litoral, não pelo tipo de imóvel.</p><div class="ladrilhos">' + ladrilhos + '</div><div class="centro"><a class="btn btn-navy" href="#/imoveis">CONFIRA MAIS</a></div></div></section>'
-    + '<section class="sobre-faixa" id="sobre"><div class="wrap"><img src="arte/sobre.svg" alt="Sobrado anunciado pela Imobiliária Milla em Pontal do Paraná" loading="lazy"><div><h3>Imobiliária Milla · Pontal do Paraná/PR</h3><h2>Cuidamos de tudo com você!</h2>'
+    + '<section class="sobre-faixa" id="sobre"><div class="wrap"><img src="arte/sobre.jpg" alt="Praia do litoral do Paraná" loading="lazy"><div><h3>Imobiliária Milla · Pontal do Paraná/PR</h3><h2>Cuidamos de tudo com você!</h2>'
     + '<p>Na Imobiliária Milla, em Pontal do Paraná, oferecemos uma experiência personalizada na compra, venda, aluguel e temporada de imóveis no litoral.</p>'
     + '<p>Especializados na assessoria completa, garantimos uma transação segura e tranquila, com acompanhamento jurídico e operacional de qualidade, do primeiro contato à entrega das chaves.</p>'
     + '<p>Venha realizar o sonho de morar ou veranear bem com a Imobiliária Milla, a sua imobiliária no litoral!</p>'
@@ -350,7 +352,7 @@ function vFinancie() {
 function vSobre() {
   const r = resumoCatalogo();
   return '<section class="faixa-cliente">' + EMBLEMA_FAIXA + '<h1>Sobre a Imobiliária Milla</h1><p>Compra, venda, aluguel e temporada em todos os balneários de Pontal do Paraná.</p></section><div class="wrap pagina">'
-    + '<div class="sobre-faixa" style="margin:0;padding:48px;color:#fff"><div class="wrap" style="padding:0"><img src="arte/sobre.svg" alt="Ilustração da praia de Pontal do Paraná"><div><h2>Cuidamos de tudo com você!</h2>'
+    + '<div class="sobre-faixa" style="margin:0;padding:48px;color:#fff"><div class="wrap" style="padding:0"><img src="arte/sobre.jpg" alt="Praia do litoral do Paraná"><div><h2>Cuidamos de tudo com você!</h2>'
     + '<p>De Pontal do Sul a Praia de Leste, passando por Shangri-lá, Ipanema, Santa Terezinha e os outros balneários: a gente conhece cada rua do litoral.</p>'
     + '<p>A Milla, a nossa atendente digital, responde na hora a qualquer hora: mostra os imóveis do site, faz a conta da temporada e anota a sua visita. Os corretores assumem a partir daí e confirmam tudo com você.</p>'
     + '<p>Site de demonstração: imóveis, nomes e imagens são fictícios.</p></div></div></div>'
@@ -457,6 +459,31 @@ function seoTela(r, im) {
 }
 
 /* ---------- a equipe (fictícia) ---------- */
+/* a faixa que vende: a Milla atende no WhatsApp (conversa de verdade, com um imóvel do catálogo) */
+function faixaMilla() {
+  const b = (quem, t, h) => '<div class="bal ' + quem + '"><span>' + t + '</span><small>' + h + '</small></div>';
+  return '<section class="faixa-milla" id="milla"><div class="wrap">'
+    + '<div class="fm-texto"><span class="fm-selo"><i></i>online agora</span><h2>Pergunte. A Milla responde na hora.</h2>'
+    + '<p>A Milla é a atendente da imobiliária no WhatsApp: entende o que você procura, mostra os imóveis do site, faz a conta da temporada com o sinal e anota a visita para o corretor certo. De madrugada, no domingo, no feriado.</p>'
+    + '<ul><li>Busca por balneário, quartos, valor e datas</li><li>Pacote da temporada: noites, total e sinal</li><li>Visita e proposta passadas para a equipe</li><li>Entende áudio e responde em áudio</li></ul>'
+    + '<a class="btn btn-gold btn-quad" target="_blank" rel="noopener" href="' + wa('Oi, Milla! Tem casa com piscina pro réveillon?') + '">Testar a Milla no WhatsApp</a></div>'
+    + '<div class="fm-tel" aria-label="Exemplo de conversa com a Milla"><div class="fm-topo"><img src="arte/emblema-claro.svg" alt=""><span><b>Milla · Imobiliária Milla</b><small>online</small></span></div><div class="fm-conversa">'
+    + b('cli', 'Oi! Tem casa com piscina pro réveillon? Somos 8, de 28/12 a 02/01', '22:41')
+    + b('mil', 'Tenho sim! A Ref. 528 é uma casa em Pontal do Sul com piscina, 5 quartos e até 12 pessoas. Livre nas suas datas: 5 noites × R$ 1.180 = <b>R$ 5.900</b>. O sinal de 50% (R$ 2.950) garante as datas. Quer que eu anote a reserva?', '22:41')
+    + b('cli', 'Quero! Sou a Juliana', '22:43')
+    + b('mil', 'Anotei, Juliana! O Rafael, que cuida da temporada, confirma a reserva com você por aqui.', '22:43')
+    + '</div></div></div></section>';
+}
+
+/* todos os balneários, com a praia de cada um (balnearios.js, gerado com o catálogo) */
+function secaoBalnearios() {
+  const l = (typeof BALNEARIOS !== 'undefined' ? BALNEARIOS : []).filter(b => b.n);
+  if (!l.length) return '';
+  return '<section class="sec" id="balnearios"><div class="wrap">' + EMBLEMA + '<h2>Todos os balneários de Pontal do Paraná</h2><p class="sub">De Pontal do Sul, na ponta, até Praia de Leste: escolha a praia e veja o que tem lá.</p>'
+    + '<div class="balnearios">' + l.map(b => '<a class="baln" href="' + linkBusca({ bairro: b.nome }) + '" style="background-image:url(' + esc(b.foto) + ')"><span><b>' + esc(b.nome) + '</b><small>' + b.n + ' imóve' + (b.n > 1 ? 'is' : 'l') + '</small></span></a>').join('') + '</div>'
+    + '<p class="sub" style="margin-top:14px;font-size:13px"><a href="creditos.html">Créditos das fotos</a></p></div></section>';
+}
+
 function corretorDe(im) {
   const l = C.corretores || [];
   const k = { venda: 0, temporada: 1, aluguel: 2 }[im && im.transacao];
@@ -478,7 +505,7 @@ function moldura() {
     + '<a class="area" href="#/cliente">Área do Cliente</a><a href="#/favoritos">Meus Favoritos</a>';
   $('#wa-flut').innerHTML = '<a href="' + wa() + '" target="_blank" rel="noopener" aria-label="Falar com a Milla no WhatsApp">' + ICO.wa + '</a>';
   $('#rodape').innerHTML = '<div><a class="marca" href="#/"><img src="arte/logo-claro.svg" alt="' + esc(C.nome) + '" style="height:46px;width:auto"></a><span style="font-size:13px;font-weight:300;display:block;margin-top:10px">' + esc(C.slogan) + ' de Pontal do Sul a Praia de Leste: Shangri-lá, Ipanema, Santa Terezinha e todos os balneários de Pontal do Paraná.</span></div>'
-    + '<div><b>Para você</b><a href="#/negocie">Anuncie seu imóvel</a><br><a href="#/financie">Financie seu imóvel</a><br><a href="privacidade.html">Política de privacidade</a></div>'
+    + '<div><b>Para você</b><a href="#/negocie">Anuncie seu imóvel</a><br><a href="#/financie">Financie seu imóvel</a><br><a href="privacidade.html">Política de privacidade</a><br><a href="creditos.html">Créditos das fotos</a></div>'
     + '<div><b>Acesso Rápido</b><a href="#/">Home</a><br><a href="#/imoveis?neg=aluguel">Alugar</a><br><a href="#/imoveis?neg=venda">Comprar</a><br><a href="#/imoveis?neg=temporada">Temporada</a><br><a href="#/sobre">Empresa</a><br><a href="#/favoritos">Favoritos</a><br><a href="#/contato">Contato</a><br><a href="#/cliente">Área do Cliente</a><br><a href="gestao/" style="color:var(--dourado)">Equipe Milla · gestão</a></div>'
     + '<div style="font-size:15px;font-weight:300;line-height:1.7"><b>Contatos</b>' + esc(C.nome) + '<br>' + esc(C.endereco) + '<br>' + esc(C.cidade) + '<br><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a> · WhatsApp da Milla</div>';
   $('#rodape-fim').innerHTML = '<span>' + esc(C.nome) + ' · site de demonstração · imóveis, nomes e imagens fictícios</span><span>© ' + new Date().getFullYear() + ' Ti Artes · v' + APP_VERSAO + '</span>';

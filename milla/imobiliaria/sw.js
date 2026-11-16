@@ -5,10 +5,10 @@
    são centenas, na pasta dados/fotos; o app guarda as que a pessoa viu. */
 'use strict';
 
-const VERSION = 'millademo-v1.0.0';
+const VERSION = 'millademo-v1.1.0';
 const CORE = [
   './', './index.html', './config.js', './nuvem.js', './auth.js', './catalogo.js', './pedidos.js', './disponibilidade.js', './app.js',
-  './estilo.css', './manifest.webmanifest', './dados/imoveis.json', './arte/logo-claro.svg', './arte/emblema.svg', './arte/emblema-claro.svg', './arte/capa.svg', './icon-192.png',
+  './estilo.css', './manifest.webmanifest', './dados/imoveis.json', './arte/logo-claro.svg', './arte/emblema.svg', './arte/emblema-claro.svg', './arte/capa-1400.jpg', './balnearios.js', './icon-192.png',
 ];
 
 self.addEventListener('install', (e) => {

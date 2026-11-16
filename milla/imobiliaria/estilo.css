@@ -70,7 +70,7 @@ header.cab.fixa .logo img, body.sem-heroi header.cab .logo img { height: 34px; }
 .menu-cel a:hover { color: var(--dourado); }
 
 /* herói do início */
-.hero { position: relative; min-height: 760px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 190px 20px 80px; background: var(--marinho2) center 40% / cover no-repeat; background-image: url(arte/capa.svg); }
+.hero { position: relative; min-height: 760px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 190px 20px 80px; background: var(--marinho2) center 40% / cover no-repeat; background-image: url(arte/capa-1400.jpg); }
 
 @media (min-width: 900px), (min-resolution: 2dppx) {
 }
@@ -463,3 +463,34 @@ footer.rod .social { display: flex; gap: 14px; margin: 12px 0 6px; } footer.rod 
 .corretor-card img { width: 88px; height: 88px; border-radius: 50%; }
 .corretor-card b { font-size: 17px; color: var(--preto); }
 .corretor-card span { font-size: 14px; color: var(--suave); }
+
+@media (min-width: 1400px) { .hero { background-image: url(arte/capa.jpg); } }
+/* faixa da Milla: a conversa no WhatsApp */
+.faixa-milla { background: radial-gradient(1200px 500px at 80% 20%, #16263A 0, var(--marinho) 60%); color: #fff; padding: 90px 0; margin-top: 40px; }
+.faixa-milla .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+.fm-selo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--dourado); }
+.fm-selo i { width: 8px; height: 8px; border-radius: 50%; background: #3DDC84; box-shadow: 0 0 0 4px rgba(61,220,132,.18); }
+.faixa-milla h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.08; font-weight: 700; margin: 12px 0 16px; letter-spacing: -.02em; }
+.faixa-milla p { color: #C9D1D6; font-size: 17px; line-height: 1.6; margin: 0 0 18px; max-width: 520px; }
+.faixa-milla ul { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 8px; }
+.faixa-milla li { padding-left: 26px; position: relative; color: #E8ECEF; }
+.faixa-milla li::before { content: ""; position: absolute; left: 0; top: 7px; width: 12px; height: 12px; border-radius: 4px 4px 4px 1px; background: var(--dourado); }
+.fm-tel { background: #0B141D; border: 1px solid rgba(255,255,255,.08); border-radius: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.5); overflow: hidden; max-width: 430px; justify-self: center; width: 100%; }
+.fm-topo { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: #121E2A; }
+.fm-topo img { width: 34px; height: 34px; }
+.fm-topo span { display: flex; flex-direction: column; } .fm-topo small { color: #3DDC84; font-size: 12px; }
+.fm-conversa { padding: 18px 14px 22px; display: flex; flex-direction: column; gap: 10px; background: linear-gradient(180deg, #0B141D, #0E1924); }
+.bal { max-width: 86%; padding: 10px 12px 18px; border-radius: 14px; position: relative; font-size: 14.5px; line-height: 1.45; }
+.bal small { position: absolute; right: 10px; bottom: 4px; font-size: 10.5px; opacity: .6; }
+.bal.cli { align-self: flex-end; background: #1F3A2E; color: #E8F5EE; border-bottom-right-radius: 4px; }
+.bal.mil { align-self: flex-start; background: #1A2633; color: #F0F3F5; border-bottom-left-radius: 4px; }
+.bal.mil b { color: var(--dourado); }
+/* balneários */
+.balnearios { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 26px; }
+.baln { position: relative; display: flex; align-items: flex-end; min-height: 170px; border-radius: 16px 16px 16px 5px; overflow: hidden; background: #0B141D center / cover no-repeat; text-decoration: none; color: #fff; transition: transform .25s ease; }
+.baln::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,12,18,0) 35%, rgba(7,12,18,.78)); }
+.baln span { position: relative; padding: 14px 16px; display: flex; flex-direction: column; }
+.baln b { font-size: 18px; } .baln small { color: var(--dourado); font-weight: 600; }
+.baln:hover { transform: translateY(-3px); }
+@media (prefers-reduced-motion: reduce) { .baln { transition: none; } .baln:hover { transform: none; } }
+@media (max-width: 900px) { .faixa-milla { padding: 64px 0; } .faixa-milla .wrap { grid-template-columns: 1fr; gap: 36px; } }
