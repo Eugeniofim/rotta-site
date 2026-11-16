@@ -817,3 +817,35 @@ button.as-mes { cursor: pointer; }
   .modal { align-items: flex-end; padding: 0; }
   .adm-modal { width: 100%; max-height: 92dvh; border-radius: 22px 22px 0 0; }
 }
+
+/* ---------- ADM da Milla: a página própria (adm.html) e os custos de IA (custos.js) ---------- */
+.ap-links { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--linha); }
+.ap-links .conta-rot { padding: 0 12px 6px; }
+.ap-links .mi { min-height: 38px; font-size: 13.5px; }
+.cu-barras { display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 20px; }
+.cu-barra { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) minmax(130px, auto); gap: 14px; align-items: center; }
+.cu-nome { font-weight: 600; font-size: 14.5px; min-width: 0; }
+.cu-nome small { display: block; font-weight: 500; font-size: 12px; color: var(--fraco); }
+.cu-trilho { height: 12px; border-radius: 4px; background: var(--sup3); overflow: hidden; }
+.cu-trilho i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--ambar); }
+.cu-val { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
+.cu-val b { font: 700 17px/1.2 var(--f-titulo); }
+.cu-val small { font-size: 12px; color: var(--dim); }
+.cu-tab { overflow-x: auto; }
+.cu-tab table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 14px; }
+.cu-tab th, .cu-tab td { padding: 11px 16px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--linha); }
+.cu-tab th:first-child { text-align: left; }
+.cu-tab thead th { font: 500 11px/1.3 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--fraco); }
+.cu-tab tbody th { font-weight: 600; color: var(--texto); }
+.cu-tab tbody tr:last-child th, .cu-tab tbody tr:last-child td { border-bottom: 0; }
+.cu-tab .num { font-variant-numeric: tabular-nums; }
+.cu-pos { color: var(--verde); font-weight: 700; }
+.cu-neg { color: var(--vermelho); font-weight: 700; }
+.cu-sel { color: var(--ambar); font-weight: 700; }
+.cu-nota { max-width: 80ch; }
+@media (max-width: 760px) {
+  .cu-barras { padding: 16px; }
+  .cu-barra { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; }
+  .cu-trilho { grid-column: 1 / -1; grid-row: 2; }
+  .cu-val { grid-row: 1; grid-column: 2; }
+}

@@ -640,7 +640,7 @@ function render() {
   else if (r.tela === 'assinatura') html = vAssinatura();
   else html = vWhats(r.param);
   /* o que entra logo abaixo da faixa do celular: o aviso da mensalidade no Início e a linha da assinatura na Gestão */
-  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() : r.tela === 'gestao' && GESTOR() ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + '</div>' : '') : '';
+  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() : r.tela === 'gestao' && GESTOR() && asLinhaCel() ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + '</div>' : '') : '';
   if (extra) { const fx = faixaCel(); html = html.includes(fx) ? html.replace(fx, fx + extra) : extra + html; }
   $('meio').innerHTML = html;
   if (r.tela === 'assinatura') asPinta();
