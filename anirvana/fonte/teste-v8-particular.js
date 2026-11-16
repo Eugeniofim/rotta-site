@@ -1,0 +1,11 @@
+const { chromium } = require('playwright');
+(async () => { const b = await chromium.launch(), p = await b.newPage({viewport:{width:390,height:844}}); const er = [], ok = [], f = []; const conf = (c, m) => (c ? ok : f).push(m);
+  p.on('pageerror', e => er.push(e.message));
+  await p.goto('file:///home/user/anirvana-app/dist/anirvana/index.html'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(400);
+  await p.evaluate(() => { S.inscricoes.push({id:'inP', d:HOJE_ISO, estado:'nova', origem:'app', dados:{atv:'particular', plano:'2x', modo:'online', nome:'Rui Particular', nasc:'1980-01-01', tel:'(41) 99000-0001', termos:true, priv:true}}); ACT.entrar({v:'admin', who:'dessa'}); ACT.confirmarInscricao({v:'inP'}); });
+  await p.waitForTimeout(500);
+  conf(await p.$('#cInstr') && /Quem vai dar a aula particular/.test(await p.textContent('#sheet')), 'particular: pede quem vai dar a aula');
+  await p.click('.opt[data-grp=cInstr][data-v=kamala]'); await p.click('#sheet [data-act=confirmarInscricao]'); await p.waitForTimeout(400);
+  const r = await p.evaluate(() => { const a = S.alunos.find(x => x.nome === 'Rui Particular'); return a && {i:a.mats[0].instr, v:valorMat(S, a.mats[0]), vis:alunosVisiveis(S,'kamala').includes(a), vis2:alunosVisiveis(S,'anajulia').includes(a)}; });
+  conf(r && r.i === 'kamala' && r.v === 385 && r.vis && !r.vis2, 'particular 2x confirmado com a Kamala: R$ 385, só ela vê ' + JSON.stringify(r));
+  console.log('OK', ok.length, 'FALHAS', JSON.stringify(f), 'ERROS', JSON.stringify(er)); await b.close(); })();

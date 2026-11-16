@@ -9,7 +9,8 @@ function vInstrutor(){
   return vInstrHoje();
 }
 function aulasDeHoje(pid){
-  return TURMAS.filter(t => t.dia === HOJE.getDay() && t.instr === pid).sort((a,b) => a.h.localeCompare(b.h)).map(t => ({t, au:S.aulas[`${HOJE_ISO}_${t.id}`]}));
+  if (semAula(HOJE_ISO)) return [];
+  return TURMAS.filter(t => t.dia === HOJE.getDay() && t.instr === pid && !(t.desde && t.desde > HOJE_ISO)).sort((a,b) => a.h.localeCompare(b.h)).map(t => ({t, au:S.aulas[`${HOJE_ISO}_${t.id}`]}));
 }
 function estimativaMes(pid, mes=MES_ATUAL){
   const r = repassesEquipe(S, mes).find(x => x.id === pid);
@@ -20,8 +21,8 @@ function vInstrHoje(){
   const minhasT = turmasDoInstr(pid).map(t => t.id);
   const doMes = Object.values(S.aulas).filter(a => mesDe(a.d) === MES_ATUAL && a.instr === pid);
   let previstas = doMes.length;
-  for (let d = addD(HOJE,1); iso(d) <= fimDoMes(MES_ATUAL); d = addD(d,1)) previstas += TURMAS.filter(t => t.dia === d.getDay() && t.instr === pid).length;
-  previstas += TURMAS.filter(t => t.dia === HOJE.getDay() && t.instr === pid && !S.aulas[`${HOJE_ISO}_${t.id}`]).length;
+  for (let d = addD(HOJE,1); iso(d) <= fimDoMes(MES_ATUAL); d = addD(d,1)) if (!semAula(iso(d))) previstas += TURMAS.filter(t => t.dia === d.getDay() && t.instr === pid && !(t.desde && t.desde > iso(d))).length;
+  previstas += aulasDeHoje(pid).filter(({au}) => !au).length;
   const feitas = doMes.filter(a => a.feita).length;
   let ocup = 0, cap = 0;
   doMes.filter(a => a.feita).forEach(a => { const n = matriculadosNaTurma(S, a.turma).length || 1; cap += n; ocup += Math.min(n, S.presencas.filter(x => x.s === a.id && x.a).length); });
@@ -35,7 +36,8 @@ function vInstrHoje(){
   const hoje = aulasDeHoje(pid);
   const pedidos = pedidosPara(pid);
   const atencao = fs.filter(x => x.f.st !== 'ok').sort((a,b) => (b.f.dias||99) - (a.f.dias||99));
-  const prox = (() => { for (let i=1;i<8;i++){ const d = addD(HOJE,i); const ts = TURMAS.filter(t => t.dia === d.getDay() && t.instr === pid).sort((a,b)=>a.h.localeCompare(b.h)); if (ts.length) return {d, t:ts[0]}; } })();
+  const prox = (() => { for (let i=1;i<15;i++){ const d = addD(HOJE,i); if (semAula(iso(d))) continue; const ts = TURMAS.filter(t => t.dia === d.getDay() && t.instr === pid && !(t.desde && t.desde > iso(d))).sort((a,b)=>a.h.localeCompare(b.h)); if (ts.length) return {d, t:ts[0]}; } })();
+  const feriados = proximosSemAula(14).filter(f => TURMAS.some(t => t.instr === pid && t.dia === pd(f.d).getDay()));
   return `
   <div class="pagehead anim-in"><div><h1>${saudacao()}, ${p.nome}</h1><p>${dataLonga(HOJE_ISO).replace(/^./, c => c.toUpperCase())} · ${p.atvs.map(a => ATIV[a].curto).join(', ')}</p></div></div>
   <section class="hero anim-in">
@@ -48,7 +50,8 @@ function vInstrHoje(){
         const n = au && au.feita ? S.presencas.filter(x => x.s === au.id).length : 0;
         const estado = !au ? `<span class="pill neu">${ic('clock')}às ${t.h}</span>` : au.feita ? `<span class="pill ok">${ic('check')}${au.vazia?'Aula vazia':n+' presentes'}</span>` : `<button class="btn sol sm" data-act="chamada" data-v="${HOJE_ISO}_${t.id}">${ic('list-checks','sm')}Fazer chamada</button>`;
         return `<div class="li"><span class="ico-b" style="color:${ATIV[t.atv].hex}">${ic(ATIV[t.atv].icon)}</span><div class="main-c"><span class="t">${nomeTurma(t)} · ${t.h}</span><span class="s">${t.sala} · ${t.aluno ? alunoPor(S,t.aluno).nome : matriculadosNaTurma(S,t.id).length+' matriculados'}${au && !au.feita ? ' · <b style="color:var(--sol-ink)">chamada pendente</b>' : ''}</span></div><div class="end">${estado}</div></div>`; }).join('')
-        : `<p class="muted">Hoje você não tem aulas.${prox ? ` A próxima é ${nomeTurma(prox.t)} ${DIAS_L[prox.d.getDay()].toLowerCase()} às ${prox.t.h}.` : ''}</p>`}</div>
+        : `<p class="muted">${semAula(HOJE_ISO) ? `Hoje é feriado (${semAula(HOJE_ISO).nome}): sem aula.` : 'Hoje você não tem aulas.'}${prox ? ` A próxima é ${nomeTurma(prox.t)} ${DIAS_L[prox.d.getDay()].toLowerCase()} às ${prox.t.h}.` : ''}</p>`}</div>
+      ${feriados.map(f => `<div class="alert pri" style="margin-top:10px"><span class="ib">${ic('calendar-x')}</span><div><div class="t">${DIAS_L[pd(f.d).getDay()]}, ${dataBR(f.d)}: ${escapeH(f.nome)}</div><div class="s">Sem aula. Saiu da agenda sozinho e seus alunos recebem o aviso dois dias antes.</div></div></div>`).join('')}
     </div>
     <div class="card"><div class="card-h"><h3>Pedidos de troca</h3><span class="sub">${pedidos.length ? 'Alguém precisa de você' : 'Nenhum aberto'}</span></div>
       ${pedidos.map(s => `<div class="alert warn" style="margin-bottom:10px"><span class="ib">${ic('repeat')}</span><div style="flex:1;min-width:0"><div class="t">${PESSOA[s.de].nome} pede troca: ${nomeTurma(TURMA[s.turma])} ${DIAS_L[pd(s.d).getDay()].toLowerCase()} ${dataBR(s.d)} às ${TURMA[s.turma].h}</div><div class="s">"${escapeH(s.motivo)}"</div><div class="row wrap" style="margin-top:10px"><button class="btn pri sm" data-act="aceitarSub" data-v="${s.id}">${ic('check','sm')}Eu cubro</button><button class="btn sec sm" data-act="recusarSub" data-v="${s.id}">Não posso</button></div></div></div>`).join('') || `<p class="muted small">Quando outra instrutora pedir troca numa atividade que você dá, o pedido aparece aqui. Para pedir uma troca, toque numa aula sua na Agenda.</p>`}
@@ -89,7 +92,7 @@ function vMeuMes(){
       <div class="row wrap" style="margin-bottom:14px">${pago ? `<span class="pill ok">${ic('check')}Pago em ${dataBR(pago.d)}</span>` : fy.fonte==='planilha' ? '<span class="pill neu">Fechado na planilha</span>' : `<span class="pill warn">${ic('clock')}A receber no dia 5</span>`}</div>
       ${ly && ly.aulas ? `<div class="eyebrow" style="margin-bottom:4px">Yoga em turma · ${ly.aulas} aulas dadas</div>
       <div class="list">
-        ${['2x','1x','3x','4x','avulsa'].filter(k => ly.c[k]).map(k => `<div class="li"><div class="main-c"><span class="t">${ly.c[k]} presenças de alunos ${k==='avulsa'?'avulsos':k}</span><span class="s">cada uma vale ${brl(fy.taxas[k])}</span></div><b class="num">${brl(ly.c[k]*fy.taxas[k])}</b></div>`).join('')}
+        ${['2x','1x','3x','4x','avulsa','wellhub','gogood'].filter(k => ly.c[k]).map(k => `<div class="li"><div class="main-c"><span class="t">${ly.c[k]} presenças de alunos ${k==='avulsa'?'avulsos':ehPlataforma(k)?'do '+PLANOS_YOGA[k].plataforma:k}</span><span class="s">cada uma vale ${brl(fy.taxas[k])}</span></div><b class="num">${brl(ly.c[k]*fy.taxas[k])}</b></div>`).join('')}
         ${ly.c.vazia ? `<div class="li"><div class="main-c"><span class="t">${ly.c.vazia} ${ly.c.vazia===1?'aula vazia':'aulas vazias'}</span><span class="s">ninguém veio · vale ${brl(fy.aulaVazia)}</span></div><b class="num">${brl(ly.c.vazia*fy.aulaVazia)}</b></div>` : ''}
         <div class="li"><div class="main-c"><span class="t">Ajuste do mês</span><span class="s">${fy.excedente>=0?'sobra':'falta'} de ${brl(Math.abs(fy.excedente))} ÷ ${fy.totalAulas} aulas = ${brl(fy.porAula)} por aula × ${ly.aulas}</span></div><b class="num" style="color:${ly.ajuste<0?'var(--bad)':'var(--ok)'}">${brl(ly.ajuste)}</b></div>
       </div>` : ''}
@@ -97,12 +100,12 @@ function vMeuMes(){
     </div>
     <div class="grid" style="align-content:start">
       <div class="card"><div class="card-h"><h3>Como o valor é calculado</h3></div>
-        <ol class="small" style="margin:0;padding-left:18px;display:grid;gap:8px;color:var(--ink-2)">
+        ${PESSOA[pid].atvs.every(k => ['aquarela','musicalizacao','violao'].includes(k)) ? `<ol class="small" style="margin:0;padding-left:18px;display:grid;gap:8px;color:var(--ink-2)"><li>Cada aluno seu vale ${Math.round((S.regras.pct[PESSOA[pid].atvs[0]] ?? .7)*100)}% da mensalidade dele, no mês em que ele paga.</li></ol>` : `<ol class="small" style="margin:0;padding-left:18px;display:grid;gap:8px;color:var(--ink-2)">
           <li>Cada aluno presente vale ${Math.round(fy.pctYoga*100)}% do plano dele dividido pelas aulas do mês. Aluno 2x: ${brl(fy.taxas['2x'])} por presença.</li>
           <li>Se ninguém vem, a aula vale ${brl(fy.aulaVazia)}.</li>
           <li>No fim do mês, o app compara com ${Math.round(fy.pctYoga*100)}% das mensalidades de yoga. A sobra (ou a falta) é dividida igualmente por aula dada.</li>
           <li>Particulares, gestantes, meditação e outras atividades entram com a sua porcentagem.</li>
-        </ol></div>
+        </ol>`}</div>
       <div class="card"><div class="card-h"><h3>Seus meses</h3></div>
         <div class="hbar">${hist.map(h => `<span>${nomeMes(h.m)}${FECH_PLANILHA[h.m]?' <span class="tag real">planilha</span>':''}</span><b class="num">${brl(h.v)}</b><div class="track"><span style="width:${RM?Math.max(0,h.v/mx*100):0}%;background:var(--chart-in)" data-w="${Math.max(0,Math.round(h.v/mx*100))}"></span></div>`).join('')}</div></div>
     </div>
@@ -116,7 +119,7 @@ function folhaChamada(sid){
   const au = S.aulas[sid] || {id:sid, d, turma:tid, instr:t.instr, feita:false};
   const mats = t.aluno ? [alunoPor(S, t.aluno)] : matriculadosNaTurma(S, tid);
   const ja = S.presencas.filter(p => p.s === sid);
-  CHAMADA = {sid, presentes:new Set(ja.filter(p => p.a).map(p => p.a)), extras:ja.filter(p => p.a && !mats.find(m => m.id === p.a)).map(p => p.a), visit:ja.filter(p => !p.a).length};
+  CHAMADA = {sid, presentes:new Set(ja.filter(p => p.a).map(p => p.a)), extras:ja.filter(p => p.a && !mats.find(m => m.id === p.a)).map(p => p.a), visitantes:ja.filter(p => !p.a).map(p => ({nome:p.nome || 'Visitante', t:p.t || 'avulsa'}))};
   desenharChamada();
 }
 function desenharChamada(){
@@ -124,24 +127,30 @@ function desenharChamada(){
   const mats = t.aluno ? [alunoPor(S, t.aluno)] : matriculadosNaTurma(S, tid);
   const extras = CHAMADA.extras.map(id => alunoPor(S,id));
   const lista = [...mats, ...extras];
-  const n = CHAMADA.presentes.size + CHAMADA.visit;
+  const n = CHAMADA.presentes.size + CHAMADA.visitantes.length;
+  const tx = taxasYoga(S.regras.planos, S.regras.pct.yoga), tipos = [['avulsa','Aula avulsa'],['wellhub','Wellhub'],['gogood','GoGood']];
   const outros = alunosVisiveis(S, UI.who.instrutor).filter(a => !lista.includes(a) && a.mats.some(m => m.atv === t.atv));
-  const plano = a => { const m = a.mats.find(x => x.atv === t.atv); return m ? (m.plano ? `plano ${m.plano}` : ATIV[m.atv].curto) : ''; };
+  const plano = a => { const m = a.mats.find(x => x.atv === t.atv); return m ? (ehPlataforma(m.plano) ? PLANOS_YOGA[m.plano].plataforma : m.plano ? `plano ${m.plano}` : ATIV[m.atv].curto) : ''; };
   abrirFolha(`${folhaCab(`Chamada · ${nomeTurma(t)}`, `${DIAS_L[pd(d).getDay()]}, ${dataBR(d)} às ${t.h} · ${t.sala}. Toque em quem veio.`)}
   <div class="stack">
+    ${n === 0 ? `<button class="vazia-btn" data-act="salvarChamada" data-v="vazia"><span class="ico-b">${ic('circle-slash')}</span><span><b>Ninguém veio · aula vazia</b><small>registra a aula e vale ${brl(S.regras.aulaVazia)} para você</small></span></button>` : ''}
     <div class="rollgrid">${lista.map(a => `<button class="roll ${CHAMADA.presentes.has(a.id)?'on':''}" data-act="marcar" data-v="${a.id}" aria-pressed="${CHAMADA.presentes.has(a.id)}">${av(a.nome)}<span class="col" style="gap:0"><span class="nm">${escapeH(a.nome.split(' ').slice(0,2).join(' '))}</span><span class="pl">${plano(a)}</span></span><span class="ck">${ic('check')}</span></button>`).join('')}</div>
     ${outros.length ? `<details><summary class="small strong" style="cursor:pointer;color:var(--pri)">Veio alguém de outra turma? (${outros.length})</summary><div class="chips" style="flex-wrap:wrap;margin-top:10px">${outros.map(a => `<button class="chip" data-act="addExtra" data-v="${a.id}">${ic('plus','sm')}${escapeH(a.nome)}</button>`).join('')}</div></details>` : ''}
-    ${t.atv === 'yoga' ? `<div class="row" style="justify-content:space-between;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><div><b class="small">Visitantes / aula avulsa</b><div class="tiny muted">cada um vale ${brl(taxasYoga(S.regras.planos, S.regras.pct.yoga).avulsa)}</div></div><div class="row"><button class="iconbtn" data-act="visit" data-v="-1" aria-label="Menos um visitante">${ic('minus')}</button><b class="num" style="min-width:20px;text-align:center">${CHAMADA.visit}</b><button class="iconbtn" data-act="visit" data-v="1" aria-label="Mais um visitante">${ic('plus')}</button></div></div>` : ''}
+    ${t.atv === 'yoga' ? `<div class="visit-box"><div class="row" style="justify-content:space-between"><b class="small">Visitantes, avulsos e plataformas</b><span class="tiny muted">${tipos.map(([k, l]) => `${l} ${brl(tx[k])}`).join(' · ')}</span></div>
+      ${CHAMADA.visitantes.length ? `<div class="list">${CHAMADA.visitantes.map((v, i) => `<div class="li" style="padding:8px 4px">${av(v.nome)}<div class="main-c"><span class="t">${escapeH(v.nome)}</span><span class="s">${(tipos.find(x => x[0] === v.t) || tipos[0])[1]} · vale ${brl(tx[v.t] || tx.avulsa)}</span></div><button class="iconbtn" data-act="visitDel" data-v="${i}" aria-label="Tirar ${escapeH(v.nome)}">${ic('x')}</button></div>`).join('')}</div>` : ''}
+      <div class="field" style="margin:0"><label for="visNome">Nome de quem veio</label><input class="inp" id="visNome" placeholder="Ex.: Joana Lima" autocomplete="off"></div>
+      <div class="optgrid">${tipos.map(([k, l], i) => `<button type="button" class="opt ${i === 0 ? 'on' : ''}" data-act="opt" data-grp="visTipo" data-v="${k}">${l}</button>`).join('')}</div><input type="hidden" id="visTipo" value="avulsa">
+      <button class="btn sec sm" data-act="visitAdd" style="justify-self:start">${ic('user-plus','sm')}Adicionar visitante</button></div>` : ''}
     <div class="sheet-foot">${n === 0 ? `<button class="btn sec" data-act="salvarChamada" data-v="vazia">Ninguém veio · aula vazia</button>` : `<button class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" data-act="salvarChamada" ${n===0?'disabled':''}>${ic('check')}Salvar chamada${n?` (${n})`:''}</button></div>
   </div>`, {wide:true});
 }
 function folhaMinhaTurma(tid){
   const t = TURMA[tid], prox = [];
-  for (let i = 0; prox.length < 4 && i < 40; i++){ const d = addD(HOJE, i); if (d.getDay() === t.dia) prox.push(iso(d)); }
+  for (let i = 0; prox.length < 4 && i < 60; i++){ const d = addD(HOJE, i); if (d.getDay() === t.dia && !(t.desde && t.desde > iso(d))) prox.push(iso(d)); }
   const passadas = Object.values(S.aulas).filter(a => a.turma === tid).sort((a,b) => a.d < b.d ? 1 : -1).slice(0,3);
   abrirFolha(`${folhaCab(`${nomeTurma(t)} · ${DIAS_L[t.dia]} ${t.h}`, `${t.sala} · ${t.aluno ? alunoPor(S,t.aluno).nome : matriculadosNaTurma(S,tid).length + ' matriculados'}`)}
   <div class="stack">
-    <div><div class="eyebrow" style="margin-bottom:6px">Próximas aulas</div><div class="list">${prox.map(d => { const s = S.subs.find(x => x.turma === tid && x.d === d); return `<div class="li"><div class="main-c"><span class="t">${DIAS_L[pd(d).getDay()]}, ${dataBR(d)}</span><span class="s">${s ? (s.status==='aberto' ? 'Troca pedida · aguardando' : `${PESSOA[s.para].nome} vai cobrir`) : 'Com você'}</span></div>${s ? '' : `<button class="btn sec sm" data-act="pedirSub" data-v="${tid}" data-d="${d}">${ic('repeat','sm')}Pedir troca</button>`}</div>`; }).join('')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">Próximas aulas</div><div class="list">${prox.map(d => { const f = semAula(d); if (f) return `<div class="li" style="opacity:.7"><div class="main-c"><span class="t">${DIAS_L[pd(d).getDay()]}, ${dataBR(d)}</span><span class="s">${ic('calendar-x','sm')} ${escapeH(f.nome)} · sem aula</span></div></div>`; const s = S.subs.find(x => x.turma === tid && x.d === d); return `<div class="li"><div class="main-c"><span class="t">${DIAS_L[pd(d).getDay()]}, ${dataBR(d)}</span><span class="s">${s ? (s.status==='aberto' ? 'Troca pedida · aguardando' : `${PESSOA[s.para].nome} vai cobrir`) : 'Com você'}</span></div>${s ? '' : `<button class="btn sec sm" data-act="pedirSub" data-v="${tid}" data-d="${d}">${ic('repeat','sm')}Pedir troca</button>`}</div>`; }).join('')}</div></div>
     <div><div class="eyebrow" style="margin-bottom:6px">Últimas chamadas</div><div class="list">${passadas.map(a => `<div class="li"><div class="main-c"><span class="t">${dataBR(a.d)}</span><span class="s">${a.feita ? (a.vazia ? 'Aula vazia' : S.presencas.filter(p => p.s === a.id).length + ' presentes') : 'Chamada pendente'}${a.sub ? ` · dada por ${PESSOA[a.instr].nome}` : ''}</span></div><button class="btn ${a.feita?'sec':'sol'} sm" data-act="chamada" data-v="${a.id}">${a.feita?'Corrigir':'Fazer chamada'}</button></div>`).join('') || '<p class="muted small">Nenhuma ainda.</p>'}</div></div>
   </div>`);
 }

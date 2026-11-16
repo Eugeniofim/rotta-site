@@ -4,8 +4,6 @@
 UI.livres = {};
 
 function vPorta(){
-  const instrs = EQUIPE.filter(p => p.ativo !== false && p.id !== 'stefy').map(p => p.id);
-  const alunosDemo = [['a01','Luana · yoga e meditação'],['a04','Camila · yoga e aquarela'],['a12','Débora · mensalidade atrasada'],['a30','Alice · musicalização']];
   return `<div class="door">
     <div class="raios" aria-hidden="true"></div>
     <div class="door-in">
@@ -15,21 +13,104 @@ function vPorta(){
         <p>Inscrição, aulas, chamada, mensalidades, repasses, lojinha, eventos e balanço. Cada pessoa entra e vê só o que é dela.</p></div>
       <div class="doors">
         <div class="dcard dcard-aluno anim-in" style="animation-delay:60ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,var(--folha),#3E8E6E)">${ic('sprout','lg')}</span><div><h3>Alunos</h3><p>Quem pratica ou quer começar</p></div></div>
-          <p>Inscrição em poucos minutos, próximas aulas, frequência, pontos, eventos e o pagamento por Pix ou cartão.</p>
+          <p>Inscrição em poucos minutos, próximas aulas, frequência, eventos e o pagamento por Pix ou cartão.</p>
           <button class="btn sol block" data-act="inscricao">${ic('user-plus')}Quero me inscrever</button>
-          <div class="eyebrow" style="margin-top:2px">Já sou aluno · entrar como</div>
-          <div class="who">${alunosDemo.map(([id,l]) => `<button class="chip" data-act="entrar" data-v="aluno" data-who="${id}">${l}</button>`).join('')}</div></div>
+          <form class="login" data-login="aluno"><label class="eyebrow" for="loginCel">Já sou aluno · entrar com o celular</label>
+            <div class="row"><input class="inp num" id="loginCel" type="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 9 0000-0000" data-act-in="celMask"><button class="btn pri" type="submit">Entrar</button></div>
+            <span class="tiny muted">Na primeira vez chega um código pelo WhatsApp. Depois este celular fica conectado. Sem senha para lembrar.</span></form></div>
         <div class="dcard anim-in" style="animation-delay:120ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,#B9488E,var(--sol))">${ic('hand-heart','lg')}</span><div><h3>Instrutores</h3><p>Professores e terapeutas</p></div></div>
           <p>Chamada com um toque, ficha de cada aluno, quem anda sumido, troca de aula e quanto vai receber no mês.</p>
-          <div class="who">${instrs.map(id => `<button class="chip" data-act="entrar" data-v="instrutor" data-who="${id}">${PESSOA[id].nome}</button>`).join('')}</div></div>
-        <div class="dcard anim-in" style="animation-delay:180ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,var(--sol),var(--acafrao))">${ic('layout-dashboard','lg')}</span><div><h3>Administração</h3><p>Dessa e Vitor</p></div></div>
+          <form class="login" data-login="instrutor"><label class="eyebrow" for="loginPin">Seu PIN de 6 números</label>
+            <div class="row"><input class="inp num pin" id="loginPin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="PIN de 6 números"><button class="btn pri" type="submit">Entrar</button></div>
+            <span class="tiny muted" id="pinMsg">O PIN é só seu. Esqueceu? A administração gera outro na hora.</span></form></div>
+        <div class="dcard anim-in" style="animation-delay:180ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,var(--sol),var(--acafrao))">${ic('layout-dashboard','lg')}</span><div><h3>Administração</h3><p>Quem cuida do Espaço</p></div></div>
           <p>Balanço, mensalidades, repasses, lojinha, inscrições novas, eventos e avisos automáticos.</p>
-          <div class="who">${ADMINS.map(a => `<button class="btn pri sm" data-act="entrar" data-v="admin" data-who="${a.id}">Entrar como ${a.nome}</button>`).join('')}</div></div>
+          <button class="btn sec block gbtn" data-act="adminGoogle"><span class="g" aria-hidden="true">G</span>Entrar com Google</button>
+          <span class="tiny muted">Depois, o PIN do painel. Só as duas contas da administração entram.</span></div>
       </div>
+      <details class="dicas-proto"><summary>${ic('info','sm')}Para testar o protótipo</summary>
+        <div class="grid g3" style="margin-top:10px">
+          <div><b class="small">Alunos · toque para preencher</b><div class="chips" style="flex-wrap:wrap;margin-top:6px">${['a01','a04','a12','a30','a34'].map(id => { const a = alunoPor(S, id); return a ? `<button class="chip" data-act="celDemo" data-v="${escapeH(a.tel)}">${escapeH(a.nome.split(' ')[0])}</button>` : ''; }).join('')}</div><span class="tiny muted">O código aparece na tela (no app de verdade chega pelo WhatsApp).</span></div>
+          <div><b class="small">Instrutores · PIN</b><div class="tiny muted" style="margin-top:6px;line-height:1.7">${EQUIPE.filter(p => p.ativo !== false && S.codigos && S.codigos[p.id]).map(p => `${escapeH(p.nome)}: <b class="num">${S.codigos[p.id].c}</b>`).join(' · ')}</div></div>
+          <div><b class="small">Administração</b><div class="tiny muted" style="margin-top:6px;line-height:1.7">Google é simulado. PIN do painel: ${ADMINS.map(a => `${a.nome} <b class="num">${(S.pinAdmin || {})[a.id] || '—'}</b>`).join(' · ')}</div></div>
+        </div></details>
       <p class="citacao">“Que o sol faça chover felicidade! Que nossos animais domésticos sejam abençoados!”<b>Caryacarya I · Shrii Shrii Anandamurti</b></p>
       ${faixaProto('Protótipo navegável. Mensalidades de jan–mar e vendas da lojinha de mar–jul vêm das planilhas reais; nomes de alunos, horários e lançamentos são exemplo. Hoje, na demonstração, é quinta, 29 de outubro de 2026.')}
     </div>
   </div>`;
+}
+/* ---------- entrar: aluno pelo celular, instrutor pelo PIN, administração pelo Google + PIN ---------- */
+const soDig = s => String(s || '').replace(/\D/g, '');
+const mascCel = s => { const d = soDig(s).slice(0, 11); return d.length <= 2 ? d : d.length <= 7 ? `(${d.slice(0,2)}) ${d.slice(2)}` : `(${d.slice(0,2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}`; };
+function alunosDoCel(dig){ return S.alunos.filter(a => a.status !== 'inativo' && [a.tel, a.respTel].some(t => t && soDig(t).slice(-11) === dig.slice(-11))); }
+function loginAluno(){
+  const dig = soDig($('#loginCel')?.value);
+  if (dig.length < 10){ $('#loginCel')?.focus(); avisar('Digite o celular com DDD', 'circle-alert'); return; }
+  const quem = alunosDoCel(dig);
+  if (!quem.length){ abrirFolha(`${folhaCab('Não achamos esse celular', mascCel(dig))}<div class="stack"><p>Se você é novo por aqui, faça a inscrição: leva poucos minutos. Se já é aluno, pode ser que o Espaço tenha outro número seu.</p>
+    <div class="sheet-foot"><a class="btn sec" href="https://wa.me/${ESPACO.whats}?text=${encodeURIComponent('Oi! Sou aluno e não consegui entrar no app com o celular ' + mascCel(dig) + '.')}" target="_blank" rel="noopener">${ic('phone','sm')}Falar com o Espaço</a><button class="btn sol" data-act="inscricao">${ic('user-plus')}Quero me inscrever</button></div></div>`); return; }
+  if (lerLembrar()['cel:' + dig]) return escolherAluno(quem);
+  UI.otp = {dig, c:String(100000 + Math.floor(Math.random() * 900000)), n:0};
+  folhaOtp();
+}
+function folhaOtp(msg){
+  const o = UI.otp;
+  abrirFolha(`${folhaCab('Código pelo WhatsApp', `Mandamos 6 números para ${mascCel(o.dig)}`)}
+  <form class="stack login" data-login="otp" style="justify-items:center;text-align:center">
+    <span class="ico-b" style="width:64px;height:64px;border-radius:20px;background:var(--ok-bg);color:var(--ok)">${ic('message-circle','xl')}</span>
+    <input class="inp codigo" id="otpIn" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Código de 6 números">
+    <p class="small ${msg ? '' : 'muted'}" style="${msg ? 'color:var(--bad);font-weight:600' : ''}">${msg || 'O código vale por 10 minutos.'}</p>
+    <label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="otpLembrar" checked style="width:20px;height:20px;accent-color:var(--pri)"> Manter este celular conectado</label>
+    <button class="btn pri block" type="submit">${ic('check')}Entrar</button>
+    <p class="tiny muted"><b>Demonstração:</b> o código é ${o.c.slice(0,3)} ${o.c.slice(3)}.</p>
+  </form>`);
+  setTimeout(() => $('#otpIn')?.focus(), 350);
+}
+function conferirOtp(){
+  const o = UI.otp, dig = soDig($('#otpIn')?.value);
+  if (!o) return;
+  if (dig !== o.c){ o.n++; if (o.n >= 5){ UI.otp = null; fecharFolha(); avisar('Muitas tentativas. Peça um código novo.', 'circle-alert'); return; } folhaOtp(`Código não confere. Restam ${5 - o.n} tentativas.`); return; }
+  if ($('#otpLembrar')?.checked){ const L = lerLembrar(); L['cel:' + o.dig] = HOJE_ISO; gravarLembrar(L); }
+  UI.otp = null; escolherAluno(alunosDoCel(o.dig));
+}
+function escolherAluno(quem){
+  if (quem.length === 1){ fecharFolha(); ACT.entrar({v:'aluno', who:quem[0].id}); avisar(`Namaskar, ${quem[0].nome.split(' ')[0]}!`, 'check'); return; }
+  abrirFolha(`${folhaCab('Quem vai entrar?', 'Este celular está na ficha de mais de uma pessoa')}<div class="list">${quem.map(a => `<button class="li tap" style="width:100%;text-align:left" data-act="entrar" data-v="aluno" data-who="${a.id}">${av(a.nome)}<div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">${a.mats.map(m => ATIV[m.atv]?.curto || '').join(' + ')}</span></div>${ic('chevron-right','sm')}</button>`).join('')}</div>`);
+}
+UI.tentPin = {n:0, ate:0};
+function loginInstrutor(){
+  const T = UI.tentPin, msg = $('#pinMsg'), dig = soDig($('#loginPin')?.value);
+  if (T.ate > Date.now()){ if (msg){ msg.textContent = 'Muitas tentativas. Espere 15 minutos ou peça um PIN novo para a administração.'; msg.style.color = 'var(--bad)'; } return; }
+  if (dig.length !== 6){ $('#loginPin')?.focus(); avisar('O PIN tem 6 números', 'circle-alert'); return; }
+  const p = EQUIPE.find(x => x.ativo !== false && S.codigos && S.codigos[x.id] && S.codigos[x.id].c === dig);
+  if (!p){ T.n++; if (T.n >= 5){ T.ate = Date.now() + 15 * 60e3; T.n = 0; } if (msg){ msg.textContent = T.ate > Date.now() ? 'Muitas tentativas. Espere 15 minutos ou peça um PIN novo para a administração.' : `PIN não confere. Restam ${5 - T.n} tentativas.`; msg.style.color = 'var(--bad)'; msg.style.fontWeight = '600'; } $('#loginPin').value = ''; $('#loginPin').focus(); return; }
+  T.n = 0; UI.codigoOk[p.id] = S.codigos[p.id].v; const L = lerLembrar(); L[p.id] = S.codigos[p.id].v; gravarLembrar(L);
+  ACT.entrar({v:'instrutor', who:p.id}); avisar(`Namaskar, ${p.nome}!`, 'check');
+}
+function folhaGoogle(){
+  abrirFolha(`${folhaCab('Entrar com Google', 'Demonstração: no app de verdade abre a tela do Google')}
+  <div class="stack"><p class="small muted">Escolha a conta. Só as contas cadastradas da administração passam daqui; qualquer outra volta para a entrada.</p>
+    <div class="list">${ADMINS.map(a => `<button class="li tap" style="width:100%;text-align:left" data-act="adminConta" data-v="${a.id}">${av(a.nome)}<div class="main-c"><span class="t">${escapeH(a.nome)}</span><span class="s">conta Google da administração</span></div>${ic('chevron-right','sm')}</button>`).join('')}</div></div>`);
+}
+UI.tentAdm = {n:0, ate:0};
+function folhaPinAdmin(id, msg){
+  const a = ADMINS.find(x => x.id === id), bloq = UI.tentAdm.ate > Date.now();
+  abrirFolha(`${folhaCab(`Olá, ${escapeH(a.nome)}`, 'Digite o PIN do painel')}
+  <form class="stack login" data-login="admin" data-id="${id}" style="justify-items:center;text-align:center">
+    <span class="ico-b" style="width:64px;height:64px;border-radius:20px;background:color-mix(in srgb,var(--sol) 16%,var(--surface));color:var(--sol-ink)">${ic('lock','xl')}</span>
+    <input class="inp codigo" id="pinAdm" inputmode="numeric" maxlength="6" placeholder="••••" aria-label="PIN do painel" ${bloq ? 'disabled' : ''}>
+    <p class="small ${msg ? '' : 'muted'}" style="${msg ? 'color:var(--bad);font-weight:600' : ''}">${bloq ? 'Muitas tentativas. Espere 15 minutos.' : msg || 'De 4 a 6 números. Protege o painel se alguém pegar o celular.'}</p>
+    <button class="btn pri block" type="submit" ${bloq ? 'disabled' : ''}>${ic('check')}Abrir o painel</button>
+    <button class="btn ghost sm" type="button" data-act="trocarConta">Usar outra conta Google</button>
+  </form>`);
+  setTimeout(() => $('#pinAdm')?.focus(), 350);
+}
+function conferirPinAdmin(id){
+  const T = UI.tentAdm; if (T.ate > Date.now()) return;
+  const dig = soDig($('#pinAdm')?.value);
+  if (dig && dig === (S.pinAdmin || {})[id]){ T.n = 0; const L = lerLembrar(); L.google = id; gravarLembrar(L); fecharFolha(); ACT.entrar({v:'admin', who:id}); avisar(`Namaskar, ${ADMINS.find(a => a.id === id).nome}!`, 'check'); return; }
+  T.n++; if (T.n >= 5){ T.ate = Date.now() + 15 * 60e3; T.n = 0; }
+  folhaPinAdmin(id, `PIN não confere. Restam ${5 - T.n} tentativas.`);
 }
 
 function render(){
@@ -75,9 +156,28 @@ function reRender(){ const y = scrollY; render(); scrollTo({top:y}); }
 const ACT = {
   entrar:(d) => { if (d.v === 'instrutor' && !instrutorLiberado(d.who)){ folhaCodigo(d.who); return; } fecharFolha(); UI.who[d.v] = d.who; if (d.v === 'aluno'){ UI.alunoAtv = 'pratica'; if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) ganhar('instalar', d.who); } ir(d.v, NAV[d.v][0][0]); },
   tab:(d) => { fecharFolha(); ir(null, d.v); },
+  semLinkCartao:() => avisar('No protótipo o link ainda não está ligado. A administração põe o link em Mensalidades → Regras.', 'info'),
+  feriadoNovo:() => folhaFeriadoNovo(),
+  feriadoToggle:(d) => { const X = S.feriados = S.feriados || {extra:[], comAula:[]}; X.comAula = X.comAula || []; const i = X.comAula.indexOf(d.v); if (i >= 0) X.comAula.splice(i, 1); else X.comAula.push(d.v); salvar(); reRender(); avisar(i >= 0 ? `${dataBR(d.v)}: sem aula. Os alunos recebem o aviso.` : `${dataBR(d.v)}: vai ter aula normal`, 'calendar'); },
+  feriadoDel:(d) => { S.feriados.extra = (S.feriados.extra || []).filter(x => x.d !== d.v); salvar(); reRender(); avisar(`${dataBR(d.v)} voltou a ter aula`, 'calendar'); },
+  driveConectar:() => folhaDriveConectar(),
+  driveOk:() => { const conta = ($('#drConta')?.value || ESPACO.email).trim(); S.config = S.config || {}; S.config.drive = {conta, pasta:'Backups Anirvana', em:HOJE_ISO, ultimo:null}; salvar(); fecharFolha(); reRender(); avisar(`Google Drive conectado: ${conta}. O backup do mês cai sozinho na pasta Backups Anirvana.`, 'cloud'); },
+  driveEnviar:() => { try{ const bytes = montarBackup(S, {quem:quemNome()}); S.config.drive.ultimo = HOJE_ISO; (S.backups = S.backups || []).push({mes:MES_ATUAL, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, por:quemNome(), drive:true}); salvar(); reRender(); avisar(`${nomeBackup()} (${Math.round(bytes.length / 1024)} KB) enviado para a pasta ${S.config.drive.pasta}. No protótipo o arquivo não sai daqui.`, 'cloud'); }catch(e){ avisar('Não deu para gerar o backup agora: ' + e.message, 'circle-alert'); } },
+  driveSair:() => { S.config.drive = null; salvar(); reRender(); avisar('Google Drive desconectado. O backup continua indo para o e-mail e o cofre.', 'cloud-off'); },
+  editarAviso:(d) => folhaEditarAviso(d.v),
+  avisoPadrao:(d) => { const c = (S.avisos = S.avisos || {})[d.v] = S.avisos[d.v] || {}; delete c.q; delete c.modelo; salvar(); fecharFolha(); reRender(); avisar('Aviso de volta ao padrão'); },
+  terapia:(d) => folhaTerapia(d.v),
+  terapiaDel:(d) => { S.terapias = (S.terapias || []).filter(t => t.id !== d.v); salvar(); fecharFolha(); reRender(); avisar('Terapia tirada da aba do aluno'); },
+  pontosLigar:() => { S.config.pontos = true; salvar(); reRender(); avisar('Pontos ligados: os alunos já veem os pontos e os presentes', 'gift'); },
+  verPinAdm:(d) => { UI.verPinAdm = UI.verPinAdm === d.v ? null : d.v; reRender(); },
+  trocarPinAdm:(d) => folhaTrocarPinAdm(d.v),
+  celDemo:(d) => { const el = $('#loginCel'); if (el){ el.value = d.v; el.focus(); } },
+  adminGoogle:() => { const g = lerLembrar().google; if (g && ADMINS.some(a => a.id === g)) folhaPinAdmin(g); else folhaGoogle(); },
+  adminConta:(d) => folhaPinAdmin(d.v),
+  trocarConta:() => { const L = lerLembrar(); delete L.google; gravarLembrar(L); folhaGoogle(); },
   role:(d) => ir(d.v),
   trocar:() => abrirFolha(`${folhaCab('Ver o app como…', 'No app de verdade cada pessoa entra com o próprio login e vê só o painel dela.')}
-    <div class="stack">${[['admin','Administração',ADMINS.map(a=>[a.id,a.nome])],['instrutor','Instrutores',EQUIPE.filter(p=>p.id!=='stefy').map(p=>[p.id,p.nome])],['aluno','Alunos',[['a01','Luana'],['a04','Camila'],['a12','Débora'],['a30','Alice'],['a09','Gabriel']]]].map(([r,l,ps]) => `<div><div class="eyebrow" style="margin-bottom:8px">${l}</div><div class="chips" style="flex-wrap:wrap">${ps.map(([id,n]) => `<button class="chip ${UI.role===r&&UI.who[r]===id?'on':''}" data-act="entrar" data-v="${r}" data-who="${id}">${n}</button>`).join('')}</div></div>`).join('')}
+    <div class="stack"><p class="tiny muted" style="margin-top:-4px">Atalho da demonstração: pula o login.</p>${[['admin','Administração',ADMINS.map(a=>[a.id,a.nome])],['instrutor','Instrutores',EQUIPE.filter(p=>p.id!=='stefy').map(p=>[p.id,p.nome])],['aluno','Alunos',[['a01','Luana'],['a04','Camila'],['a12','Débora'],['a30','Alice'],['a09','Gabriel']]]].map(([r,l,ps]) => `<div><div class="eyebrow" style="margin-bottom:8px">${l}</div><div class="chips" style="flex-wrap:wrap">${ps.map(([id,n]) => `<button class="chip ${UI.role===r&&UI.who[r]===id?'on':''}" data-act="entrar" data-v="${r}" data-who="${id}">${n}</button>`).join('')}</div></div>`).join('')}
     <button class="btn sec" data-act="sair">${ic('log-out')}Voltar para a entrada</button>
     <button class="btn ghost" data-act="reset">${ic('rotate-ccw')}Recomeçar a demonstração</button></div>`),
   sair:() => { fecharFolha(); UI.role = null; history.replaceState(null,'',location.pathname); render(); scrollTo({top:0}); },
@@ -87,7 +187,7 @@ const ACT = {
   copiar:(d) => { const ok = () => avisar('Copiado'); try{ navigator.clipboard.writeText(d.v).then(ok, () => avisar(d.v,'copy')); }catch(e){ avisar(d.v,'copy'); } },
   opt:(d, el) => {
     $$(`.opt[data-grp="${d.grp}"]`).forEach(o => o.classList.toggle('on', o === el));
-    const h = $('#'+d.grp); if (h) h.value = d.v;
+    const h = $('#'+d.grp); if (h){ h.value = d.v; if (d.grp === 'f_menor') h.dataset.mexeu = '1'; }
     if (d.grp === 'lCat'){ const dica = CAT_SAIDA[d.v]?.dica || CAT_ENTRADA[d.v]?.dica; const el2 = $('#lDica'); if (el2) el2.textContent = dica || ''; }
     if (d.grp === 'vForma'){ const f = $('#vClienteF'); if (f) f.hidden = !['fiado','descontado'].includes(d.v); }
     if (d.grp === 'iAtv'){ inscSalvar(); UI.insc.d.atv = d.v; UI.insc.d.instr = ''; UI.insc.d.turmas = ''; const y = $('#sheet').scrollTop; folhaInscricao(); $('#sheet').scrollTop = y; return; }
@@ -174,16 +274,18 @@ const ACT = {
   chamada:(d) => folhaChamada(d.v),
   marcar:(d, el) => { const s = CHAMADA.presentes; s.has(d.v) ? s.delete(d.v) : s.add(d.v); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   addExtra:(d) => { CHAMADA.extras.push(d.v); CHAMADA.presentes.add(d.v); desenharChamada(); },
-  visit:(d) => { CHAMADA.visit = Math.max(0, CHAMADA.visit + +d.v); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
+  visitAdd:() => { const nome = ($('#visNome')?.value || '').trim(), t = $('#visTipo')?.value || 'avulsa'; if (!nome){ $('#visNome')?.focus(); avisar('Escreva o nome de quem veio', 'circle-alert'); return; } CHAMADA.visitantes.push({nome, t}); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
+  visitDel:(d) => { CHAMADA.visitantes.splice(+d.v, 1); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   salvarChamada:(d) => {
     const {sid} = CHAMADA, [dia, tid] = sid.split('_'), t = TURMA[tid];
     if ((S.fechados || {})[mesDe(dia)]){ avisar(`${nomeMes(mesDe(dia))} já foi fechado. Peça para a administração reabrir.`, 'circle-alert'); return; }
     S.presencas = S.presencas.filter(p => p.s !== sid);
     CHAMADA.presentes.forEach(aid => { const a = alunoPor(S,aid); const m = a.mats.find(x => x.atv === t.atv) || a.mats[0]; S.presencas.push({s:sid, a:aid, t: m.plano || 'mensal'}); });
-    for (let i=0;i<CHAMADA.visit;i++) S.presencas.push({s:sid, a:null, nome:'Visitante', t:'avulsa'});
+    if (d.v === 'vazia'){ CHAMADA.presentes.clear(); CHAMADA.visitantes = []; S.presencas = S.presencas.filter(p => p.s !== sid); }
+    CHAMADA.visitantes.forEach(v => S.presencas.push({s:sid, a:null, nome:v.nome || 'Visitante', t:v.t || 'avulsa'}));
     const au = S.aulas[sid] || (S.aulas[sid] = {id:sid, d:dia, turma:tid, instr:UI.who.instrutor, sub:false});
-    au.feita = true; au.vazia = d.v === 'vazia' || (CHAMADA.presentes.size + CHAMADA.visit === 0);
-    const n = CHAMADA.presentes.size + CHAMADA.visit;
+    const n = CHAMADA.presentes.size + CHAMADA.visitantes.length;
+    au.feita = true; au.vazia = d.v === 'vazia' || n === 0;
     salvar(); fecharFolha(); reRender();
     avisar(au.vazia ? `Aula vazia registrada · vale ${brl(S.regras.aulaVazia)}` : `Chamada salva: ${n} ${n===1?'presente':'presentes'}`);
   },
@@ -227,7 +329,7 @@ const ACT = {
 
   /* inscrição (réplica dos Google Forms de cada atividade) */
   inscricao:() => { UI.insc = {passo:0, d:{}}; folhaInscricao(); },
-  inscPasso:(d) => { inscSalvar(); const dir = +d.v; if (dir > 0){ const falta = inscValida(UI.insc.passo); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; } } UI.insc.passo = Math.max(0, Math.min(3, UI.insc.passo + dir)); folhaInscricao(); $('#sheet').scrollTop = 0; },
+  inscPasso:(d) => { inscSalvar(); const dir = +d.v; if (dir > 0){ const falta = inscValida(UI.insc.passo); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; } } let p = Math.max(0, Math.min(3, UI.insc.passo + dir)); if (passoPula(p)) p = Math.max(0, Math.min(3, p + dir)); UI.insc.passo = p; folhaInscricao(); $('#sheet').scrollTop = 0; },
   verTermos:() => { inscSalvar(); folhaTermos(); },
   fecharTermos:() => folhaInscricao(),
   inscEnviar:() => {
@@ -236,7 +338,7 @@ const ACT = {
     const quem = F.crianca ? d.respNome : d.nome, prof = PROF_FORM[d.atv];
     const zap = `https://wa.me/5541998487892?text=${encodeURIComponent(`Oi! Acabei de fazer a inscrição de ${d.nome} em ${ATIV[d.atv].nome} pelo app.`)}`;
     abrirFolha(`${folhaCab('Inscrição enviada', '')}<div class="stack" style="text-align:center;justify-items:center"><span class="ico-b" style="width:72px;height:72px;border-radius:24px;background:var(--ok-bg);color:var(--ok)">${ic('check','xl')}</span><h2 style="font-size:26px">Namaskar, ${escapeH(String(quem || '').split(' ')[0])}!</h2>
-      <p class="muted" style="max-width:42ch">${F.final ? escapeH(F.final.replace('{prof}', prof || '')) : `A Dessa e o Vitor já receberam sua inscrição e a sua ficha. A confirmação do horário chega pelo WhatsApp${d.experimental ? ', junto com a data da aula experimental' : ''}.`}</p>
+      <p class="muted" style="max-width:42ch">${F.final ? escapeH(F.final.replace('{prof}', prof || '')) : `A administração do Espaço já recebeu sua inscrição e a sua ficha. A confirmação do horário chega pelo WhatsApp${d.experimental ? ', junto com a data da aula experimental' : ''}.`}</p>
       <div class="row wrap" style="justify-content:center"><a class="btn sec" href="${zap}" target="_blank" rel="noopener">${ic('phone','sm')}Falar no WhatsApp</a><button class="btn pri" data-act="fechar">Pronto</button></div></div>`);
     setTimeout(() => mostrarPush('Nova inscrição', `${d.nome} quer ${ATIV[d.atv].curto.toLowerCase()}. A ficha já está no painel.`), 900);
     if (UI.role) setTimeout(reRender, 400);
@@ -245,12 +347,14 @@ const ACT = {
     const a = {id:'_', nome:x.nome, mats:[{atv:x.atv}], ficha:{form:F.id, respostas:x, saudeOk:x.saudeOk !== false}};
     const contato = F.crianca ? x.tel : x.tel;
     abrirFolha(`${folhaCab(escapeH(x.nome), `${escapeH(tituloForm(F, x.atv))} · inscrição de ${dataBR(i.d)}${i.origem === 'forms' ? ' · veio do Google Forms' : ' · pelo app'}`)}<div class="stack">
-      <div class="list"><div class="li"><span class="ico-b" style="color:${ATIV[x.atv].hex}">${ic(ATIV[x.atv].icon)}</span><div class="main-c"><span class="t">${ATIV[x.atv].nome}${x.plano && x.atv === 'yoga' ? ' · ' + PLANOS_YOGA[x.plano].nome : ''}</span><span class="s">${(x.turmas || '').split(',').filter(Boolean).map(t => TURMA[t] ? `${DIAS[TURMA[t].dia]} ${TURMA[t].h}` : '').join(', ') || 'horário a combinar'}${x.experimental ? ' · quer aula experimental' : ''}</span></div></div>
+      <div class="list"><div class="li"><span class="ico-b" style="color:${ATIV[x.atv].hex}">${ic(ATIV[x.atv].icon)}</span><div class="main-c"><span class="t">${ATIV[x.atv].nome}${x.plano && x.atv === 'yoga' && PLANOS_YOGA[x.plano] ? ' · ' + PLANOS_YOGA[x.plano].nome : ''}${x.atv === 'particular' && PLANOS_PART[x.plano] ? ` · ${PLANOS_PART[x.plano].nome} · ${x.modo === 'online' ? 'online' : 'presencial'}` : ''}</span><span class="s">${(x.turmas || '').split(',').filter(Boolean).map(t => TURMA[t] ? `${DIAS[TURMA[t].dia]} ${TURMA[t].h}` : '').join(', ') || 'horário a combinar'}${x.experimental ? ' · quer aula experimental' : ''}</span></div></div>
       <div class="li"><span class="ico-b">${ic('phone')}</span><div class="main-c"><span class="t num">${escapeH(contato || '—')}</span><span class="s">${F.crianca ? `WhatsApp de ${escapeH(x.respNome || 'responsável')}` : 'WhatsApp'}</span></div>${contato ? `<button class="btn ghost sm" data-act="copiar" data-v="${escapeH(contato)}">${ic('copy','sm')}Copiar</button>` : ''}</div></div>
       ${blocoFicha(a, 'admin')}
       ${i.origem === 'forms' && !x.priv ? `<div class="alert warn"><span class="ib">${ic('circle-alert')}</span><div><div class="t">Falta o aceite da privacidade</div><div class="s">Quem veio do Google Forms recebe o link para aceitar a política de privacidade no primeiro acesso.</div></div></div>` : ''}
+      ${x.atv === 'particular' && i.estado === 'nova' ? `<div class="field"><label>Quem vai dar a aula particular</label><div class="optgrid">${EQUIPE.filter(p => p.atvs.includes('particular')).map(p => `<button type="button" class="opt ${x.instr === p.id ? 'on' : ''}" data-act="opt" data-grp="cInstr" data-v="${p.id}">${av(p.nome)}${escapeH(p.nome)}</button>`).join('')}</div><input type="hidden" id="cInstr" value="${escapeH(x.instr || '')}"><span class="help">${x.modo === 'online' ? 'Pediu online.' : 'Pediu presencial.'} O aluno só aparece para a professora escolhida.</span></div>` : ''}
       <div class="sheet-foot"><button class="btn sec" data-act="fechar">Depois</button><button class="btn pri" data-act="confirmarInscricao" data-v="${i.id}">${ic('check')}Confirmar matrícula</button></div></div>`); },
-  confirmarInscricao:(d) => { const r = confirmarInscricao(d.v); salvar(); fecharFolha(); reRender(); avisar(`Matrícula confirmada. A ficha já aparece para ${r.quem.join(', ') || 'a equipe'}, e a família recebeu o WhatsApp de boas-vindas.`, 'user-plus'); },
+  confirmarInscricao:(d) => { const ii = S.inscricoes.find(x => x.id === d.v); if (ii && ii.dados.atv === 'particular' && !ii.dados.instr){ const sel = $('#cInstr')?.value; if (!sel){ ACT.verInscricao(d); setTimeout(() => avisar('Escolha quem vai dar a aula particular', 'circle-alert'), 300); return; } ii.dados.instr = sel; }
+    const r = confirmarInscricao(d.v); salvar(); fecharFolha(); reRender(); avisar(`Matrícula confirmada. A ficha já aparece para ${r.quem.join(', ') || 'a equipe'}, e a família recebeu o WhatsApp de boas-vindas.`, 'user-plus'); },
   linkInscricao:() => ACT.copiar({v:'https://rottaguide.com/anirvana#inscricao'}),
   importarForms:() => folhaImportar(),
   inscricaoBalcao:() => { UI.insc = {passo:0, d:{}, balcao:true}; folhaInscricao(); },
@@ -312,12 +416,12 @@ const ACT = {
     const mes = st.st === 'pago' ? (() => { const x = pd(proximaCobranca(S,m)); return `${x.getFullYear()}-${pad(x.getMonth()+1)}`; })() : MES_ATUAL;
     /* o aluno só AVISA que pagou; quem dá baixa é a administração */
     if (!(S.avisosPag || []).some(x => x.mat === m.id && x.mes === mes && x.estado === 'aguardando'))
-      (S.avisosPag = S.avisosPag || []).push({id:'ap'+(S.seq++), a:a.id, mat:m.id, mes, valor:valorMat(S,m), d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, metodo:d.x, estado:'aguardando'});
-    if (d.x === 'cartao' && $('#cRec')?.checked){ m.metodo = 'cartao'; m.cartaoFim = ($('#cNum').value.replace(/\D/g,'').slice(-4)) || m.cartaoFim || '4242'; }
-    salvar(); fecharFolha(); reRender(); avisar(`Pronto! Avisamos a administração. Assim que a Dessa ou o Vitor confirmarem, aparece como pago.`, 'send');
+      (S.avisosPag = S.avisosPag || []).push({id:'ap'+(S.seq++), a:a.id, mat:m.id, mes, valor: d.x === 'cartao' ? comCartao(S, valorMat(S,m)) : valorMat(S,m), taxa: d.x === 'cartao' ? (S.regras.taxaCartao ?? TAXA_CARTAO) : 0, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, metodo:d.x, estado:'aguardando'});
+    salvar(); reRender(); folhaComprovante(m.id, mes, d.x);
   },
   maisFin:(d) => folhaMaisFin(d.v, d.x || 'menu'),
-  salvarMetodo:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); m.metodo = $('#fMet').value; if (m.metodo === 'cartao' && !m.cartaoFim) m.cartaoFim = '4242'; salvar(); fecharFolha(); reRender(); avisar({cartao:'Pronto: cobrança automática no cartão', pixauto:'Pronto: autorize o Pix Automático no app do seu banco', pix:'Pronto: você vai receber o Pix todo mês'}[m.metodo]); },
+  salvarMetodo:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); m.metodo = $('#fMet').value; if (m.metodo === 'cartao' && !m.cartaoFim) m.cartaoFim = '4242'; salvar(); fecharFolha(); reRender(); avisar({cartao:`Pronto: no vencimento chega o link do cartão (+ ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)})`, pixauto:'Pronto: autorize o Pix Automático no app do seu banco', pix:'Pronto: no vencimento chega o Pix'}[m.metodo]); },
+  comprovante:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); window.open(linkComprovante(a, m, d.x || MES_ATUAL, d.y || 'pix'), '_blank', 'noopener'); },
   pausar:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v), dias = +$('#fPausa').value; m.status = 'pausado'; m.pausaAte = iso(addD(HOJE, dias)); salvar(); fecharFolha(); reRender(); avisar(`Plano pausado até ${dataBR(m.pausaAte)}. Sem cobrança nesse período.`, 'pause'); },
   retomar:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); m.status = 'ativo'; delete m.pausaAte; salvar(); fecharFolha(); reRender(); avisar('Plano retomado. Bom te ver de volta!'); },
   cancelarPlano:(d) => { const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === d.v); const dias = diasEntre(pd(m.inicio || a.desde), HOJE); m.status = 'cancelado'; m.fim = HOJE_ISO; salvar(); fecharFolha(); reRender(); avisar(dias <= 7 ? 'Plano cancelado. Como foi nos 7 primeiros dias, o valor pago volta inteiro.' : 'Plano cancelado. Nenhuma cobrança nova.', 'check'); },
@@ -344,7 +448,9 @@ $('#scrim').addEventListener('click', fecharFolha);
 let _buscaT;
 document.addEventListener('input', e => {
   const el = e.target, k = el.dataset.actIn; if (!k) return;
-  if (k === 'inscNasc'){ const i = idade(el.value), m = i !== null && i < 18; $$('.menor-f').forEach(f => { f.hidden = !m; }); return; }
+  if (k === 'inscNasc'){ const i = idade(el.value), m = i !== null && i < 18; $$('.menor-f').forEach(f => { f.hidden = !m; });
+    const h = $('#f_menor'); if (h && i !== null && !h.dataset.mexeu){ h.value = m ? 'sim' : 'nao'; $$('.opt[data-grp="f_menor"]').forEach(o => o.classList.toggle('on', o.dataset.v === h.value)); } return; }
+  if (k === 'celMask'){ const d = soDig(el.value); if (d.length >= 10) el.value = mascCel(d); return; }
   if (k === 'cpf'){ el.value = cpfMascara(el.value); return; }
   if (k === 'fnPct'){ const v = num(el.value), a = $('#fnPctAj'); if (a && v >= 0 && v <= 100) a.textContent = `O Espaço fica com ${Math.round(100 - v)}%.${$('#fForn')?.dataset.id ? ' Vendas antigas não mudam.' : ''}`; return; }
   if (k === 'lojaBusca'){ const q = el.value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); $$('.prod[data-nome]').forEach(c => { c.hidden = !!q && !c.dataset.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q); }); return; }
@@ -355,6 +461,8 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   if (e.target.id === 'csvForms' && e.target.files[0]){ const atv = $('#impAtv')?.value || 'yoga', fr = new FileReader(); fr.onload = () => { const n = importarForms(String(fr.result), atv); salvar(); fecharFolha(); reRender(); avisar(n ? `${n} ${n === 1 ? 'inscrição importada' : 'inscrições importadas'} do formulário de ${ATIV[atv].curto}` : 'Não achei respostas nesse arquivo', n ? 'check' : 'circle-alert'); }; fr.readAsText(e.target.files[0]); return; }
   const el = e.target, k = el.dataset.actIn; if (!k) return;
+  if (k === 'precoPart'){ const v = num(el.value); if (v > 0){ S.regras.planosPart = S.regras.planosPart || {}; S.regras.planosPart[el.dataset.v] = v; salvar(); reRender(); avisar(`Particular · ${PLANOS_PART[el.dataset.v].nome}: ${brl(v)}`); } }
+  if (k === 'cfgPag'){ const c = S.config = S.config || {}; if (el.dataset.v === 'taxaCartao'){ const v = num(el.value); if (v >= 0){ S.regras.taxaCartao = v; salvar(); reRender(); avisar(`Cartão: acréscimo de ${brl(v)}`); } } else { c[el.dataset.v] = el.value.trim(); salvar(); avisar(el.dataset.v === 'chavePix' ? 'Chave Pix salva: o copia e cola já sai com ela' : 'Link do cartão salvo', 'check'); } }
   if (k === 'preco'){ const v = num(el.value); if (v > 0){ S.regras.planos[el.dataset.v] = v; salvar(); reRender(); avisar(`${PLANOS_YOGA[el.dataset.v].nome}: ${brl(v)} · presença agora vale ${brl(taxasYoga(S.regras.planos, S.regras.pct.yoga)[el.dataset.v])}`); } }
   if (k === 'pct'){ const v = num(el.value); if (v >= 0 && v <= 100){ S.regras.pct[el.dataset.v] = v/100; salvar(); reRender(); avisar(`${ATIV[el.dataset.v].curto}: equipe ${v}% · Espaço ${100-v}%`); } }
   if (k === 'vazia'){ const v = num(el.value); if (v >= 0){ S.regras[el.dataset.v] = v; salvar(); reRender(); avisar(`Aula vazia: ${brl(v)}`); } }
@@ -362,6 +470,8 @@ document.addEventListener('change', e => {
 
 /* formulários */
 document.addEventListener('submit', e => {
+  const lg = e.target.dataset && e.target.dataset.login;
+  if (lg){ e.preventDefault(); if (lg === 'aluno') loginAluno(); else if (lg === 'instrutor') loginInstrutor(); else if (lg === 'otp') conferirOtp(); else if (lg === 'admin') conferirPinAdmin(e.target.dataset.id); return; }
   e.preventDefault();
   const f = e.target;
   if (f.id === 'fLanc'){
@@ -407,13 +517,36 @@ document.addEventListener('submit', e => {
     salvar(); reRender(); UI.div.alvo = 'todos'; UI.div.canais = ['push','whatsapp']; UI.div.msg = null; folhaDivulgar(id);
     return;
   }
+  if (f.id === 'fAviso'){
+    const id = f.dataset.id, r = REGRAS_AVISO.find(x => x.id === id), c = (S.avisos = S.avisos || {})[id] = S.avisos[id] || {};
+    if (r.q){ const q = {}; Object.keys(r.q).forEach(k => { const el = $('#aq_' + k); if (el) q[k] = Math.max(0, Math.round(+el.value || 0)); }); c.q = q; }
+    const t = $('#aq_txt').value.trim(); if (t && t !== r.modelo) c.modelo = t; else delete c.modelo;
+    salvar(); fecharFolha(); reRender(); avisar(`${r.nome}: ${regraAviso(id).quando}`, 'bell'); return;
+  }
+  if (f.id === 'fTerapia'){
+    const nome = $('#tpNome').value.trim(); if (!nome){ $('#tpNome').focus(); return; }
+    const w = soDig($('#tpWhats').value), whats = w.length >= 12 ? w : w.length >= 10 ? '55' + w : ESPACO.whats;
+    const dados = {nome, quem:$('#tpQuem').value.trim(), desc:$('#tpDesc').value.trim(), whats};
+    S.terapias = S.terapias || [];
+    const t = S.terapias.find(x => x.id === f.dataset.id); if (t) Object.assign(t, dados); else S.terapias.push({id:'tp' + (S.seq++), icon:'heart', ...dados});
+    salvar(); fecharFolha(); reRender(); avisar(`${nome} salva. Já aparece na aba Terapias do aluno.`, 'check'); return;
+  }
+  if (f.id === 'fFeriado'){
+    const d = $('#frD').value, nome = $('#frNome').value.trim(); if (!d || !nome){ avisar('Escolha o dia e o motivo', 'circle-alert'); return; }
+    const X = S.feriados = S.feriados || {extra:[], comAula:[]}; X.extra = (X.extra || []).filter(x => x.d !== d); X.extra.push({d, nome});
+    salvar(); fecharFolha(); reRender(); avisar(`${dataBR(d)}: ${nome}, sem aula`, 'calendar-x'); return;
+  }
+  if (f.id === 'fPinAdm'){
+    const p = soDig($('#npAdm').value); if (p.length < 4 || p.length > 6 || /^(\d)\1+$/.test(p) || '0123456789'.includes(p)){ avisar('Use de 4 a 6 números, sem sequência', 'circle-alert'); return; }
+    (S.pinAdmin = S.pinAdmin || {})[f.dataset.id] = p; salvar(); fecharFolha(); reRender(); avisar('PIN do painel trocado', 'lock'); return;
+  }
   if (f.id === 'fAtividade'){
     const nome = $('#atNome').value.trim(), curto = ($('#atCurto').value.trim() || nome.split(' ')[0]).slice(0, 16), pct = num($('#atPct').value) / 100;
     if (!nome){ $('#atNome').focus(); avisar('Dê um nome para a atividade', 'circle-alert'); return; }
     if (!(pct >= 0 && pct <= 1)){ $('#atPct').focus(); avisar('O % vai de 0 a 100', 'circle-alert'); return; }
     const valor = $('#atValor') ? num($('#atValor').value) : undefined;
     const id = f.dataset.id || ('at' + (S.seq++));
-    const dados = {nome, curto, desc:$('#atDesc').value.trim(), icon:$('#atIcon').value, hex:$('#atCor').value, cor:$('#atCor').value, vis:$('#atVis').value, form:$('#atForm').value, repasse:pct, turma:$('#atVis').value !== 'escolhido', ...(valor > 0 ? {valor} : {})};
+    const dados = {nome, curto, desc:$('#atDesc').value.trim(), icon:$('#atIcon').value, hex:$('#atCor').value, cor:$('#atCor').value, vis:$('#atVis').value, form:$('#atForm').value, repasse:pct, turma:$('#atVis').value !== 'escolhido', combinar: !!$('#atComb')?.checked, ...(valor > 0 ? {valor} : {})};
     if (!f.dataset.id && Object.values(ATIV).some(a => a.nome.toLowerCase() === nome.toLowerCase())){ avisar('Já existe uma atividade com esse nome', 'circle-alert'); return; }
     S.atividades[id] = {...(S.atividades[id] || {}), ...dados}; S.regras.pct[id] = pct;
     ligarAtividades(); ligarEquipe(); salvar(); fecharFolha(); reRender();

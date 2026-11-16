@@ -3,7 +3,23 @@
    passo 1: a atividade · passos 2 a 4: as perguntas do formulário dela
    ============================================================ */
 UI.insc = {passo:0, d:{}};
-const GRUPOS_ATV = [['Yoga e corpo', FORMULARIOS.yoga.atvs], ['Para crianças', FORMULARIOS.criancas.atvs]];
+/* os grupos da inscrição (sem nome de instrutora: quem dá a aula muda, a atividade fica) */
+function gruposAtv(){
+  const resto = Object.keys(ATIV).filter(k => !FORMULARIOS.yoga.atvs.includes(k) && !FORMULARIOS.arte.atvs.includes(k) && !FORMULARIOS.criancas.atvs.includes(k));
+  return [['Yoga e meditação', [...FORMULARIOS.yoga.atvs, ...resto]], ['Arte e música', [...FORMULARIOS.arte.atvs, ...FORMULARIOS.criancas.atvs]]];
+}
+/* menor valor por mês de cada atividade (para o cartão da inscrição) */
+function precoAtv(k){
+  if (k === 'yoga') return Math.min(...PLANOS_MENSAIS.map(p => S.regras.planos[p]));
+  if (k === 'particular') return Math.min(...PLANOS_MENSAIS.map(p => (S.regras.planosPart || {})[p] ?? PLANOS_PART[p].preco));
+  return ATIV[k] && ATIV[k].valor ? +ATIV[k].valor : null;
+}
+function resumoAtv(k){
+  const a = ATIV[k], v = precoAtv(k), ts = TURMAS.filter(t => t.atv === k && !t.aluno);
+  const preco = v ? `${['yoga','particular'].includes(k) ? 'a partir de ' : ''}${brl(v)}/mês` : 'valor pelo WhatsApp';
+  const hor = a.combinar ? 'horário combinado' : a.vis === 'escolhido' ? 'presencial ou online' : ts.length ? `${ts.length} ${ts.length === 1 ? 'horário' : 'horários'} na semana` : 'horário a combinar';
+  return `${preco} · ${hor}`;
+}
 
 function campoHTML(c, d){
   if (c.sec) return `<div class="insc-sec">${escapeH(c.sec)}</div>`;
@@ -14,25 +30,29 @@ function campoHTML(c, d){
     return `<div class="field" data-campo="${c.k}"><label>${escapeH(c.l)}${obr}</label>${c.texto ? `<div class="termo-txt">${escapeH(c.texto)}</div>` : ''}${c.ajuda ? `<span class="help">${escapeH(c.ajuda)}</span>` : ''}
       <div class="optgrid">${ops.map(([k, l]) => `<button type="button" class="opt ${sel.includes(k) ? 'on' : ''}" data-act="${multi ? 'optMulti' : 'opt'}" data-grp="${id}" data-v="${escapeH(k)}"><span>${escapeH(l)}</span></button>`).join('')}</div><input type="hidden" id="${id}" value="${escapeH(v)}"></div>`;
   }
-  if (c.tipo === 'aceite') return `<div class="field aceite"><p class="termo">${escapeH(c.l)}${obr}</p>${c.termos ? `<button type="button" class="btn ghost sm" data-act="verTermos" style="justify-self:start">${ic('book-open','sm')}Ler os termos de responsabilidade</button>` : ''}
+  if (c.tipo === 'aceite') return `<div class="field aceite"><p class="termo">${escapeH(c.l)}${obr}</p>
     <label class="aceite-op"><input type="checkbox" id="${id}" ${v ? 'checked' : ''}><span>${escapeH(c.op)}</span></label></div>`;
   if (c.tipo === 'check') return `<label class="insc-check"><input type="checkbox" id="${id}" ${(v === '' ? c.padrao : v) ? 'checked' : ''}><span>${escapeH(c.l)}${obr}</span></label>`;
   const attrs = {data:'type="date" data-act-in="inscNasc"', tel:'type="tel" inputmode="tel" placeholder="(41) 9 0000-0000" autocomplete="tel"', email:'type="email" autocomplete="email"', cpf:'inputmode="numeric" placeholder="000.000.000-00" data-act-in="cpf"'}[c.tipo] || `type="text"${c.auto ? ` autocomplete="${c.auto}"` : ''}`;
   const campo = c.area ? `<textarea class="inp" id="${id}" rows="3">${escapeH(v)}</textarea>` : `<input class="inp" id="${id}" ${attrs} value="${escapeH(v)}">`;
   return `<div class="field ${c.menor ? 'menor-f' : ''}" ${c.menor && !ehMenor(d) ? 'hidden' : ''}>${lab}${campo}</div>`;
 }
-const ehMenor = d => { const i = idade(d.nasc); return i !== null && i < 18; };
+/* aquarela e violão: vale a resposta "é menor de idade?"; no yoga, a data de nascimento */
+const ehMenor = d => { if (d.menor === 'sim') return true; if (d.menor === 'nao') return false; const i = idade(d.nasc); return i !== null && i < 18; };
+/* passo do responsável só aparece para menor de idade */
+function passoPula(p){ const F = formAtual(); return !!(F && p >= 1 && F.passos[p - 1] && F.passos[p - 1].soMenor && !ehMenor(UI.insc.d)); }
 function formAtual(){ const d = UI.insc.d; return d.atv ? FORMULARIOS[formDe(d.atv)] : null; }
 function camposDoPasso(p){ const F = formAtual(); if (!F || p < 1) return []; return [...F.passos[p - 1].campos, ...(p === F.passos.length ? CAMPOS_APP : [])]; }
 
 function inscSalvar(){
   const d = UI.insc.d, val = id => { const el = $('#' + id); if (!el) return undefined; return el.type === 'checkbox' ? el.checked : el.value.trim(); };
-  [['atv','iAtv'],['plano','iPlano'],['turmas','iTur'],['instr','iInstr'],['experimental','iExpm']].forEach(([k, id]) => { const x = val(id); if (x !== undefined) d[k] = x; });
+  [['atv','iAtv'],['plano','iPlano'],['modo','iModo'],['turmas','iTur'],['instr','iInstr'],['experimental','iExpm']].forEach(([k, id]) => { const x = val(id); if (x !== undefined) d[k] = x; });
   camposDoPasso(UI.insc.passo).forEach(c => { if (!c.k) return; const x = val('f_' + c.k); if (x !== undefined) d[c.k] = c.tipo === 'cpf' ? cpfMascara(x) : x; });
 }
 function inscValida(p){
   const d = UI.insc.d, falta = [];
-  if (p === 0){ if (!d.atv) falta.push('escolher a atividade'); else if (ATIV[d.atv].vis === 'escolhido' && !d.instr) falta.push('com quem'); return falta; }
+  if (p === 0){ if (!d.atv) falta.push('escolher a atividade'); return falta; }
+  if (passoPula(p)) return falta;
   camposDoPasso(p).forEach(c => {
     if (!c.k || !c.obr || (c.menor && !ehMenor(d))) return;
     const v = d[c.k];
@@ -45,23 +65,28 @@ function inscValida(p){
 }
 
 function passoAtividade(d){
-  const a = d.atv && ATIV[d.atv], turmas = a ? TURMAS.filter(t => t.atv === d.atv && !t.aluno) : [];
+  const a = d.atv && ATIV[d.atv], turmas = a && !a.combinar ? TURMAS.filter(t => t.atv === d.atv && !t.aluno) : [];
   const opts = (grp, lista, sel, multi) => `<div class="optgrid">${lista.map(([k, l]) => `<button type="button" class="opt ${(multi ? (sel || '').split(',').includes(k) : sel === k) ? 'on' : ''}" data-act="${multi ? 'optMulti' : 'opt'}" data-grp="${grp}" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="${grp}" value="${escapeH(sel || '')}">`;
-  const quem = k => EQUIPE.filter(p => p.atvs.includes(k)).map(p => p.nome).join(', ');
-  return `${GRUPOS_ATV.map(([g, ks]) => `<div class="insc-grupo"><div class="eyebrow">${g}</div><div class="atv-cards">${ks.filter(k => ATIV[k]).map(k => `<button type="button" class="atv-card ${d.atv === k ? 'on' : ''}" style="--c:${ATIV[k].hex}" data-act="opt" data-grp="iAtv" data-v="${k}"><span class="ico-b">${ic(ATIV[k].icon)}</span><span class="tx"><b>${ATIV[k].nome}</b><small>${quem(k) || 'horário a combinar'}</small></span>${d.atv === k ? `<span class="ok">${ic('check','sm')}</span>` : ''}</button>`).join('')}</div></div>`).join('')}
+  const cartao = `<p class="tiny muted">${ic('credit-card','sm')} No cartão de crédito ou débito, acréscimo de ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)}.</p>`;
+  const v = a && precoAtv(d.atv);
+  return `${gruposAtv().map(([g, ks]) => ks.filter(k => ATIV[k]).length ? `<div class="insc-grupo"><div class="eyebrow">${g}</div><div class="atv-cards">${ks.filter(k => ATIV[k]).map(k => `<button type="button" class="atv-card ${d.atv === k ? 'on' : ''}" style="--c:${ATIV[k].hex}" data-act="opt" data-grp="iAtv" data-v="${k}"><span class="ico-b">${ic(ATIV[k].icon)}</span><span class="tx"><b>${ATIV[k].nome}</b><small>${resumoAtv(k)}</small></span>${d.atv === k ? `<span class="ok">${ic('check','sm')}</span>` : ''}</button>`).join('')}</div></div>` : '').join('')}
     <input type="hidden" id="iAtv" value="${escapeH(d.atv || '')}">
     ${a ? `<div class="insc-escolhas">
-      ${d.atv === 'yoga' ? `<div class="field"><label>Plano</label>${opts('iPlano', ['1x','2x','3x','4x'].map(k => [k, `${PLANOS_YOGA[k].nome}<br><b class="num">${brl(S.regras.planos[k])}</b>`]), d.plano || '2x')}</div>` : ''}
-      ${a.vis === 'escolhido' ? `<div class="field"><label>Com quem?</label>${opts('iInstr', EQUIPE.filter(p => p.atvs.includes(d.atv)).map(p => [p.id, p.nome]), d.instr)}</div>` : ''}
-      ${turmas.length ? `<div class="field"><label>Horários que você prefere</label>${opts('iTur', turmas.map(t => [t.id, `${DIAS_L[t.dia]} ${t.h}<br><span class="tiny muted">${PESSOA[t.instr]?.nome || ''}</span>`]), d.turmas, true)}</div>` : a.vis !== 'escolhido' ? '<p class="small muted">Os horários desta atividade a equipe combina com você pelo WhatsApp.</p>' : ''}
-      <label class="insc-check"><input type="checkbox" id="iExpm" ${d.experimental ? 'checked' : ''}><span>Quero fazer uma aula experimental antes</span></label>
+      ${d.atv === 'yoga' ? `<div class="field"><label>Plano</label>${opts('iPlano', PLANOS_MENSAIS.map(k => [k, `${PLANOS_YOGA[k].nome}<br><b class="num">${brl(S.regras.planos[k])}</b>`]), PLANOS_MENSAIS.includes(d.plano) ? d.plano : '2x')}${cartao}</div>` : ''}
+      ${d.atv === 'particular' ? `<div class="field"><label>Plano do particular</label>${opts('iPlano', Object.keys(PLANOS_PART).map(k => [k, `${PLANOS_PART[k].nome}<br><b class="num">${brl((S.regras.planosPart || {})[k] ?? PLANOS_PART[k].preco)}</b>${k === 'avulsa' ? '' : '<span class="tiny muted"> /mês</span>'}`]), PLANOS_PART[d.plano] ? d.plano : '1x')}${cartao}</div>
+        <div class="field"><label>Como você prefere</label>${opts('iModo', [['presencial', `${ic('house','sm')} Presencial, no Espaço`], ['online', `${ic('monitor','sm')} Online`]], d.modo || 'presencial')}</div>
+        <p class="small muted">O dia e o horário a equipe combina com você pelo WhatsApp.</p>` : ''}
+      ${!['yoga','particular'].includes(d.atv) ? `<div class="li" style="padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><span class="ico-b">${ic('wallet')}</span><div class="main-c"><span class="t">${v ? `${brl(v)} por mês` : 'Valor: a equipe passa pelo WhatsApp'}</span><span class="s">${v ? `no cartão, + ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)}` : 'junto com a confirmação da matrícula'}</span></div></div>` : ''}
+      ${turmas.length ? `<div class="field"><label>Horários que você prefere</label>${opts('iTur', turmas.map(t => [t.id, `${DIAS_L[t.dia]} ${t.h}${t.nome ? `<br><span class="tiny muted">${escapeH(t.nome)}</span>` : ''}`]), d.turmas, true)}</div>`
+        : a.combinar ? `<p class="small muted">${ic('calendar','sm')} O horário você combina com o professor depois da inscrição.</p>` : a.vis !== 'escolhido' ? '<p class="small muted">Os horários desta atividade a equipe combina com você pelo WhatsApp.</p>' : ''}
+      ${d.atv === 'particular' ? '' : `<label class="insc-check"><input type="checkbox" id="iExpm" ${d.experimental ? 'checked' : ''}><span>Quero fazer uma aula experimental antes</span></label>`}
     </div>` : ''}`;
 }
 function folhaInscricao(){
   const {passo, d} = UI.insc, F = formAtual();
   const titulos = ['Atividade', ...(F ? F.passos.map(p => p.t) : ['Você', 'Ficha', 'Combinados'])];
   if (UI.insc.minha){
-    abrirFolha(`${folhaCab('Sua ficha', `${tituloForm(F, d.atv)} · ajuda a professora a cuidar de você. Vale +30 pontos.`)}
+    abrirFolha(`${folhaCab('Sua ficha', `${tituloForm(F, d.atv)} · ajuda a professora a cuidar de você.${pontosLigados() ? ' Vale +30 pontos.' : ''}`)}
     <div class="stack insc" id="inscCorpo">${camposDoPasso(passo).filter(c => !CAMPOS_APP.includes(c) || c.k === 'saudeOk').map(c => campoHTML(c, d)).join('')}
       <div class="sheet-foot"><button class="btn sec" data-act="fechar">Depois</button><button class="btn pri" data-act="salvarMinhaFicha">${ic('check')}Salvar ficha</button></div></div>`, {wide:true});
     return;
@@ -153,6 +178,7 @@ function importarForms(txt, atv){
       else if (c.tipo === 'cpf') v = cpfMascara(v);
       d[c.k] = v; });
     if (!d.nome) return;
+    if (F.id === 'arte'){ if (!d.tel && d.respTel) d.tel = d.respTel; d.menor = d.respNome ? 'sim' : (ehMenor(d) ? 'sim' : 'nao'); }
     (S.inscricoes = S.inscricoes || []).push({id:'in' + (S.seq++), d:HOJE_ISO, estado:'nova', origem:'forms', dados:d});
     n++;
   });
@@ -160,16 +186,17 @@ function importarForms(txt, atv){
 }
 function confirmarInscricao(id){
   const i = S.inscricoes.find(x => x.id === id), d = i.dados, F = FORMULARIOS[formDe(d.atv)];
-  const aid = 'a' + (S.seq++), plano = d.atv === 'yoga' ? (d.plano || '2x') : null, crianca = F.crianca || ehMenor(d);
-  const resp = F.crianca ? d.respNome : d.respNome || '';
-  const respostas = Object.fromEntries(Object.entries(d).filter(([k]) => !['atv','plano','turmas','instr','experimental'].includes(k)));
-  S.alunos.push({id:aid, nome:d.nome, desde:HOJE_ISO, obs: resp ? `Responsável: ${resp}${d.nasc ? ` · ${idade(d.nasc)} anos` : ''}` : '', status:'ativo', tel:d.tel || d.respTel || '', email:d.email || '', nasc:d.nasc || '', cpf:d.cpf || '', resp, respTel: F.crianca ? d.tel : d.respTel || '',
+  const aid = 'a' + (S.seq++), plano = d.atv === 'yoga' ? (PLANOS_MENSAIS.includes(d.plano) ? d.plano : '2x') : null, crianca = F.crianca || ehMenor(d);
+  const part = d.atv === 'particular' ? (PLANOS_PART[d.plano] ? d.plano : '1x') : null;
+  const resp = crianca ? d.respNome || '' : '';
+  const respostas = Object.fromEntries(Object.entries(d).filter(([k]) => !['atv','plano','modo','turmas','instr','experimental'].includes(k)));
+  S.alunos.push({id:aid, nome:d.nome, desde:HOJE_ISO, obs: resp ? `Responsável: ${resp}${d.nasc ? ` · ${idade(d.nasc)} anos` : ''}` : '', status:'ativo', tel:d.tel || d.respTel || '', email:d.email || '', nasc:d.nasc || '', cpf:d.cpf || '', resp, respTel: F.crianca ? d.tel : crianca ? d.respTel || '' : '',
     ficha:{form:F.id, respostas, saudeOk: d.saudeOk !== false, completa: camposForm(F).every(c => !c.obr || c.menor && !crianca || d[c.k])},
-    mats:[{id:aid + '-0', atv:d.atv, plano, valor: plano ? null : (ATIV[d.atv].valor || S.alunos.flatMap(a => a.mats).find(m => m.atv === d.atv)?.valor || 150), turmas:(d.turmas || '').split(',').filter(Boolean), venc:Math.min(28, HOJE.getDate()), metodo:'pix', cartaoFim:null, instr:d.instr || null, status:'ativo', inicio:HOJE_ISO}]});
+    mats:[{id:aid + '-0', atv:d.atv, plano, planoPart:part, online: part ? d.modo === 'online' : undefined, valor: plano ? null : part ? ((S.regras.planosPart || {})[part] ?? PLANOS_PART[part].preco) : (+ATIV[d.atv].valor || S.alunos.flatMap(a => a.mats).find(m => m.atv === d.atv)?.valor || 150), turmas:(d.turmas || '').split(',').filter(Boolean), venc:Math.min(28, HOJE.getDate()), metodo:'pix', cartaoFim:null, instr:d.instr || null, status:'ativo', inicio:HOJE_ISO}]});
   (S.consent = S.consent || {})[aid] = {whatsapp: d.whats !== false, imagem: d.imagem === 'sim', whatsappEm: HOJE_ISO, imagemEm: HOJE_ISO};
   i.estado = 'confirmada'; i.aluno = aid;
   /* quem indicou ganha os pontos */
-  if (d.indicou){ const q = d.indicou.trim().toLowerCase(), quem = S.alunos.find(x => x.id !== aid && (x.nome.toLowerCase() === q || x.nome.split(' ')[0].toLowerCase() === q.split(' ')[0] && q.split(' ').length === 1 || x.nome.toLowerCase().startsWith(q))); if (quem) ganhar('indicar', quem.id); }
+  if (d.indicou && pontosLigados()){ const q = d.indicou.trim().toLowerCase(), quem = S.alunos.find(x => x.id !== aid && (x.nome.toLowerCase() === q || x.nome.split(' ')[0].toLowerCase() === q.split(' ')[0] && q.split(' ').length === 1 || x.nome.toLowerCase().startsWith(q))); if (quem) ganhar('indicar', quem.id); }
   /* a equipe da atividade recebe o aviso com a ficha */
   S.caixa = S.caixa || {};
   const equipe = EQUIPE.filter(p => d.instr ? p.id === d.instr : p.atvs.includes(d.atv));

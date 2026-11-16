@@ -1,10 +1,13 @@
-// BACKUP MENSAL EM EXCEL — regra do app: todo dia 1º, às 3h, e de novo quando um mês é fechado.
+// BACKUP MENSAL EM EXCEL — regra do app: todo dia 15, às 3h, o backup do mês anterior, e de novo quando um mês é fechado.
 // Gera o .xlsx no mesmo formato das planilhas do Espaço (Controle financeiro com uma aba por mês + ANO,
 // Mensalidades com o fechamento da yoga, Lojinha), mais alunos e fichas, presenças, equipe, eventos e pontos.
 // Guarda no Storage (bucket privado "backups", só a administração lê) e manda para o e-mail do Espaço.
 // O arquivo é montado pelo MESMO código do app (_compartilhado/motor.js, gerado pelo build.py).
-// Também põe o arquivo na pasta "Backups Anirvana" do Google Drive do Espaço (a pasta é compartilhada uma vez com a conta de serviço).
-// Segredos: CRON_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, EMAIL_REMETENTE, GOOGLE_SERVICE_ACCOUNT (JSON), DRIVE_PASTA_ID
+// Também põe o arquivo na pasta "Backups Anirvana" do Google Drive do Espaço (backup 2 na nuvem):
+//   · jeito simples: a administração toca em "Conectar o Google Drive" no app (função google-drive guarda a permissão em conexao_google)
+//   · jeito antigo, se preferir: uma conta de serviço com a pasta compartilhada (GOOGLE_SERVICE_ACCOUNT + DRIVE_PASTA_ID)
+// Segredos: CRON_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, EMAIL_REMETENTE,
+//   GOOGLE_OAUTH_CLIENT_ID e GOOGLE_OAUTH_CLIENT_SECRET (botão "Conectar") ou GOOGLE_SERVICE_ACCOUNT (JSON) e DRIVE_PASTA_ID
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
 import { criarMotor } from '../_compartilhado/motor.js';
@@ -25,16 +28,40 @@ async function tokenGoogle(conta: { client_email: string; private_key: string })
   if (!r.ok) throw new Error('Google token ' + r.status);
   return (await r.json()).access_token;
 }
-async function mandarProDrive(bytes: Uint8Array, nome: string): Promise<string | null> {
-  const json = Deno.env.get('GOOGLE_SERVICE_ACCOUNT'), pasta = Deno.env.get('DRIVE_PASTA_ID');
-  if (!json || !pasta) return null;                                   // Drive ainda não ligado: segue com Storage + e-mail
-  const token = await tokenGoogle(JSON.parse(json)), limite = 'anirvana' + crypto.randomUUID();
+/* Drive conectado pelo botão do app: troca o refresh token guardado por um token de acesso */
+async function tokenDoBotao(refresh: string): Promise<string> {
+  const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: refresh, client_id: Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')!, client_secret: Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET')! }) });
+  if (!r.ok) throw new Error('Google token ' + r.status + ' (a permissão pode ter sido tirada: conecte de novo no app)');
+  return (await r.json()).access_token;
+}
+async function pastaDoApp(token: string): Promise<string> {
+  const r = await fetch('https://www.googleapis.com/drive/v3/files', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Backups Anirvana', mimeType: 'application/vnd.google-apps.folder' }) });
+  if (!r.ok) throw new Error('Drive pasta ' + r.status);
+  return (await r.json()).id;
+}
+// deno-lint-ignore no-explicit-any
+async function mandarProDrive(db: any, bytes: Uint8Array, nome: string): Promise<string | null> {
+  let token: string, pasta: string | null;
+  const { data: cx } = await db.from('conexao_google').select('refresh_token, pasta_id').eq('id', 1).maybeSingle();
+  if (cx?.refresh_token) {
+    token = await tokenDoBotao(cx.refresh_token);
+    pasta = cx.pasta_id || await pastaDoApp(token);
+    if (!cx.pasta_id) await db.from('conexao_google').update({ pasta_id: pasta }).eq('id', 1);
+  } else {
+    const json = Deno.env.get('GOOGLE_SERVICE_ACCOUNT'); pasta = Deno.env.get('DRIVE_PASTA_ID') ?? null;
+    if (!json || !pasta) return null;                                 // Drive ainda não ligado: segue com Storage + e-mail
+    token = await tokenGoogle(JSON.parse(json));
+  }
+  const limite = 'anirvana' + crypto.randomUUID();
   const meta = JSON.stringify({ name: nome, parents: [pasta], mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const ini = new TextEncoder().encode(`--${limite}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${limite}\r\nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n`);
   const fim = new TextEncoder().encode(`\r\n--${limite}--`);
   const corpo = new Uint8Array(ini.length + bytes.length + fim.length); corpo.set(ini); corpo.set(bytes, ini.length); corpo.set(fim, ini.length + bytes.length);
   const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary=${limite}` }, body: corpo });
   if (!r.ok) throw new Error('Drive ' + r.status + ': ' + (await r.text()).slice(0, 200));
+  if (cx?.refresh_token) await db.from('conexao_google').update({ ultimo_envio: new Date().toISOString() }).eq('id', 1);
   return (await r.json()).id;
 }
 const anterior = (hoje: Date) => { const d = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth() - 1, 1)); return d.toISOString().slice(0, 7); };
@@ -43,7 +70,7 @@ Deno.serve(async (req: Request) => {
   if ((req.headers.get('Authorization') ?? '') !== `Bearer ${Deno.env.get('CRON_TOKEN')}`) return new Response('não autorizado', { status: 401 });
   const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
   const corpo = await req.json().catch(() => ({}));
-  const competencia: string = corpo.competencia ?? anterior(new Date());             // dia 1º: o mês que acabou
+  const competencia: string = corpo.competencia ?? anterior(new Date());             // dia 15: o mês anterior, já com os pagamentos atrasados conferidos
   const tudo = async (t: string, sel = '*') => { const { data, error } = await db.from(t).select(sel); if (error) throw new Error(`${t}: ${error.message}`); return data ?? []; };
 
   // ---------- o banco no formato que as regras do app entendem ----------
@@ -85,7 +112,7 @@ Deno.serve(async (req: Request) => {
   };
 
   // ---------- gerar, guardar e mandar ----------
-  const bytes: Uint8Array = M.montarBackup(S, { ate: competencia, quem: 'automático (dia 1º)', quando: new Date() });
+  const bytes: Uint8Array = M.montarBackup(S, { ate: competencia, quem: 'automático (dia 15)', quando: new Date() });
   const nome = M.nomeBackup(competencia), caminho = `${competencia.slice(0, 4)}/${nome}`;
   const up = await db.storage.from('backups').upload(caminho, bytes, { contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', upsert: true });
   if (up.error) return new Response('erro ao guardar: ' + up.error.message, { status: 500 });
@@ -97,7 +124,7 @@ Deno.serve(async (req: Request) => {
       text: `Segue o backup do app em Excel, no formato das planilhas do Espaço.\nGuarde com cuidado: tem dados de saúde dos alunos.\n\nTambém fica guardado no app, em Mensalidades → Regras → Backup mensal.`,
       attachments: [{ filename: nome, content: encodeBase64(bytes) }] }) });
   let drive: string | null = null;
-  try { drive = await mandarProDrive(bytes, nome); } catch (e) { console.error('drive', e); }
+  try { drive = await mandarProDrive(db, bytes, nome); } catch (e) { console.error('drive', e); }
   await db.from('backups').insert({ competencia, arquivo: `backups/${caminho}`, bytes: bytes.length, enviado_para: [r.ok ? para : null, drive ? 'Google Drive' : null].filter(Boolean).join(' + ') || null, motivo: corpo.motivo ?? 'mensal' });
   await db.from('fila_avisos').update({ enviado_em: new Date().toISOString() }).eq('regra', 'backup').is('enviado_em', null);
   return Response.json({ competencia, arquivo: caminho, bytes: bytes.length, email: r.ok, drive: !!drive });

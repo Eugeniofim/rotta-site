@@ -2,7 +2,7 @@
    MOTOR — gera a demonstração e faz todas as contas
    (as mesmas regras da planilha, agora automáticas)
    ============================================================ */
-const VERSAO = 'proto-1.2';
+const VERSAO = 'proto-1.3';
 const CHAVE = 'anirvana_proto_v1';
 
 /* ---------- utilidades ---------- */
@@ -29,7 +29,27 @@ const corDe = nome => { let h = 0; for (const c of nome) h = (h*31 + c.charCodeA
 const TURMA = Object.fromEntries(TURMAS.map(t => [t.id, t]));
 const FORN = Object.fromEntries(FORNECEDORES.map(f => [f.id, f]));
 const PESSOA = Object.fromEntries(EQUIPE.map(p => [p.id, p]));
-const FERIADOS = ['2026-09-07','2026-10-12'];
+/* feriados nacionais: a aula sai da agenda sozinha e os alunos recebem o aviso.
+   A administração pode marcar "vai ter aula" ou acrescentar dias sem aula (recesso, feriado da cidade). */
+const FERIADOS_BASE = {
+  '2026-01-01':'Confraternização Universal', '2026-02-16':'Carnaval', '2026-02-17':'Carnaval', '2026-04-03':'Sexta-feira Santa',
+  '2026-04-21':'Tiradentes', '2026-05-01':'Dia do Trabalho', '2026-06-04':'Corpus Christi', '2026-09-07':'Independência do Brasil',
+  '2026-10-12':'Nossa Senhora Aparecida', '2026-11-02':'Finados', '2026-11-15':'Proclamação da República', '2026-11-20':'Dia da Consciência Negra',
+  '2026-12-25':'Natal',
+  '2027-01-01':'Confraternização Universal', '2027-02-08':'Carnaval', '2027-02-09':'Carnaval', '2027-03-26':'Sexta-feira Santa',
+  '2027-04-21':'Tiradentes', '2027-05-01':'Dia do Trabalho', '2027-05-27':'Corpus Christi', '2027-09-07':'Independência do Brasil',
+  '2027-10-12':'Nossa Senhora Aparecida', '2027-11-02':'Finados', '2027-11-15':'Proclamação da República', '2027-11-20':'Dia da Consciência Negra',
+  '2027-12-25':'Natal',
+};
+const FERIADOS = Object.keys(FERIADOS_BASE);
+/* null = tem aula; {nome} = sem aula (feriado ou dia que a administração fechou) */
+function semAula(di, St){
+  const X = (St || (typeof S !== 'undefined' ? S : null) || {}).feriados || {}, extra = (X.extra || []).find(x => x.d === di);
+  if (extra) return {nome:extra.nome || 'Sem aula', extra:true};
+  if (FERIADOS_BASE[di] && !(X.comAula || []).includes(di)) return {nome:FERIADOS_BASE[di]};
+  return null;
+}
+function proximosSemAula(dias, St){ const out = []; for (let i = 0; i <= dias; i++){ const d = iso(addD(HOJE, i)), f = semAula(d, St); if (f) out.push({d, ...f}); } return out; }
 const nomeTurma = t => t.nome || ATIV[t.atv].curto;
 
 /* ============================================================
@@ -37,7 +57,8 @@ const nomeTurma = t => t.nome || ATIV[t.atv].curto;
    ============================================================ */
 function semear(){
   const R = rng(20261029);
-  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
+  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), planosPart:Object.fromEntries(Object.entries(PLANOS_PART).map(([k,p])=>[k,p.preco])), taxaCartao:TAXA_CARTAO, pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
+    config:{pontos:false, linkCartao:'', chavePix:'', drive:null}, feriados:{extra:[], comAula:[]},
     alunos:[], aulas:{}, presencas:[], pagamentos:[], sessoes:[], vendas:[], repLoja:[], fiado:[], lanc:[], repEquipe:[], subs:[], vou:{}, seq:1000};
 
   /* alunos */
@@ -53,7 +74,7 @@ function semear(){
   for (let d = pd('2026-08-01'); d <= HOJE; d = addD(d,1)){
     const di = iso(d);
     if (FERIADOS.includes(di)) continue;
-    TURMAS.filter(t => t.dia === d.getDay()).forEach(t => {
+    TURMAS.filter(t => t.dia === d.getDay() && !(t.desde && t.desde > di)).forEach(t => {
       const [hh,mm] = t.h.split(':').map(Number);
       if (di === HOJE_ISO && hh*60+mm > agoraMin) return;          /* ainda não aconteceu */
       const sid = `${di}_${t.id}`;
@@ -86,6 +107,7 @@ function semear(){
       let dia = m.metodo === 'cartao' ? venc : iso(addD(pd(venc), Math.floor(R()*4) - 1));
       if (a.desde.slice(0,7) === mes && a.desde > dia) dia = a.desde;
       if (dia > HOJE_ISO) dia = HOJE_ISO;
+      if (ehPlataforma(m.plano)) return;                      /* Wellhub e GoGood: quem paga é a plataforma, por aula */
       S.pagamentos.push({id:'pg'+(S.seq++), a:a.id, mat:m.id, mes, valor:valorMat(S,m), d:dia, metodo:m.metodo==='cartao'?'cartao':'pix'});
     }));
   });
@@ -202,8 +224,10 @@ function semear(){
     a.email = i % 4 === 3 ? '' : `${pn(quem.split(' ')[0])}.${pn(quem.split(' ').slice(-1)[0])}@gmail.com`;
     const crianca = KIDS.includes(a.mats[0].atv);
     if (crianca){
-      a.ficha = {form:'criancas', saudeOk:true, completa: a.id !== 'a33', respostas:{nome:a.nome, nasc:a.nasc, endereco:`Rua ${['das Gaivotas','Guaraqueçaba','Erva Cidreira','das Palmeiras'][i%4]}, ${10 + i*7} · Pontal do Sul`, saude: SAUDE_C[a.id] || 'Não', restricao: i % 5 === 0 ? 'Vegetariano' : 'Nenhuma',
+      const fk = formDe(a.mats[0].atv);
+      a.ficha = {form:fk, saudeOk:true, completa: a.id !== 'a33', respostas:{nome:a.nome, nasc:a.nasc, endereco:`Rua ${['das Gaivotas','Guaraqueçaba','Erva Cidreira','das Palmeiras'][i%4]}, ${10 + i*7} · Pontal do Sul`, saude: SAUDE_C[a.id] || 'Não', restricao: i % 5 === 0 ? 'Vegetariano' : 'Nenhuma',
         respNome:a.resp || '', respParentesco: i % 2 ? 'Mãe' : 'Pai', tel:a.tel, email:a.email, imagem: i % 3 ? 'sim' : 'nao', ciente:true, priv:true, whats:true}};
+      if (fk === 'arte') Object.assign(a.ficha.respostas, {menor: a.resp ? 'sim' : 'nao', respTel: a.resp ? a.tel : ''});
     } else {
       const sy = SAUDE_Y[a.id] || {};
       a.cpf = cpf();
@@ -227,7 +251,14 @@ function semear(){
   S.produtos = [];
   /* alunos que avisaram que pagaram: só a administração dá baixa */
   S.avisosPag = [{id:'ap1', a:'a29', mat:'a29-0', mes:'2026-10', valor:130, d:'2026-10-28', h:'19:42', metodo:'pix', estado:'aguardando'}];
-  S.backups = [{mes:'2026-08', d:'2026-09-01', h:'03:00', por:'automático'}, {mes:'2026-09', d:'2026-10-01', h:'03:00', por:'automático'}];
+  S.backups = [{mes:'2026-08', d:'2026-09-15', h:'03:00', por:'automático'}, {mes:'2026-09', d:'2026-10-15', h:'03:00', por:'automático'}];
+  /* terapias com hora marcada: aparecem na aba Terapias do aluno, com o contato de quem atende */
+  S.terapias = [
+    {id:'tp1', nome:'Terapias integrais', quem:'Kamala', desc:'Terapia sistêmica e integrativa, com hora marcada.', whats:ESPACO.whats, icon:'heart'},
+    {id:'tp2', nome:'Massagem terapêutica', quem:'', desc:'Sessões com hora marcada, no Espaço.', whats:ESPACO.whats, icon:'hand-heart'},
+  ];
+  /* PIN do painel da administração (no app de verdade: Google + PIN, guardado embaralhado) */
+  S.pinAdmin = {dessa:'2580', saraadm:'1470'};
   S.enviados = [
     {para:'Débora Martins', canal:'whatsapp', regra:'atraso', quando:'27/10 09:00'},
     {para:'Gabriel Lima', canal:'whatsapp', regra:'saudade', quando:'27/10 10:00'},
@@ -241,8 +272,8 @@ function semear(){
     {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', cpf:'529.982.247-25', email:'marina.souto@gmail.com',
       motivo:'Ansiedade e estresse do trabalho', praticou:'Nunca pratiquei', pressao:'Normal', coluna:'Às vezes na cervical', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Física boa, mental cansada', maisInfo:'Não',
       emergNome:'Rui (marido)', emergTel:'(41) 99771-2030', termos:true, imagem:'sim', saudeOk:true, priv:true, whats:true, indicou:''}},
-    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'violao', turmas:'qui1700', nome:'Pedro Alves', nasc:'2013-09-03', endereco:'Rua das Gaivotas, 210 · Pontal do Sul', saude:'Não', restricao:'Nenhuma',
-      respNome:'Sandra Alves', respParentesco:'Mãe', tel:'(41) 99640-1180', email:'sandra.alves@gmail.com', imagem:'nao', ciente:true, saudeOk:true, priv:true, whats:true, indicou:'Rafael Pacheco'}},
+    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'violao', turmas:'', nome:'Pedro Alves', nasc:'2013-09-03', endereco:'Rua das Gaivotas, 210 · Pontal do Sul', saude:'Não', restricao:'Nenhuma',
+      menor:'sim', respNome:'Sandra Alves', respParentesco:'Mãe', respTel:'(41) 99640-1180', tel:'(41) 99640-1180', email:'sandra.alves@gmail.com', imagem:'nao', ciente:true, saudeOk:true, priv:true, whats:true, indicou:'Rafael Pacheco'}},
     {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'gestantes', turmas:'sab1030', nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', cpf:'111.444.777-35', email:'helena.rib@hotmail.com',
       motivo:'Preparar o corpo para o parto', praticou:'Fiz algumas aulas antes de engravidar', pressao:'Normal', coluna:'Um pouco na lombar', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Boa', maisInfo:'Gestante de 20 semanas, gravidez sem intercorrências, liberada pela obstetra.',
       emergNome:'Diego (marido)', emergTel:'(41) 99733-5500', termos:true, imagem:'nao', saudeOk:true, priv:true, whats:true, indicou:''}},
@@ -256,7 +287,13 @@ function semear(){
 }
 
 /* ---------- valores e partes ---------- */
-function valorMat(S, m){ return m.plano ? S.regras.planos[m.plano] : m.valor; }
+function valorMat(S, m){ return m.plano ? S.regras.planos[m.plano] : m.planoPart ? (S.regras.planosPart || {})[m.planoPart] ?? m.valor : m.valor; }
+/* Wellhub e GoGood: aulas do mês × valor por aula (quem paga é a plataforma) */
+function presencasPlataforma(S, mes, plano){ return S.presencas.filter(p => p.t === plano && S.aulas[p.s] && mesDe(S.aulas[p.s].d) === mes); }
+function plataformaMes(S, mes){
+  return Object.keys(PLANOS_YOGA).filter(ehPlataforma).map(k => { const n = presencasPlataforma(S, mes, k).length; return {k, nome:PLANOS_YOGA[k].plataforma, n, valor:r2(n * S.regras.planos[k])}; });
+}
+const comCartao = (S, v) => r2(v + (S.regras.taxaCartao ?? TAXA_CARTAO));
 function partesVenda(v){
   const f = FORN[v.forn] || {pct:0};
   const forn = r2(v.valor * (v.pct ?? f.pct));
@@ -285,6 +322,7 @@ function freqStatus(S, a){
 function statusPagamento(S, a, m, mes = MES_ATUAL){
   const pg = S.pagamentos.find(p => p.mat === m.id && p.mes === mes);
   const venc = `${mes}-${pad(Math.min(m.venc,28))}`;
+  if (ehPlataforma(m.plano)){ const n = S.presencas.filter(p => p.a === (a && a.id) && p.t === m.plano && S.aulas[p.s] && mesDe(S.aulas[p.s].d) === mes).length; return {st:'plataforma', venc, n, txt:`Pelo ${PLANOS_YOGA[m.plano].plataforma}: ${n} ${n === 1 ? 'aula' : 'aulas'} em ${nomeMes(mes).toLowerCase()} × ${brl(S.regras.planos[m.plano])}`}; }
   if (pg) return {st:'pago', pg, venc, txt:`Pago em ${dataBR(pg.d)}`};
   const av_ = (S.avisosPag || []).find(x => x.mat === m.id && x.mes === mes && x.estado === 'aguardando');
   if (av_) return {st:'analise', aviso:av_, venc, txt:`Avisou que pagou em ${dataBR(av_.d)} · ${av_.metodo === 'cartao' ? 'cartão' : 'Pix'} · falta a administração confirmar`};
@@ -329,6 +367,7 @@ function receitaMes(S, mes){
     const soma = {};
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m) soma[m.atv] = (soma[m.atv]||0) + p.valor; });
     S.sessoes.filter(s => mesDe(s.d) === mes).forEach(s => soma[s.atv] = (soma[s.atv]||0) + s.valor);
+    plataformaMes(S, mes).forEach(x => { if (x.valor) soma.yoga = (soma.yoga || 0) + x.valor; });
     Object.keys(ATIV).forEach(k => soma[k] && add(k, soma[k], 'app'));
   }
   const tot = linhas.reduce((t,l) => ({bruto:t.bruto+l.bruto, ea:t.ea+l.ea, instr:t.instr+l.instr}), {bruto:0, ea:0, instr:0});
@@ -353,6 +392,7 @@ function balancoMes(S, mes){
    2) o "excedente" = 70% das mensalidades − soma do passo 1
    3) o excedente é dividido igualmente por aula dada e somado a cada instrutora
    4) somam-se 70% das particulares, gestantes e meditação */
+const TIPOS_PRESENCA = ['4x','3x','2x','1x','avulsa','wellhub','gogood'];
 function fechamentoYoga(S, mes){
   const F = FECH_PLANILHA[mes];
   let bruto, aulaVazia, instrs = {}, extras = {}, fonte, taxas;
@@ -366,8 +406,9 @@ function fechamentoYoga(S, mes){
     fonte = 'app'; aulaVazia = S.regras.aulaVazia; taxas = taxasYoga(S.regras.planos, P.yoga);
     bruto = 0;
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m && m.atv === 'yoga') bruto += p.valor; });
-    Object.values(S.aulas).filter(au => mesDe(au.d) === mes && au.feita && TURMA[au.turma].atv === 'yoga').forEach(au => {
-      const I = instrs[au.instr] = instrs[au.instr] || {aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0}};
+    bruto += plataformaMes(S, mes).reduce((s, x) => s + x.valor, 0);   /* o que o Wellhub e o GoGood pagam entra na conta da yoga */
+    Object.values(S.aulas).filter(au => mesDe(au.d) === mes && au.feita && TURMA[au.turma] && TURMA[au.turma].atv === 'yoga').forEach(au => {
+      const I = instrs[au.instr] = instrs[au.instr] || {aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0,wellhub:0,gogood:0}};
       I.aulas++;
       if (au.vazia){ I.c.vazia++; return; }
       S.presencas.filter(p => p.s === au.id).forEach(p => { if (I.c[p.t] !== undefined) I.c[p.t]++; });
@@ -381,7 +422,7 @@ function fechamentoYoga(S, mes){
   }
   const pool = r2(bruto * P.yoga);
   const linhas = Object.entries(instrs).map(([id,I]) => {
-    const aReceber = I.c.vazia*aulaVazia + ['4x','3x','2x','1x','avulsa'].reduce((s,k) => s + I.c[k]*taxas[k], 0);
+    const aReceber = I.c.vazia*aulaVazia + TIPOS_PRESENCA.reduce((s,k) => s + (I.c[k] || 0)*taxas[k], 0);
     return {id, nome:PESSOA[id].nome, aulas:I.aulas, c:I.c, aReceber};
   });
   const somaAR = linhas.reduce((s,l) => s + l.aReceber, 0);
@@ -398,7 +439,7 @@ function fechamentoYoga(S, mes){
     l.total = l.yogaFinal + l.extras.particular + l.extras.gestantes + l.extras.meditacao;
     if (F && F.conferido) l.conferido = F.conferido[l.id];
   });
-  Object.entries(extras).forEach(([id,ex]) => { if (PESSOA[id] && !linhas.find(l => l.id === id)){ const e = {particular:(ex.particular||0)*P.particular, gestantes:(ex.gestantes||0)*P.gestantes, meditacao:(ex.meditacao||0)*P.meditacao}; linhas.push({id, nome:PESSOA[id].nome, aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0}, aReceber:0, ajuste:0, yoga:0, yogaFinal:0, piso:0, extras:e, total:e.particular+e.gestantes+e.meditacao}); }});
+  Object.entries(extras).forEach(([id,ex]) => { if (PESSOA[id] && !linhas.find(l => l.id === id)){ const e = {particular:(ex.particular||0)*P.particular, gestantes:(ex.gestantes||0)*P.gestantes, meditacao:(ex.meditacao||0)*P.meditacao}; linhas.push({id, nome:PESSOA[id].nome, aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0,wellhub:0,gogood:0}, aReceber:0, ajuste:0, yoga:0, yogaFinal:0, piso:0, extras:e, total:e.particular+e.gestantes+e.meditacao}); }});
   linhas.sort((a,b) => b.total - a.total);
   return {mes, fonte, bruto, pool, pctYoga:P.yoga, aulaVazia, obsVazia: F && F.obsVazia, taxas, linhas, somaAR, totalAulas, excedente, porAula};
 }

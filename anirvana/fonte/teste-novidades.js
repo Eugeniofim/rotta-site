@@ -8,6 +8,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   const b = await chromium.launch();
   const ctx = await b.newContext({viewport:{width:390, height:844}, deviceScaleFactor:1, acceptDownloads:true});
   const page = await ctx.newPage();
+  const entraP = async (v, who, ms) => { await page.evaluate(([v, who]) => { fecharFolha(); ACT.entrar({v, who}); }, [v, who]); await page.waitForTimeout(ms || 300); };
   const erros = []; page.on('pageerror', e => erros.push(e.message)); page.on('console', m => { if (m.type() === 'error') erros.push('console: ' + m.text()); });
   const ok = globalThis.OK = [], falhas = [];
   const conf = (cond, txt) => (cond ? ok : falhas).push(txt);
@@ -16,6 +17,8 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   const overflow = async (n) => { const w = await page.evaluate(() => document.documentElement.scrollWidth); conf(w <= 390, `${n}: sem rolagem lateral (${w}px)`); };
 
   await page.goto(APP); await page.evaluate(() => localStorage.clear()); await page.reload(); await espera(700);
+  /* os pontos estão desligados por padrão (pedido da Dessa); aqui testamos quando a administração liga */
+  await page.evaluate(() => { S.config.pontos = true; salvar(); render(); }); await espera(200);
   await shot('01-porta');
   const ordem = await page.$$eval('.dcard h3', hs => hs.map(h => h.textContent));
   conf(ordem.join(',') === 'Alunos,Instrutores,Administração', 'porta: ordem ' + ordem.join(' > '));
@@ -26,7 +29,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   const segue = async (ms = 600) => clica('[data-act=inscPasso][data-v="1"]', ms);
   await clica('[data-act=inscricao]', 600); await shot('02-insc-atividade');
   await segue(300); conf(await page.locator('#toast').innerText().then(t => t.includes('Falta')), 'inscrição: pede a atividade');
-  conf(await page.locator('.atv-card').count() >= 8, 'inscrição: atividades em cartões (yoga e corpo, crianças)');
+  conf(await page.locator('.atv-card').count() >= 7, 'inscrição: atividades em cartões (yoga e meditação, arte e música)');
   await clica('.atv-card[data-v=yoga]', 600);
   conf(await page.locator('.opt[data-grp=iPlano]').count() === 4, 'inscrição: yoga mostra planos');
   await clica('.opt[data-grp=iTur]'); await page.locator('#iExpm').check(); await shot('03-insc-yoga');
@@ -51,16 +54,16 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   // formulário de criança (aquarela)
   await clica('[data-act=inscricao]', 600); await clica('.atv-card[data-v=aquarela]', 500); await segue();
   conf((await page.locator('#sheet .sheet-h h2').innerText()).includes('Aulas de Aquarela'), 'inscrição: abre "Aulas de Aquarela"');
-  await fill('nome', 'Lia Prates'); await fill('nasc', '2018-03-02'); await fill('endereco', 'Rua das Gaivotas, 40'); await fill('saude', 'Alergia a corante'); await clica('.opt[data-grp=f_restricao][data-v=Vegetariano]', 200);
+  await fill('nome', 'Lia Prates'); await fill('nasc', '2018-03-02'); await fill('endereco', 'Rua das Gaivotas, 40'); await fill('tel', '(41) 99222-3333'); await fill('saude', 'Alergia a corante'); await clica('.opt[data-grp=f_restricao][data-v=Vegetariano]', 200);
   await shot('08a-insc-crianca'); await segue();
-  await fill('respNome', 'Joana Prates'); await fill('respParentesco', 'Mãe'); await fill('tel', '(41) 99222-3333'); await segue();
+  await fill('respNome', 'Joana Prates'); await fill('respParentesco', 'Mãe'); await fill('respTel', '(41) 99222-3333'); await segue();
   await clica('.opt[data-grp=f_imagem][data-v=nao]', 200); await page.locator('#f_ciente').check(); await page.locator('#f_priv').check();
   await clica('[data-act=inscEnviar]', 1500); await shot('08b-insc-crianca-ok');
-  conf(await page.locator('#sheet').innerText().then(t => t.includes('Prof. Bruno Costa')), 'inscrição de criança: mensagem final do formulário (Prof. Bruno Costa)');
+  conf(await page.locator('#sheet').innerText().then(t => t.includes('combinamos o horário com o professor')), 'inscrição de aquarela (menor): mensagem final');
   await clica('#sheet [data-act=fechar]');
 
   // administração: inscrições, ficha, confirmar
-  await clica('[data-act=entrar][data-v=admin][data-who=dessa]', 900); await shot('08-admin-inicio');
+  await entraP('admin','dessa',900); await shot('08-admin-inicio');
   const nInsc = await page.locator('#root [data-act=confirmarInscricao]').count(); conf(nInsc === 5, `admin: ${nInsc} inscrições novas (esperado 5)`);
   conf(await page.locator('.sino .dot').innerText() === '6', 'admin: sino com 6 (5 inscrições + 1 pagamento para confirmar)');
   await overflow('admin início');
@@ -107,7 +110,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   // escola: código de acesso na equipe
   await clica('.bnav [data-v=escola]', 600); await clica('[data-act=escolaVis][data-v=equipe]', 600);
   await clica('[data-act=verCodigo][data-v=sara]', 400);
-  conf(await page.locator('.pill', {hasText:'Código'}).filter({hasText: await page.evaluate(() => S.codigos.sara.c.slice(0,3))}).count() === 1, 'equipe: administração vê o código da Sara');
+  conf(await page.locator('.pill', {hasText:'PIN'}).filter({hasText: await page.evaluate(() => S.codigos.sara.c.slice(0,3))}).count() === 1, 'equipe: administração vê o PIN da Sara');
   const antigo = await page.evaluate(() => S.codigos.sara.c);
   await clica('[data-act=novoCodigo][data-v=sara]', 600); await shot('20b-codigo-novo');
   conf(await page.evaluate(a => S.codigos.sara.c !== a && S.codigos.sara.v === 2, antigo), 'equipe: gerar novo troca o código da Sara');
@@ -120,17 +123,17 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   await clica('.topbar [data-act=logo]', 700); conf(await page.locator('.door').count() === 1, 'logo: volta para a tela inicial');
 
   // instrutora: ficha
-  await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 700); await shot('22a-codigo');
+  await entraP('instrutor','kamala',700); await shot('22a-codigo');
   conf(await page.locator('#codigoIn').isVisible() && await page.locator('.app').count() === 0, 'instrutora: pede o código pessoal antes de entrar');
   await page.fill('#codigoIn', '000000'); await clica('[data-act=conferirCodigo]', 500);
   conf((await page.locator('#codigoMsg').innerText()).includes('Restam 4'), 'código errado: avisa quantas tentativas restam');
   await page.fill('#codigoIn', await page.evaluate(() => S.codigos.kamala.c)); await clica('[data-act=conferirCodigo]', 900);
   conf(await page.locator('.app').count() === 1, 'código certo: entra no painel da Kamala');
-  await clica('.topbar [data-act=logo]', 500); await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 800);
+  await clica('.topbar [data-act=logo]', 500); await entraP('instrutor','kamala',800);
   conf(await page.locator('.app').count() === 1, 'neste celular ela não precisa digitar de novo');
   await page.evaluate(() => { location.hash = '#instrutor-hoje'; UI.who.instrutor = 'sara'; lerHash(); render(); }); await espera(600);
   conf(await page.locator('#codigoIn').isVisible(), 'link direto para o painel de outra instrutora também pede código');
-  await clica('#sheet [data-act=fechar]', 300); await clica('[data-act=entrar][data-v=instrutor][data-who=kamala]', 800);
+  await clica('#sheet [data-act=fechar]', 300); await entraP('instrutor','kamala',800);
   await clica('[data-act=sino]', 600); await shot('22-sino-kamala'); await clica('#sheet [data-act=fechar]');
   await clica('.bnav [data-v=alunos]', 800);
   await page.evaluate(() => ACT.verAlunoI({v:'a13'})); await espera(700); await shot('23-ficha-instr-a13');
@@ -142,7 +145,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
 
   // aluna
   await clica('.topbar [data-act=logo]', 700);
-  await clica('[data-act=entrar][data-v=aluno][data-who=a01]', 900); await shot('25-aluna-inicio'); await overflow('aluna');
+  await entraP('aluno','a01',900); await shot('25-aluna-inicio'); await overflow('aluna');
   const chips = await page.$$eval('[data-act=alunoAtv]', c => c.map(x => x.dataset.v)); conf(!chips.includes('formacao'), 'aluna: sem menu Formação');
   await page.locator('.card.pontos').scrollIntoViewIfNeeded(); await espera(500); await shot('26-aluna-pontos');
   const antes = await page.evaluate(() => pontosAluno(S,'a01').total);
@@ -158,14 +161,14 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   await shot('32-aluna-evento-ok');
   // a ficha da própria aluna
   await page.evaluate(() => { const a = alunoPor(S,'a12'); });
-  await clica('.topbar [data-act=logo]', 600); await clica('[data-act=entrar][data-v=aluno][data-who=a12]', 900);
+  await clica('.topbar [data-act=logo]', 600); await entraP('aluno','a12',900);
   await page.locator('[data-act=verMinhaFicha]').scrollIntoViewIfNeeded(); await clica('[data-act=verMinhaFicha]', 700); await shot('33-minha-ficha');
   for (const [k, v] of [['motivo','Dor nas costas'],['praticou','Já pratiquei'],['coluna','Sim, lombar'],['dores','Não'],['intestino','Todos os dias'],['labirintite','Não'],['saudeGeral','Boa'],['maisInfo','Não'],['emergNome','Rui (marido)'],['emergTel','(41) 9 9999-0000']]) await page.fill('#f_' + k, v);
   await clica('.opt[data-grp=f_pressao][data-v=Normal]', 200);
   await clica('[data-act=salvarMinhaFicha]', 700); conf(await page.evaluate(() => !!S.pontosAcoes.a12?.ficha && alunoPor(S,'a12').ficha.completa), 'ficha própria: salva e dá pontos');
 
   // Google Forms CSV
-  await clica('.topbar [data-act=logo]', 600); await clica('[data-act=entrar][data-v=admin][data-who=vitor]', 900);
+  await clica('.topbar [data-act=logo]', 600); await entraP('admin','saraadm',900);
   const cab = ['Carimbo de data/hora','Nome Completo','Data de nascimento','Telefone (Whatsapp de preferência)','CPF:','Qual o motivo principal de sua procura pelo Yoga?','Já praticou ou pratica Yoga?','Como está sua pressão arterial?','Você sente dores na coluna? Se sim, em que região?','Você sente dores...? Se sim, descreva brevemente.','Como está o funcionamento do seu intestino? (funciona todos os dias, mais de uma vez ao dia ou quantas vezes na semana)','Tem labirintite, tonturas ou algo do gênero?','Como você considera sua saúde física e mental?','Mais alguma informação importante (uso de medicação, tratamento de saúde, cirurgias realizadas)?','Nome e grau de parentesco','Telefone','Declaro estar ciente e concordar com os termos de responsabilidade que me foram enviados.','AUTORIZO SEM QUALQUER ÔNUS ECONÔMICO/FINANCEIRO extra ao Espaço Anirvana, utilizar a imagem...'];
   const lin = (...v) => v.map(x => `"${String(x).replace(/"/g, '""')}"`).join(',');
   const csv = [lin(...cab), lin('29/10/2026 09:12:00','Rita Moura','03/02/1988','(41) 99111-2222','529.982.247-25','Ansiedade','Nunca','Alta','Sim, lombar','Não','Todos os dias','Não','Boa','Remédio para pressão','Jorge (marido)','(41) 99111-0000','Sim, declaro estar ciente e concordo com os termos.','Sim, autorizo.'),
@@ -177,17 +180,19 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
 
 
   // pagamento: aluno só avisa, administração dá baixa
-  await clica('.topbar [data-act=logo]', 600); await clica('[data-act=entrar][data-v=aluno][data-who=a12]', 900);
+  await clica('.topbar [data-act=logo]', 600); await entraP('aluno','a12',900);
   await clica('.bnav [data-v=plano]', 800); await clica('#root [data-act=pagar]', 700); await shot('37-aluno-pagar');
   const antesPg = await page.evaluate(() => S.pagamentos.length);
   await clica('#sheet [data-act=confirmarPag]', 800); await shot('38-aluno-avisou');
+  conf(await page.locator('#sheet a[href*="wa.me"]').count() === 1, 'pagamento: oferece mandar o comprovante no WhatsApp');
+  await clica('#sheet button[data-act=fechar]', 500);
   conf(await page.evaluate(n => S.pagamentos.length === n && S.avisosPag.some(x => x.a === 'a12' && x.estado === 'aguardando'), antesPg), 'pagamento: aluno avisa, não dá baixa');
   conf(await page.locator('#root .pill').filter({hasText:'Em análise'}).count() > 0, 'pagamento: aluno vê "em análise"');
-  await clica('.topbar [data-act=logo]', 600); await clica('[data-act=entrar][data-v=admin][data-who=dessa]', 900);
+  await clica('.topbar [data-act=logo]', 600); await entraP('admin','dessa',900);
   await page.locator('.alert', {hasText:'pagamentos para confirmar'}).first().click(); await espera(900); await shot('39-admin-confirmar');
   conf(await page.locator('#root [data-act=darBaixa]').count() === 2, 'pagamento: 2 para confirmar na lista');
   await clica('#root [data-act=darBaixa]', 800);
-  conf(await page.evaluate(() => S.pagamentos.some(p => p.baixaPor === 'Dessa')), 'pagamento: baixa registrada com quem deu');
+  conf(await page.evaluate(() => S.pagamentos.some(p => p.baixaPor === 'Andressa')), 'pagamento: baixa registrada com quem deu');
   await clica('#root [data-act=recusarAviso]', 800);
   conf(await page.evaluate(() => S.avisosPag.filter(x => x.estado === 'aguardando').length === 0), 'pagamento: "não caiu" tira da fila');
 

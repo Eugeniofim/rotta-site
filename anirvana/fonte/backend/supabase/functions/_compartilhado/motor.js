@@ -9,7 +9,7 @@ const nomePlano = m => m.plano ? `${ATIV[m.atv].curto} ${m.plano}` : ATIV[m.atv]
    ============================================================ */
 
 /* contato público (ficha do Sebrae PR "Yoga & Café" e redes) */
-const ESPACO = {endereco:'Rua Erva Cidreira, 48', cidade:'Pontal do Sul · Pontal do Paraná/PR', instagram:'espaco_anirvana', link:'linktr.ee/espacoanirvana', tel:'(41) 99848-7892', email:'espacoanirvana@gmail.com'};
+const ESPACO = {endereco:'Rua Erva Cidreira, 48', cidade:'Pontal do Sul · Pontal do Paraná/PR', instagram:'espaco_anirvana', link:'linktr.ee/espacoanirvana', tel:'(41) 99848-7892', whats:'5541998487892', email:'espacoanirvana@gmail.com'};
 const EVENTOS = [
   {id:'yogacafe', nome:'Yoga & Café', icon:'coffee', idade:'A partir de 12 anos',
    desc:'Flua com o yoga e sinta-se conectado(a) com a natureza. Ao relaxar a mente, nutra o corpo com um delicioso café.',
@@ -52,33 +52,32 @@ const EQUIPE = cfg.EQUIPE || [
   {id:'anajulia', nome:'Ana Julia', atvs:['yoga','particular'], cor:'#E5672A', pix:'ana•••@gmail.com'},
   {id:'kamala',   nome:'Kamala',    atvs:['yoga','particular','gestantes','meditacao'], cor:'#B9488E', pix:'(41) 9••••-2210',
    nomeCompleto:'Camilla Beatritse Kamalá', bio:'Instrutora de Yoga e AcroYoga, terapeuta sistêmica e integrativa, com formação em Tantra Yoga e Yoga Terapêutico.'},
-  {id:'sara',     nome:'Sara',      atvs:['yoga'], cor:'#3E8E6E', pix:'(41) 9••••-7781'},
+  {id:'sara',     nome:'Sara',      atvs:['yoga'], cor:'#3E8E6E', pix:'(41) 9••••-7781', nomeCompleto:'Sara Lénz', bio:'Yoga e Movimento consciente.'},
   {id:'stefy',    nome:'Stefy',     atvs:['yoga'], cor:'#C08A12', pix:'•••.482.•••-10', obs:'Yoga de férias'},
   {id:'bruno',    nome:'Bruno',     atvs:['aquarela'], cor:'#2F7FB8', pix:'bru•••@gmail.com'},
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
 ];
-const ADMINS = [{id:'dessa', nome:'Dessa'},{id:'vitor', nome:'Vitor'}];
+/* dois logins na administração (a porta não mostra os nomes) */
+const ADMINS = [{id:'dessa', nome:'Andressa', curto:'Dessa'},{id:'saraadm', nome:'Sara', curto:'Sara'}];
 
 /* ---------- atividades ----------
    repasse = parte do instrutor. vis:'todos' -> aparece pra todo instrutor da atividade;
    vis:'escolhido' -> só pro instrutor que o aluno escolheu (regra do documento da Dessa) */
 const ATIV = {
-  yoga:          {nome:'Yoga & AcroYoga', curto:'Yoga', icon:'sun', cor:'var(--sol)', hex:'#EE7A2F', repasse:.70, vis:'todos', turma:true,
-                  desc:'Turmas de hatha yoga pela manhã e à noite, e AcroYoga aos sábados. Planos de 1 a 4 aulas por semana.'},
-  particular:    {nome:'Yoga particular', curto:'Particular', icon:'user', cor:'#B9488E', hex:'#B9488E', repasse:.70, vis:'escolhido',
-                  desc:'Aula individual no horário combinado com a instrutora que você escolher.'},
-  gestantes:     {nome:'Yoga para gestantes', curto:'Gestantes', icon:'baby', cor:'#D46A8C', hex:'#D46A8C', repasse:.70, vis:'todos', turma:true,
-                  desc:'Prática suave para cada trimestre da gestação, com respiração e preparo para o parto.'},
-  meditacao:     {nome:'Meditação', curto:'Meditação', icon:'flower-2', cor:'#6A55C9', hex:'#6A55C9', repasse:.70, vis:'todos', turma:true,
-                  desc:'Encontro semanal de meditação guiada e silêncio, às segundas à noite.'},
-  aquarela:      {nome:'Aquarela', curto:'Aquarela', icon:'palette', cor:'#2F7FB8', hex:'#2F7FB8', repasse:.70, vis:'todos', turma:true,
-                  desc:'Aulas de aquarela para crianças com o Prof. Bruno Costa. Material básico incluso.'},
+  yoga:          {nome:'Yoga e Movimento Consciente', curto:'Yoga', icon:'sun', cor:'var(--sol)', hex:'#EE7A2F', repasse:.70, vis:'todos', turma:true,
+                  desc:'Turmas de hatha yoga pela manhã e à noite, AcroYoga aos sábados e Movimento consciente às sextas, 9h. Planos de 1 a 4 aulas por semana: o Movimento conta como uma aula do plano.'},
+  particular:    {nome:'Yoga particular · presencial e online', curto:'Particular', icon:'user', cor:'#B9488E', hex:'#B9488E', repasse:.70, vis:'escolhido',
+                  desc:'Aula individual, no Espaço ou online, no horário combinado com você.'},
+  gestantes:     {nome:'Yoga para gestantes e pós-parto', curto:'Gestantes', icon:'baby', cor:'#D46A8C', hex:'#D46A8C', repasse:.70, vis:'todos', turma:true,
+                  desc:'Prática suave para a gestação e o pós-parto, com respiração e preparo para o parto.'},
+  meditacao:     {nome:'Prática de meditação', curto:'Meditação', icon:'flower-2', cor:'#6A55C9', hex:'#6A55C9', repasse:.70, vis:'todos', turma:true,
+                  desc:'Encontro semanal de meditação guiada e silêncio.'},
+  aquarela:      {nome:'Aquarela', curto:'Aquarela', icon:'palette', cor:'#2F7FB8', hex:'#2F7FB8', repasse:.70, vis:'todos', turma:true, combinar:true,
+                  desc:'Aulas de aquarela para crianças, jovens e adultos. Material básico incluso. O horário é combinado com o professor.'},
   musicalizacao: {nome:'Musicalização infantil', curto:'Musicalização', icon:'music', cor:'#C08A12', hex:'#C08A12', repasse:.70, vis:'todos', turma:true,
                   desc:'Música, ritmo e brincadeira para crianças de 3 a 7 anos.'},
-  movimento:     {nome:'Movimento consciente', curto:'Movimento', icon:'person-standing', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'todos', turma:true,
-                  desc:'Consciência corporal e movimento. Usa a mesma ficha de inscrição do yoga. Horários e valor: a definir com a equipe.'},
-  violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true,
-                  desc:'Aulas de violão para crianças e jovens com o Prof. Bruno Saes, do primeiro acorde às músicas favoritas.'},
+  violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true, combinar:true,
+                  desc:'Aulas de violão para crianças, jovens e adultos, do primeiro acorde às músicas favoritas. O horário é combinado com o professor.'},
 };
 
 /* ---------- planos de yoga ----------
@@ -90,7 +89,21 @@ const PLANOS_YOGA = {
   '3x':     {nome:'3x por semana', preco:220, sem:3},
   '4x':     {nome:'4x por semana', preco:290, sem:4},
   'avulsa': {nome:'Aula avulsa',   preco:45,  sem:0},
+  /* quem vem pelas plataformas: o aluno não paga o Espaço; a plataforma paga por aula (check-in) */
+  'wellhub':{nome:'Wellhub (por aula)', preco:25.50, sem:0, plataforma:'Wellhub'},
+  'gogood': {nome:'GoGood (por aula)',  preco:27.00, sem:0, plataforma:'GoGood'},
 };
+/* yoga particular 2026 (tabela da Dessa) */
+const PLANOS_PART = {
+  '1x':     {nome:'1x por semana', preco:245, sem:1},
+  '2x':     {nome:'2x por semana', preco:385, sem:2},
+  '3x':     {nome:'3x por semana', preco:515, sem:3},
+  '4x':     {nome:'4x por semana', preco:650, sem:4},
+  'avulsa': {nome:'Aula avulsa ou experimental', preco:80, sem:0},
+};
+const TAXA_CARTAO = 12;   /* cartão de crédito ou débito: acréscimo de R$ 12,00 */
+const PLANOS_MENSAIS = ['1x','2x','3x','4x'];
+const ehPlataforma = k => !!(PLANOS_YOGA[k] && PLANOS_YOGA[k].plataforma);
 const REGRAS_PADRAO = {aulaVazia:10, aulaVaziaFerias:25, piso:false};
 
 /* ---------- grade semanal (exemplo — ajustar com a grade real) ---------- */
@@ -110,6 +123,7 @@ const TURMAS = cfg.TURMAS || [
   {id:'sab1000', atv:'musicalizacao', dia:6, h:'10:00', instr:'brunos', sala:'Ateliê'},
   {id:'ter1000p', atv:'particular', dia:2, h:'10:00', instr:'kamala', sala:'Sala Lua', aluno:'a02'},
   {id:'sex1600p', atv:'particular', dia:5, h:'16:00', instr:'anajulia', sala:'Sala Sol', aluno:'a03'},
+  {id:'sex0900', atv:'yoga', dia:5, h:'09:00', instr:'sara', sala:'Sala Sol', nome:'Movimento consciente', desde:'2026-10-30'},
 ];
 
 /* ---------- alunos (nomes fictícios: a planilha veio sem nomes) ----------
@@ -148,6 +162,9 @@ const ALUNOS_BASE = [
   ['a31','Theo Gomes','2026-03-07',    [['musicalizacao',150,['sab1000'],7,'pix']], 'Responsável: André Gomes · 6 anos'],
   ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']], 'Responsável: Ana Vieira · 12 anos'],
   ['a33','Rafael Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']], 'Responsável: Rodrigo Pacheco · 10 anos'],
+  ['a34','Tiago Melo','2026-08-04',     [['yoga','wellhub',['ter1900','qui1900'],1,'pix']]],
+  ['a35','Paula Viana','2026-09-01',    [['yoga','gogood',['seg0700','qua0700'],1,'pix']]],
+  ['a36','Sílvia Andrade','2026-07-06', [['aquarela',240,['qua1500'],6,'pix']]],
 ];
 /* quem anda sumido (última presença) e quem está devendo — para os alertas */
 const ULTIMA_VINDA = {a09:'2026-10-15', a19:'2026-10-15', a11:'2026-10-19', a18:'2026-10-20', a22:'2026-10-17'};
@@ -343,7 +360,7 @@ const CONTAS_FIXAS = [
    MOTOR — gera a demonstração e faz todas as contas
    (as mesmas regras da planilha, agora automáticas)
    ============================================================ */
-const VERSAO = 'proto-1.2';
+const VERSAO = 'proto-1.3';
 const CHAVE = 'anirvana_proto_v1';
 
 /* ---------- utilidades ---------- */
@@ -370,7 +387,27 @@ const corDe = nome => { let h = 0; for (const c of nome) h = (h*31 + c.charCodeA
 const TURMA = Object.fromEntries(TURMAS.map(t => [t.id, t]));
 const FORN = Object.fromEntries(FORNECEDORES.map(f => [f.id, f]));
 const PESSOA = Object.fromEntries(EQUIPE.map(p => [p.id, p]));
-const FERIADOS = ['2026-09-07','2026-10-12'];
+/* feriados nacionais: a aula sai da agenda sozinha e os alunos recebem o aviso.
+   A administração pode marcar "vai ter aula" ou acrescentar dias sem aula (recesso, feriado da cidade). */
+const FERIADOS_BASE = {
+  '2026-01-01':'Confraternização Universal', '2026-02-16':'Carnaval', '2026-02-17':'Carnaval', '2026-04-03':'Sexta-feira Santa',
+  '2026-04-21':'Tiradentes', '2026-05-01':'Dia do Trabalho', '2026-06-04':'Corpus Christi', '2026-09-07':'Independência do Brasil',
+  '2026-10-12':'Nossa Senhora Aparecida', '2026-11-02':'Finados', '2026-11-15':'Proclamação da República', '2026-11-20':'Dia da Consciência Negra',
+  '2026-12-25':'Natal',
+  '2027-01-01':'Confraternização Universal', '2027-02-08':'Carnaval', '2027-02-09':'Carnaval', '2027-03-26':'Sexta-feira Santa',
+  '2027-04-21':'Tiradentes', '2027-05-01':'Dia do Trabalho', '2027-05-27':'Corpus Christi', '2027-09-07':'Independência do Brasil',
+  '2027-10-12':'Nossa Senhora Aparecida', '2027-11-02':'Finados', '2027-11-15':'Proclamação da República', '2027-11-20':'Dia da Consciência Negra',
+  '2027-12-25':'Natal',
+};
+const FERIADOS = Object.keys(FERIADOS_BASE);
+/* null = tem aula; {nome} = sem aula (feriado ou dia que a administração fechou) */
+function semAula(di, St){
+  const X = (St || (typeof S !== 'undefined' ? S : null) || {}).feriados || {}, extra = (X.extra || []).find(x => x.d === di);
+  if (extra) return {nome:extra.nome || 'Sem aula', extra:true};
+  if (FERIADOS_BASE[di] && !(X.comAula || []).includes(di)) return {nome:FERIADOS_BASE[di]};
+  return null;
+}
+function proximosSemAula(dias, St){ const out = []; for (let i = 0; i <= dias; i++){ const d = iso(addD(HOJE, i)), f = semAula(d, St); if (f) out.push({d, ...f}); } return out; }
 const nomeTurma = t => t.nome || ATIV[t.atv].curto;
 
 /* ============================================================
@@ -378,7 +415,8 @@ const nomeTurma = t => t.nome || ATIV[t.atv].curto;
    ============================================================ */
 function semear(){
   const R = rng(20261029);
-  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
+  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), planosPart:Object.fromEntries(Object.entries(PLANOS_PART).map(([k,p])=>[k,p.preco])), taxaCartao:TAXA_CARTAO, pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
+    config:{pontos:false, linkCartao:'', chavePix:'', drive:null}, feriados:{extra:[], comAula:[]},
     alunos:[], aulas:{}, presencas:[], pagamentos:[], sessoes:[], vendas:[], repLoja:[], fiado:[], lanc:[], repEquipe:[], subs:[], vou:{}, seq:1000};
 
   /* alunos */
@@ -394,7 +432,7 @@ function semear(){
   for (let d = pd('2026-08-01'); d <= HOJE; d = addD(d,1)){
     const di = iso(d);
     if (FERIADOS.includes(di)) continue;
-    TURMAS.filter(t => t.dia === d.getDay()).forEach(t => {
+    TURMAS.filter(t => t.dia === d.getDay() && !(t.desde && t.desde > di)).forEach(t => {
       const [hh,mm] = t.h.split(':').map(Number);
       if (di === HOJE_ISO && hh*60+mm > agoraMin) return;          /* ainda não aconteceu */
       const sid = `${di}_${t.id}`;
@@ -427,6 +465,7 @@ function semear(){
       let dia = m.metodo === 'cartao' ? venc : iso(addD(pd(venc), Math.floor(R()*4) - 1));
       if (a.desde.slice(0,7) === mes && a.desde > dia) dia = a.desde;
       if (dia > HOJE_ISO) dia = HOJE_ISO;
+      if (ehPlataforma(m.plano)) return;                      /* Wellhub e GoGood: quem paga é a plataforma, por aula */
       S.pagamentos.push({id:'pg'+(S.seq++), a:a.id, mat:m.id, mes, valor:valorMat(S,m), d:dia, metodo:m.metodo==='cartao'?'cartao':'pix'});
     }));
   });
@@ -543,8 +582,10 @@ function semear(){
     a.email = i % 4 === 3 ? '' : `${pn(quem.split(' ')[0])}.${pn(quem.split(' ').slice(-1)[0])}@gmail.com`;
     const crianca = KIDS.includes(a.mats[0].atv);
     if (crianca){
-      a.ficha = {form:'criancas', saudeOk:true, completa: a.id !== 'a33', respostas:{nome:a.nome, nasc:a.nasc, endereco:`Rua ${['das Gaivotas','Guaraqueçaba','Erva Cidreira','das Palmeiras'][i%4]}, ${10 + i*7} · Pontal do Sul`, saude: SAUDE_C[a.id] || 'Não', restricao: i % 5 === 0 ? 'Vegetariano' : 'Nenhuma',
+      const fk = formDe(a.mats[0].atv);
+      a.ficha = {form:fk, saudeOk:true, completa: a.id !== 'a33', respostas:{nome:a.nome, nasc:a.nasc, endereco:`Rua ${['das Gaivotas','Guaraqueçaba','Erva Cidreira','das Palmeiras'][i%4]}, ${10 + i*7} · Pontal do Sul`, saude: SAUDE_C[a.id] || 'Não', restricao: i % 5 === 0 ? 'Vegetariano' : 'Nenhuma',
         respNome:a.resp || '', respParentesco: i % 2 ? 'Mãe' : 'Pai', tel:a.tel, email:a.email, imagem: i % 3 ? 'sim' : 'nao', ciente:true, priv:true, whats:true}};
+      if (fk === 'arte') Object.assign(a.ficha.respostas, {menor: a.resp ? 'sim' : 'nao', respTel: a.resp ? a.tel : ''});
     } else {
       const sy = SAUDE_Y[a.id] || {};
       a.cpf = cpf();
@@ -568,7 +609,14 @@ function semear(){
   S.produtos = [];
   /* alunos que avisaram que pagaram: só a administração dá baixa */
   S.avisosPag = [{id:'ap1', a:'a29', mat:'a29-0', mes:'2026-10', valor:130, d:'2026-10-28', h:'19:42', metodo:'pix', estado:'aguardando'}];
-  S.backups = [{mes:'2026-08', d:'2026-09-01', h:'03:00', por:'automático'}, {mes:'2026-09', d:'2026-10-01', h:'03:00', por:'automático'}];
+  S.backups = [{mes:'2026-08', d:'2026-09-15', h:'03:00', por:'automático'}, {mes:'2026-09', d:'2026-10-15', h:'03:00', por:'automático'}];
+  /* terapias com hora marcada: aparecem na aba Terapias do aluno, com o contato de quem atende */
+  S.terapias = [
+    {id:'tp1', nome:'Terapias integrais', quem:'Kamala', desc:'Terapia sistêmica e integrativa, com hora marcada.', whats:ESPACO.whats, icon:'heart'},
+    {id:'tp2', nome:'Massagem terapêutica', quem:'', desc:'Sessões com hora marcada, no Espaço.', whats:ESPACO.whats, icon:'hand-heart'},
+  ];
+  /* PIN do painel da administração (no app de verdade: Google + PIN, guardado embaralhado) */
+  S.pinAdmin = {dessa:'2580', saraadm:'1470'};
   S.enviados = [
     {para:'Débora Martins', canal:'whatsapp', regra:'atraso', quando:'27/10 09:00'},
     {para:'Gabriel Lima', canal:'whatsapp', regra:'saudade', quando:'27/10 10:00'},
@@ -582,8 +630,8 @@ function semear(){
     {id:'in1', d:'2026-10-28', estado:'nova', origem:'app', dados:{atv:'yoga', plano:'2x', turmas:'ter1900,qui1900', experimental:true, nome:'Marina Souto', nasc:'1991-04-12', tel:'(41) 99812-4410', cpf:'529.982.247-25', email:'marina.souto@gmail.com',
       motivo:'Ansiedade e estresse do trabalho', praticou:'Nunca pratiquei', pressao:'Normal', coluna:'Às vezes na cervical', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Física boa, mental cansada', maisInfo:'Não',
       emergNome:'Rui (marido)', emergTel:'(41) 99771-2030', termos:true, imagem:'sim', saudeOk:true, priv:true, whats:true, indicou:''}},
-    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'violao', turmas:'qui1700', nome:'Pedro Alves', nasc:'2013-09-03', endereco:'Rua das Gaivotas, 210 · Pontal do Sul', saude:'Não', restricao:'Nenhuma',
-      respNome:'Sandra Alves', respParentesco:'Mãe', tel:'(41) 99640-1180', email:'sandra.alves@gmail.com', imagem:'nao', ciente:true, saudeOk:true, priv:true, whats:true, indicou:'Rafael Pacheco'}},
+    {id:'in2', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'violao', turmas:'', nome:'Pedro Alves', nasc:'2013-09-03', endereco:'Rua das Gaivotas, 210 · Pontal do Sul', saude:'Não', restricao:'Nenhuma',
+      menor:'sim', respNome:'Sandra Alves', respParentesco:'Mãe', respTel:'(41) 99640-1180', tel:'(41) 99640-1180', email:'sandra.alves@gmail.com', imagem:'nao', ciente:true, saudeOk:true, priv:true, whats:true, indicou:'Rafael Pacheco'}},
     {id:'in3', d:'2026-10-29', estado:'nova', origem:'app', dados:{atv:'gestantes', turmas:'sab1030', nome:'Helena Ribeiro', nasc:'1995-01-27', tel:'(41) 99733-5521', cpf:'111.444.777-35', email:'helena.rib@hotmail.com',
       motivo:'Preparar o corpo para o parto', praticou:'Fiz algumas aulas antes de engravidar', pressao:'Normal', coluna:'Um pouco na lombar', dores:'Não', intestino:'Funciona todos os dias', labirintite:'Não', saudeGeral:'Boa', maisInfo:'Gestante de 20 semanas, gravidez sem intercorrências, liberada pela obstetra.',
       emergNome:'Diego (marido)', emergTel:'(41) 99733-5500', termos:true, imagem:'nao', saudeOk:true, priv:true, whats:true, indicou:''}},
@@ -597,7 +645,13 @@ function semear(){
 }
 
 /* ---------- valores e partes ---------- */
-function valorMat(S, m){ return m.plano ? S.regras.planos[m.plano] : m.valor; }
+function valorMat(S, m){ return m.plano ? S.regras.planos[m.plano] : m.planoPart ? (S.regras.planosPart || {})[m.planoPart] ?? m.valor : m.valor; }
+/* Wellhub e GoGood: aulas do mês × valor por aula (quem paga é a plataforma) */
+function presencasPlataforma(S, mes, plano){ return S.presencas.filter(p => p.t === plano && S.aulas[p.s] && mesDe(S.aulas[p.s].d) === mes); }
+function plataformaMes(S, mes){
+  return Object.keys(PLANOS_YOGA).filter(ehPlataforma).map(k => { const n = presencasPlataforma(S, mes, k).length; return {k, nome:PLANOS_YOGA[k].plataforma, n, valor:r2(n * S.regras.planos[k])}; });
+}
+const comCartao = (S, v) => r2(v + (S.regras.taxaCartao ?? TAXA_CARTAO));
 function partesVenda(v){
   const f = FORN[v.forn] || {pct:0};
   const forn = r2(v.valor * (v.pct ?? f.pct));
@@ -626,6 +680,7 @@ function freqStatus(S, a){
 function statusPagamento(S, a, m, mes = MES_ATUAL){
   const pg = S.pagamentos.find(p => p.mat === m.id && p.mes === mes);
   const venc = `${mes}-${pad(Math.min(m.venc,28))}`;
+  if (ehPlataforma(m.plano)){ const n = S.presencas.filter(p => p.a === (a && a.id) && p.t === m.plano && S.aulas[p.s] && mesDe(S.aulas[p.s].d) === mes).length; return {st:'plataforma', venc, n, txt:`Pelo ${PLANOS_YOGA[m.plano].plataforma}: ${n} ${n === 1 ? 'aula' : 'aulas'} em ${nomeMes(mes).toLowerCase()} × ${brl(S.regras.planos[m.plano])}`}; }
   if (pg) return {st:'pago', pg, venc, txt:`Pago em ${dataBR(pg.d)}`};
   const av_ = (S.avisosPag || []).find(x => x.mat === m.id && x.mes === mes && x.estado === 'aguardando');
   if (av_) return {st:'analise', aviso:av_, venc, txt:`Avisou que pagou em ${dataBR(av_.d)} · ${av_.metodo === 'cartao' ? 'cartão' : 'Pix'} · falta a administração confirmar`};
@@ -670,6 +725,7 @@ function receitaMes(S, mes){
     const soma = {};
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m) soma[m.atv] = (soma[m.atv]||0) + p.valor; });
     S.sessoes.filter(s => mesDe(s.d) === mes).forEach(s => soma[s.atv] = (soma[s.atv]||0) + s.valor);
+    plataformaMes(S, mes).forEach(x => { if (x.valor) soma.yoga = (soma.yoga || 0) + x.valor; });
     Object.keys(ATIV).forEach(k => soma[k] && add(k, soma[k], 'app'));
   }
   const tot = linhas.reduce((t,l) => ({bruto:t.bruto+l.bruto, ea:t.ea+l.ea, instr:t.instr+l.instr}), {bruto:0, ea:0, instr:0});
@@ -694,6 +750,7 @@ function balancoMes(S, mes){
    2) o "excedente" = 70% das mensalidades − soma do passo 1
    3) o excedente é dividido igualmente por aula dada e somado a cada instrutora
    4) somam-se 70% das particulares, gestantes e meditação */
+const TIPOS_PRESENCA = ['4x','3x','2x','1x','avulsa','wellhub','gogood'];
 function fechamentoYoga(S, mes){
   const F = FECH_PLANILHA[mes];
   let bruto, aulaVazia, instrs = {}, extras = {}, fonte, taxas;
@@ -707,8 +764,9 @@ function fechamentoYoga(S, mes){
     fonte = 'app'; aulaVazia = S.regras.aulaVazia; taxas = taxasYoga(S.regras.planos, P.yoga);
     bruto = 0;
     S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m && m.atv === 'yoga') bruto += p.valor; });
-    Object.values(S.aulas).filter(au => mesDe(au.d) === mes && au.feita && TURMA[au.turma].atv === 'yoga').forEach(au => {
-      const I = instrs[au.instr] = instrs[au.instr] || {aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0}};
+    bruto += plataformaMes(S, mes).reduce((s, x) => s + x.valor, 0);   /* o que o Wellhub e o GoGood pagam entra na conta da yoga */
+    Object.values(S.aulas).filter(au => mesDe(au.d) === mes && au.feita && TURMA[au.turma] && TURMA[au.turma].atv === 'yoga').forEach(au => {
+      const I = instrs[au.instr] = instrs[au.instr] || {aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0,wellhub:0,gogood:0}};
       I.aulas++;
       if (au.vazia){ I.c.vazia++; return; }
       S.presencas.filter(p => p.s === au.id).forEach(p => { if (I.c[p.t] !== undefined) I.c[p.t]++; });
@@ -722,7 +780,7 @@ function fechamentoYoga(S, mes){
   }
   const pool = r2(bruto * P.yoga);
   const linhas = Object.entries(instrs).map(([id,I]) => {
-    const aReceber = I.c.vazia*aulaVazia + ['4x','3x','2x','1x','avulsa'].reduce((s,k) => s + I.c[k]*taxas[k], 0);
+    const aReceber = I.c.vazia*aulaVazia + TIPOS_PRESENCA.reduce((s,k) => s + (I.c[k] || 0)*taxas[k], 0);
     return {id, nome:PESSOA[id].nome, aulas:I.aulas, c:I.c, aReceber};
   });
   const somaAR = linhas.reduce((s,l) => s + l.aReceber, 0);
@@ -739,7 +797,7 @@ function fechamentoYoga(S, mes){
     l.total = l.yogaFinal + l.extras.particular + l.extras.gestantes + l.extras.meditacao;
     if (F && F.conferido) l.conferido = F.conferido[l.id];
   });
-  Object.entries(extras).forEach(([id,ex]) => { if (PESSOA[id] && !linhas.find(l => l.id === id)){ const e = {particular:(ex.particular||0)*P.particular, gestantes:(ex.gestantes||0)*P.gestantes, meditacao:(ex.meditacao||0)*P.meditacao}; linhas.push({id, nome:PESSOA[id].nome, aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0}, aReceber:0, ajuste:0, yoga:0, yogaFinal:0, piso:0, extras:e, total:e.particular+e.gestantes+e.meditacao}); }});
+  Object.entries(extras).forEach(([id,ex]) => { if (PESSOA[id] && !linhas.find(l => l.id === id)){ const e = {particular:(ex.particular||0)*P.particular, gestantes:(ex.gestantes||0)*P.gestantes, meditacao:(ex.meditacao||0)*P.meditacao}; linhas.push({id, nome:PESSOA[id].nome, aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0,wellhub:0,gogood:0}, aReceber:0, ajuste:0, yoga:0, yogaFinal:0, piso:0, extras:e, total:e.particular+e.gestantes+e.meditacao}); }});
   linhas.sort((a,b) => b.total - a.total);
   return {mes, fonte, bruto, pool, pctYoga:P.yoga, aulaVazia, obsVazia: F && F.obsVazia, taxas, linhas, somaAR, totalAulas, excedente, porAula};
 }
@@ -822,16 +880,17 @@ function contasDoMes(S, mes){
 /* ============================================================
    FORMULÁRIOS DE INSCRIÇÃO — réplica dos Google Forms do Espaço
    (as perguntas são as mesmas, na mesma ordem; só o desenho é do app)
-   - "Aulas de Yoga Espaço Anirvana": yoga e acroyoga, gestantes, particular,
-     meditação e movimento consciente
-   - "Inscrição Aulas de Aquarela / Musicalização": crianças, com responsável
-     (violão usa o mesmo de musicalização)
+   - "Aulas de Yoga Espaço Anirvana": yoga, acroyoga e movimento consciente,
+     gestantes e pós-parto, particular e meditação
+   - Aquarela e violão (não são só para crianças): começa pelo aluno; se for
+     menor de idade, segue para as informações do responsável
+   - "Inscrição Aulas de Musicalização": criança, com responsável (igual ao Forms)
    Regra pura: roda no app e no servidor (backup).
    ============================================================ */
 const PROF_FORM = {aquarela:'Bruno Costa', musicalizacao:'Bruno Saes', violao:'Bruno Saes'};
 const IMAGEM_TXT = 'AUTORIZO SEM QUALQUER ÔNUS ECONÔMICO/FINANCEIRO extra ao Espaço Anirvana utilizar a imagem de minha pessoa, bem como a voz, minha ou de quem represento, inseridas uma ou ambas, no material a ser transmitido ao vivo ou gravado e em qualquer tipo de mídia e veículo de comunicação, para os fins que a Instituição acima citada lhe pretender dar, do qual declaro estar plenamente ciente, especialmente quanto ao fato de que esta imagem poderá ser utilizada em aulas, palestras ou outros usos, comerciais ou não.';
 const FORMULARIOS = {
-  yoga: {id:'yoga', nome:'Aulas de Yoga', sub:'Formulário de inscrição para as aulas presenciais', atvs:['yoga','particular','gestantes','meditacao','movimento'], passos:[
+  yoga: {id:'yoga', nome:'Aulas de Yoga', sub:'Formulário de inscrição para as aulas presenciais', atvs:['yoga','particular','gestantes','meditacao'], passos:[
     {t:'Você', campos:[
       {k:'nome', l:'Nome completo', c:'Nome', obr:1, auto:'name'},
       {k:'nasc', l:'Data de nascimento', c:'Nascimento', tipo:'data', obr:1},
@@ -860,7 +919,30 @@ const FORMULARIOS = {
       {k:'imagem', c:'responder sobre o uso de imagem', tipo:'escolha', l:'Autorização de uso de imagem', texto:IMAGEM_TXT, ops:[['sim','Sim, autorizo.'],['nao','Não, não autorizo.']], obr:1},
     ]},
   ]},
-  criancas: {id:'criancas', nome:'Aulas de {atv}', sub:'Inscrição no Espaço Anirvana', atvs:['aquarela','musicalizacao','violao'], crianca:1, passos:[
+  arte: {id:'arte', nome:'Aulas de {atv}', sub:'Inscrição no Espaço Anirvana', atvs:['aquarela','violao'], passos:[
+    {t:'O aluno', campos:[
+      {sec:'Informações do aluno'},
+      {k:'nome', l:'Nome', c:'Nome', obr:1, auto:'name'},
+      {k:'nasc', l:'Data de nascimento', c:'Nascimento', tipo:'data', obr:1},
+      {k:'endereco', l:'Endereço', c:'Endereço', obr:1, adm:1},
+      {k:'tel', l:'Telefone (WhatsApp de preferência)', c:'WhatsApp', tipo:'tel', obr:1, ajuda:'Se for menor de idade, pode ser o do responsável.'},
+      {k:'email', l:'E-mail', c:'E-mail', tipo:'email', ajuda:'Opcional. Para o recibo e os avisos.', adm:1},
+      {k:'saude', l:'Possui algum problema de saúde, alergia ou informações de saúde que possam ser relevantes? Se sim, conte-nos um pouco.', c:'Saúde e alergias', obr:1, saude:1, area:1},
+      {k:'restricao', l:'Restrições alimentares', c:'Restrição alimentar', tipo:'escolha', ops:[['Nenhuma','Nenhuma'],['Vegetariano','Vegetariano'],['Vegano','Vegano'],['Sem glúten','Sem glúten']], obr:1},
+      {k:'menor', l:'O aluno é menor de idade?', c:'Menor de idade', tipo:'escolha', ops:[['nao','Não, é maior de idade'],['sim','Sim, é menor de idade']], obr:1, ajuda:'Se for, o próximo passo pede as informações do responsável.'},
+    ]},
+    {t:'Responsável', soMenor:1, campos:[
+      {sec:'Informações do(a) responsável'},
+      {k:'respNome', l:'Nome', c:'Responsável', obr:1, menor:1},
+      {k:'respParentesco', l:'Grau de parentesco', c:'Parentesco', obr:1, menor:1},
+      {k:'respTel', l:'Telefone de contato', c:'Tel. do responsável', ajuda:'De preferência com WhatsApp', tipo:'tel', obr:1, menor:1},
+    ]},
+    {t:'Combinados', campos:[
+      {k:'imagem', c:'responder sobre imagens e filmagens', tipo:'escolha', l:'Você autoriza o uso de imagens e filmagens, feitas durante as aulas, para divulgações em nossas redes sociais?', ops:[['sim','Sim, autorizo'],['nao','Não']], obr:1},
+      {k:'ciente', c:'confirmar a mensalidade', tipo:'aceite', l:'Estou ciente que devo pagar a mensalidade para iniciar as atividades.', op:'Sim!', obr:1},
+    ]},
+  ], final:'Agradecemos a sua inscrição! Agora é só nos avisar pelo WhatsApp (41) 99848-7892 que combinamos o horário com o professor e passamos os dados para o pagamento da mensalidade. Até breve! Espaço Anirvana.'},
+  criancas: {id:'criancas', nome:'Aulas de {atv}', sub:'Inscrição no Espaço Anirvana', atvs:['musicalizacao'], crianca:1, passos:[
     {t:'A criança', campos:[
       {sec:'Informações da criança'},
       {k:'nome', l:'Nome', c:'Nome', obr:1},
@@ -887,7 +969,7 @@ const CAMPOS_APP = [
   {k:'saudeOk', tipo:'check', padrao:true, l:'Autorizo que as informações de saúde acima sejam vistas só pela professora da atividade, para cuidar da segurança na aula.'},
   {k:'priv', c:'aceitar a política de privacidade', tipo:'check', obr:1, l:'Li e aceito a política de privacidade (como o Espaço cuida dos dados).'},
   {k:'whats', tipo:'check', padrao:true, l:'Quero receber avisos de aula e de pagamento pelo WhatsApp.'},
-  {k:'indicou', l:'Alguém indicou o Espaço? (opcional)', c:'Indicação', ajuda:'A pessoa ganha pontos quando a matrícula é confirmada.'},
+  {k:'indicou', l:'Alguém indicou o Espaço? (opcional)', c:'Indicação'},
 ];
 const formDe = atv => Object.values(FORMULARIOS).find(F => F.atvs.includes(atv))?.id || 'yoga';
 const tituloForm = (F, atv) => F.nome.replace('{atv}', ATIV[atv] ? ATIV[atv].curto : '');

@@ -36,33 +36,55 @@ function folhaTrocar(a){
 
 /* ---------- avisos automáticos ---------- */
 const CANAIS = {push:{nome:'Push no celular', icon:'bell'}, whatsapp:{nome:'WhatsApp', icon:'phone'}, email:{nome:'E-mail', icon:'mail'}};
+/* q = quando vai (a administração edita): h = horas antes · d = dias antes/depois · hora = que horas sai */
 const REGRAS_AVISO = [
-  {id:'lembrete', nome:'Lembrete de aula', quando:'2 horas antes de cada aula', canais:['push'], modelo:'Namaskar, {nome}! Sua aula de {atividade} começa às {hora}. Até já.'},
-  {id:'vence', nome:'Mensalidade vai vencer', quando:'3 dias antes do vencimento, às 9h', canais:['whatsapp','email'], modelo:'Oi, {nome}! Sua mensalidade de {atividade} ({valor}) vence dia {vencimento}. Pix e cartão no app: rottaguide.com/anirvana'},
-  {id:'atraso', nome:'Mensalidade em atraso', quando:'1 dia depois do vencimento, às 9h', canais:['whatsapp'], modelo:'Oi, {nome}, tudo bem? A mensalidade de {mes} ainda está em aberto. Se já pagou, pode desconsiderar.'},
-  {id:'recibo', nome:'Pagamento confirmado', quando:'na hora em que o pagamento cai', canais:['email','push'], modelo:'Recebemos seu pagamento de {valor}. Obrigado, {nome}!'},
-  {id:'saudade', nome:'Sentimos sua falta', quando:'8 dias sem vir às aulas', canais:['whatsapp'], modelo:'Oi, {nome}! Sentimos sua falta na {atividade}. Quer ajuda para encaixar um horário esta semana?'},
-  {id:'troca', nome:'Troca de professor', quando:'quando uma troca de aula é aceita', canais:['push'], modelo:'A aula de {atividade} de {data} será com {professor}.'},
-  {id:'evento', nome:'Lembrete de evento', quando:'na véspera, às 18h, para quem se inscreveu', canais:['push','whatsapp'], modelo:'Amanhã tem {evento} às {horaEv}, {nome}! Te esperamos no Espaço.'},
-  {id:'nivel', nome:'Subiu de nível nos pontos', quando:'quando o aluno muda de nível', canais:['push'], modelo:'Parabéns, {nome}! Você chegou ao nível {nivel}.'},
-  {id:'aniver', nome:'Aniversário', quando:'no dia, às 8h', canais:['whatsapp'], modelo:'Feliz aniversário, {nome}! Que o sol faça chover felicidade no seu novo ciclo.'},
-  {id:'inscricao', nome:'Nova inscrição (para a administração)', quando:'na hora em que alguém se inscreve', canais:['push','email'], modelo:'Nova inscrição: {nome} quer {atividade}.'},
+  {id:'lembrete', nome:'Lembrete de aula', q:{h:2}, canais:['push'], modelo:'Namaskar, {nome}! Sua aula de {atividade} começa às {hora}. Até já.'},
+  {id:'vence', nome:'Mensalidade vai vencer', q:{d:3, hora:9}, canais:['whatsapp','email'], modelo:'Oi, {nome}! Sua mensalidade de {atividade} ({valor}) vence dia {vencimento}. Pix e cartão no app: rottaguide.com/anirvana'},
+  {id:'atraso', nome:'Mensalidade em atraso', q:{d:1, hora:9}, canais:['whatsapp'], modelo:'Oi, {nome}, tudo bem? A mensalidade de {mes} ainda está em aberto. Se já pagou, pode desconsiderar.'},
+  {id:'recibo', nome:'Pagamento confirmado', canais:['email','push'], modelo:'Recebemos seu pagamento de {valor}. Obrigado, {nome}!', na:'na hora em que a administração dá baixa'},
+  {id:'saudade', nome:'Sentimos sua falta', q:{d:8, hora:10}, canais:['whatsapp'], modelo:'Oi, {nome}! Sentimos sua falta na {atividade}. Quer ajuda para encaixar um horário esta semana?'},
+  {id:'feriado', nome:'Feriado: sem aula', q:{d:2, hora:9}, canais:['push','whatsapp'], modelo:'Oi, {nome}! {data} é feriado ({feriado}): não tem aula de {atividade}. Bom descanso!'},
+  {id:'troca', nome:'Troca de professor', canais:['push'], modelo:'A aula de {atividade} de {data} será com {professor}.', na:'quando uma troca de aula é aceita'},
+  {id:'evento', nome:'Lembrete de evento', q:{d:1, hora:18}, canais:['push','whatsapp'], modelo:'Amanhã tem {evento} às {horaEv}, {nome}! Te esperamos no Espaço.'},
+  {id:'nivel', nome:'Subiu de nível nos pontos', canais:['push'], modelo:'Parabéns, {nome}! Você chegou ao nível {nivel}.', na:'quando o aluno muda de nível', pontos:true},
+  {id:'aniver', nome:'Aniversário', q:{hora:8}, canais:['whatsapp'], modelo:'Feliz aniversário, {nome}! Que o sol faça chover felicidade no seu novo ciclo.'},
+  {id:'inscricao', nome:'Nova inscrição (para a administração)', canais:['push','email'], modelo:'Nova inscrição: {nome} quer {atividade}.', na:'na hora em que alguém se inscreve'},
 ];
-function regraAviso(id){ const r = REGRAS_AVISO.find(x => x.id === id), c = (S.avisos || {})[id] || {}; return {...r, ativo: c.ativo !== false, canais: c.canais || r.canais}; }
+function quandoTxt(r, q){
+  if (!q) return r.na || 'na hora';
+  const hora = q.hora !== undefined ? `, às ${q.hora}h` : '';
+  return {lembrete:`${q.h} ${q.h === 1 ? 'hora' : 'horas'} antes de cada aula`, vence:`${q.d} ${q.d === 1 ? 'dia' : 'dias'} antes do vencimento${hora}`, atraso:`${q.d} ${q.d === 1 ? 'dia' : 'dias'} depois do vencimento${hora}`,
+    saudade:`${q.d} dias sem vir às aulas${hora}`, feriado:`${q.d} ${q.d === 1 ? 'dia' : 'dias'} antes do feriado${hora}`, evento:`${q.d === 0 ? 'no dia' : q.d === 1 ? 'na véspera' : q.d + ' dias antes'}${hora}, para quem se inscreveu`, aniver:`no dia${hora}`}[r.id] || r.na || '';
+}
+function regraAviso(id){ const r = REGRAS_AVISO.find(x => x.id === id), c = (S.avisos || {})[id] || {}; const q = r.q ? {...r.q, ...(c.q || {})} : null; return {...r, q, quando:quandoTxt(r, q), modelo:c.modelo || r.modelo, ativo: c.ativo !== false && !(r.pontos && !pontosLigados()), canais: c.canais || r.canais}; }
+function folhaEditarAviso(id){
+  const r = regraAviso(id), q = r.q || {}, num_ = (k, l, max, suf) => `<div class="field"><label for="aq_${k}">${l}</label><div class="row"><input class="inp num" id="aq_${k}" type="number" min="0" max="${max}" value="${q[k]}" style="max-width:110px"><span class="small muted">${suf}</span></div></div>`;
+  const hora = q.hora !== undefined ? `<div class="field"><label for="aq_hora">Que horas sai</label><select class="inp" id="aq_hora" style="max-width:160px">${Array.from({length:15}, (_, i) => i + 7).map(h => `<option value="${h}" ${h === q.hora ? 'selected' : ''}>${h}h</option>`).join('')}</select></div>` : '';
+  const campos = {lembrete:num_('h','Quantas horas antes da aula', 24, 'horas antes'), vence:num_('d','Quantos dias antes do vencimento', 15, 'dias antes'), atraso:num_('d','Quantos dias depois do vencimento', 30, 'dias depois'),
+    saudade:num_('d','Depois de quantos dias sem vir', 60, 'dias'), feriado:num_('d','Quantos dias antes do feriado', 7, 'dias antes'), evento:num_('d','Quantos dias antes do evento', 7, '0 = no dia, 1 = véspera')}[id] || '';
+  abrirFolha(`${folhaCab(`Editar: ${escapeH(r.nome)}`, 'Quando vai e o que diz')}
+  <form class="stack" id="fAviso" data-id="${id}">
+    ${r.q ? `<div class="grid g2">${campos}${hora}</div>` : `<p class="small muted">Este aviso sai ${escapeH(r.na || 'na hora')}.</p>`}
+    <div class="field"><label for="aq_txt">Mensagem</label><textarea class="inp" id="aq_txt" rows="4" maxlength="500">${escapeH(r.modelo)}</textarea><span class="help">Palavras entre chaves o app troca sozinho: {nome}, {atividade}, {hora}, {valor}, {vencimento}, {mes}, {data}, {feriado}, {evento}.</span></div>
+    <div class="sheet-foot"><button type="button" class="btn ghost" data-act="avisoPadrao" data-v="${id}">Voltar ao padrão</button><button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
 function preencher(modelo, a){
   const m = a && a.mats[0], t = m && m.turmas[0] && TURMA[m.turmas[0]];
   return modelo.replace(/\{(\w+)\}/g, (_, k) => ({nome: a ? a.nome.split(' ')[0] : 'Luana', atividade: m ? ATIV[m.atv].curto.toLowerCase() : 'yoga', hora: t ? t.h : '18:30', valor: m ? brl(valorMat(S,m)) : 'R$ 160,00',
-    vencimento: m ? dataBR(proximaCobranca(S,m)) : '03/11', mes: nomeMes(MES_ATUAL).toLowerCase(), data: dataBR(iso(addD(HOJE,5))), professor:'Ana Julia', nivel:'Folha', evento:(S.eventos||[])[0]?.nome || 'Yoga & Café', horaEv:(S.eventos||[])[0]?.h || '08:00'}[k] ?? k));
+    vencimento: m ? dataBR(proximaCobranca(S,m)) : '03/11', mes: nomeMes(MES_ATUAL).toLowerCase(), data: (proximosSemAula(30)[0] ? dataBR(proximosSemAula(30)[0].d) : dataBR(iso(addD(HOJE,5)))), feriado: proximosSemAula(30)[0]?.nome || 'Finados', professor:'Ana Julia', nivel:'Folha', evento:(S.eventos||[])[0]?.nome || 'Yoga & Café', horaEv:(S.eventos||[])[0]?.h || '08:00'}[k] ?? k));
 }
 function proximosEnvios(){
   const out = [], agoraMin = HOJE.getHours()*60 + HOJE.getMinutes();
-  TURMAS.filter(t => t.dia === HOJE.getDay()).forEach(t => { const [h,m] = t.h.split(':').map(Number); if (h*60+m - 120 > agoraMin){ const n = matriculadosNaTurma(S, t.id).length; if (n) out.push({quando:`hoje ${pad(h-2)}:${pad(m)}`, regra:'lembrete', txt:`${nomeTurma(t)} ${t.h} · ${n} ${n===1?'aluno':'alunos'}`}); } });
-  const alvo = addD(HOJE, 3);
-  const vencem = S.alunos.filter(a => a.mats.some(m => m.status === 'ativo' && Math.min(m.venc,28) === alvo.getDate()));
-  if (vencem.length) out.push({quando:'amanhã 09:00', regra:'vence', txt:vencem.map(a => a.nome.split(' ')[0]).join(', ')});
-  const sumidos = S.alunos.map(a => ({a, f:freqStatus(S,a)})).filter(x => x.f.dias === 8);
-  if (sumidos.length) out.push({quando:'amanhã 10:00', regra:'saudade', txt:sumidos.map(x => x.a.nome.split(' ')[0]).join(', ')});
-  (S.eventos || []).filter(e => e.data > HOJE_ISO && e.inscritos.length).forEach(e => out.push({quando:`${dataBR(iso(addD(pd(e.data), -1)))} 18:00`, regra:'evento', txt:`${e.nome} · ${e.inscritos.length} inscritos`}));
+  const Q = id => regraAviso(id).q || {};
+  if (!semAula(HOJE_ISO)) TURMAS.filter(t => t.dia === HOJE.getDay() && !(t.desde && t.desde > HOJE_ISO)).forEach(t => { const [h,m] = t.h.split(':').map(Number), ant = Q('lembrete').h * 60; if (h*60+m - ant > agoraMin){ const n = matriculadosNaTurma(S, t.id).length, x = h*60 + m - ant; if (n) out.push({quando:`hoje ${pad(Math.floor(x/60))}:${pad(x%60)}`, regra:'lembrete', txt:`${nomeTurma(t)} ${t.h} · ${n} ${n===1?'aluno':'alunos'}`}); } });
+  const alvo = addD(HOJE, Q('vence').d + 1);
+  const vencem = S.alunos.filter(a => a.mats.some(m => m.status === 'ativo' && !ehPlataforma(m.plano) && Math.min(m.venc,28) === alvo.getDate()));
+  if (vencem.length) out.push({quando:`amanhã ${pad(Q('vence').hora)}:00`, regra:'vence', txt:vencem.map(a => a.nome.split(' ')[0]).join(', ')});
+  const sumidos = S.alunos.map(a => ({a, f:freqStatus(S,a)})).filter(x => x.f.dias === Q('saudade').d);
+  if (sumidos.length) out.push({quando:`amanhã ${pad(Q('saudade').hora)}:00`, regra:'saudade', txt:sumidos.map(x => x.a.nome.split(' ')[0]).join(', ')});
+  proximosSemAula(Q('feriado').d + 7).forEach(f => { const n = TURMAS.filter(t => t.dia === pd(f.d).getDay() && !t.aluno).reduce((s, t) => s + matriculadosNaTurma(S, t.id).length, 0); if (n) out.push({quando:`${dataBR(iso(addD(pd(f.d), -Q('feriado').d)))} ${pad(Q('feriado').hora)}:00`, regra:'feriado', txt:`${f.nome} · ${n} alunos sem aula`}); });
+  (S.eventos || []).filter(e => e.data > HOJE_ISO && e.inscritos.length).forEach(e => out.push({quando:`${dataBR(iso(addD(pd(e.data), -Q('evento').d)))} ${pad(Q('evento').hora)}:00`, regra:'evento', txt:`${e.nome} · ${e.inscritos.length} inscritos`}));
   return out.filter(e => regraAviso(e.regra).ativo);
 }
 function vAvisos(cab = true){
@@ -73,10 +95,10 @@ function vAvisos(cab = true){
   return `${cab ? '<div class="pagehead"><div><h1>Avisos automáticos</h1><p>O app avisa sozinho, pelo canal que cada pessoa aceitou. Vocês só ligam e desligam.</p></div></div>' : '<p class="small muted" style="margin-top:-6px">O app avisa sozinho, pelo canal que cada pessoa aceitou. Vocês só ligam e desligam.</p>'}
   <div class="grid g3">${[['push', comPush, 'alunos com o app e os avisos ligados'],['whatsapp', comWhats, 'alunos aceitaram receber'],['email', comEmail, 'alunos com e-mail']].map(([k,n,s]) => `<div class="stat"><span class="k">${ic(CANAIS[k].icon,'sm')}${CANAIS[k].nome}</span><span class="v">${n}</span><span class="d">${s}</span></div>`).join('')}</div>
   <div class="split">
-    <div class="card"><div class="card-h"><div><h3>O que o app avisa</h3><span class="sub">Toque em um canal para ligar ou desligar</span></div></div>
-      <div class="list">${REGRAS_AVISO.map(r0 => { const r = regraAviso(r0.id); return `<div class="li" style="align-items:flex-start;${r.ativo?'':'opacity:.55'}"><span class="ico-b">${ic(r.ativo?'bell':'pause')}</span><div class="main-c"><span class="t">${r.nome}</span><span class="s">${r.quando}</span>
+    <div class="card"><div class="card-h"><div><h3>O que o app avisa</h3><span class="sub">Toque em um canal para ligar ou desligar · em Editar, escolha quando vai</span></div></div>
+      <div class="list">${REGRAS_AVISO.filter(r0 => !r0.pontos || pontosLigados()).map(r0 => { const r = regraAviso(r0.id); return `<div class="li" style="align-items:flex-start;${r.ativo?'':'opacity:.55'}"><span class="ico-b">${ic(r.ativo?'bell':'pause')}</span><div class="main-c"><span class="t">${r.nome}</span><span class="s">${r.quando}</span>
         <div class="row wrap" style="gap:6px;margin-top:6px">${Object.keys(CANAIS).map(c => `<button class="chip ${r.canais.includes(c)?'on':''}" style="height:30px;font-size:12px" data-act="canalAviso" data-v="${r.id}" data-x="${c}">${ic(CANAIS[c].icon,'sm')}${CANAIS[c].nome}</button>`).join('')}</div></div>
-        <div class="end"><button class="btn ghost sm" data-act="previaAviso" data-v="${r.id}">Ver</button><button class="chip ${r.ativo?'on':''}" style="height:30px" data-act="ligaAviso" data-v="${r.id}">${r.ativo?'Ligado':'Desligado'}</button></div></div>`; }).join('')}</div></div>
+        <div class="end"><button class="btn ghost sm" data-act="editarAviso" data-v="${r.id}">${ic('pencil','sm')}Editar</button><button class="btn ghost sm" data-act="previaAviso" data-v="${r.id}">Ver</button><button class="chip ${r.ativo?'on':''}" style="height:30px" data-act="ligaAviso" data-v="${r.id}">${r.ativo?'Ligado':'Desligado'}</button></div></div>`; }).join('')}</div></div>
     <div class="grid" style="align-content:start">
       <div class="card"><div class="card-h"><h3>Próximos envios</h3></div><div class="list">${prox.map(e => `<div class="li"><span class="ico-b">${ic('clock')}</span><div class="main-c"><span class="t">${regraAviso(e.regra).nome}</span><span class="s">${e.quando} · ${escapeH(e.txt)}</span></div></div>`).join('') || '<p class="muted small">Nada agendado para as próximas horas.</p>'}</div></div>
       <div class="card"><div class="card-h"><h3>Enviados</h3></div><div class="list">${(S.enviados || []).slice(-6).reverse().map(e => `<div class="li"><span class="ico-b" style="background:var(--ok-bg);color:var(--ok)">${ic(CANAIS[e.canal].icon)}</span><div class="main-c"><span class="t">${escapeH(e.para)}</span><span class="s">${e.quando} · ${regraAviso(e.regra).nome}</span></div></div>`).join('')}</div></div>
@@ -149,7 +171,7 @@ function vDivulgar(){
   const vis = UI.div.vis;
   return `<div class="pagehead"><div><h1>Divulgar</h1><p>Avisos para todos, eventos, avisos automáticos e pontos. Tudo que chega no celular de alunos e professoras sai daqui.</p></div>
     <div class="row wrap"><div class="seg">${[['escrever','Escrever aviso'],['eventos','Eventos'],['avisos','Avisos automáticos'],['pontos','Pontos']].map(([k,l]) => `<button class="${vis===k?'on':''}" data-act="divVis" data-v="${k}">${l}</button>`).join('')}</div>${vis==='eventos'?`<button class="btn sol" data-act="novoEvento">${ic('calendar-plus')}Novo evento</button>`:''}</div></div>
-  ${vis === 'escrever' ? vEscreverAviso() : vis === 'avisos' ? vAvisos(false) : vis === 'pontos' ? vPontosAdmin() : vEventosAdmin()}`;
+  ${vis === 'escrever' ? vEscreverAviso() : vis === 'avisos' ? vAvisos(false) : vis === 'pontos' ? (pontosLigados() ? vPontosAdmin() : vPontosDesligados()) : vEventosAdmin()}`;
 }
 function vEventosAdmin(){
   const evs = (S.eventos || []).slice().sort((a,b) => a.data < b.data ? -1 : 1);
@@ -258,6 +280,11 @@ function folhaReservaEv(id){
 }
 
 /* pontos — visão da administração */
+function vPontosDesligados(){
+  return `<div class="card pad-lg" style="text-align:center;display:grid;justify-items:center;gap:10px"><span class="ico-b" style="width:64px;height:64px;border-radius:20px">${ic('pause','xl')}</span><h2 style="font-size:22px">Pontos desligados por enquanto</h2>
+    <p class="muted" style="max-width:52ch">Os alunos não veem pontos nem presentes no app. As ações continuam contando por baixo: quando vocês ligarem, ninguém perde o que já fez.</p>
+    <button class="btn sol" data-act="pontosLigar">${ic('play')}Ligar os pontos</button></div>`;
+}
 function vPontosAdmin(){
   const ranking = S.alunos.map(a => ({a, P:pontosAluno(S, a.id)})).sort((x,y) => y.P.total - x.P.total);
   const inst = S.alunos.filter(a => ((S.pontosAcoes||{})[a.id]||{}).instalar).length, notif = S.alunos.filter(a => ((S.pontosAcoes||{})[a.id]||{}).notif).length;
@@ -281,15 +308,19 @@ function vPontosAdmin(){
 function ganhar(k, aid = UI.who.aluno){ const P = (S.pontosAcoes = S.pontosAcoes || {}); P[aid] = P[aid] || {}; if (!P[aid][k]){ P[aid][k] = HOJE_ISO; salvar(); } }
 
 /* backup mensal em Excel — regra do app */
+const DIA_BACKUP = 15;   /* todo dia 15 sai o backup do mês anterior */
+function proxBackup(){ const d = HOJE.getDate() < DIA_BACKUP ? new Date(HOJE.getFullYear(), HOJE.getMonth(), DIA_BACKUP) : new Date(HOJE.getFullYear(), HOJE.getMonth() + 1, DIA_BACKUP); const ant = new Date(d.getFullYear(), d.getMonth() - 1, 1); return {d:iso(d), mes:`${ant.getFullYear()}-${pad(ant.getMonth() + 1)}`}; }
 function cardBackup(){
-  const bk = (S.backups || []).slice().reverse(), prox = iso(new Date(HOJE.getFullYear(), HOJE.getMonth() + 1, 1));
-  return `<div class="card" style="border-top:4px solid var(--pri)"><div class="card-h"><div><h3>Backup mensal em Excel</h3><span class="sub">Regra do app: todo dia 1º sai uma cópia de tudo, no formato das planilhas de vocês</span></div><span class="pill ok">${ic('check')}Ligado</span></div>
+  const bk = (S.backups || []).slice().reverse(), prox = proxBackup(), dv = (S.config || {}).drive;
+  return `<div class="card" style="border-top:4px solid var(--pri)"><div class="card-h"><div><h3>Backup mensal em Excel</h3><span class="sub">Regra do app: todo dia ${DIA_BACKUP} sai o backup do mês anterior, no formato das planilhas de vocês</span></div><span class="pill ok">${ic('check')}Ligado</span></div>
+    <div class="drive ${dv ? 'on' : ''}"><span class="ico-b">${ic(dv ? 'cloud' : 'cloud-off')}</span><div class="main-c"><span class="t">${dv ? `Google Drive conectado · ${escapeH(dv.conta)}` : 'Google Drive de vocês: não conectado'}</span><span class="s">${dv ? `Pasta <b>${escapeH(dv.pasta)}</b> · ${dv.ultimo ? `último envio ${dataBR(dv.ultimo)}` : 'o primeiro envio sai no próximo backup'}` : 'Conecte uma vez e o Excel do mês cai sozinho numa pasta do Drive: é o segundo backup na nuvem.'}</span></div>
+      <div class="end">${dv ? `<button class="btn sec sm" data-act="driveEnviar">${ic('upload','sm')}Enviar agora</button><button class="btn ghost sm" data-act="driveSair">Desconectar</button>` : `<button class="btn sol sm" data-act="driveConectar">${ic('cloud','sm')}Conectar o Google Drive</button>`}</div></div>
     <div class="list">
-      <div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">Próximo: ${dataBR(prox)} às 03:00</span><span class="s">Sai sozinho e vai para três lugares: a pasta <b>Backups Anirvana</b> no Google Drive de vocês, o e-mail ${ESPACO.email} e o cofre do app (Supabase, São Paulo). Ao fechar um mês, sai outro.</span></div></div>
+      <div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">Próximo: ${dataBR(prox.d)} às 03:00 · backup de ${nomeMes(prox.mes).toLowerCase()}</span><span class="s">Sai sozinho e vai para três lugares: ${dv ? `a pasta <b>${escapeH(dv.pasta)}</b> no Google Drive de vocês` : 'o Google Drive de vocês (quando conectado)'}, o e-mail ${ESPACO.email} e o cofre do app (Supabase, São Paulo). Ao fechar um mês, sai outro.</span></div></div>
       <div class="li"><span class="ico-b">${ic('layers')}</span><div class="main-c"><span class="t">O que vai no arquivo</span><span class="s">Controle financeiro (uma aba por mês e o ANO), Mensalidades com o fechamento da yoga, Lojinha com fiado e fornecedores, alunos e fichas, presenças, equipe, eventos e pontos</span></div></div>
-      ${bk.slice(0, 3).map(b => `<div class="li"><span class="ico-b" style="background:var(--ok-bg);color:var(--ok)">${ic('check')}</span><div class="main-c"><span class="t">Backup de ${nomeMes(b.mes).toLowerCase()}</span><span class="s">${dataBR(b.d)} às ${b.h} · ${b.por === 'automático' ? `automático, enviado para ${ESPACO.email}` : `baixado por ${escapeH(b.por)}`}</span></div></div>`).join('')}
+      ${bk.slice(0, 3).map(b => `<div class="li"><span class="ico-b" style="background:var(--ok-bg);color:var(--ok)">${ic('check')}</span><div class="main-c"><span class="t">Backup de ${nomeMes(b.mes).toLowerCase()}</span><span class="s">${dataBR(b.d)} às ${b.h} · ${b.por === 'automático' ? `automático, enviado para ${ESPACO.email}` : b.drive ? `enviado ao Drive por ${escapeH(b.por)}` : `baixado por ${escapeH(b.por)}`}</span></div></div>`).join('')}
     </div>
-    <div class="row wrap" style="margin-top:12px"><button class="btn pri" data-act="baixarBackup">${ic('download')}Baixar backup agora (.xlsx)</button><button class="btn sec" data-act="backupDrive">${ic('share-2')}Salvar no Google Drive</button></div>
+    <div class="row wrap" style="margin-top:12px"><button class="btn pri" data-act="baixarBackup">${ic('download')}Baixar backup agora (.xlsx)</button><button class="btn sec" data-act="backupDrive">${ic('share-2')}Compartilhar o arquivo</button></div>
     <p class="tiny muted" style="margin-top:8px">Abre no Excel, no Google Planilhas e no Numbers. Tem dados de saúde dos alunos: guarde com cuidado e não mande por WhatsApp.</p>
   </div>`;
 }
@@ -424,7 +455,7 @@ function folhaCodigo(pid){
   <div class="stack" style="justify-items:center;text-align:center">
     <span class="ico-b" style="width:64px;height:64px;border-radius:20px;background:color-mix(in srgb,${p.cor} 16%,var(--surface));color:${p.cor}">${ic('lock','xl')}</span>
     <input class="inp codigo" id="codigoIn" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Código de 6 números" ${bloq ? 'disabled' : ''}>
-    <p class="small ${T.n ? '' : 'muted'}" id="codigoMsg" style="${T.n ? 'color:var(--bad);font-weight:600' : ''}">${bloq ? 'Muitas tentativas. Espere 15 minutos ou peça um código novo para a Dessa ou o Vitor.' : T.n ? `Código não confere. Restam ${5 - T.n} tentativas.` : 'São 6 números. Quem tem é só você.'}</p>
+    <p class="small ${T.n ? '' : 'muted'}" id="codigoMsg" style="${T.n ? 'color:var(--bad);font-weight:600' : ''}">${bloq ? 'Muitas tentativas. Espere 15 minutos ou peça um PIN novo para a administração.' : T.n ? `Código não confere. Restam ${5 - T.n} tentativas.` : 'São 6 números. Quem tem é só você.'}</p>
     <label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="codigoLembrar" checked style="width:20px;height:20px;accent-color:var(--pri)"> Lembrar neste celular</label>
     <button class="btn pri block" data-act="conferirCodigo" data-v="${pid}" ${bloq ? 'disabled' : ''}>${ic('check')}Entrar</button>
     <p class="tiny muted">Esqueceu? A administração gera um código novo em Escola → Equipe.<br>${S.codigos[pid] ? `<b>Demonstração:</b> o código de ${escapeH(p.nome)} é ${S.codigos[pid].c}.` : "<b>Ainda não tem código: peça para a administração.</b>"}</p>
@@ -444,7 +475,7 @@ function conferirCodigo(pid){
   folhaCodigo(pid); return false;
 }
 function novoCodigo(pid){
-  let c; do { c = String(100000 + Math.floor(Math.random() * 900000)); } while (/^(\d)\1+$/.test(c) || '0123456789'.includes(c) || '9876543210'.includes(c));
+  let c; do { c = String(100000 + Math.floor(Math.random() * 900000)); } while (/^(\d)\1+$/.test(c) || '0123456789'.includes(c) || '9876543210'.includes(c) || Object.entries(S.codigos || {}).some(([k, x]) => k !== pid && x.c === c));   /* o PIN diz quem é: não pode repetir */
   const ant = S.codigos[pid] || {v:0};
   S.codigos[pid] = {c, v:ant.v + 1, em:HOJE_ISO}; delete UI.codigoOk[pid];
   const L = lerLembrar(); delete L[pid]; gravarLembrar(L);   /* o código antigo para de valer em todo aparelho */
@@ -453,7 +484,7 @@ function novoCodigo(pid){
 }
 function folhaCodigoNovo(pid){
   const p = PESSOA[pid], c = S.codigos[pid].c;
-  const msg = `Oi, ${p.nome}! Seu código de acesso ao app do Espaço Anirvana é ${c}. Ele é pessoal: não passe para ninguém. Abra rottaguide.com/anirvana, toque no seu nome e digite o código.`;
+  const msg = `Oi, ${p.nome}! Seu código de acesso ao app do Espaço Anirvana é ${c}. Ele é pessoal: não passe para ninguém. Abra rottaguide.com/anirvana e digite o PIN em Instrutores.`;
   abrirFolha(`${folhaCab(`Código de ${escapeH(p.nome)}`, 'Mande só para ela. O código antigo já não vale mais.')}
   <div class="stack" style="justify-items:center;text-align:center">
     <div class="codigo-grande num">${c.slice(0,3)} ${c.slice(3)}</div>
@@ -515,7 +546,48 @@ function vAtividadesAdmin(){
       <p class="small muted">${escapeH(a.desc || '')}</p>
       <div class="row wrap small" style="gap:8px;margin:8px 0"><span class="pill neu">${ic('users')}${nAl(k)} alunos</span><span class="pill neu">${ic('wallet')}${k === 'yoga' ? 'planos de 1x a 4x' : a.valor ? brl(a.valor) + '/mês' : 'valor a definir'}</span><span class="pill neu">${ic('hand-heart')}${prof.map(p => p.nome).join(', ') || 'sem professora'}</span></div>
       ${a.vis !== 'escolhido' ? `<div class="eyebrow" style="margin:6px 0">Horários</div><div class="row wrap" style="gap:6px">${ts.map(t => `<span class="chip" style="height:34px">${DIAS[t.dia]} ${t.h} · ${escapeH(PESSOA[t.instr]?.nome || '—')}<button class="x-mini" data-act="tirarHorario" data-v="${t.id}" aria-label="Tirar o horário ${DIAS[t.dia]} ${t.h}">${ic('x','sm')}</button></span>`).join('') || '<span class="small muted">Nenhum horário ainda.</span>'}<button class="btn ghost sm" data-act="novoHorario" data-v="${k}">${ic('plus','sm')}Horário</button></div>` : '<p class="small muted">Aula particular: o horário é combinado com a professora.</p>'}
-    </div>`; }).join('')}</div>`;
+    </div>`; }).join('')}</div>
+  <div class="card" style="border-top:4px solid var(--folha)"><div class="card-h"><div><h3>Terapias com hora marcada</h3><span class="sub">Aparecem na aba Terapias do aluno, com o botão do WhatsApp de quem atende. O valor é lançado à mão no balanço.</span></div><button class="btn sec sm" data-act="terapia">${ic('plus','sm')}Nova terapia</button></div>
+    <div class="list">${(S.terapias || []).map(t => `<div class="li tap" data-act="terapia" data-v="${t.id}" role="button" tabindex="0"><span class="ico-b">${ic(t.icon || 'heart')}</span><div class="main-c"><span class="t">${escapeH(t.nome)}</span><span class="s">${t.quem ? 'com ' + escapeH(t.quem) : 'terapeuta a definir'} · WhatsApp ${escapeH(mascCel(t.whats || ESPACO.whats))}</span></div>${ic('pencil','sm')}</div>`).join('') || '<p class="small muted">Nenhuma terapia cadastrada.</p>'}</div></div>`;
+}
+function folhaTerapia(id){
+  const t = (S.terapias || []).find(x => x.id === id) || {nome:'', quem:'', desc:'', whats:ESPACO.whats, icon:'heart'};
+  abrirFolha(`${folhaCab(id ? `Editar ${escapeH(t.nome)}` : 'Nova terapia', 'O aluno toca em Agendar e cai no WhatsApp de quem atende')}
+  <form class="stack" id="fTerapia" data-id="${id || ''}">
+    <div class="grid g2"><div class="field"><label for="tpNome">Terapia</label><input class="inp" id="tpNome" required maxlength="40" value="${escapeH(t.nome)}" placeholder="Ex.: Reiki"></div>
+      <div class="field"><label for="tpQuem">Quem atende</label><input class="inp" id="tpQuem" maxlength="40" value="${escapeH(t.quem || '')}" placeholder="Nome da terapeuta"></div></div>
+    <div class="field"><label for="tpWhats">WhatsApp para agendar</label><input class="inp num" id="tpWhats" type="tel" inputmode="tel" value="${escapeH(mascCel(t.whats || ESPACO.whats))}"><span class="help">Pode ser o da terapeuta ou o do Espaço.</span></div>
+    <div class="field"><label for="tpDesc">Como é</label><textarea class="inp" id="tpDesc" maxlength="200">${escapeH(t.desc || '')}</textarea></div>
+    <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="terapiaDel" data-v="${id}">${ic('x','sm')}Tirar</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+/* conectar o Google Drive (no app de verdade: tela do Google, permissão só para os arquivos que o app cria) */
+function folhaDriveConectar(){
+  abrirFolha(`${folhaCab('Conectar o Google Drive', 'Uma vez só. Depois o backup cai sozinho todo dia ' + DIA_BACKUP)}
+  <div class="stack">
+    <ol class="small" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Toque em <b>Continuar com o Google</b> e entre com a conta do Espaço.</li><li>O Google pergunta se o app pode <b>criar arquivos no seu Drive</b>. Toque em <b>Permitir</b>.</li><li>O app cria a pasta <b>Backups Anirvana</b> e põe lá o Excel de cada mês.</li></ol>
+    <p class="tiny muted">O app só enxerga os arquivos que ele mesmo criou: o resto do Drive de vocês continua fechado para ele. Dá para desconectar quando quiser.</p>
+    <div class="field"><label for="drConta">Conta Google (demonstração)</label><input class="inp" id="drConta" type="email" value="${ESPACO.email}"></div>
+    <div class="sheet-foot"><button class="btn sec" data-act="fechar">Agora não</button><button class="btn sol" data-act="driveOk">${ic('cloud')}Continuar com o Google</button></div>
+  </div>`);
+}
+function folhaFeriadoNovo(){
+  abrirFolha(`${folhaCab('Dia sem aula', 'Feriado da cidade, recesso, férias do Espaço')}
+  <form class="stack" id="fFeriado">
+    <div class="grid g2"><div class="field"><label for="frD">Dia</label><input class="inp" id="frD" type="date" min="${HOJE_ISO}" required></div>
+      <div class="field"><label for="frNome">Motivo</label><input class="inp" id="frNome" maxlength="40" placeholder="Ex.: Aniversário de Pontal" required></div></div>
+    <p class="small muted">As aulas desse dia saem da agenda de alunos e instrutores, e os alunos recebem o aviso.</p>
+    <div class="sheet-foot"><button type="button" class="btn sec" data-act="fechar">Cancelar</button><button class="btn pri" type="submit">${ic('check')}Marcar sem aula</button></div>
+  </form>`);
+}
+function folhaTrocarPinAdm(id){
+  abrirFolha(`${folhaCab('Trocar o PIN do painel', ADMINS.find(a => a.id === id).nome)}
+  <form class="stack" id="fPinAdm" data-id="${id}" style="justify-items:center;text-align:center">
+    <input class="inp codigo" id="npAdm" inputmode="numeric" maxlength="6" placeholder="••••" aria-label="Novo PIN">
+    <p class="small muted">De 4 a 6 números. Evite datas e sequências como 1234.</p>
+    <button class="btn pri block" type="submit">${ic('check')}Salvar PIN</button>
+  </form>`);
+  setTimeout(() => $('#npAdm')?.focus(), 350);
 }
 function folhaAtividade(id){
   const a = id ? ATIV[id] : {nome:'', curto:'', desc:'', icon:'sparkles', hex:CORES_ATV[Object.keys(ATIV).length % CORES_ATV.length], vis:'todos', form:'yoga', valor:''};
@@ -525,7 +597,8 @@ function folhaAtividade(id){
     <div class="grid g2"><div class="field"><label for="atNome">Nome</label><input class="inp" id="atNome" required maxlength="40" value="${escapeH(a.nome)}" placeholder="Ex.: Dança circular"></div>
       <div class="field"><label for="atCurto">Nome curto</label><input class="inp" id="atCurto" maxlength="16" value="${escapeH(a.curto || '')}" placeholder="Aparece nos botões"></div></div>
     <div class="field"><label for="atDesc">Como é</label><textarea class="inp" id="atDesc" maxlength="240" placeholder="Uma frase para quem vai se inscrever">${escapeH(a.desc || '')}</textarea></div>
-    <div class="field"><label>Ficha de inscrição</label><div class="optgrid">${[['yoga','Ficha do yoga','adultos: saúde, coluna, pressão...'],['criancas','Ficha de criança','dados da criança e do responsável']].map(([k, l, d]) => `<button type="button" class="opt ${form === k ? 'on' : ''}" data-act="opt" data-grp="atForm" data-v="${k}"><span>${l}<br><span class="tiny muted">${d}</span></span></button>`).join('')}</div><input type="hidden" id="atForm" value="${form}"></div>
+    <div class="field"><label>Ficha de inscrição</label><div class="optgrid">${[['yoga','Ficha do yoga','adultos: saúde, coluna, pressão...'],['arte','Ficha de arte e música','qualquer idade; responsável se for menor'],['criancas','Ficha de criança','dados da criança e do responsável']].map(([k, l, d]) => `<button type="button" class="opt ${form === k ? 'on' : ''}" data-act="opt" data-grp="atForm" data-v="${k}"><span>${l}<br><span class="tiny muted">${d}</span></span></button>`).join('')}</div><input type="hidden" id="atForm" value="${form}"></div>
+    <label class="insc-check"><input type="checkbox" id="atComb" ${a.combinar ? 'checked' : ''}><span>Horário combinado com o professor (a inscrição não mostra horários)</span></label>
     <div class="field"><label>Quem vê os alunos</label><div class="optgrid">${[['todos','Todas as professoras da atividade'],['escolhido','Só a professora que o aluno escolher']].map(([k, l]) => `<button type="button" class="opt ${a.vis === k ? 'on' : ''}" data-act="opt" data-grp="atVis" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="atVis" value="${a.vis}"></div>
     <div class="grid g2"><div class="field"><label for="atPct">% que fica com a professora</label><input class="inp num" id="atPct" inputmode="numeric" value="${pct}"></div>
       ${id === 'yoga' ? '<div class="field"><label>Valor</label><p class="small muted">Os planos do yoga ficam em Mensalidades → Regras.</p></div>' : `<div class="field"><label for="atValor">Mensalidade</label><input class="inp money num" id="atValor" inputmode="decimal" value="${a.valor ? String(a.valor.toFixed(2)).replace('.', ',') : ''}" placeholder="0,00"></div>`}</div>
@@ -632,6 +705,6 @@ async function backupNoDrive(){
   baixarArquivo(bytes, nome, tipo);
   abrirFolha(`${folhaCab('Salvar no Google Drive', 'O arquivo já foi baixado')}
   <div class="stack"><ol class="small" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Abra o Google Drive do Espaço (botão abaixo).</li><li>Entre na pasta <b>Backups Anirvana</b>.</li><li>Arraste o arquivo <b>${nome}</b> para dentro dela (ou toque em <b>Novo → Upload de arquivo</b>).</li></ol>
-    <p class="tiny muted">Com o app ligado de verdade, isso acontece sozinho todo dia 1º: o servidor põe o arquivo direto nessa pasta.</p>
+    <p class="tiny muted">Com o Google Drive conectado (Mensalidades → Regras), isso acontece sozinho todo dia ${DIA_BACKUP}: o servidor põe o arquivo direto na pasta.</p>
     <a class="btn sol" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">${ic('share-2')}Abrir o Google Drive</a></div>`);
 }

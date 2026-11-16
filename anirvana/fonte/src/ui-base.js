@@ -239,9 +239,12 @@ const pillPag = st => ({
   atrasado:`<span class="pill bad">${ic('circle-alert')}Atrasado</span>`,
   pausado:`<span class="pill neu">${ic('pause')}Pausado</span>`,
   cancelado:`<span class="pill neu">${ic('x')}Cancelado</span>`,
+  plataforma:`<span class="pill pri">${ic('badge-check')}Plataforma</span>`,
 }[st]);
+/* pontos: desligados por enquanto (a administração liga em Divulgar → Pontos) */
+function pontosLigados(){ return !!(S.config && S.config.pontos); }
 const pillFreq = f => `<span class="row" style="gap:6px"><i class="fdot ${f.st}"></i><span class="small ${f.st==='ok'?'muted':''}" style="${f.st==='bad'?'color:var(--bad)':f.st==='warn'?'color:var(--warn)':''};font-weight:${f.st==='ok'?500:700}">${f.txt}</span></span>`;
-const nomePlano = m => m.plano ? `${ATIV[m.atv].curto} ${m.plano}` : ATIV[m.atv].curto;
+const nomePlano = m => m.plano ? (ehPlataforma(m.plano) ? `${ATIV[m.atv].curto} · ${PLANOS_YOGA[m.plano].plataforma}` : `${ATIV[m.atv].curto} ${m.plano}`) : m.planoPart ? `${ATIV[m.atv].curto} ${m.planoPart === 'avulsa' ? 'avulsa' : m.planoPart}${m.online ? ' online' : ''}` : ATIV[m.atv].curto;
 const qrSVG = (seed) => {
   const R = rng(seed), n = 25; let r = '';
   const finder = (x,y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#1F1B45"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#1F1B45"/>`;

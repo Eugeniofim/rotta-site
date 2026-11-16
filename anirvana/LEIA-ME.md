@@ -54,3 +54,11 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - **Backup no Google Drive:** todo dia 1º o servidor sobe o Excel do mês na pasta "Backups Anirvana" do Drive do Espaço (conta de serviço do Google; ver `fonte/backend/LEIA-ME.md`). No app, Mensalidades → Regras → "Salvar no Google Drive" (no celular abre o Compartilhar).
 - Backups ficam em três lugares: Drive do Espaço, e-mail do Espaço e o cofre do Supabase (só a administração abre).
 - `como-usar.pdf`: tutorial com as telas e a revisão de todos os pedidos. `tutorial.mp4`: vídeo narrado (2 min 38 s).
+
+## v8 (pedidos da Dessa, 16/11)
+- **Entrada sem nomes:** aluno entra com o celular (código pelo WhatsApp, sem senha); instrutor só com o PIN; administração (Andressa e Sara) com Google + PIN do painel.
+- **Inscrição:** sem nome de instrutores; Yoga e Movimento Consciente juntos (Movimento com a Sara Lénz, sextas 9h); yoga particular presencial e online com os valores 2026; aquarela e violão para todas as idades, sem horário, começando pelo aluno ("menor de idade" leva ao responsável); musicalização igual; termos iguais aos do Forms.
+- **Aluno:** pontos desligados por enquanto; aba Terapias com o WhatsApp de quem atende; cartão pelo link com acréscimo de R$ 12,00; Pix copia e cola com o valor; comprovante pelo WhatsApp do Espaço.
+- **Instrutores:** visitante com nome (avulsa, Wellhub ou GoGood); "aula vazia" à vista; feriado desmarca a aula sozinho; aquarela, musicalização e violão com só o ponto 1 em "como o valor é calculado".
+- **Administração:** Wellhub R$ 25,50 e GoGood R$ 27,00 por aula; planos do particular; chave Pix e link do cartão em Regras; feriados em Escola → Horários; terapias em Cursos; avisos automáticos com "quando vai" editável; backup todo dia 15 do mês anterior e botão "Conectar o Google Drive".
+- **Banco:** 134 testes (era 103). `como-usar.pdf` refeito para a v8. O `tutorial.mp4` ainda é o da v7 (entrada antiga).

@@ -18,9 +18,9 @@ Supabase (Postgres + regras de acesso por linha)  ◄── webhook ── Asaas
 | `banco.sql` | O banco inteiro: tabelas, regras de acesso, auditoria, trava de mês fechado, funções da LGPD. Pode rodar de novo sem estragar nada. |
 | `supabase/functions/asaas-webhook/index.ts` | Recebe do Asaas o aviso de que o dinheiro caiu e põe o pagamento em "Para confirmar". Quem dá baixa é a administração. Aplica cada aviso uma vez só. |
 | `supabase/functions/enviar-avisos/index.ts` | A cada 5 minutos: põe na fila os avisos do momento (aula, vencimento, atraso, saudade, véspera de evento) e manda por push, WhatsApp oficial e e-mail. |
-| `supabase/functions/backup-mensal/index.ts` | Todo dia 1º às 3h, e ao fechar um mês: gera o backup em Excel no formato das planilhas do Espaço, guarda e manda por e-mail. |
+| `supabase/functions/backup-mensal/index.ts` | Todo dia 15 às 3h (backup do mês anterior), e ao fechar um mês: gera o backup em Excel no formato das planilhas do Espaço, guarda e manda por e-mail. |
 | `supabase/functions/_compartilhado/motor.js` | As mesmas regras do app (repasse, lojinha, balanço, pontos, backup), geradas pelo `build.py`. O servidor e o celular fazem a mesma conta. |
-| `testes/testar-banco.py` | 99 testes que entram como administração, instrutora, aluna e sem login, e conferem o que cada uma pode ver e fazer. |
+| `testes/testar-banco.py` | 134 testes que entram como administração, instrutora, aluna e sem login, e conferem o que cada uma pode ver e fazer. |
 
 Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-do-socket> <porta>`.
 
@@ -59,7 +59,16 @@ Para rodar os testes num Postgres local: `python3 testes/testar-banco.py <pasta-
 - **Pontos não se fabricam:** o aluno só ganha sozinho os de instalar o app e ligar os avisos. Os outros vêm da chamada, dos pagamentos em dia e das indicações. Duas trocas ao mesmo tempo não furam o saldo.
 - **Evento lotado não aceita ninguém**, e só a administração marca o pagamento do evento.
 - **WhatsApp e e-mail só para quem aceitou:** a própria fila descarta o aviso de quem não deu o sim.
+- **Entrada sem nomes (v8):** a tela inicial não mostra ninguém.
+  - **Aluno:** entra com o celular. O Supabase Auth manda o código (SMS ou WhatsApp) e, com o celular confirmado, `entrar_como_aluno()` acha a ficha pelo telefone do aluno ou do responsável. Celular de quem tem dois filhos: o app pergunta quem entra (`alunos_do_meu_celular()`). Sem senha para criar.
+  - **Instrutor:** só o PIN de 6 números (`entrar_com_pin`). O PIN diz quem é, por isso o banco não deixa dois iguais. 5 erros por aparelho em 15 minutos bloqueiam; 30 erros no app todo também.
+  - **Administração:** conta Google confirmada e na lista `configuracoes.admins_emails` (Andressa e Sara) → `entrar_como_admin()`. Depois, o PIN do painel (`definir_pin_admin`, `conferir_pin_admin`, guardado com bcrypt, ninguém lê) tranca a administração no aparelho.
 - **Código de acesso pessoal de cada instrutor:** 6 números gerados pela administração; o banco guarda só o hash (bcrypt). A pessoa digita uma vez no celular dela e o aparelho fica ligado ao perfil. Cinco erros seguidos bloqueiam por 15 minutos. Gerar um código novo derruba na hora todos os aparelhos do código antigo.
+- **Wellhub e GoGood** (planos `yoga-wellhub` R$ 25,50 e `yoga-gogood` R$ 27,00 por aula): o aluno não recebe cobrança do Espaço (o banco recusa); a plataforma paga por aula e isso entra no fechamento da yoga.
+- **Yoga particular:** planos `part-1x` a `part-4x` (245, 385, 515, 650) e `part-avulsa` (80), presencial ou online (`matriculas.modalidade`). Quem dá a aula a administração escolhe ao confirmar a inscrição.
+- **Cartão:** pelo link da maquininha do Espaço (sem valor); o aviso de pagamento guarda o acréscimo de R$ 12,00 (`configuracoes.taxa_cartao`).
+- **Feriados** em `dias_sem_aula` (nacionais 2026–2027 já carregados): sem lembrete de aula e com aviso de feriado; a administração marca "tem aula" ou cria dias sem aula.
+- **Formulários:** yoga (yoga, particular, gestantes, meditação), arte e música (aquarela e violão: começa pelo aluno; responsável só se for menor) e criança (musicalização).
 - **Inglês** não passa pela escola nem pelas mensalidades: a administração lança à mão no balanço a parte do Espaço.
 - **Lojinha:** fornecedores são cadastrados pela administração; o % fica congelado em cada venda, então mudar o % de um fornecedor vale só para as vendas novas.
 
@@ -94,7 +103,7 @@ Confirmar com o contador e um advogado antes de lançar. Os pontos abaixo são o
 
 ## Backup mensal em Excel (regra do app)
 
-- **Quando:** todo dia 1º às 3h (horário de Brasília) sai o backup do mês que acabou. Ao fechar um mês, sai outro. A administração também baixa quando quiser (Mensalidades → Regras).
+- **Quando:** todo dia 15 às 3h (horário de Brasília) sai o backup do mês anterior (pedido da Dessa: dá tempo de entrarem os pagamentos atrasados). Ao fechar um mês, sai outro. A administração também baixa quando quiser (Mensalidades → Regras).
 - **Formato:** um `.xlsx` que abre no Excel, Google Planilhas e Numbers, no **mesmo desenho das planilhas do Espaço**:
   - *Controle financeiro:* uma aba por mês (Saídas à esquerda, Entradas à direita, TOTAL, saldo e totais por categoria com fórmula) e a aba ANO.
   - *Mensalidades:* uma aba por mês, com cada atividade, a parte da equipe e do Espaço e o fechamento da yoga (ALUNOS / INSTRUTORAS, A RECEBER, EXCEDENTE).
@@ -102,7 +111,8 @@ Confirmar com o contador e um advogado antes de lançar. Os pontos abaixo são o
   - *Cadastro:* alunos e fichas, pagamentos, presenças, equipe, eventos, pontos e inscrições.
   - Uma aba escondida com a cópia completa do app, para restaurar se precisar.
 - **Onde fica (três cópias):** (1) pasta **Backups Anirvana** no Google Drive do Espaço, enviada sozinha pela função; (2) e-mail do Espaço, com o arquivo anexo; (3) bucket privado `backups` no Supabase (São Paulo), que só a administração lê. No app, "Salvar no Google Drive" faz o mesmo na hora (no celular abre o Compartilhar → Drive).
-- **Ligar o Drive (uma vez):** criar uma conta de serviço no Google Cloud, compartilhar a pasta Backups Anirvana com o e-mail dela (como Editor) e guardar `GOOGLE_SERVICE_ACCOUNT` e `DRIVE_PASTA_ID` em Edge Functions → Secrets.
+- **Ligar o Drive (jeito simples, v8):** a administração toca em **Conectar o Google Drive** (Mensalidades → Regras) e autoriza com a conta do Espaço. A função `google-drive` pede só a permissão `drive.file` (o app enxerga só os arquivos que ele cria), cria a pasta Backups Anirvana e guarda a permissão em `conexao_google`, que nenhum login lê. Para isso: no Google Cloud, criar um "ID do cliente OAuth" (aplicativo da Web) com o endereço de retorno `https://<projeto>.supabase.co/functions/v1/google-drive`; guardar `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` e `APP_URL`; publicar com `supabase functions deploy google-drive --no-verify-jwt`.
+- **Ligar o Drive (jeito antigo, se preferir):** criar uma conta de serviço no Google Cloud, compartilhar a pasta Backups Anirvana com o e-mail dela (como Editor) e guardar `GOOGLE_SERVICE_ACCOUNT` e `DRIVE_PASTA_ID` em Edge Functions → Secrets.
 - **Conferido:** o arquivo abre sem nenhum erro de fórmula e janeiro bate com a planilha original (Kamala R$ 1.346,63 · Ana Julia R$ 623,00 · Sara R$ 35,88).
 - **Cuidado:** tem dados de saúde. Não mandar por WhatsApp.
 
@@ -114,15 +124,15 @@ Confirmar com o contador e um advogado antes de lançar. Os pontos abaixo são o
 | WhatsApp | API oficial da Meta (WhatsApp Cloud API). Mensagem que o Espaço inicia precisa de **modelo aprovado** uma vez pela Meta (`anirvana_lembrete`, `anirvana_vence`...) | número do Espaço verificado no Meta Business, token |
 | E-mail | Resend, com link para parar de receber | conta Resend e domínio ou remetente verificado |
 
-Os textos de cada aviso estão em `regras_aviso` e a administração liga e desliga cada um no app (Divulgar → Avisos automáticos).
+Os textos de cada aviso estão em `regras_aviso` e a administração liga e desliga cada um no app (Divulgar → Avisos automáticos). **Quando vai** fica em `regras_aviso.quando` (h = horas antes, d = dias, hora = que horas sai, entre 6h e 22h) e a administração edita no app. O aviso de feriado sai dois dias antes, às 9h.
 
 ## Ligar de verdade
 
 1. Criar o projeto no Supabase na região São Paulo e rodar `banco.sql` no SQL Editor.
-2. Criar os logins (administração, equipe, alunos) e preencher `perfis`.
+2. Logins: em Authentication ligar **Phone** (SMS ou WhatsApp pela Twilio) para os alunos e **Google** para a administração; pôr os e-mails Google da Andressa e da Sara em `configuracoes.admins_emails`; gerar o PIN de cada instrutor no app (Escola → Equipe). Não precisa preencher `perfis` à mão: as funções de entrar fazem isso.
 3. Abrir conta Asaas, configurar o webhook apontando para a função `asaas-webhook`, com token.
 4. Contador valida: MEI × split, nota fiscal (NFS-e), consignação.
 5. Publicar os textos de Termos de uso e Política de privacidade e pedir o aceite no primeiro login.
 6. Ligar o app ao banco (modelo das skills app-sempre-junto e pwa-atualiza: sombra, fila offline, carimbo do servidor).
-7. Criar o bucket privado `backups`, ligar `pg_cron` e `pg_net`, e guardar `app.funcoes_url` e `app.cron_token` (backup do dia 1º e avisos a cada 5 minutos).
+7. Criar o bucket privado `backups`, ligar `pg_cron` e `pg_net`, e guardar `app.funcoes_url` e `app.cron_token` (backup do dia 15 e avisos a cada 5 minutos).
 8. Avisos: gerar as chaves VAPID, aprovar os modelos de WhatsApp na Meta e criar a conta no Resend. Guardar tudo em Edge Functions → Secrets.

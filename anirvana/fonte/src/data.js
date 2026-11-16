@@ -5,7 +5,7 @@
    ============================================================ */
 
 /* contato público (ficha do Sebrae PR "Yoga & Café" e redes) */
-const ESPACO = {endereco:'Rua Erva Cidreira, 48', cidade:'Pontal do Sul · Pontal do Paraná/PR', instagram:'espaco_anirvana', link:'linktr.ee/espacoanirvana', tel:'(41) 99848-7892', email:'espacoanirvana@gmail.com'};
+const ESPACO = {endereco:'Rua Erva Cidreira, 48', cidade:'Pontal do Sul · Pontal do Paraná/PR', instagram:'espaco_anirvana', link:'linktr.ee/espacoanirvana', tel:'(41) 99848-7892', whats:'5541998487892', email:'espacoanirvana@gmail.com'};
 const EVENTOS = [
   {id:'yogacafe', nome:'Yoga & Café', icon:'coffee', idade:'A partir de 12 anos',
    desc:'Flua com o yoga e sinta-se conectado(a) com a natureza. Ao relaxar a mente, nutra o corpo com um delicioso café.',
@@ -48,33 +48,32 @@ const EQUIPE = [
   {id:'anajulia', nome:'Ana Julia', atvs:['yoga','particular'], cor:'#E5672A', pix:'ana•••@gmail.com'},
   {id:'kamala',   nome:'Kamala',    atvs:['yoga','particular','gestantes','meditacao'], cor:'#B9488E', pix:'(41) 9••••-2210',
    nomeCompleto:'Camilla Beatritse Kamalá', bio:'Instrutora de Yoga e AcroYoga, terapeuta sistêmica e integrativa, com formação em Tantra Yoga e Yoga Terapêutico.'},
-  {id:'sara',     nome:'Sara',      atvs:['yoga'], cor:'#3E8E6E', pix:'(41) 9••••-7781'},
+  {id:'sara',     nome:'Sara',      atvs:['yoga'], cor:'#3E8E6E', pix:'(41) 9••••-7781', nomeCompleto:'Sara Lénz', bio:'Yoga e Movimento consciente.'},
   {id:'stefy',    nome:'Stefy',     atvs:['yoga'], cor:'#C08A12', pix:'•••.482.•••-10', obs:'Yoga de férias'},
   {id:'bruno',    nome:'Bruno',     atvs:['aquarela'], cor:'#2F7FB8', pix:'bru•••@gmail.com'},
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
 ];
-const ADMINS = [{id:'dessa', nome:'Dessa'},{id:'vitor', nome:'Vitor'}];
+/* dois logins na administração (a porta não mostra os nomes) */
+const ADMINS = [{id:'dessa', nome:'Andressa', curto:'Dessa'},{id:'saraadm', nome:'Sara', curto:'Sara'}];
 
 /* ---------- atividades ----------
    repasse = parte do instrutor. vis:'todos' -> aparece pra todo instrutor da atividade;
    vis:'escolhido' -> só pro instrutor que o aluno escolheu (regra do documento da Dessa) */
 const ATIV = {
-  yoga:          {nome:'Yoga & AcroYoga', curto:'Yoga', icon:'sun', cor:'var(--sol)', hex:'#EE7A2F', repasse:.70, vis:'todos', turma:true,
-                  desc:'Turmas de hatha yoga pela manhã e à noite, e AcroYoga aos sábados. Planos de 1 a 4 aulas por semana.'},
-  particular:    {nome:'Yoga particular', curto:'Particular', icon:'user', cor:'#B9488E', hex:'#B9488E', repasse:.70, vis:'escolhido',
-                  desc:'Aula individual no horário combinado com a instrutora que você escolher.'},
-  gestantes:     {nome:'Yoga para gestantes', curto:'Gestantes', icon:'baby', cor:'#D46A8C', hex:'#D46A8C', repasse:.70, vis:'todos', turma:true,
-                  desc:'Prática suave para cada trimestre da gestação, com respiração e preparo para o parto.'},
-  meditacao:     {nome:'Meditação', curto:'Meditação', icon:'flower-2', cor:'#6A55C9', hex:'#6A55C9', repasse:.70, vis:'todos', turma:true,
-                  desc:'Encontro semanal de meditação guiada e silêncio, às segundas à noite.'},
-  aquarela:      {nome:'Aquarela', curto:'Aquarela', icon:'palette', cor:'#2F7FB8', hex:'#2F7FB8', repasse:.70, vis:'todos', turma:true,
-                  desc:'Aulas de aquarela para crianças com o Prof. Bruno Costa. Material básico incluso.'},
+  yoga:          {nome:'Yoga e Movimento Consciente', curto:'Yoga', icon:'sun', cor:'var(--sol)', hex:'#EE7A2F', repasse:.70, vis:'todos', turma:true,
+                  desc:'Turmas de hatha yoga pela manhã e à noite, AcroYoga aos sábados e Movimento consciente às sextas, 9h. Planos de 1 a 4 aulas por semana: o Movimento conta como uma aula do plano.'},
+  particular:    {nome:'Yoga particular · presencial e online', curto:'Particular', icon:'user', cor:'#B9488E', hex:'#B9488E', repasse:.70, vis:'escolhido',
+                  desc:'Aula individual, no Espaço ou online, no horário combinado com você.'},
+  gestantes:     {nome:'Yoga para gestantes e pós-parto', curto:'Gestantes', icon:'baby', cor:'#D46A8C', hex:'#D46A8C', repasse:.70, vis:'todos', turma:true,
+                  desc:'Prática suave para a gestação e o pós-parto, com respiração e preparo para o parto.'},
+  meditacao:     {nome:'Prática de meditação', curto:'Meditação', icon:'flower-2', cor:'#6A55C9', hex:'#6A55C9', repasse:.70, vis:'todos', turma:true,
+                  desc:'Encontro semanal de meditação guiada e silêncio.'},
+  aquarela:      {nome:'Aquarela', curto:'Aquarela', icon:'palette', cor:'#2F7FB8', hex:'#2F7FB8', repasse:.70, vis:'todos', turma:true, combinar:true,
+                  desc:'Aulas de aquarela para crianças, jovens e adultos. Material básico incluso. O horário é combinado com o professor.'},
   musicalizacao: {nome:'Musicalização infantil', curto:'Musicalização', icon:'music', cor:'#C08A12', hex:'#C08A12', repasse:.70, vis:'todos', turma:true,
                   desc:'Música, ritmo e brincadeira para crianças de 3 a 7 anos.'},
-  movimento:     {nome:'Movimento consciente', curto:'Movimento', icon:'person-standing', cor:'#3E8E6E', hex:'#3E8E6E', repasse:.70, vis:'todos', turma:true,
-                  desc:'Consciência corporal e movimento. Usa a mesma ficha de inscrição do yoga. Horários e valor: a definir com a equipe.'},
-  violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true,
-                  desc:'Aulas de violão para crianças e jovens com o Prof. Bruno Saes, do primeiro acorde às músicas favoritas.'},
+  violao:        {nome:'Violão', curto:'Violão', icon:'guitar', cor:'#7A5C2E', hex:'#7A5C2E', repasse:.70, vis:'todos', turma:true, combinar:true,
+                  desc:'Aulas de violão para crianças, jovens e adultos, do primeiro acorde às músicas favoritas. O horário é combinado com o professor.'},
 };
 
 /* ---------- planos de yoga ----------
@@ -86,7 +85,21 @@ const PLANOS_YOGA = {
   '3x':     {nome:'3x por semana', preco:220, sem:3},
   '4x':     {nome:'4x por semana', preco:290, sem:4},
   'avulsa': {nome:'Aula avulsa',   preco:45,  sem:0},
+  /* quem vem pelas plataformas: o aluno não paga o Espaço; a plataforma paga por aula (check-in) */
+  'wellhub':{nome:'Wellhub (por aula)', preco:25.50, sem:0, plataforma:'Wellhub'},
+  'gogood': {nome:'GoGood (por aula)',  preco:27.00, sem:0, plataforma:'GoGood'},
 };
+/* yoga particular 2026 (tabela da Dessa) */
+const PLANOS_PART = {
+  '1x':     {nome:'1x por semana', preco:245, sem:1},
+  '2x':     {nome:'2x por semana', preco:385, sem:2},
+  '3x':     {nome:'3x por semana', preco:515, sem:3},
+  '4x':     {nome:'4x por semana', preco:650, sem:4},
+  'avulsa': {nome:'Aula avulsa ou experimental', preco:80, sem:0},
+};
+const TAXA_CARTAO = 12;   /* cartão de crédito ou débito: acréscimo de R$ 12,00 */
+const PLANOS_MENSAIS = ['1x','2x','3x','4x'];
+const ehPlataforma = k => !!(PLANOS_YOGA[k] && PLANOS_YOGA[k].plataforma);
 const REGRAS_PADRAO = {aulaVazia:10, aulaVaziaFerias:25, piso:false};
 
 /* ---------- grade semanal (exemplo — ajustar com a grade real) ---------- */
@@ -106,6 +119,7 @@ const TURMAS = [
   {id:'sab1000', atv:'musicalizacao', dia:6, h:'10:00', instr:'brunos', sala:'Ateliê'},
   {id:'ter1000p', atv:'particular', dia:2, h:'10:00', instr:'kamala', sala:'Sala Lua', aluno:'a02'},
   {id:'sex1600p', atv:'particular', dia:5, h:'16:00', instr:'anajulia', sala:'Sala Sol', aluno:'a03'},
+  {id:'sex0900', atv:'yoga', dia:5, h:'09:00', instr:'sara', sala:'Sala Sol', nome:'Movimento consciente', desde:'2026-10-30'},
 ];
 
 /* ---------- alunos (nomes fictícios: a planilha veio sem nomes) ----------
@@ -144,6 +158,9 @@ const ALUNOS_BASE = [
   ['a31','Theo Gomes','2026-03-07',    [['musicalizacao',150,['sab1000'],7,'pix']], 'Responsável: André Gomes · 6 anos'],
   ['a32','Pedro Vieira','2026-04-02',  [['violao',160,['qui1700'],2,'pix']], 'Responsável: Ana Vieira · 12 anos'],
   ['a33','Rafael Pacheco','2026-05-14',[['violao',160,['qui1700'],14,'cartao']], 'Responsável: Rodrigo Pacheco · 10 anos'],
+  ['a34','Tiago Melo','2026-08-04',     [['yoga','wellhub',['ter1900','qui1900'],1,'pix']]],
+  ['a35','Paula Viana','2026-09-01',    [['yoga','gogood',['seg0700','qua0700'],1,'pix']]],
+  ['a36','Sílvia Andrade','2026-07-06', [['aquarela',240,['qua1500'],6,'pix']]],
 ];
 /* quem anda sumido (última presença) e quem está devendo — para os alertas */
 const ULTIMA_VINDA = {a09:'2026-10-15', a19:'2026-10-15', a11:'2026-10-19', a18:'2026-10-20', a22:'2026-10-17'};

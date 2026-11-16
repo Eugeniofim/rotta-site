@@ -688,18 +688,27 @@ grant execute on function public.aceitar_troca(uuid), public.recusar_troca(uuid)
 -- 8. dados iniciais (atividades e planos das planilhas)
 -- ---------------------------------------------------------------------
 insert into public.atividades (id, nome, repasse, visibilidade, agendada) values
-  ('yoga','Yoga & AcroYoga',.70,'todos',false), ('particular','Yoga particular',.70,'escolhido',false),
-  ('gestantes','Yoga para gestantes',.70,'todos',false), ('meditacao','Meditação',.70,'todos',false),
+  ('yoga','Yoga e Movimento Consciente',.70,'todos',false), ('particular','Yoga particular · presencial e online',.70,'escolhido',false),
+  ('gestantes','Yoga para gestantes e pós-parto',.70,'todos',false), ('meditacao','Prática de meditação',.70,'todos',false),
   ('aquarela','Aquarela',.70,'todos',false), ('musicalizacao','Musicalização infantil',.70,'todos',false),
-  ('violao','Violão',.70,'todos',false), ('movimento','Movimento consciente',.70,'todos',false)
+  ('violao','Violão',.70,'todos',false)
+  -- Movimento consciente é um horário do yoga (sextas, 9h, com a Sara Lénz): conta como aula do plano
   -- inglês, massagem terapêutica e terapias integrais não são atividade regular: entram à mão no balanço (lancamentos)
 on conflict (id) do nothing;
 
-insert into public.planos (id, atividade, nome, preco, aulas_semana) values
-  ('yoga-1x','yoga','1x por semana',110,1), ('yoga-2x','yoga','2x por semana',160,2),
-  ('yoga-3x','yoga','3x por semana',220,3), ('yoga-4x','yoga','4x por semana',290,4),
-  ('yoga-avulsa','yoga','Aula avulsa',45,0)
+alter table public.planos add column if not exists plataforma text;          -- Wellhub / GoGood: quem paga é a plataforma, por aula
+insert into public.planos (id, atividade, nome, preco, aulas_semana, plataforma) values
+  ('yoga-1x','yoga','1x por semana',110,1,null), ('yoga-2x','yoga','2x por semana',160,2,null),
+  ('yoga-3x','yoga','3x por semana',220,3,null), ('yoga-4x','yoga','4x por semana',290,4,null),
+  ('yoga-avulsa','yoga','Aula avulsa',45,0,null),
+  ('yoga-wellhub','yoga','Wellhub (por aula)',25.50,0,'Wellhub'), ('yoga-gogood','yoga','GoGood (por aula)',27.00,0,'GoGood'),
+  ('part-1x','particular','1x por semana',245,1,null), ('part-2x','particular','2x por semana',385,2,null),
+  ('part-3x','particular','3x por semana',515,3,null), ('part-4x','particular','4x por semana',650,4,null),
+  ('part-avulsa','particular','Aula avulsa ou experimental',80,0,null)
 on conflict (id) do nothing;
+-- nomes novos (pedido da Dessa, nov/2026) também em bancos que já existiam
+update public.atividades a set nome = v.nome from (values ('yoga','Yoga e Movimento Consciente'), ('particular','Yoga particular · presencial e online'),
+  ('gestantes','Yoga para gestantes e pós-parto'), ('meditacao','Prática de meditação')) v(id, nome) where a.id = v.id and a.nome <> v.nome;
 
 -- =====================================================================
 -- 9. INSCRIÇÃO PELO LINK (no lugar do Google Forms), FICHA, PONTOS,
@@ -742,7 +751,12 @@ create table if not exists public.fichas (
   completa            boolean not null default false,
   atualizado_em       timestamptz not null default now()
 );
-alter table public.fichas add column if not exists formulario text not null default 'yoga' check (formulario in ('yoga','criancas'));
+alter table public.fichas add column if not exists formulario text not null default 'yoga';
+alter table public.fichas drop constraint if exists fichas_formulario_check;
+alter table public.fichas add constraint fichas_formulario_check check (formulario in ('yoga','arte','criancas'));
+-- qual formulário cada atividade usa: aquarela e violão (qualquer idade) · musicalização (criança) · o resto, o do yoga
+create or replace function public.formulario_da(p_atv text) returns text language sql immutable as $$
+  select case when p_atv in ('aquarela','violao') then 'arte' when p_atv = 'musicalizacao' then 'criancas' else 'yoga' end $$;
 alter table public.fichas add column if not exists respostas jsonb not null default '{}';     -- as respostas do formulário (menos saúde)
 -- saúde é dado sensível (LGPD art. 11): tabela própria, e a instrutora só vê com consentimento específico
 create table if not exists public.fichas_saude (
@@ -781,7 +795,7 @@ create table if not exists public.inscricoes (
 create or replace function public.inscrever(p jsonb) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare novo uuid; nasc date := nullif(p->>'nasc','')::date; tel text := regexp_replace(coalesce(p->>'tel',''), '\D', '', 'g');
-        form text := case when p->>'atv' in ('aquarela','musicalizacao','violao') then 'criancas' else 'yoga' end;
+        form text := public.formulario_da(p->>'atv');
         faltou text;
 begin
   if length(trim(coalesce(p->>'nome',''))) not between 3 and 120 then raise exception 'Escreva o nome completo.'; end if;
@@ -796,6 +810,16 @@ begin
     if faltou is not null then raise exception 'Faltou responder: %', faltou; end if;
     if coalesce((p->>'termos')::boolean, false) is false then raise exception 'É preciso aceitar os termos de responsabilidade.'; end if;
     if nasc > current_date - interval '18 years' and length(trim(coalesce(p->>'respNome',''))) < 3 then raise exception 'Menor de idade: informe o responsável (LGPD art. 14).'; end if;
+  elsif form = 'arte' then
+    -- aquarela e violão: começa pelo aluno; se for menor de idade, as informações do responsável são obrigatórias
+    select string_agg(k, ', ') into faltou from unnest(array['endereco','saude','restricao','menor','imagem']) k where length(trim(coalesce(p->>k, ''))) = 0;
+    if faltou is not null then raise exception 'Faltou responder: %', faltou; end if;
+    if p->>'menor' not in ('sim','nao') then raise exception 'Responda se o aluno é menor de idade.'; end if;
+    if (p->>'menor' = 'sim' or nasc > current_date - interval '18 years') then
+      select string_agg(k, ', ') into faltou from unnest(array['respNome','respParentesco','respTel']) k where length(trim(coalesce(p->>k, ''))) = 0;
+      if faltou is not null then raise exception 'Menor de idade: faltou %', faltou; end if;
+    end if;
+    if coalesce((p->>'ciente')::boolean, false) is false then raise exception 'É preciso confirmar que está ciente da mensalidade.'; end if;
   else
     select string_agg(k, ', ') into faltou from unnest(array['endereco','saude','restricao','respNome','respParentesco','imagem']) k where length(trim(coalesce(p->>k, ''))) = 0;
     if faltou is not null then raise exception 'Faltou responder: %', faltou; end if;
@@ -811,8 +835,10 @@ begin
   return novo;
 end $$;
 
+alter table public.matriculas add column if not exists modalidade text check (modalidade in ('presencial','online'));   -- yoga particular
 -- a administração confirma: vira aluno, ficha, saúde, consentimentos e matrícula de uma vez
-create or replace function public.confirmar_inscricao(p_id uuid, p_valor numeric default null, p_vencimento int default null) returns uuid
+drop function if exists public.confirmar_inscricao(uuid, numeric, int);   -- v8: ganhou p_instrutor (no particular quem escolhe a professora é a administração)
+create or replace function public.confirmar_inscricao(p_id uuid, p_valor numeric default null, p_vencimento int default null, p_instrutor uuid default null) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare i record; d jsonb; aid uuid; plano text; v numeric; quem uuid; form text; crianca boolean; saude jsonb; resumo text;
         campos_saude text[];
@@ -821,12 +847,13 @@ begin
   select * into i from public.inscricoes where id = p_id for update;
   if i is null or i.estado <> 'nova' then raise exception 'Esta inscrição não está esperando confirmação.'; end if;
   d := i.dados;
-  form := case when d->>'atv' in ('aquarela','musicalizacao','violao') then 'criancas' else 'yoga' end;
-  crianca := form = 'criancas';
-  campos_saude := case when crianca then array['saude'] else array['pressao','coluna','dores','intestino','labirintite','saudeGeral','maisInfo'] end;
+  form := public.formulario_da(d->>'atv');
+  crianca := form = 'criancas' or (form = 'arte' and (d->>'menor' = 'sim' or nullif(d->>'nasc','')::date > current_date - interval '18 years'));
+  campos_saude := case when form = 'yoga' then array['pressao','coluna','dores','intestino','labirintite','saudeGeral','maisInfo'] else array['saude'] end;
   insert into public.alunos (nome, telefone, email, nascimento, responsavel_nome, responsavel_telefone)
     values (trim(d->>'nome'), d->>'tel', nullif(d->>'email',''), nullif(d->>'nasc','')::date,
-            nullif(d->>'respNome',''), case when crianca then d->>'tel' else nullif(d->>'respTel','') end)
+            case when form = 'arte' and not crianca then null else nullif(d->>'respNome','') end,
+            case when form = 'criancas' then d->>'tel' when crianca then nullif(d->>'respTel','') when form = 'yoga' then nullif(d->>'respTel','') end)
     returning id into aid;
   insert into public.alunos_privado (aluno_id, cpf, endereco) values (aid, nullif(d->>'cpf',''), nullif(d->>'endereco',''));
   select id into quem from public.alunos where id <> aid and length(coalesce(d->>'indicou','')) >= 3
@@ -834,25 +861,28 @@ begin
   -- respostas: o que não é saúde vai para fichas; saúde vai para fichas_saude
   saude := (select coalesce(jsonb_object_agg(k, d->k), '{}') from unnest(campos_saude) k where d ? k);
   insert into public.fichas (aluno_id, formulario, respostas, emergencia_nome, emergencia_telefone, indicado_por, completa)
-    values (aid, form, (d - campos_saude) - array['nome','tel','email','nasc','cpf','endereco','atv','plano','turmas','instr','experimental','saudeOk','priv','whats'],
+    values (aid, form, (d - campos_saude) - array['nome','tel','email','nasc','cpf','endereco','atv','plano','modo','turmas','instr','experimental','saudeOk','priv','whats'],
             d->>'emergNome', d->>'emergTel', quem, true);
   insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'privacidade', 'v1');
   if coalesce((d->>'termos')::boolean, false) or coalesce((d->>'ciente')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'termos', form || '-v1'); end if;
   if coalesce((d->>'whats')::boolean, true) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'whatsapp', 'v1'); end if;
   if d->>'imagem' = 'sim' then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'imagem', 'v1'); end if;
-  if nullif(d->>'respNome','') is not null then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'responsavel_menor', 'v1'); end if;
+  if crianca and nullif(d->>'respNome','') is not null then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'responsavel_menor', 'v1'); end if;
   select string_agg(k || ': ' || (d->>k), ' · ') into resumo from unnest(campos_saude) k where d ? k and d->>k !~* '^(n[aã]o|nenhum[a]?|normal|nada)\.?$';
   if saude <> '{}'::jsonb then
     if coalesce((d->>'saudeOk')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'saude', 'v1'); end if;
     insert into public.fichas_saude (aluno_id, descricao, respostas, mostrar_para_instrutores)
       values (aid, coalesce(resumo, 'nada informado'), saude, coalesce((d->>'saudeOk')::boolean, false));
   end if;
-  plano := case when d->>'atv' = 'yoga' then 'yoga-' || coalesce(nullif(d->>'plano',''), '2x') end;
+  plano := case when d->>'atv' = 'yoga' then 'yoga-' || coalesce(nullif(d->>'plano',''), '2x')
+                when d->>'atv' = 'particular' then 'part-' || coalesce(nullif(d->>'plano',''), '1x') end;
+  if plano is not null and not exists (select 1 from public.planos where id = plano) then raise exception 'Plano inválido.'; end if;
   v := coalesce(p_valor, (select preco from public.planos where id = plano));
   if v is null then raise exception 'Informe o valor da mensalidade desta atividade.'; end if;
-  insert into public.matriculas (aluno_id, atividade, plano_id, valor, instrutor_id, turmas, vencimento_dia, metodo)
-    values (aid, d->>'atv', plano, v, nullif(d->>'instr','')::uuid, coalesce(string_to_array(nullif(d->>'turmas',''), ','), '{}'),
-            coalesce(p_vencimento, least(28, extract(day from current_date)::int)), 'pix');
+  insert into public.matriculas (aluno_id, atividade, plano_id, valor, instrutor_id, turmas, vencimento_dia, metodo, modalidade)
+    values (aid, d->>'atv', plano, v, coalesce(p_instrutor, nullif(d->>'instr','')::uuid), coalesce(string_to_array(nullif(d->>'turmas',''), ','), '{}'),
+            coalesce(p_vencimento, least(28, extract(day from current_date)::int)), 'pix',
+            case when d->>'atv' = 'particular' then coalesce(nullif(d->>'modo',''), 'presencial') end);
   if quem is not null then insert into public.pontos_acoes (aluno_id, tipo, ref) values (quem, 'indicar', aid::text) on conflict do nothing; end if;
   update public.inscricoes set estado = 'confirmada', aluno_id = aid, confirmada_por = auth.uid(), confirmada_em = now() where id = p_id;
   return aid;
@@ -867,6 +897,7 @@ create table if not exists public.avisos_pagamento (
   origem        text not null default 'aluno' check (origem in ('aluno','banco')),   -- 'banco' = o Asaas avisou que caiu
   avisado_em    timestamptz not null default now(),
   estado        text not null default 'aguardando' check (estado in ('aguardando','confirmado','recusado')),
+  taxa          numeric(10,2) not null default 0,                    -- cartão: acréscimo de R$ 12,00 (configuracoes.taxa_cartao)
   decidido_por  uuid,
   decidido_em   timestamptz
 );
@@ -879,7 +910,8 @@ begin
   if not found or cb.aluno_id is distinct from public.meu_aluno() then raise exception 'Cobrança não encontrada.'; end if;
   if cb.estado <> 'aberta' then raise exception 'Esta cobrança não está em aberto.'; end if;
   if p_metodo not in ('pix','cartao','dinheiro') then raise exception 'Forma de pagamento inválida.'; end if;
-  insert into public.avisos_pagamento (cobranca_id, aluno_id, metodo) values (p_cobranca, cb.aluno_id, p_metodo)
+  insert into public.avisos_pagamento (cobranca_id, aluno_id, metodo, taxa) values (p_cobranca, cb.aluno_id, p_metodo,
+      case when p_metodo = 'cartao' then coalesce((select (valor #>> '{}')::numeric from public.configuracoes where chave = 'taxa_cartao'), 12) else 0 end)
     on conflict (cobranca_id) where estado = 'aguardando' do nothing returning id into novo;
   return novo;
 end $$;
@@ -898,8 +930,11 @@ end $$;
 
 -- configurações do Espaço (a baixa automática pelo banco começa DESLIGADA: quem dá baixa é a administração)
 create table if not exists public.configuracoes (chave text primary key, valor jsonb not null, atualizado_em timestamptz not null default now());
-insert into public.configuracoes (chave, valor) values ('baixa_automatica_banco', 'false'::jsonb), ('backup_email', '"espacoanirvana@gmail.com"'::jsonb)
+insert into public.configuracoes (chave, valor) values ('baixa_automatica_banco', 'false'::jsonb), ('backup_email', '"espacoanirvana@gmail.com"'::jsonb),
+  ('taxa_cartao', '12'::jsonb), ('chave_pix', '""'::jsonb), ('link_cartao', '""'::jsonb), ('backup_dia', '15'::jsonb), ('pontos_ligados', 'false'::jsonb),
+  ('admins_emails', '[]'::jsonb), ('whatsapp_espaco', '"5541998487892"'::jsonb)
 on conflict (chave) do nothing;
+alter table public.avisos_pagamento add column if not exists taxa numeric(10,2) not null default 0;
 
 -- ---------- pontos ----------
 create table if not exists public.pontos_acoes (                 -- ações de uma vez (as recorrentes vêm da chamada e das cobranças)
@@ -1002,6 +1037,7 @@ create table if not exists public.regras_aviso (
   canais text[] not null default '{push}',
   modelo text not null
 );
+alter table public.regras_aviso add column if not exists quando jsonb not null default '{}';   -- h = horas antes · d = dias · hora = que horas sai
 create table if not exists public.push_inscricoes (               -- o celular que aceitou receber push
   id        uuid primary key default gen_random_uuid(),
   aluno_id  uuid references public.alunos(id),
@@ -1061,7 +1097,7 @@ drop trigger if exists fechamentos_backup on public.fechamentos;
 create trigger fechamentos_backup after insert on public.fechamentos for each row execute function public.backup_ao_fechar();
 do $$ begin
   if exists (select 1 from pg_extension where extname = 'pg_cron') then
-    perform cron.schedule('backup-mensal', '0 6 1 * *',             -- 6h UTC = 3h em Brasília
+    perform cron.schedule('backup-mensal', '0 6 15 * *',            -- todo dia 15, 6h UTC = 3h em Brasília: backup do mês anterior
       $c$ select net.http_post(url := current_setting('app.funcoes_url') || '/backup-mensal', headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_token'))) $c$);
     perform cron.schedule('enviar-avisos', '*/5 * * * *',
       $c$ select net.http_post(url := current_setting('app.funcoes_url') || '/enviar-avisos', headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_token'))) $c$);
@@ -1119,8 +1155,8 @@ create policy eu_mesmo on public.push_inscricoes for all to authenticated using 
 revoke all on public.inscricoes, public.fila_avisos, public.backups from anon;
 grant select on public.saldo_pontos to authenticated;
 grant execute on function public.inscrever(jsonb) to anon, authenticated;
-revoke execute on function public.confirmar_inscricao(uuid, numeric, int), public.dar_baixa(uuid, boolean) from public, anon;
-grant execute on function public.confirmar_inscricao(uuid, numeric, int), public.dar_baixa(uuid, boolean), public.avisar_que_paguei(uuid, text),
+revoke execute on function public.confirmar_inscricao(uuid, numeric, int, uuid), public.dar_baixa(uuid, boolean) from public, anon;
+grant execute on function public.confirmar_inscricao(uuid, numeric, int, uuid), public.dar_baixa(uuid, boolean), public.avisar_que_paguei(uuid, text),
   public.ganhar_pontos(text), public.trocar_pontos(text) to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
 
@@ -1198,3 +1234,242 @@ begin
 end $$;
 revoke execute on function public.gerar_codigo_equipe(uuid), public.entrar_com_codigo(uuid, text) from public, anon;
 grant execute on function public.gerar_codigo_equipe(uuid), public.entrar_com_codigo(uuid, text) to authenticated;
+
+-- =====================================================================
+-- 11. v8 (pedidos da Dessa, nov/2026): a entrada não mostra nomes
+--     · aluno entra com o celular (código pelo WhatsApp/SMS do Supabase Auth)
+--     · instrutor entra só com o PIN (o PIN diz quem é, por isso não se repete)
+--     · administração: conta Google da lista + PIN do painel
+--     e mais: feriados, terapias, avisos com "quando vai" editável
+-- =====================================================================
+-- Supabase Auth guarda o celular e o e-mail confirmados em auth.users
+alter table auth.users add column if not exists phone text;
+alter table auth.users add column if not exists phone_confirmed_at timestamptz;
+alter table auth.users add column if not exists email text;
+alter table auth.users add column if not exists email_confirmed_at timestamptz;
+
+-- ---------- instrutor: só o PIN ----------
+create table if not exists public.tentativas_pin (user_id uuid, em timestamptz not null default now());
+alter table public.tentativas_pin enable row level security;
+alter table public.tentativas_pin force row level security;          -- ninguém lê; só as funções abaixo
+create index if not exists tentativas_pin_quando on public.tentativas_pin (em);
+
+-- o PIN novo não pode bater com o de outra pessoa da equipe
+create or replace function public.gerar_codigo_equipe(p_equipe uuid) returns text
+language plpgsql security definer set search_path = public, extensions as $$
+declare c text;
+begin
+  if not public.eh_admin() then raise exception 'Só a administração gera código de acesso.'; end if;
+  if not exists (select 1 from public.equipe where id = p_equipe) then raise exception 'Pessoa da equipe não encontrada.'; end if;
+  loop
+    c := lpad(((('x' || encode(gen_random_bytes(4), 'hex'))::bit(32)::bigint % 900000) + 100000)::text, 6, '0');
+    exit when c !~ '^(\d)\1+$' and position(c in '0123456789') = 0 and position(c in '9876543210') = 0
+      and not exists (select 1 from public.codigos_equipe k where k.equipe_id <> p_equipe and crypt(c, k.hash) = k.hash);
+  end loop;
+  insert into public.codigos_equipe (equipe_id, hash) values (p_equipe, crypt(c, gen_salt('bf', 8)))
+    on conflict (equipe_id) do update set hash = excluded.hash, versao = codigos_equipe.versao + 1, criado_em = now(), tentativas = 0, bloqueado_ate = null;
+  delete from public.perfis where equipe_id = p_equipe and papel = 'instrutor';      -- aparelhos com o PIN antigo saem
+  insert into public.auditoria (tabela, registro, acao, depois) values ('codigos_equipe', p_equipe::text, 'NOVO CÓDIGO', jsonb_build_object('por', auth.uid()));
+  return c;
+end $$;
+
+-- entrar só com o PIN: 5 erros por aparelho em 15 min bloqueiam; 30 erros no app todo em 15 min também
+create or replace function public.entrar_com_pin(p_pin text) returns uuid
+language plpgsql security definer set search_path = public, extensions as $$
+declare k record;
+begin
+  if auth.uid() is null then raise exception 'Entre no app primeiro.'; end if;
+  delete from public.tentativas_pin where em < now() - interval '1 day';
+  if (select count(*) from public.tentativas_pin where user_id = auth.uid() and em > now() - interval '15 minutes') >= 5
+     or (select count(*) from public.tentativas_pin where em > now() - interval '15 minutes') >= 30 then
+    raise exception 'Muitas tentativas. Espere 15 minutos ou peça um PIN novo para a administração.'; end if;
+  if coalesce(p_pin, '') ~ '^\d{6}$' then
+    for k in select c.* from public.codigos_equipe c join public.equipe e on e.id = c.equipe_id where e.ativo loop
+      if crypt(p_pin, k.hash) = k.hash then
+        delete from public.tentativas_pin where user_id = auth.uid();
+        insert into public.perfis (user_id, papel, equipe_id) values (auth.uid(), 'instrutor', k.equipe_id)
+          on conflict (user_id) do update set papel = 'instrutor', equipe_id = excluded.equipe_id, aluno_id = null;
+        return k.equipe_id;
+      end if;
+    end loop;
+  end if;
+  insert into public.tentativas_pin (user_id) values (auth.uid());
+  return null;
+end $$;
+
+-- ---------- aluno: entra com o celular ----------
+-- depois do código do Supabase Auth, o app chama esta função: ela acha o aluno pelo celular confirmado
+create or replace function public.alunos_do_meu_celular() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare cel text;
+begin
+  select right(regexp_replace(coalesce(phone, ''), '\D', '', 'g'), 11) into cel from auth.users where id = auth.uid() and phone_confirmed_at is not null;
+  if coalesce(length(cel), 0) < 10 then return '[]'::jsonb; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'nome', a.nome) order by a.nome) from public.alunos a
+    where not a.apagado and (right(regexp_replace(coalesce(a.telefone, ''), '\D', '', 'g'), 11) = cel
+                          or right(regexp_replace(coalesce(a.responsavel_telefone, ''), '\D', '', 'g'), 11) = cel)), '[]'::jsonb);
+end $$;
+create or replace function public.entrar_como_aluno(p_aluno uuid default null) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare lista jsonb := public.alunos_do_meu_celular(); escolhido uuid;
+begin
+  if auth.uid() is null then raise exception 'Entre no app primeiro.'; end if;
+  if jsonb_array_length(lista) = 0 then raise exception 'Não achamos esse celular. Faça a inscrição ou fale com o Espaço.'; end if;
+  if p_aluno is null then
+    if jsonb_array_length(lista) > 1 then raise exception 'Este celular está na ficha de mais de uma pessoa: escolha quem vai entrar.'; end if;
+    escolhido := (lista->0->>'id')::uuid;
+  elsif exists (select 1 from jsonb_array_elements(lista) x where (x->>'id')::uuid = p_aluno) then escolhido := p_aluno;
+  else raise exception 'Este celular não está na ficha dessa pessoa.'; end if;
+  if exists (select 1 from public.perfis where user_id = auth.uid() and papel <> 'aluno') then raise exception 'Este login já é da equipe.'; end if;
+  insert into public.perfis (user_id, papel, aluno_id) values (auth.uid(), 'aluno', escolhido)
+    on conflict (user_id) do update set aluno_id = excluded.aluno_id;
+  return escolhido;
+end $$;
+
+-- ---------- administração: conta Google da lista + PIN do painel ----------
+create table if not exists public.pins_admin (
+  user_id       uuid primary key references auth.users(id) on delete cascade,
+  hash          text not null,
+  tentativas    int not null default 0,
+  bloqueado_ate timestamptz,
+  atualizado_em timestamptz not null default now()
+);
+alter table public.pins_admin enable row level security;
+alter table public.pins_admin force row level security;
+-- só entra quem tem e-mail confirmado e está em configuracoes.admins_emails (a Dessa e a Sara)
+create or replace function public.entrar_como_admin() returns boolean
+language plpgsql security definer set search_path = public as $$
+declare mail text;
+begin
+  select lower(email) into mail from auth.users where id = auth.uid() and email_confirmed_at is not null;
+  if mail is null or not exists (select 1 from public.configuracoes c, jsonb_array_elements_text(c.valor) e where c.chave = 'admins_emails' and lower(e) = mail) then
+    return false; end if;
+  insert into public.perfis (user_id, papel) values (auth.uid(), 'admin')
+    on conflict (user_id) do update set papel = 'admin', equipe_id = null, aluno_id = null;
+  return true;
+end $$;
+create or replace function public.definir_pin_admin(p_pin text) returns void
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not public.eh_admin() then raise exception 'Só a administração.'; end if;
+  if coalesce(p_pin, '') !~ '^\d{4,6}$' or p_pin ~ '^(\d)\1+$' or position(p_pin in '0123456789') > 0 then raise exception 'Use de 4 a 6 números, sem sequência.'; end if;
+  insert into public.pins_admin (user_id, hash) values (auth.uid(), crypt(p_pin, gen_salt('bf', 8)))
+    on conflict (user_id) do update set hash = excluded.hash, tentativas = 0, bloqueado_ate = null, atualizado_em = now();
+end $$;
+-- o PIN tranca o painel no aparelho (quem pegar o celular desbloqueado não abre a administração)
+create or replace function public.conferir_pin_admin(p_pin text) returns boolean
+language plpgsql security definer set search_path = public, extensions as $$
+declare k record;
+begin
+  if not public.eh_admin() then return false; end if;
+  select * into k from public.pins_admin where user_id = auth.uid() for update;
+  if k is null then raise exception 'Crie o seu PIN do painel primeiro.'; end if;
+  if k.bloqueado_ate > now() then raise exception 'Muitas tentativas. Espere 15 minutos.'; end if;
+  if crypt(coalesce(p_pin, ''), k.hash) = k.hash then update public.pins_admin set tentativas = 0 where user_id = auth.uid(); return true; end if;
+  update public.pins_admin set tentativas = case when k.tentativas + 1 >= 5 then 0 else k.tentativas + 1 end,
+    bloqueado_ate = case when k.tentativas + 1 >= 5 then now() + interval '15 minutes' end where user_id = auth.uid();
+  return false;
+end $$;
+revoke execute on function public.entrar_com_pin(text), public.alunos_do_meu_celular(), public.entrar_como_aluno(uuid),
+  public.entrar_como_admin(), public.definir_pin_admin(text), public.conferir_pin_admin(text) from public, anon;
+grant execute on function public.entrar_com_pin(text), public.alunos_do_meu_celular(), public.entrar_como_aluno(uuid),
+  public.entrar_como_admin(), public.definir_pin_admin(text), public.conferir_pin_admin(text) to authenticated;
+
+-- ---------- feriados e dias sem aula ----------
+create table if not exists public.dias_sem_aula (
+  dia      date primary key,
+  nome     text not null,
+  origem   text not null default 'espaco' check (origem in ('nacional','espaco')),
+  tem_aula boolean not null default false              -- feriado em que o Espaço decidiu dar aula
+);
+insert into public.dias_sem_aula (dia, nome, origem) values
+  ('2026-01-01','Confraternização Universal','nacional'), ('2026-02-16','Carnaval','nacional'), ('2026-02-17','Carnaval','nacional'),
+  ('2026-04-03','Sexta-feira Santa','nacional'), ('2026-04-21','Tiradentes','nacional'), ('2026-05-01','Dia do Trabalho','nacional'),
+  ('2026-06-04','Corpus Christi','nacional'), ('2026-09-07','Independência do Brasil','nacional'), ('2026-10-12','Nossa Senhora Aparecida','nacional'),
+  ('2026-11-02','Finados','nacional'), ('2026-11-15','Proclamação da República','nacional'), ('2026-11-20','Dia da Consciência Negra','nacional'),
+  ('2026-12-25','Natal','nacional'),
+  ('2027-01-01','Confraternização Universal','nacional'), ('2027-02-08','Carnaval','nacional'), ('2027-02-09','Carnaval','nacional'),
+  ('2027-03-26','Sexta-feira Santa','nacional'), ('2027-04-21','Tiradentes','nacional'), ('2027-05-01','Dia do Trabalho','nacional'),
+  ('2027-05-27','Corpus Christi','nacional'), ('2027-09-07','Independência do Brasil','nacional'), ('2027-10-12','Nossa Senhora Aparecida','nacional'),
+  ('2027-11-02','Finados','nacional'), ('2027-11-15','Proclamação da República','nacional'), ('2027-11-20','Dia da Consciência Negra','nacional'),
+  ('2027-12-25','Natal','nacional')
+on conflict (dia) do nothing;
+create or replace function public.tem_aula(p_dia date) returns boolean language sql stable as $$
+  select not exists (select 1 from public.dias_sem_aula where dia = p_dia and not tem_aula) $$;
+
+-- ---------- terapias com hora marcada (aba Terapias do aluno) ----------
+create table if not exists public.terapias (
+  id        uuid primary key default gen_random_uuid(),
+  nome      text not null,
+  quem      text,
+  whatsapp  text not null default '5541998487892',
+  descricao text,
+  ativo     boolean not null default true,
+  atualizado_em timestamptz not null default now()
+);
+insert into public.terapias (nome, quem, descricao)
+  select * from (values ('Terapias integrais','Kamala','Terapia sistêmica e integrativa, com hora marcada.'), ('Massagem terapêutica', null, 'Sessões com hora marcada, no Espaço.')) v
+  where not exists (select 1 from public.terapias);
+
+-- ---------- Google Drive conectado pela administração (backup 2) ----------
+-- o token fica numa tabela que nenhum login lê: só as funções do servidor (service role)
+create table if not exists public.conexao_google (
+  id            int primary key default 1 check (id = 1),
+  conta         text not null,
+  refresh_token text not null,
+  pasta_id      text,
+  conectado_por uuid,
+  conectado_em  timestamptz not null default now(),
+  ultimo_envio  timestamptz
+);
+alter table public.conexao_google enable row level security;
+alter table public.conexao_google force row level security;
+create table if not exists public.oauth_estado (estado text primary key, user_id uuid not null, criado_em timestamptz not null default now());
+alter table public.oauth_estado enable row level security;
+alter table public.oauth_estado force row level security;
+-- o que a administração vê: conectado ou não, qual conta e quando foi o último envio (sem o token)
+create or replace function public.drive_situacao() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select case when public.eh_admin() then coalesce((select jsonb_build_object('conta', conta, 'pasta', pasta_id is not null, 'ultimo_envio', ultimo_envio) from public.conexao_google), 'null'::jsonb) end $$;
+revoke execute on function public.drive_situacao() from public, anon;
+grant execute on function public.drive_situacao() to authenticated;
+
+-- ---------- avisos: quando cada um vai (a administração edita) ----------
+insert into public.regras_aviso (id, nome, canais, modelo) values
+  ('feriado','Feriado: sem aula','{push,whatsapp}','Oi, {nome}! {data} é feriado ({feriado}): não tem aula de {atividade}. Bom descanso!'),
+  ('aniver','Aniversário','{whatsapp}','Feliz aniversário, {nome}! Que o sol faça chover felicidade no seu novo ciclo.')
+on conflict (id) do nothing;
+update public.regras_aviso r set quando = v.q from (values
+  ('lembrete','{"h":2}'::jsonb), ('vence','{"d":3,"hora":9}'::jsonb), ('atraso','{"d":1,"hora":9}'::jsonb), ('saudade','{"d":8,"hora":10}'::jsonb),
+  ('feriado','{"d":2,"hora":9}'::jsonb), ('evento','{"d":1,"hora":18}'::jsonb), ('aniver','{"hora":8}'::jsonb)) v(id, q)
+  where r.id = v.id and r.quando = '{}'::jsonb;
+-- a administração só muda números que fazem sentido
+alter table public.regras_aviso drop constraint if exists regras_aviso_quando_ok;
+alter table public.regras_aviso add constraint regras_aviso_quando_ok check (
+  coalesce((quando->>'h')::int, 2) between 0 and 24 and coalesce((quando->>'d')::int, 1) between 0 and 60 and coalesce((quando->>'hora')::int, 9) between 6 and 22);
+
+-- ---------- acesso às tabelas novas ----------
+do $$
+declare t text;
+begin
+  foreach t in array array['dias_sem_aula','terapias'] loop
+    execute format('alter table public.%I enable row level security', t);
+    execute format('alter table public.%I force row level security', t);
+    execute format('drop policy if exists todos_leem on public.%I', t);
+    execute format('create policy todos_leem on public.%I for select to authenticated using (true)', t);
+    execute format('drop policy if exists admin_muda on public.%I', t);
+    execute format('create policy admin_muda on public.%I for all to authenticated using (public.eh_admin()) with check (public.eh_admin())', t);
+    execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+  end loop;
+end $$;
+-- quem entra pela plataforma (Wellhub, GoGood) não recebe cobrança do Espaço
+create or replace function public.sem_cobranca_plataforma() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if exists (select 1 from public.matriculas m join public.planos p on p.id = m.plano_id where m.id = new.matricula_id and p.plataforma is not null) then
+    raise exception 'Aluno do % não paga mensalidade ao Espaço: a plataforma paga por aula.', (select p.plataforma from public.matriculas m join public.planos p on p.id = m.plano_id where m.id = new.matricula_id);
+  end if;
+  return new;
+end $$;
+drop trigger if exists cobrancas_plataforma on public.cobrancas;
+create trigger cobrancas_plataforma before insert on public.cobrancas for each row execute function public.sem_cobranca_plataforma();

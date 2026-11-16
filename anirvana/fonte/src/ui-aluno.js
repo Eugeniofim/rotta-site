@@ -17,9 +17,10 @@ function tempoPratica(desde){
 }
 function proximasAulas(a, n=6){
   const out = [], tids = a.mats.filter(m => m.status === 'ativo').flatMap(m => m.turmas);
-  for (let i = 0; out.length < n && i < 21; i++){
+  for (let i = 0; out.length < n && i < 28; i++){
     const d = addD(HOJE, i);
-    TURMAS.filter(t => tids.includes(t.id) && t.dia === d.getDay()).sort((x,y)=>x.h.localeCompare(y.h)).forEach(t => {
+    if (semAula(iso(d))) continue;                                   /* feriado: a aula sai da agenda */
+    TURMAS.filter(t => tids.includes(t.id) && t.dia === d.getDay() && !(t.desde && t.desde > iso(d))).sort((x,y)=>x.h.localeCompare(y.h)).forEach(t => {
       const [hh,mm] = t.h.split(':').map(Number);
       if (i === 0 && hh*60+mm <= HOJE.getHours()*60+HOJE.getMinutes()) return;
       const s = S.subs.find(x => x.turma === t.id && x.d === iso(d) && x.status === 'aceito');
@@ -30,12 +31,13 @@ function proximasAulas(a, n=6){
 }
 function vAlunoInicio(){
   const a = alunoPor(S, UI.who.aluno);
-  const tabs = `<div class="chips" role="tablist">${[['pratica','Minha prática','sprout'], ['eventos','Eventos','ticket'], ...Object.entries(ATIV).filter(([k]) => k!=='particular').map(([k,x]) => [k, x.curto, x.icon])].map(([k,l,i]) => `<button class="chip ${UI.alunoAtv===k?'on':''}" role="tab" aria-selected="${UI.alunoAtv===k}" data-act="alunoAtv" data-v="${k}">${ic(i,'sm')}${l}</button>`).join('')}</div>`;
+  const tabs = `<div class="chips" role="tablist">${[['pratica','Minha prática','sprout'], ['eventos','Eventos','ticket'], ...Object.entries(ATIV).filter(([k]) => k!=='particular').map(([k,x]) => [k, x.curto, x.icon]), ['terapias','Terapias','heart']].map(([k,l,i]) => `<button class="chip ${UI.alunoAtv===k?'on':''}" role="tab" aria-selected="${UI.alunoAtv===k}" data-act="alunoAtv" data-v="${k}">${ic(i,'sm')}${l}</button>`).join('')}</div>`;
   if (UI.alunoAtv === 'eventos') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Encontros abertos no Espaço.</p></div></div>${tabs}${vEventos(a)}`;
+  if (UI.alunoAtv === 'terapias') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Terapias com hora marcada no Espaço.</p></div></div>${tabs}${vTerapias(a)}`;
   if (UI.alunoAtv !== 'pratica') return `<div class="pagehead"><div><h1>Namaskar, ${escapeH(a.nome.split(' ')[0])}</h1><p>Conheça tudo o que acontece no Espaço.</p></div></div>${tabs}${vAtividadeInfo(a, UI.alunoAtv)}`;
   const pres = presencasDoAluno(S, a.id), doMes = pres.filter(p => mesDe(p.aula.d) === MES_ATUAL).length;
   const mPrin = a.mats[0];
-  let previstas = 0; for (let d = pd(MES_ATUAL+'-01'); iso(d) <= HOJE_ISO; d = addD(d,1)) if (!FERIADOS.includes(iso(d))) previstas += a.mats.flatMap(m => m.turmas).filter(t => TURMA[t].dia === d.getDay()).length;
+  let previstas = 0; for (let d = pd(MES_ATUAL+'-01'); iso(d) <= HOJE_ISO; d = addD(d,1)) if (!semAula(iso(d))) previstas += a.mats.flatMap(m => m.turmas).filter(t => TURMA[t].dia === d.getDay()).length;
   const prox = proximaCobranca(S, mPrin), diasPg = diasEntre(HOJE, pd(prox));
   const meses = (() => { const d = pd(a.desde); return (HOJE.getFullYear()-d.getFullYear())*12 + HOJE.getMonth()-d.getMonth(); })();
   const arcos = [
@@ -57,7 +59,8 @@ function vAlunoInicio(){
     <div class="stat"><span class="k">${ic('calendar','sm')}Frequência do mês</span><span class="v">${previstas?Math.round(doMes/previstas*100):0}%</span><span class="d">${doMes} de ${previstas} aulas</span></div>
     <div class="stat"><span class="k">${ic('flame','sm')}Semanas seguidas</span><span class="v">${semanas}</span><span class="d">praticando sem falhar</span></div>
   </div>
-  ${cardPontos(a)}
+  ${pontosLigados() ? cardPontos(a) : ''}
+  ${(() => { const tids = a.mats.filter(m => m.status === 'ativo').flatMap(m => m.turmas), fs = proximosSemAula(14).filter(f => tids.some(t => TURMA[t] && TURMA[t].dia === pd(f.d).getDay())); return fs.map(f => `<div class="alert pri"><span class="ib">${ic('calendar-x')}</span><div><div class="t">${DIAS_L[pd(f.d).getDay()]}, ${dataBR(f.d)}: ${escapeH(f.nome)}</div><div class="s">Não tem aula nesse dia. Bom descanso!</div></div></div>`).join(''); })()}
   <div class="split">
     <div class="card"><div class="card-h"><h3>Próximas aulas</h3><span class="sub">Avise se vai: ajuda a instrutora a se preparar</span></div>
       <div class="list">${lista.map(x => { const v = S.vou[x.sid]; return `<div class="li"><span class="ico-b" style="color:${ATIV[x.t.atv].hex}">${ic(ATIV[x.t.atv].icon)}</span><div class="main-c"><span class="t">${nomeTurma(x.t)} · ${x.d===HOJE_ISO?'hoje':DIAS_L[pd(x.d).getDay()].toLowerCase()+' '+dataBR(x.d)} às ${x.t.h}</span><span class="s">${PESSOA[x.instr].nome}${x.instr!==x.t.instr?' (substituindo)':''} · ${x.t.sala}</span></div><div class="row">${v===true?`<span class="pill ok">${ic('check')}Vou</span><button class="btn ghost sm" data-act="vou" data-v="${x.sid}" data-x="0">Mudar</button>`:v===false?`<span class="pill neu">Não vou</span><button class="btn ghost sm" data-act="vou" data-v="${x.sid}" data-x="1">Mudar</button>`:`<button class="btn sec sm" data-act="vou" data-v="${x.sid}" data-x="1">Vou</button><button class="btn ghost sm" data-act="vou" data-v="${x.sid}" data-x="0">Não vou</button>`}</div></div>`; }).join('')}</div></div>
@@ -110,17 +113,16 @@ function vEventos(a){
 }
 function cardPlanoResumo(a){
   return `<div class="card"><div class="card-h"><h3>${a.mats.length>1?'Seus planos':'Seu plano'}</h3><button class="btn ghost sm" data-act="tab" data-v="plano">Ver tudo${ic('chevron-right','sm')}</button></div>
-    <div class="list">${a.mats.map(m => { const st = statusPagamento(S,a,m); return `<div class="li"><span class="ico-b" style="color:${ATIV[m.atv].hex}">${ic(ATIV[m.atv].icon)}</span><div class="main-c"><span class="t">${m.plano ? `${ATIV[m.atv].curto} · ${PLANOS_YOGA[m.plano].nome}` : ATIV[m.atv].nome}</span><span class="s">${brl(valorMat(S,m))}/mês · próxima cobrança ${dataBR(proximaCobranca(S,m))}</span></div>${pillPag(st.st)}</div>`; }).join('')}</div></div>`;
+    <div class="list">${a.mats.map(m => { const st = statusPagamento(S,a,m); return `<div class="li"><span class="ico-b" style="color:${ATIV[m.atv].hex}">${ic(ATIV[m.atv].icon)}</span><div class="main-c"><span class="t">${m.plano ? `${ATIV[m.atv].curto} · ${PLANOS_YOGA[m.plano].nome}` : m.planoPart && PLANOS_PART[m.planoPart] ? `${ATIV[m.atv].curto} · ${PLANOS_PART[m.planoPart].nome}${m.online ? ' · online' : ''}` : ATIV[m.atv].nome}</span><span class="s">${st.st === 'plataforma' ? st.txt : `${brl(valorMat(S,m))}/mês · próxima cobrança ${dataBR(proximaCobranca(S,m))}`}</span></div>${pillPag(st.st)}</div>`; }).join('')}</div></div>`;
 }
 function vAtividadeInfo(a, k){
   const x = ATIV[k], ts = TURMAS.filter(t => t.atv === k), faz = a.mats.some(m => m.atv === k);
-  const instrs = EQUIPE.filter(p => p.atvs.includes(k));
   return `<div class="card pad-lg anim-in" style="border-top:4px solid ${x.hex}">
-    <div class="row" style="gap:14px;margin-bottom:12px"><span class="ico-b" style="width:56px;height:56px;border-radius:18px;color:#fff;background:${x.hex}">${ic(x.icon,'xl')}</span><div><h2 style="font-size:24px">${x.nome}</h2><p class="muted small">com ${instrs.map(p=>p.nome).join(', ')}</p></div></div>
+    <div class="row" style="gap:14px;margin-bottom:12px"><span class="ico-b" style="width:56px;height:56px;border-radius:18px;color:#fff;background:${x.hex}">${ic(x.icon,'xl')}</span><div><h2 style="font-size:24px">${x.nome}</h2><p class="muted small">${resumoAtv(k)}</p></div></div>
     <p style="max-width:62ch">${x.desc}</p>
     <div class="grid g2" style="margin-top:16px">
-      <div><div class="eyebrow" style="margin-bottom:6px">${x.agendada ? 'Como funciona' : 'Horários'}</div>${x.agendada ? '<p class="small">Atendimento individual com hora marcada. Escolha o melhor dia e a terapeuta confirma.</p>' : `<div class="list">${ts.map(t => `<div class="li"><span class="ico-b">${ic('clock')}</span><div class="main-c"><span class="t">${DIAS_L[t.dia]} · ${t.h}</span><span class="s">${PESSOA[t.instr].nome} · ${t.sala}${t.nome?' · '+t.nome:''}</span></div></div>`).join('')}</div>`}</div>
-      <div><div class="eyebrow" style="margin-bottom:6px">Valores</div>${k==='yoga' ? `<div class="list">${Object.entries(PLANOS_YOGA).map(([pk,p]) => `<div class="li"><div class="main-c"><span class="t">${p.nome}</span></div><b class="num">${brl(S.regras.planos[pk])}${pk==='avulsa'?'':'/mês'}</b></div>`).join('')}</div>` : `<p class="small">A partir de <b class="num">${brl(Math.min(...S.alunos.flatMap(al => al.mats.filter(m => m.atv===k).map(m => valorMat(S,m))), 999))}</b>${x.agendada?' por sessão':' por mês'}.</p>`}</div>
+      <div><div class="eyebrow" style="margin-bottom:6px">${x.agendada || x.combinar ? 'Como funciona' : 'Horários'}</div>${x.agendada ? '<p class="small">Atendimento individual com hora marcada. Escolha o melhor dia e a terapeuta confirma.</p>' : x.combinar ? '<p class="small">O horário é combinado com o professor, de acordo com a sua agenda.</p>' : `<div class="list">${ts.filter(t => !t.aluno).map(t => `<div class="li"><span class="ico-b">${ic('clock')}</span><div class="main-c"><span class="t">${DIAS_L[t.dia]} · ${t.h}</span><span class="s">${t.nome ? escapeH(t.nome) + ' · ' : ''}${t.sala}</span></div></div>`).join('')}</div>`}</div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Valores</div>${k==='yoga' ? `<div class="list">${Object.entries(PLANOS_YOGA).filter(([pk]) => !ehPlataforma(pk)).map(([pk,p]) => `<div class="li"><div class="main-c"><span class="t">${p.nome}</span></div><b class="num">${brl(S.regras.planos[pk])}${pk==='avulsa'?'':'/mês'}</b></div>`).join('')}</div>` : x.valor ? `<p class="small"><b class="num">${brl(+x.valor)}</b> por mês.</p>` : `<p class="small">Valores pelo WhatsApp do Espaço: <b class="num">${ESPACO.tel}</b>.</p>`}<p class="tiny muted" style="margin-top:6px">No cartão de crédito ou débito, acréscimo de ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)}.</p></div>
     </div>
     <div class="row wrap" style="margin-top:18px">${faz ? `<span class="pill ok">${ic('check')}Você já faz esta atividade</span>` : `<button class="btn sol" data-act="experimental" data-v="${k}">${ic('calendar-days')}Agendar aula experimental</button>`}</div>
   </div>`;
@@ -142,14 +144,14 @@ function vAlunoPlano(){
   <div class="grid g2">${a.mats.map(m => { const st = statusPagamento(S,a,m), prox = proximaCobranca(S,m);
     return `<div class="card pad-lg" style="position:relative;overflow:hidden">
       <div style="position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,var(--sol),var(--acafrao),var(--folha))"></div>
-      <div class="row" style="justify-content:space-between;align-items:flex-start;margin-top:4px"><div><div class="eyebrow">${ATIV[m.atv].nome}</div><h2 style="font-size:24px;margin-top:4px">${m.plano ? PLANOS_YOGA[m.plano].nome : 'Mensal'}${m.instr?` com ${PESSOA[m.instr].nome}`:''}</h2></div>${pillPag(st.st)}</div>
-      <div style="font-family:var(--f-display);font-size:38px;font-weight:750;letter-spacing:-.03em;margin:10px 0 2px" class="num">${brl(valorMat(S,m))}<span class="small muted" style="font-family:var(--f-body);font-weight:500;letter-spacing:0"> /mês</span></div>
+      <div class="row" style="justify-content:space-between;align-items:flex-start;margin-top:4px"><div><div class="eyebrow">${ATIV[m.atv].nome}</div><h2 style="font-size:24px;margin-top:4px">${m.plano ? PLANOS_YOGA[m.plano].nome : m.planoPart && PLANOS_PART[m.planoPart] ? PLANOS_PART[m.planoPart].nome + (m.online ? ' · online' : '') : 'Mensal'}${m.instr?` com ${PESSOA[m.instr].nome}`:''}</h2></div>${pillPag(st.st)}</div>
+      <div style="font-family:var(--f-display);font-size:38px;font-weight:750;letter-spacing:-.03em;margin:10px 0 2px" class="num">${brl(valorMat(S,m))}<span class="small muted" style="font-family:var(--f-body);font-weight:500;letter-spacing:0"> ${st.st === 'plataforma' ? 'por aula, pago pelo ' + PLANOS_YOGA[m.plano].plataforma : '/mês'}</span></div>
       <div class="list" style="margin:8px 0 14px">
         <div class="li"><span class="ico-b">${ic('calendar')}</span><div class="main-c"><span class="t">${m.status==='pausado'?'Plano pausado':`Próxima cobrança: ${dataBR(prox)}`}</span><span class="s">${st.st==='atrasado'?`<b style="color:var(--bad)">A de ${nomeMes(MES_ATUAL).toLowerCase()} venceu em ${dataBR(st.venc)}</b>`:st.st==='pago'?`${nomeMes(MES_ATUAL)} pago em ${dataBR(st.pg.d)}`:`vence todo dia ${m.venc}`}</span></div></div>
-        <div class="li"><span class="ico-b">${ic(m.metodo==='cartao'?'credit-card':m.metodo==='pixauto'?'repeat':'qr-code')}</span><div class="main-c"><span class="t">${m.metodo==='cartao'?`Cartão final ${m.cartaoFim}`:m.metodo==='pixauto'?'Pix Automático':'Pix'}</span><span class="s">${m.metodo==='cartao'?'Cobrança automática todo mês':m.metodo==='pixauto'?'Autorizado no seu banco: sai sozinho no vencimento':'Você recebe o Pix no dia do vencimento'}</span></div></div>
+        ${st.st === 'plataforma' ? `<div class="li"><span class="ico-b">${ic('badge-check')}</span><div class="main-c"><span class="t">Você não paga mensalidade ao Espaço</span><span class="s">${st.txt}. Faça o check-in no app do ${PLANOS_YOGA[m.plano].plataforma} a cada aula.</span></div></div>` : `<div class="li"><span class="ico-b">${ic(m.metodo==='cartao'?'credit-card':'qr-code')}</span><div class="main-c"><span class="t">${m.metodo==='cartao'?'Cartão pelo link':'Pix'}</span><span class="s">${m.metodo==='cartao'?`Crédito ou débito · acréscimo de ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)}`:'Pix copia e cola, sem taxa'}</span></div></div>`}
         <div class="li"><span class="ico-b">${ic('clock')}</span><div class="main-c"><span class="t">${m.turmas.map(t => `${DIAS[TURMA[t].dia]} ${TURMA[t].h}`).join(' · ')}</span><span class="s">seus horários</span></div></div>
       </div>
-      <div class="row wrap">${m.status==='cancelado' ? '<span class="small muted">Plano cancelado. Para voltar, fale com o Espaço.</span>' : st.st==='analise' ? `<span class="small muted" style="max-width:36ch">${ic('clock','sm')} Você avisou que pagou. Assim que a administração conferir, aparece como pago.</span>` : st.st!=='pago' && m.status!=='pausado' ? `<button class="btn sol" data-act="pagar" data-v="${m.id}">${ic('wallet')}Pagar ${brl(valorMat(S,m))}</button>` : `<button class="btn sec" data-act="pagar" data-v="${m.id}">${ic('wallet')}Adiantar pagamento</button>`}<button class="btn ghost" data-act="maisFin" data-v="${m.id}">Mais opções${ic('chevron-right','sm')}</button></div>
+      <div class="row wrap">${m.status==='cancelado' ? '<span class="small muted">Plano cancelado. Para voltar, fale com o Espaço.</span>' : st.st==='plataforma' ? '' : st.st==='analise' ? `<span class="small muted" style="max-width:36ch">${ic('clock','sm')} Você avisou que pagou. Assim que a administração conferir, aparece como pago.</span><button class="btn sec sm" data-act="comprovante" data-v="${m.id}" data-x="${st.aviso.mes}" data-y="${st.aviso.metodo}">${ic('message-circle','sm')}Mandar o comprovante</button>` : st.st!=='pago' && m.status!=='pausado' ? `<button class="btn sol" data-act="pagar" data-v="${m.id}">${ic('wallet')}Pagar ${brl(valorMat(S,m))}</button>` : `<button class="btn sec" data-act="pagar" data-v="${m.id}">${ic('wallet')}Adiantar pagamento</button>`}<button class="btn ghost" data-act="maisFin" data-v="${m.id}">Mais opções${ic('chevron-right','sm')}</button></div>
     </div>`; }).join('')}</div>
   ${cardMeusDados(a)}
   <div class="card"><div class="card-h"><h3>Pagamentos</h3></div><div class="list">${pags.map(p => { const m = a.mats.find(x => x.id === p.mat); return `<div class="li"><span class="ico-b" style="background:var(--ok-bg);color:var(--ok)">${ic('check')}</span><div class="main-c"><span class="t">${nomeMes(p.mes)} · ${ATIV[m.atv].curto}</span><span class="s">${dataBR(p.d)} · ${p.metodo==='cartao'?'cartão':'Pix'}</span></div><b class="num">${brl(p.valor)}</b></div>`; }).join('')}</div></div>`;
@@ -177,28 +179,59 @@ function vAlunoHist(){
 }
 
 /* ---------- folhas de pagamento ---------- */
-function folhaPagar(matId, modo='pix'){
-  const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === matId), v = valorMat(S,m);
-  const codigo = `00020126580014BR.GOV.BCB.PIX0136espacoanirvana-${matId}-${MES_ATUAL}5204000053039865406${v.toFixed(2)}5802BR5915ESPACO ANIRVANA6009PONTAL PR`;
-  abrirFolha(`${folhaCab(`Pagar ${brl(v)}`, `${nomePlano(m)} · ${nomeMes(MES_ATUAL)}`)}
-  <div class="stack">
-    <div class="seg" style="width:100%">${[['pix','Pix'],['cartao','Cartão']].map(([k,l]) => `<button style="flex:1" class="${modo===k?'on':''}" data-act="pagarModo" data-v="${matId}" data-x="${k}">${l}</button>`).join('')}</div>
-    ${modo === 'pix' ? `<div class="qr">${qrSVG(matId.length*991)}</div><p class="tiny muted" style="text-align:center">QR de exemplo — no app de verdade vem do banco</p>
-      <div class="field"><label>Pix copia e cola</label><div class="row"><input class="inp num" readonly value="${codigo}" id="pixCod" style="font-size:13px"><button class="btn sec" data-act="copiar" data-v="${codigo}">${ic('copy','sm')}Copiar</button></div></div>
-      <p class="tiny muted">${ic('check','sm')} Quem dá baixa é a administração: depois de conferir no banco, aparece como pago aqui.</p>
-      <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="pix">${ic('send')}Já paguei, avisar o Espaço</button></div>`
-    : `<div class="field"><label for="cNum">Número do cartão</label><input class="inp num" id="cNum" inputmode="numeric" placeholder="0000 0000 0000 0000"></div>
-      <div class="grid g2"><div class="field"><label for="cVal">Validade</label><input class="inp num" id="cVal" placeholder="MM/AA"></div><div class="field"><label for="cCvv">CVV</label><input class="inp num" id="cCvv" placeholder="123"></div></div>
-      <p class="tiny muted">${ic('check','sm')} No app de verdade o cartão é digitado na página segura do Asaas. O Espaço nunca vê nem guarda o número.</p>
-      <label class="row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="cRec" checked style="width:20px;height:20px;accent-color:var(--pri)"> Cobrar automaticamente todo mês neste cartão</label>
-      <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="cartao">${ic('credit-card')}Pagar ${brl(v)}</button></div>`}
+/* Pix copia e cola (BR Code do Banco Central, com o CRC no fim) */
+function crc16(t){ let c = 0xFFFF; for (let i = 0; i < t.length; i++){ c ^= t.charCodeAt(i) << 8; for (let j = 0; j < 8; j++) c = c & 0x8000 ? (c << 1) ^ 0x1021 : c << 1; c &= 0xFFFF; } return c.toString(16).toUpperCase().padStart(4, '0'); }
+function pixCopiaECola(chave, valor, txid){
+  const f = (id, v) => id + String(v.length).padStart(2, '0') + v;
+  const semAc = x => String(x).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+  const corpo = f('00','01') + f('26', f('00','br.gov.bcb.pix') + f('01', chave)) + f('52','0000') + f('53','986') + f('54', valor.toFixed(2)) + f('58','BR') + f('59', semAc('Espaco Anirvana').slice(0, 25)) + f('60', semAc('Pontal do Parana').slice(0, 15)) + f('62', f('05', String(txid).replace(/[^A-Za-z0-9]/g, '').slice(0, 25) || '***')) + '6304';
+  return corpo + crc16(corpo);
+}
+function linkComprovante(a, m, mes, metodo){
+  const v = metodo === 'cartao' ? comCartao(S, valorMat(S, m)) : valorMat(S, m);
+  const txt = `Olá! Segue o comprovante da mensalidade de ${nomeMes(mes).toLowerCase()}: ${nomePlano(m)} · ${brl(v)} (${metodo === 'cartao' ? 'cartão' : 'Pix'}). Aluno: ${a.nome}.`;
+  return `https://wa.me/${ESPACO.whats}?text=${encodeURIComponent(txt)}`;
+}
+function folhaComprovante(matId, mes, metodo){
+  const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === matId);
+  abrirFolha(`${folhaCab('Avisamos o Espaço', 'Falta só uma coisa')}
+  <div class="stack" style="text-align:center;justify-items:center">
+    <span class="ico-b" style="width:64px;height:64px;border-radius:20px;background:var(--ok-bg);color:var(--ok)">${ic('check','xl')}</span>
+    <p style="max-width:40ch">Mande o <b>comprovante</b> pelo WhatsApp do Espaço. A mensagem já vai escrita: é só anexar a foto ou o print do pagamento.</p>
+    <a class="btn sol block" href="${linkComprovante(a, m, mes, metodo)}" target="_blank" rel="noopener" data-act="fechar">${ic('message-circle')}Mandar comprovante no WhatsApp</a>
+    <p class="tiny muted">Quem dá baixa é a administração: depois de conferir, aparece como pago aqui no app.</p>
+    <button class="btn ghost" data-act="fechar">Depois</button>
   </div>`);
+}
+function folhaPagar(matId, modo='pix'){
+  const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === matId), v = valorMat(S,m), vc = comCartao(S, v), taxa = S.regras.taxaCartao ?? TAXA_CARTAO;
+  const chave = (S.config || {}).chavePix, link = (S.config || {}).linkCartao;
+  const codigo = pixCopiaECola(chave || 'chave-pix-do-espaco', v, `${matId}${MES_ATUAL}`);
+  abrirFolha(`${folhaCab(`Pagar ${nomeMes(MES_ATUAL).toLowerCase()}`, `${nomePlano(m)} · ${a.nome.split(' ')[0]}`)}
+  <div class="stack">
+    <div class="seg" style="width:100%">${[['pix',`Pix · ${brl(v)}`],['cartao',`Cartão · ${brl(vc)}`]].map(([k,l]) => `<button style="flex:1" class="${modo===k?'on':''}" data-act="pagarModo" data-v="${matId}" data-x="${k}">${l}</button>`).join('')}</div>
+    ${modo === 'pix' ? `<div class="qr">${qrSVG(matId.length*991)}</div><p class="tiny muted" style="text-align:center">${chave ? 'Aponte a câmera do app do banco ou use o copia e cola' : 'QR de exemplo: falta pôr a chave Pix do Espaço em Mensalidades → Regras'}</p>
+      <div class="field"><label>Pix copia e cola · ${brl(v)}</label><div class="row"><input class="inp num" readonly value="${codigo}" id="pixCod" style="font-size:13px"><button class="btn sec" data-act="copiar" data-v="${codigo}">${ic('copy','sm')}Copiar</button></div></div>
+      <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="pix">${ic('send')}Já paguei, avisar o Espaço</button></div>`
+    : `<div class="li" style="padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><span class="ico-b">${ic('credit-card')}</span><div class="main-c"><span class="t num">${brl(v)} + ${brl(taxa)} = <b>${brl(vc)}</b></span><span class="s">Crédito ou débito. O acréscimo é a taxa da maquininha.</span></div></div>
+      <ol class="small" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Toque em <b>Abrir o link do cartão</b>.</li><li>Digite o valor <b class="num">${brl(vc)}</b> e os dados do cartão (o Espaço não vê o número).</li><li>Volte aqui e toque em <b>Já paguei</b>.</li></ol>
+      ${link ? `<a class="btn sol block" href="${escapeH(link)}" target="_blank" rel="noopener">${ic('external-link')}Abrir o link do cartão</a>` : `<button class="btn sol block" data-act="semLinkCartao">${ic('external-link')}Abrir o link do cartão</button>`}
+      <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="cartao">${ic('send')}Já paguei, avisar o Espaço</button></div>`}
+  </div>`);
+}
+function vTerapias(a){
+  const ts = S.terapias || [];
+  return `<div class="grid g2">${ts.map(t => `<div class="card pad-lg anim-in" style="border-top:4px solid var(--folha)">
+    <div class="row" style="gap:14px;margin-bottom:10px"><span class="ico-b" style="width:52px;height:52px;border-radius:16px;color:#fff;background:linear-gradient(135deg,var(--folha),#3E8E6E)">${ic(t.icon || 'heart','lg')}</span><div><h2 style="font-size:22px">${escapeH(t.nome)}</h2><p class="muted small">${t.quem ? 'com ' + escapeH(t.quem) : 'com a terapeuta do Espaço'}</p></div></div>
+    <p style="max-width:56ch">${escapeH(t.desc || '')}</p>
+    <div class="row wrap" style="margin-top:14px"><a class="btn sol" href="https://wa.me/${escapeH(t.whats || ESPACO.whats)}?text=${encodeURIComponent(`Oi! Quero agendar ${t.nome.toLowerCase()}${t.quem ? ' com ' + t.quem : ''}. Sou ${a.nome}, aluno do Espaço.`)}" target="_blank" rel="noopener">${ic('message-circle')}Agendar pelo WhatsApp</a></div>
+  </div>`).join('') || '<div class="card"><p class="muted">As terapias aparecem aqui quando a administração cadastrar.</p></div>'}</div>${cardContato()}`;
 }
 function folhaMaisFin(matId, vis='menu'){
   const a = alunoPor(S, UI.who.aluno), m = a.mats.find(x => x.id === matId);
   let corpo = '';
-  if (vis === 'menu') corpo = `<div class="list">${[['metodo','Trocar forma de pagamento','credit-card',m.metodo==='cartao'?`Hoje: cartão final ${m.cartaoFim}`:m.metodo==='pixauto'?'Hoje: Pix Automático':'Hoje: Pix'],['pausar',m.status==='pausado'?'Retomar plano':'Pausar plano','pause',m.status==='pausado'?'Seu plano está pausado':'Viagem, saúde, férias: pause até 60 dias'],['alterar','Alterar plano','repeat',m.plano?`Hoje: ${PLANOS_YOGA[m.plano].nome}`:'Fale com a recepção'],['cancelar','Cancelar plano','x','Pelo próprio app, sem precisar ligar']].map(([k,t,i,s]) => `<button class="li tap" style="width:100%;text-align:left" data-act="maisFin" data-v="${matId}" data-x="${k}"><span class="ico-b">${ic(i)}</span><div class="main-c"><span class="t">${t}</span><span class="s">${s}</span></div>${ic('chevron-right','sm')}</button>`).join('')}</div>`;
-  if (vis === 'metodo') corpo = `<div class="optgrid" style="grid-template-columns:1fr 1fr">${[['pixauto','Pix Automático','repeat'],['cartao','Cartão automático','credit-card'],['pix','Pix a cada mês','qr-code']].map(([k,l,i]) => `<button class="opt ${m.metodo===k?'on':''}" data-act="opt" data-grp="fMet" data-v="${k}">${ic(i)}${l}</button>`).join('')}</div><input type="hidden" id="fMet" value="${m.metodo}"><p class="small muted">Pix Automático: você autoriza uma vez no app do seu banco e o pagamento sai sozinho todo mês, sem taxa de cartão. Dá para cancelar a autorização no banco quando quiser.</p><div class="sheet-foot"><button class="btn sec" data-act="maisFin" data-v="${matId}" data-x="menu">Voltar</button><button class="btn pri" data-act="salvarMetodo" data-v="${matId}">Salvar</button></div>`;
+  if (vis === 'menu') corpo = `<div class="list">${[['metodo','Trocar forma de pagamento','credit-card',m.metodo==='cartao'?'Hoje: cartão pelo link':'Hoje: Pix'],['pausar',m.status==='pausado'?'Retomar plano':'Pausar plano','pause',m.status==='pausado'?'Seu plano está pausado':'Viagem, saúde, férias: pause até 60 dias'],['alterar','Alterar plano','repeat',m.plano?`Hoje: ${PLANOS_YOGA[m.plano].nome}`:'Fale com a recepção'],['cancelar','Cancelar plano','x','Pelo próprio app, sem precisar ligar']].map(([k,t,i,s]) => `<button class="li tap" style="width:100%;text-align:left" data-act="maisFin" data-v="${matId}" data-x="${k}"><span class="ico-b">${ic(i)}</span><div class="main-c"><span class="t">${t}</span><span class="s">${s}</span></div>${ic('chevron-right','sm')}</button>`).join('')}</div>`;
+  if (vis === 'metodo') corpo = `<div class="optgrid" style="grid-template-columns:1fr 1fr">${[['pix','Pix a cada mês','qr-code'],['cartao',`Cartão pelo link (+ ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)})`,'credit-card']].map(([k,l,i]) => `<button class="opt ${m.metodo===k?'on':''}" data-act="opt" data-grp="fMet" data-v="${k}">${ic(i)}${l}</button>`).join('')}</div><input type="hidden" id="fMet" value="${m.metodo === 'pixauto' ? 'pix' : m.metodo}"><p class="small muted">Pix não tem taxa. No cartão de crédito ou débito, o Espaço cobra ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)} a mais (a taxa da maquininha).</p><div class="sheet-foot"><button class="btn sec" data-act="maisFin" data-v="${matId}" data-x="menu">Voltar</button><button class="btn pri" data-act="salvarMetodo" data-v="${matId}">Salvar</button></div>`;
   if (vis === 'pausar') corpo = m.status === 'pausado' ? `<p>Ao retomar, a próxima cobrança volta no dia ${m.venc}.</p><div class="sheet-foot"><button class="btn sec" data-act="maisFin" data-v="${matId}" data-x="menu">Voltar</button><button class="btn pri" data-act="retomar" data-v="${matId}">Retomar plano</button></div>`
     : `<div class="optgrid">${[['15','15 dias'],['30','30 dias'],['60','60 dias']].map(([k,l],i) => `<button class="opt ${i===1?'on':''}" data-act="opt" data-grp="fPausa" data-v="${k}">${l}</button>`).join('')}</div><input type="hidden" id="fPausa" value="30"><div class="field"><label for="fMotP">Motivo (opcional)</label><input class="inp" id="fMotP" placeholder="Ex.: viagem"></div><p class="small muted">Durante a pausa não há cobrança. A instrutora fica sabendo e sua vaga fica guardada.</p><div class="sheet-foot"><button class="btn sec" data-act="maisFin" data-v="${matId}" data-x="menu">Voltar</button><button class="btn pri" data-act="pausar" data-v="${matId}">Pausar plano</button></div>`;
   if (vis === 'cancelar'){ const dias = diasEntre(pd(m.inicio || alunoPor(S, UI.who.aluno).desde), HOJE);
