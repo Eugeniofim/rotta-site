@@ -149,6 +149,23 @@ function wzDemoHistorico() {
   const QUEM = { venda: [['Carla', .85], ['Rafael', 1]], captacao: [['Carla', 1]], temporada: [['Rafael', .8], ['Bianca', 1]], aluguel: [['Bianca', .9], ['Carla', 1]] };
   const ROT = { venda: 'Interesse em imóvel', aluguel: 'Aluguel anual', temporada: 'Reserva de temporada', captacao: 'Anunciar imóvel' };
   const agora = Date.now(), hoje = new Date(), DIA = 86400000, saida = [];
+  /* cada pessoa da equipe tem um jeito (Gestão · Desempenho da equipe, 16/11/2026): a Carla é rápida e
+     fecha mais; o Rafael responde no meio-termo e às vezes perde a vez; a Bianca demora mais e deixa
+     lead parado, mas fecha bem a locação */
+  const PERFIL = { Carla: { vel: .5, fecha: 1.3, falta: .03, para: .12 }, Rafael: { vel: 1.1, fecha: 1, falta: .13, para: .3 }, Bianca: { vel: 2.3, fecha: .95, falta: .06, para: .5 } };
+  const OUTRO = { Carla: 'Rafael', Rafael: 'Bianca', Bianca: 'Carla' };
+  /* quando as pessoas escrevem: mais à noite e no fim de semana (0 a 23 h) */
+  const HORA = [1, .5, .3, .2, .2, .4, 1, 2, 3, 3.2, 3.2, 3, 3.3, 3, 2.8, 2.8, 3, 3.5, 4.3, 5.2, 5.6, 5, 3.6, 2];
+  const HORA_SOMA = HORA.reduce((a, b) => a + b, 0);
+  const SEMANA = [1.55, 1, .95, .95, 1, 1.1, 1.4];   /* domingo a sábado */
+  const umaHora = () => { let r = rnd() * HORA_SOMA; for (let h = 0; h < 24; h++) { r -= HORA[h]; if (r <= 0) return h; } return 20; };
+  const quando = (ini, fim) => {
+    for (let t = 0; t < 30; t++) {
+      const d = new Date(ini + rnd() * Math.max(0, fim - ini)); d.setHours(umaHora(), Math.floor(rnd() * 60), 0, 0);
+      if (d.getTime() >= ini && d.getTime() <= fim && rnd() * 1.55 <= SEMANA[d.getDay()]) return d.getTime();
+    }
+    return ini + rnd() * Math.max(0, fim - ini);
+  };
   let n = 0;
   for (let i = 0; i < 6; i++) {
     const ini = new Date(hoje.getFullYear(), hoje.getMonth() - (5 - i), 1).getTime();
@@ -157,23 +174,37 @@ function wzDemoHistorico() {
     for (const prod of Object.keys(POR_MES)) {
       const qtd = Math.round(POR_MES[prod][i] * fracao);
       for (let k = 0; k < qtd; k++) {
-        const criado = ini + rnd() * Math.max(0, fim - ini), idade = (agora - criado) / DIA;
-        const r = rnd(), pf = FECHA[prod] * (idade > 25 ? 1 : .5);
-        let status = r < pf ? 'atendido' : (idade > 25 ? 'perdido' : idade > 6 ? um(['proposta', 'visita marcada', 'em atendimento', 'perdido', 'perdido']) : um(['em atendimento', 'visita marcada', 'proposta']));
+        const criado = quando(ini, fim), idade = (agora - criado) / DIA;
+        const q = rnd(); const por = QUEM[prod].find(([, lim]) => q <= lim)[0], pf_ = PERFIL[por];
+        /* perdeu a vez: o aviso foi para outra pessoa antes, que não tocou no prazo */
+        const perdeu = rnd() < PERFIL[OUTRO[por]].falta ? OUTRO[por] : '';
+        /* ninguém respondeu (o rodízio deu a volta): raro, e só nos recentes */
+        const esgotou = idade < 12 && rnd() < .035;
+        const novinho = !esgotou && idade < 1.3 && rnd() < .55;
+        const r = rnd(), pf = FECHA[prod] * pf_.fecha * (idade > 25 ? 1 : .5);
+        let status = esgotou || novinho ? 'novo' : r < pf ? 'atendido' : (idade > 25 ? 'perdido' : idade > 6 ? um(['proposta', 'visita marcada', 'em atendimento', 'perdido', 'perdido']) : um(['em atendimento', 'visita marcada', 'proposta']));
         const decidido = status === 'atendido' || status === 'perdido';
-        const statusEm = decidido ? new Date(Math.min(agora - 3600000, criado + (1 + rnd() * 11) * DIA)).toISOString() : '';
-        const q = rnd(); const por = QUEM[prod].find(([, lim]) => q <= lim)[0];
-        const respMin = (3 + rnd() * rnd() * 30) * (2.6 - i * .4);   /* a equipe fica mais rápida mês a mês */
+        /* quando o status andou pela última vez: quem deixa parado tem leads em aberto sem mexer há dias */
+        const mexeu = decidido ? criado + (1 + rnd() * 11) * DIA
+          : status === 'novo' ? 0 : (rnd() < pf_.para ? criado + rnd() * Math.min(idade, 2) * DIA : agora - rnd() * Math.min(idade, 5) * DIA);
+        const statusEm = mexeu ? new Date(Math.min(agora - 3600000, Math.max(criado + 600000, mexeu))).toISOString() : '';
+        const respMin = (3 + rnd() * rnd() * 30) * (2.6 - i * .4) * pf_.vel;   /* a equipe fica mais rápida mês a mês */
         const ref = REFS[prod] ? um(REFS[prod]) : '';
         const nome = um(NOMES);
         const pedido = prod === 'venda' ? um(['Visita', 'Visita', 'Proposta', 'Financiamento']) : prod === 'temporada' ? 'Reserva' : prod === 'aluguel' ? 'Visita' : um(['Vender o imóvel', 'Vender o imóvel', 'Anunciar para temporada', 'Anunciar para locação']);
         const extra = { Pedido: pedido }; if (prod === 'captacao') extra['Balneário'] = um(BALN);
+        const canal = rnd(), origem = canal < .6 ? 'robo-whatsapp' : canal < .83 ? 'robo-instagram' : canal < .95 ? 'site' : 'robo-whatsapp';
+        const em = new Date(criado).toISOString();
+        const equipe = { modo: 'rodizio', produto: prod === 'captacao' ? 'venda' : prod, falhou: [], em };
+        if (esgotou) Object.assign(equipe, { avisados: [por, OUTRO[por]], passouDe: [por, OUTRO[por]], esgotou: true });
+        else if (novinho && rnd() < .5) Object.assign(equipe, { avisados: [por], vez: por });
+        else Object.assign(equipe, { avisados: perdeu ? [perdeu, por] : [por], ...(perdeu ? { passouDe: [perdeu] } : {}),
+          resposta: { acao: um(['confirmado', 'confirmado', 'confirmado', 'assumido', 'outro']), por, em: new Date(criado + respMin * 60000).toISOString(), clienteAvisado: true } });
         saida.push({
           id: 'demo-h' + (++n), nome, telefone: '', rotulo: ROT[prod], imovelRef: ref, status, statusEm: statusEm || undefined,
-          temperatura: status === 'atendido' ? 'quente' : status === 'perdido' ? 'frio' : um(['quente', 'morno', 'morno']),
+          temperatura: status === 'atendido' ? 'quente' : status === 'perdido' ? 'frio' : um(['quente', 'morno', 'morno', 'frio']),
           mensagem: prod === 'captacao' ? nome + ' quer ' + pedido.toLowerCase().replace('vender o imóvel', 'vender um imóvel') + ' em ' + extra['Balneário'] + '.' : nome + ' pediu ' + pedido.toLowerCase() + ' da Ref. ' + ref + '.',
-          extra, criadoEm: new Date(criado).toISOString(), origem: 'robo-whatsapp',
-          equipe: { modo: 'rodizio', produto: prod === 'captacao' ? 'venda' : prod, avisados: [por], falhou: [], em: new Date(criado).toISOString(), resposta: { acao: um(['confirmado', 'assumido']), por, em: new Date(criado + respMin * 60000).toISOString(), clienteAvisado: true } },
+          extra, criadoEm: em, origem, ...(canal >= .95 ? { anuncio: { titulo: 'Casas em Pontal do Paraná' } } : {}), equipe,
         });
       }
     }

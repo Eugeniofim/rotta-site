@@ -630,6 +630,7 @@ function render() {
   else if (r.tela === 'gestao') html = GESTOR() ? vRelatorios() : vSoGestor('Gestão');
   else html = vWhats(r.param);
   $('meio').innerHTML = html;
+  if (r.tela === 'gestao' && GESTOR() && typeof rlAnima === 'function') rlAnima();
   renderLado();
   document.body.classList.toggle('tela-whats', r.tela === 'whats');
   document.body.classList.toggle('tela-inicio', r.tela === 'inicio');
