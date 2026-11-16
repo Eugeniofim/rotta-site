@@ -852,13 +852,21 @@ button.as-mes { cursor: pointer; }
 
 /* ---------- TESTE AO VIVO (16/11/2026): o CRM de verdade com a conversa de quem testa (teste.js) ---------- */
 .teste-faixa {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px 16px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "vivo vivo" "texto acoes"; align-items: center; gap: 10px 16px;
   padding: 14px 18px; border-radius: 18px 18px 18px 5px; border: 1px solid var(--ambar-borda);
   background: linear-gradient(135deg, rgba(255, 181, 46, .14), rgba(255, 181, 46, .04) 60%), var(--sup);
 }
-.teste-faixa:not(:has(.teste-qr)) { grid-template-columns: minmax(0, 1fr) auto; }
-.teste-faixa:not(:has(.teste-qr)) .teste-vivo { grid-column: 1 / -1; }
-.teste-faixa .teste-qr { grid-row: span 2; width: 96px; height: 96px; padding: 7px; border-radius: 12px; background: var(--texto); }
+/* com o QR (computador): o QR à esquerda, o texto no meio, os botões à direita; em tela média, os botões descem */
+.teste-faixa:has(.teste-qr) { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "qr vivo vivo" "qr texto acoes"; }
+.teste-faixa .teste-vivo { grid-area: vivo; }
+.teste-faixa > p { grid-area: texto; }
+.teste-faixa .teste-acoes { grid-area: acoes; }
+@media (max-width: 1240px) {
+  .teste-faixa { grid-template-columns: minmax(0, 1fr); grid-template-areas: "vivo" "texto" "acoes"; }
+  .teste-faixa:has(.teste-qr) { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "qr vivo" "qr texto" "qr acoes"; align-items: start; }
+  .teste-faixa .teste-acoes { justify-content: flex-start; }
+}
+.teste-faixa .teste-qr { grid-area: qr; align-self: center; width: 96px; height: 96px; padding: 7px; border-radius: 12px; background: var(--texto); }
 .teste-faixa .teste-qr svg { display: block; width: 100%; height: 100%; }
 .teste-faixa .teste-qr svg path, .teste-faixa .teste-qr svg rect[fill="black"], .teste-faixa .teste-qr svg rect:not([fill="white"]) { fill: var(--noite); }
 .teste-vivo { display: inline-flex; align-items: center; gap: 8px; font: 500 11.5px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ambar); }
@@ -873,26 +881,11 @@ button.as-mes { cursor: pointer; }
 /* a conversa de quem testa, no topo da lista */
 .wz-item.voce { background: var(--ambar-suave); box-shadow: inset 3px 0 0 var(--ambar); }
 .wz-item.voce.on { background: rgba(255, 181, 46, .2); }
-/* o WhatsApp Web numa janela à direita: o CRM abre espaço para ela (só no computador) */
-@media (hover: hover) and (pointer: fine) and (min-width: 1100px) {
-  body.com-whats { padding-right: 460px; }
-  body.com-whats .rl-dica { display: none; }
-  /* sobra menos largura: o mesmo arranjo das telas médias (a ficha entra na conversa, a lista estreita) */
-  body.com-whats .wz, body.com-whats .wz:not(.com-conversa) { grid-template-columns: 270px minmax(0, 1fr); }
-  body.com-whats .wz-col-ficha { display: none; }
-  body.com-whats .wz:has(.wz-col-ficha) .wz-cab .btn-wa { display: inline-flex; }
-  body.com-whats .wz-ficha-dentro { display: flex; flex-direction: column; gap: 10px; }
-  body.com-whats .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  body.com-whats .rl-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  body.com-whats .ini-grade, body.com-whats .rl-grade2, body.com-whats .rl-g-funil { grid-template-columns: minmax(0, 1fr); }
-  body.com-whats .teste-faixa { grid-template-columns: minmax(0, 1fr); }
-  body.com-whats .teste-acoes { justify-content: flex-start; }
-}
 /* no celular: a barra de voltar ao WhatsApp, acima do menu de baixo */
 .teste-volta { display: none; }
 @media (max-width: 760px) {
-  .teste-faixa { grid-template-columns: minmax(0, 1fr); padding: 12px 14px; gap: 8px; }
-  .teste-faixa:not(:has(.teste-qr)) { grid-template-columns: minmax(0, 1fr); }
+  .teste-faixa, .teste-faixa:has(.teste-qr) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "vivo" "texto" "acoes"; padding: 12px 14px; gap: 8px; }
+  .teste-faixa .teste-qr { display: none; }
   .teste-acoes { justify-content: flex-start; }
   .teste-faixa p { font-size: 13.5px; }
   .teste-volta {
@@ -907,6 +900,24 @@ button.as-mes { cursor: pointer; }
   body.modo-teste .meio { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
   body.modo-teste .toast { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
   body.modo-teste .wz.com-conversa { height: calc(100dvh - 300px - env(safe-area-inset-bottom, 0px)); min-height: 340px; }
+}
+/* quem chega sem teste (16/11, noite): o cadastro abre por cima do CRM */
+.teste-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;
+  background: rgba(7, 12, 18, .74); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.teste-modal[hidden] { display: none; }
+.teste-caixa { position: relative; max-height: none; margin: auto; }
+.teste-caixa h2 { font-size: 25px; margin: 2px 0 4px; }
+.teste-caixa .olho { color: var(--ambar); }
+.teste-x { position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--dim); font-size: 26px; line-height: 1; cursor: pointer; }
+.teste-x:hover { background: var(--sup2, rgba(246, 243, 236, .06)); color: var(--texto); }
+.teste-armadilha { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.teste-aceite { display: flex; align-items: flex-start; gap: 10px; margin-top: 6px; font-size: 13.5px; color: var(--dim); line-height: 1.4; cursor: pointer; }
+.teste-aceite input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--ambar); }
+.teste-caixa .btn-g svg { width: 19px; height: 19px; }
+@media (max-width: 760px) {
+  button.teste-volta { width: auto; border: 0; font-family: inherit; cursor: pointer; }
+  .teste-modal { align-items: flex-start; padding: 12px; }
+  .teste-caixa { padding: 26px 20px 22px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .teste-vivo i { animation: none; }

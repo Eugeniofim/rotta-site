@@ -12,16 +12,17 @@
    no Início e na Gestão, junto dos exemplos.
 
    O código e o número vêm do formulário Testar do site (localStorage 'milla_teste', nunca no
-   endereço). Sem eles, a página pede o WhatsApp e o código.
-   No computador, o botão do WhatsApp abre o WhatsApp Web numa janela estreita à direita e o CRM
-   abre espaço para ela. No celular, o WhatsApp abre o app e a barra "Voltar ao WhatsApp" fica
-   embaixo, com as mensagens novas.
+   endereço). Sem eles (16/11, noite), a página abre o CRM direto, com "Testar com o meu WhatsApp"
+   (o mesmo cadastro do site) e "Já tenho um código" (quem se cadastrou em outro aparelho).
+   No computador (16/11, noite, pedido do Eugênio: "queria que o WhatsApp abrisse o WhatsApp da pessoa
+   mesmo, sem ser o Web"), o botão abre o WhatsApp instalado (whatsapp://send); se em 2,5 s nada abriu,
+   a faixa mostra o QR para abrir no celular. No celular, o WhatsApp abre o app e a barra "Voltar ao
+   WhatsApp" fica embaixo, com as mensagens novas.
    ===================================================== */
 'use strict';
 
 const TESTE_CFG = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.teste && APP_CONFIG.teste.api) ? APP_CONFIG.teste : null;
 const TS = { guarda: null, sig: '', vistas: 0, lidasAte: 0, over: {}, timer: null, ultimaOk: 0, parar: 0, msgs: 0, codigoMsg: '', fim: false };
-const TESTE_LADO = 460;   /* largura da janela do WhatsApp Web, no computador */
 
 function testeLeGuarda() {
   let g = null;
@@ -33,27 +34,29 @@ const testeAtivo = () => !!(TESTE_CFG && TS.guarda);
 const testeNumero = () => 'teste-' + String(TS.guarda.fone).replace(/\D/g, '').slice(-8);
 const testeCodigoBonito = () => String(TS.guarda.codigo).replace(/(\d{3})(\d{3})/, '$1 $2');
 const testeTextoWa = () => 'Oi Milla! Meu código de teste é ' + TS.guarda.codigo + '.';
-const testeComputador = () => { try { return matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1100px)').matches; } catch (e) { return false; } };
+/* computador = mouse; o mesmo critério do site (o botão abre o WhatsApp instalado em vez do wa.me) */
+const testeComputador = () => { try { return matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) { return false; } };
 
-function testeRpc(nome, corpo) {
+function testeRpc(nome, corpo, sala) {
   return fetch(TESTE_CFG.api + '/rest/v1/rpc/' + nome, {
     method: 'POST',
-    headers: { apikey: TESTE_CFG.chave, Authorization: 'Bearer ' + TESTE_CFG.chave, 'Content-Type': 'application/json', 'Content-Profile': 'millademo' },
+    headers: { apikey: TESTE_CFG.chave, Authorization: 'Bearer ' + TESTE_CFG.chave, 'Content-Type': 'application/json', 'Content-Profile': sala || 'millademo' },
     body: JSON.stringify(corpo),
   }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 }
 
-/* ---------- a porta: sem teste neste aparelho, pede o WhatsApp e o código ---------- */
+/* ---------- "Já tenho um código": quem fez o cadastro em outro aparelho ----------
+   (desde 16/11, noite: sem teste, a página abre o CRM direto, com o botão de começar; o código é opcional) */
 function testePorta() {
-  if (!TESTE_CFG || TS.guarda) return '';
+  if (!TESTE_CFG || TS.guarda || !TS.pedeCodigo) return '';
   return `<div class="entrar-fundo"><form class="entrar-caixa" id="teste-form" aria-label="Acompanhar o teste ao vivo" novalidate>
     <div class="entrar-marca">${SIMBOLO('grande')}<span class="olho">Teste ao vivo</span><h1>Acompanhe o seu teste no CRM</h1>
       <div class="sm">Digite o mesmo WhatsApp do cadastro e o código de 6 números que apareceu para você.</div></div>
     <label for="teste-whats" class="sm b">WhatsApp</label><input class="inp" id="teste-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999" maxlength="20">
     <label for="teste-codigo" class="sm b">Código do teste</label><input class="inp" id="teste-codigo" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" maxlength="7">
     <p class="sm teste-msg" id="teste-msg" role="alert"></p>
-    <button class="btn btn-g" type="submit">Acompanhar ao vivo</button>
-    <div class="sm" style="text-align:center">Ainda não fez o teste? <a href="../?testar=1">Comece pelo site</a>.</div>
+    <button class="btn btn-navy btn-g" type="submit">Acompanhar ao vivo</button>
+    <div class="sm" style="text-align:center">Ainda não fez o teste? <a href="#/whats" data-act="teste-sem-codigo">Comece por aqui</a>.</div>
   </form><div class="entrar-pe">Milla · por studio Ti Artes</div></div>`;
 }
 document.addEventListener('submit', e => {
@@ -73,17 +76,23 @@ document.addEventListener('submit', e => {
 
 /* ---------- a faixa do teste, no topo de cada tela ---------- */
 function testeFaixaHtml() {
+  if (TESTE_CFG && !TS.guarda) return `<section class="teste-faixa comecar" aria-label="Teste ao vivo">
+    <span class="teste-vivo"><i aria-hidden="true"></i>Teste ao vivo</span>
+    <p><b>Teste a Milla com o seu WhatsApp.</b> Fale com ela como um cliente procurando imóvel e veja a sua conversa e o lead aparecendo aqui no CRM, na hora.</p>
+    <span class="teste-acoes"><button type="button" class="btn btn-line btn-p" data-act="teste-codigo">Já tenho um código</button><button type="button" class="btn btn-wa btn-p" data-act="teste-comecar">${svg(ICO.whats)}Testar com o meu WhatsApp</button></span>
+  </section>`;
   if (!testeAtivo()) return '';
   const esperando = !TS.msgs;
   const pc = testeComputador();
-  const lado = document.body.classList.contains('com-whats');
   const botao = pc
-    ? `<button type="button" class="btn btn-p teste-wa" data-act="teste-lado">${svg(ICO.whats)}${lado ? 'Trazer o WhatsApp de volta' : 'Abrir o WhatsApp ao lado'}</button>`
-    : `<a class="btn btn-p teste-wa" href="${esc(testeWaLink())}" target="_blank" rel="noopener">${svg(ICO.whats)}Abrir o WhatsApp</a>`;
-  const qr = esperando && pc ? `<span class="teste-qr" aria-hidden="true">${testeQr()}</span>` : '';
+    ? `<button type="button" class="btn btn-wa btn-p teste-wa" data-act="teste-app">${svg(ICO.whats)}${esperando ? 'Abrir o WhatsApp' : 'Voltar ao WhatsApp'}</button>`
+    : `<a class="btn btn-wa btn-p teste-wa" href="${esc(testeWaLink())}" target="_blank" rel="noopener">${svg(ICO.whats)}Abrir o WhatsApp</a>`;
+  /* o QR (abre a conversa no celular): enquanto espera o oi, ou quando o WhatsApp do computador não abriu */
+  const comQr = pc && (esperando || TS.semApp);
+  const qr = comQr ? `<span class="teste-qr" aria-hidden="true">${testeQr()}</span>` : '';
   const texto = esperando
-    ? `<b>Mande um oi para a Milla</b> com o código <b class="num teste-cod">${esc(testeCodigoBonito())}</b>. A sua conversa aparece aqui, no topo do WhatsApp, como “Você”.${pc ? ' Prefere o celular? Aponte a câmera para o QR.' : ''}`
-    : `<b>A sua conversa está no CRM</b> · ${TS.msgs} ${TS.msgs === 1 ? 'mensagem' : 'mensagens'} até agora. Continue no WhatsApp e veja tudo chegando aqui.`;
+    ? `<b>Mande um oi para a Milla</b> com o código <b class="num teste-cod">${esc(testeCodigoBonito())}</b>. A sua conversa aparece aqui, no topo do WhatsApp, como “Você”.${pc ? (TS.semApp ? ' Não achei o WhatsApp neste computador: aponte a câmera do celular para o QR.' : ' Prefere o celular? Aponte a câmera para o QR.') : ''}`
+    : `<b>A sua conversa está no CRM</b> · ${TS.msgs} ${TS.msgs === 1 ? 'mensagem' : 'mensagens'} até agora. Continue no WhatsApp e veja tudo chegando aqui.${TS.semApp ? ' Pelo celular: aponte a câmera para o QR.' : ''}`;
   return `<section class="teste-faixa ${esperando ? 'espera' : ''}" aria-label="Teste ao vivo">
     ${qr}<span class="teste-vivo"><i aria-hidden="true"></i>Teste ao vivo</span>
     <p>${texto}</p>
@@ -103,7 +112,7 @@ function testeQr() {
 }
 /* depois de cada render: a faixa no topo da tela e, no celular, a barra de voltar ao WhatsApp */
 function testeDepoisDoRender() {
-  if (!testeAtivo()) return;
+  if (!TESTE_CFG) return;
   const meio = $('meio'); if (!meio) return;
   const velha = meio.querySelector('.teste-faixa'); if (velha) velha.remove();
   /* no celular, logo abaixo da barra do topo; no computador, no começo da tela */
@@ -113,32 +122,40 @@ function testeDepoisDoRender() {
 }
 function testeBarraCel() {
   let b = $('teste-volta');
-  if (testeComputador() || !testeAtivo()) { if (b) b.remove(); return; }
+  if (testeComputador() || !TESTE_CFG || document.body.classList.contains('entrar')) { if (b) b.remove(); return; }
+  /* ainda sem teste: a barra começa o teste */
+  if (!TS.guarda) {
+    if (b && b.tagName !== 'BUTTON') { b.remove(); b = null; }
+    if (!b) { b = document.createElement('button'); b.type = 'button'; b.id = 'teste-volta'; b.className = 'teste-volta'; b.dataset.act = 'teste-comecar'; document.body.appendChild(b); }
+    b.innerHTML = `${svg(ICO.whats)}<span>Testar com o meu WhatsApp</span>`;
+    return;
+  }
+  if (b && b.tagName !== 'A') { b.remove(); b = null; }
   if (!b) { b = document.createElement('a'); b.id = 'teste-volta'; b.className = 'teste-volta'; b.target = '_blank'; b.rel = 'noopener'; document.body.appendChild(b); }
   b.href = testeWaLink();
   const novas = Math.max(0, TS.msgs - TS.vistas);
   b.innerHTML = `${svg(ICO.whats)}<span>${TS.msgs ? 'Voltar ao WhatsApp' : 'Mandar um oi para a Milla'}</span>${novas ? `<b class="num">${novas} ${novas === 1 ? 'nova' : 'novas'}</b>` : ''}`;
 }
 
-/* ---------- o WhatsApp Web numa janela ao lado (computador) ---------- */
-function testeAbreLado() {
-  /* a tela inteira (não só a janela do navegador); nunca fora dela */
-  const sw = Math.max(screen.availWidth || 0, window.outerWidth || 0, window.innerWidth || 0), sh = Math.max(screen.availHeight || 0, 600);
-  const left = Math.max(0, (screen.availLeft || 0) + sw - TESTE_LADO), top = Math.max(0, screen.availTop || 0);
-  const url = 'https://web.whatsapp.com/send?phone=' + TESTE_CFG.numero + (TS.msgs ? '' : '&text=' + encodeURIComponent(testeTextoWa()));
-  const w = window.open(url, 'milla-whats', `popup=yes,width=${TESTE_LADO},height=${sh},left=${left},top=${top}`);
-  if (!w) { window.open(testeWaLink(), '_blank', 'noopener'); toast('O navegador bloqueou a janela ao lado: abri o WhatsApp numa aba.'); return; }
-  document.body.classList.add('com-whats');
-  try { w.focus(); } catch (e) {}
-  /* fechou a janela do WhatsApp: o CRM devolve o espaço */
-  clearInterval(TS.olhaJanela);
-  TS.olhaJanela = setInterval(() => { try { if (w.closed) { clearInterval(TS.olhaJanela); document.body.classList.remove('com-whats'); try { sessionStorage.removeItem('milla_teste_lado'); } catch (x) {} testeDepoisDoRender(); } } catch (x) {} }, 1500);
-  testeDepoisDoRender();
+/* ---------- o WhatsApp instalado no computador (16/11, noite) ----------
+   Abre whatsapp://send com o código já escrito. Quando a janela perde o foco, o app abriu. Se em 2,5 s nada
+   abriu (a pessoa não tem o WhatsApp no computador), a faixa mostra o QR para abrir a conversa no celular. */
+function testeAbreApp() {
+  let foi = false;
+  const abriu = () => { foi = true; window.removeEventListener('blur', abriu); };
+  window.addEventListener('blur', abriu);
+  location.href = 'whatsapp://send?phone=' + TESTE_CFG.numero + (TS.msgs ? '' : '&text=' + encodeURIComponent(testeTextoWa()));
+  setTimeout(() => {
+    window.removeEventListener('blur', abriu);
+    if (foi || document.visibilityState !== 'visible') return;
+    TS.semApp = true; testeDepoisDoRender();
+    toast('Não achei o WhatsApp neste computador. Aponte a câmera do celular para o QR.');
+  }, 2500);
 }
 document.addEventListener('click', e => {
-  const el = e.target.closest && e.target.closest('[data-act="teste-lado"]');
+  const el = e.target.closest && e.target.closest('[data-act="teste-app"]');
   if (!el) return;
-  testeAbreLado();
+  testeAbreApp();
 });
 
 /* ---------- a conversa de verdade dentro da demonstração ---------- */
@@ -205,12 +222,15 @@ function testeBusca() {
   }).catch(() => {});
 }
 
-function testeLiga() {
-  if (!testeAtivo()) return;
+function testeEntra() {
   /* entra como a Carla (dona), para a pessoa ver tudo, inclusive a Gestão */
   try { if (!localStorage.getItem('milla_demo_quem')) localStorage.setItem('milla_demo_quem', 'carla'); } catch (e) {}
   if (typeof demoPessoa === 'function' && !demoPessoa().id) demoPessoa.mem = 'carla';
   if (!location.hash || location.hash === '#' || location.hash === '#/') location.hash = '#/whats';
+}
+function testeLiga() {
+  testeEntra();
+  if (!testeAtivo()) return;
   TS.parar = Date.now() + 2 * 3600e3;
   clearInterval(TS.timer);
   TS.timer = setInterval(() => { if (document.visibilityState === 'visible') testeBusca(); }, 3000);
@@ -220,8 +240,92 @@ function testeLiga() {
 function testeInicio() {
   if (!TESTE_CFG) return;
   document.body.classList.add('modo-teste');
-  /* veio do site com o WhatsApp Web já aberto ao lado (sessionStorage da mesma aba) */
-  try { if (sessionStorage.getItem('milla_teste_lado') === '1' && testeComputador()) document.body.classList.add('com-whats'); } catch (e) {}
+  /* a janela do WhatsApp Web ao lado saiu (16/11, noite): apaga a marca que o site antigo deixava */
+  try { sessionStorage.removeItem('milla_teste_lado'); } catch (e) {}
   TS.guarda = testeLeGuarda();
+  testeGuardaDe();
   testeLiga();
 }
+
+/* ---------- começar o teste aqui mesmo (16/11/2026, noite) ----------
+   O botão "Painel Milla CRM" do site da Imobiliária Milla traz direto para cá. Quem chega sem teste vê o CRM com
+   os exemplos e começa por este cadastro, o MESMO do formulário Testar do site: o contato vai para o CRM de vendas
+   (millavendas.pedir_teste, com o vendedor do link ?de=) e a sala da demonstração dá o código (millademo.teste_novo). */
+function testeGuardaDe() {
+  let de = '';
+  try { const g = JSON.parse(localStorage.getItem('milla_de') || 'null'); if (g && g.ate > Date.now() && /^[a-z0-9-]{2,30}$/.test(g.de)) de = g.de; } catch (e) {}
+  const q = (new URLSearchParams(location.search).get('de') || '').toLowerCase();
+  if (!de && /^[a-z0-9-]{2,30}$/.test(q)) { de = q; try { localStorage.setItem('milla_de', JSON.stringify({ de: q, ate: Date.now() + 90 * 864e5 })); } catch (e) {} }
+  TS.de = de;
+  /* um pedido que não chegou ao CRM de vendas da última vez */
+  try {
+    const pend = JSON.parse(localStorage.getItem('milla_teste_pendente') || 'null');
+    if (pend && TESTE_CFG) testeRpc('pedir_teste', { p: pend }, 'millavendas').then(r => { if (r && r.ok !== false) localStorage.removeItem('milla_teste_pendente'); }).catch(() => {});
+  } catch (e) {}
+}
+function testeDialogo() {
+  let m = $('teste-modal');
+  if (m) { m.hidden = false; setTimeout(() => { const n = $('tc-nome'); if (n) n.focus(); }, 30); return; }
+  m = document.createElement('div'); m.id = 'teste-modal'; m.className = 'teste-modal';
+  m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-labelledby', 'tc-titulo');
+  m.innerHTML = `<form class="entrar-caixa teste-caixa" id="teste-comecar-form" novalidate>
+    <button type="button" class="teste-x" data-act="teste-fecha" aria-label="Fechar">&times;</button>
+    <span class="olho">Teste ao vivo</span><h2 id="tc-titulo">Fale com a Milla agora</h2>
+    <div class="sm">Deixe o seu contato e mande um oi para a Milla no WhatsApp. A conversa e o lead aparecem aqui no CRM, na hora.</div>
+    <label for="tc-nome" class="sm b">Seu nome</label><input class="inp" id="tc-nome" autocomplete="name" maxlength="80">
+    <label for="tc-imob" class="sm b">Imobiliária <span class="sm">(se tiver)</span></label><input class="inp" id="tc-imob" autocomplete="organization" maxlength="80">
+    <label for="tc-whats" class="sm b">WhatsApp</label><input class="inp" id="tc-whats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999" maxlength="20">
+    <label for="tc-email" class="sm b">E-mail</label><input class="inp" id="tc-email" type="email" inputmode="email" autocomplete="email" maxlength="120">
+    <input class="teste-armadilha" id="tc-site" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="teste-aceite"><input type="checkbox" id="tc-aceite">Aceito receber contato da Ti Artes sobre a Milla pelo WhatsApp e por e-mail.</label>
+    <p class="sm teste-msg" id="tc-msg" role="alert"></p>
+    <button class="btn btn-wa btn-g" type="submit" id="tc-enviar">${svg(ICO.whats)}Começar o teste</button>
+  </form>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m) testeFechaDialogo(); });
+  setTimeout(() => { const n = $('tc-nome'); if (n) n.focus(); }, 30);
+}
+function testeFechaDialogo() { const m = $('teste-modal'); if (m) m.hidden = true; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') testeFechaDialogo(); });
+document.addEventListener('click', e => {
+  const el = e.target.closest && e.target.closest('[data-act^="teste-"]');
+  if (!el) return;
+  const a = el.dataset.act;
+  if (a === 'teste-comecar') { e.preventDefault(); testeDialogo(); }
+  if (a === 'teste-fecha') testeFechaDialogo();
+  if (a === 'teste-codigo') { TS.pedeCodigo = true; render(); testeBarraCel(); }
+  if (a === 'teste-sem-codigo') { e.preventDefault(); TS.pedeCodigo = false; render(); setTimeout(testeDialogo, 50); }
+});
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'teste-comecar-form') return;
+  e.preventDefault();
+  const msg = $('tc-msg'), enviar = $('tc-enviar');
+  const campo = id => $(id);
+  const falha = (t, id) => { msg.textContent = t; if (id) campo(id).focus(); };
+  const dig = campo('tc-whats').value.replace(/\D/g, '');
+  const d = { nome: campo('tc-nome').value.trim(), imobiliaria: campo('tc-imob').value.trim(), whats: dig.length <= 11 ? '55' + dig : dig,
+    email: campo('tc-email').value.trim(), aceite: campo('tc-aceite').checked, armadilha: campo('tc-site').value, de: TS.de || '',
+    pagina: location.pathname + (TS.de ? '?de=' + TS.de : '') };
+  if (d.nome.length < 2) return falha('Escreva o seu nome.', 'tc-nome');
+  if (dig.length < 10) return falha('Confira o WhatsApp, com o DDD.', 'tc-whats');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email)) return falha('Confira o e-mail.', 'tc-email');
+  if (!d.aceite) return falha('Marque que aceita o contato para seguir.', 'tc-aceite');
+  msg.textContent = ''; enviar.disabled = true;
+  const ja = TS.vendaFeita === d.whats;
+  const venda = ja ? Promise.resolve(null) : testeRpc('pedir_teste', { p: d }, 'millavendas').catch(() => { try { localStorage.setItem('milla_teste_pendente', JSON.stringify(d)); } catch (x) {} return null; });
+  const codigo = testeRpc('teste_novo', { p_nome: d.nome, p_fone: d.whats }).catch(() => null);
+  Promise.all([venda, codigo]).then(([v, c]) => {
+    enviar.disabled = false;
+    if (v && v.ok === false && v.erro === 'whats') return falha('Confira o WhatsApp, com o DDD.', 'tc-whats');
+    if (v && v.ok === false && v.erro === 'email') return falha('Confira o e-mail.', 'tc-email');
+    TS.vendaFeita = d.whats;
+    if (!c || !c.ok || !/^\d{6}$/.test(c.codigo || '')) {
+      return falha(c && c.erro === 'limite' ? 'Este número já fez muitos testes hoje. Tente amanhã ou fale com a Ti Artes.' : 'Não consegui começar o teste agora. Tente de novo em instantes.');
+    }
+    TS.guarda = { codigo: c.codigo, fone: d.whats, nome: d.nome, em: Date.now() };
+    try { localStorage.setItem('milla_teste', JSON.stringify(TS.guarda)); } catch (x) {}
+    testeFechaDialogo();
+    testeLiga(); render();
+    toast('Pronto! Mande um oi para a Milla com o código ' + testeCodigoBonito() + '.');
+  });
+});
