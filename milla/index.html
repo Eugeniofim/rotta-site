@@ -278,6 +278,13 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .mensal span { font-family: var(--corpo); font-size: 16px; letter-spacing: 0; font-weight: 500 }
 .mensal-nota { margin-top: -8px; font-size: 15px; font-weight: 500 }
 .plano li b { font-weight: 600 }
+.cobre { list-style: none; padding: 0; margin: 18px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+.cobre li { background: var(--papel); border: 1px solid var(--linha); border-radius: 20px 20px 20px 5px; padding: 20px 22px 22px; display: grid; gap: 7px; align-content: start }
+.cobre li::before { content: ""; width: 10px; height: 10px; border-radius: 3px 3px 3px 1px; background: var(--janela); margin-bottom: 4px }
+.cobre b { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.15; letter-spacing: -.015em; color: var(--tinta) }
+.cobre span { color: var(--dim); font-size: 15.5px; line-height: 1.45 }
+.cobre-fora { margin-top: 14px }
+@media (max-width: 900px) { .cobre { grid-template-columns: minmax(0, 1fr) } }
 .preco-tab { width: 100%; margin-top: 18px; border-collapse: separate; border-spacing: 0; background: var(--papel); border: 1px solid var(--linha); border-radius: 20px 20px 20px 5px; overflow: hidden; font-size: 16.5px; font-variant-numeric: tabular-nums }
 .preco-tab th, .preco-tab td { padding: 14px 20px; border-bottom: 1px solid var(--linha); text-align: right; vertical-align: top; line-height: 1.3 }
 .preco-tab th:first-child { text-align: left; font-weight: 500 }
@@ -411,8 +418,8 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <span class="hero-num"><b>(41) 96349-3440</b><span class="online">online agora · mande um oi</span></span>
         </div>
         <div class="hero-planos" data-entra>
-          <a class="bilhete" href="#planos"><b>Atendimento Pro</b><span class="num">R$ 460</span><small>por mês; no ano à vista, implantação pela metade</small></a>
-          <p class="promo-linha">Nos 20 primeiros contratos: <b>pagando o ano à vista, a implantação cai pela metade</b>. R$&nbsp;460 por mês, o mesmo valor em todas as renovações.</p>
+          <a class="bilhete" href="#planos"><b>Atendimento Pro</b><span class="num">R$ 399</span><small>por mês; no ano à vista, implantação pela metade</small></a>
+          <p class="promo-linha">Nos 20 primeiros contratos: <b>pagando o ano à vista, a implantação cai pela metade</b>. R$&nbsp;399 por mês, o mesmo valor em todas as renovações.</p>
         </div>
         <p class="miuda" data-entra>Demonstração ao vivo no WhatsApp, com imóveis reais de uma imobiliária do litoral do Paraná. Instagram com aprovação da Meta em análise.</p>
       </div>
@@ -527,9 +534,9 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <div class="promo">
         <div class="promo-esq">
           <span class="promo-rot">Promoção dos 20 primeiros contratos, o mesmo valor em todas as renovações</span>
-          <h2 class="promo-t num">R$ 460 <span>por mês</span></h2>
+          <h2 class="promo-t num">R$ 399 <span>por mês</span></h2>
         </div>
-        <p class="promo-dir"><b>Pagando o ano à vista, a implantação cai para R$&nbsp;1.850.</b> A principal plataforma do mercado tem mensalidade média de <b class="num">R$&nbsp;2.500</b>.* Aqui são <b class="num">R$&nbsp;2.040</b> a menos, todo mês.</p>
+        <p class="promo-dir"><b>Pagando o ano à vista, a implantação cai para R$&nbsp;1.000.</b> A principal plataforma do mercado tem mensalidade média de <b class="num">R$&nbsp;2.500</b>.* Aqui são <b class="num">R$&nbsp;2.101</b> a menos, todo mês.</p>
       </div>
 
       <div class="bloco" style="margin-top:64px"><h2 class="d2">Um plano só, feito para atender.</h2><p class="lead">Os mesmos recursos de atendimento das melhores plataformas do país, com preço aberto.</p><p class="rot">WhatsApp e Instagram oficiais · Empresa verificada pela Meta · Tech Provider</p></div>
@@ -538,9 +545,9 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
           <div class="uni-esq">
             <h3>Atendimento Pro</h3>
             <div class="valores">
-              <p class="preco num">R$ 3.700<small>de implantação, uma vez</small></p>
-              <p class="mensal num">+ R$ 460 <span>por mês</span></p>
-              <p class="mensal-nota"><b>ou o ano à vista, R$ 5.520, com a implantação pela metade: R$ 1.850</b><br>promoção dos 20 primeiros, o mesmo valor nas renovações<br>inclui 2.000 mensagens por mês; depois, R$ 0,20 cada</p>
+              <p class="preco num">R$ 2.000<small>de implantação, uma vez</small></p>
+              <p class="mensal num">+ R$ 399 <span>por mês</span></p>
+              <p class="mensal-nota"><b>ou o ano à vista, R$ 4.788, com a implantação pela metade: R$ 1.000</b><br>promoção dos 20 primeiros, o mesmo valor nas renovações<br>inclui 2.000 mensagens por mês; depois, R$ 0,20 cada</p>
             </div>
             <a class="btn" href="https://wa.me/5541991566444?text=Ol%C3%A1%21%20Quero%20contratar%20a%20Milla%20no%20plano%20Pro." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Quero a Milla</a>
           </div>
@@ -551,28 +558,38 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
             <li>Monta a ficha de cada cliente</li>
             <li>Pedido de visita que o corretor só confirma</li>
             <li>Corretor assume no mesmo número</li>
-            <li>CRM com conversas, clientes, imóveis e equipe</li>
+            <li>App Milla CRM: conversas, leads, imóveis, equipe e Gestão</li>
             <li>Imóvel novo entra sozinho</li>
             <li>Seu número junto com a equipe, quando a Meta liberar</li>
           </ul>
         </article>
       </div>
+      <h3 class="d3" style="margin:48px 0 0">O que os R$ 399 por mês cobrem</h3>
+      <ul class="cobre">
+        <li><b>A Milla atendendo 24 horas</b><span>No seu número do WhatsApp oficial e no Instagram**, mostrando os imóveis e anotando cada pedido.</span></li>
+        <li><b>Créditos de inteligência artificial</b><span>Todas as respostas da Milla, até 2.000 mensagens por mês. Você não abre conta em nenhum serviço de IA.</span></li>
+        <li><b>App Milla CRM</b><span>Conversas, leads, imóveis, equipe com rodízio e a Gestão, com relatórios e a nota de cada corretor. Um login para cada pessoa da equipe.</span></li>
+        <li><b>Seus dados guardados</b><span>Banco de dados só da sua imobiliária, com cópia de segurança todo dia.</span></li>
+        <li><b>Atualizações</b><span>O que a Milla e o app ganharem de novo entra para você sem custo a mais.</span></li>
+        <li><b>Suporte e ajustes</b><span>Pelo WhatsApp da Ti Artes: regras novas, textos, imóveis e equipe.</span></li>
+      </ul>
+      <p class="nota cobre-fora">Fora da mensalidade: cada mensagem além das 2.000 (R$ 0,20) e o número novo, se precisar (R$ 29,90 por mês). A implantação de R$ 2.000 é paga uma vez: liga o seu número, cadastra os seus imóveis, ensina a Milla com o jeito da sua imobiliária e entrega o app pronto para a equipe, em até 10 dias.</p>
       <h3 class="d3" style="margin:48px 0 0">Tudo o que você paga</h3>
       <table class="preco-tab">
         <tbody>
-          <tr><th scope="row">Implantação, uma vez</th><td>R$ 3.700</td></tr>
-          <tr class="forte"><th scope="row">Implantação pagando o ano à vista, nos 20 primeiros contratos</th><td>R$ 1.850</td></tr>
+          <tr><th scope="row">Implantação, uma vez</th><td>R$ 2.000</td></tr>
+          <tr class="forte"><th scope="row">Implantação pagando o ano à vista, nos 20 primeiros contratos</th><td>R$ 1.000</td></tr>
           <tr><th scope="row">Prazo de implantação</th><td>até 10 dias</td></tr>
-          <tr class="forte"><th scope="row">Mensalidade nos 20 primeiros contratos, a mesma em todas as renovações</th><td>R$ 460</td></tr>
+          <tr class="forte"><th scope="row">Mensalidade nos 20 primeiros contratos, a mesma em todas as renovações</th><td>R$ 399</td></tr>
           <tr><th scope="row">Prazo do contrato</th><td>6 meses pagando por mês, ou 1 ano à vista; renovado sozinho</td></tr>
           <tr><th scope="row">Mensagens incluídas por mês</th><td>2.000</td></tr>
           <tr><th scope="row">Cada mensagem a mais</th><td>R$ 0,20</td></tr>
-          <tr class="forte"><th scope="row">Total no primeiro ano, pagando à vista</th><td>R$ 7.370</td></tr>
-          <tr><th scope="row">Total no primeiro ano, pagando por mês</th><td>R$ 9.220</td></tr>
+          <tr class="forte"><th scope="row">Total no primeiro ano, pagando à vista</th><td>R$ 5.788</td></tr>
+          <tr><th scope="row">Total no primeiro ano, pagando por mês</th><td>R$ 6.788</td></tr>
           <tr><th scope="row">Número novo, se precisar</th><td>R$ 29,90 por mês</td></tr>
         </tbody>
       </table>
-      <p class="nota" style="margin-top:16px">A inteligência artificial e os ajustes da Milla já estão na mensalidade. Conta como mensagem cada texto, foto ou aviso ao corretor enviado pela Milla. O total do primeiro ano considera até 2.000 mensagens por mês. Com o seu número fixo, não há custo de linha. Na renovação do contrato, a franquia e o preço da mensagem a mais podem ser revistos conforme os custos da Meta e da inteligência artificial, sempre com 30 dias de aviso; a mensalidade de R$ 460 continua a mesma.</p>
+      <p class="nota" style="margin-top:16px">A inteligência artificial e os ajustes da Milla já estão na mensalidade. Conta como mensagem cada texto, foto ou aviso ao corretor enviado pela Milla. O total do primeiro ano considera até 2.000 mensagens por mês. Com o seu número fixo, não há custo de linha. Na renovação do contrato, a franquia e o preço da mensagem a mais podem ser revistos conforme os custos da Meta e da inteligência artificial, sempre com 30 dias de aviso; a mensalidade de R$ 399 continua a mesma.</p>
       <p class="nota" style="margin-top:8px">* Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes. ** O Instagram entra assim que a Meta concluir a aprovação, que está em análise.</p>
     </div>
   </section>
@@ -591,14 +608,14 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       </div>
       <figure class="vid vid-h" data-fmt="h">
         <div class="vid-caixa">
-          <video playsinline preload="none" width="1280" height="720" poster="video/milla-h.jpg?v=1" aria-label="Vídeo horizontal: conheça a Milla"><source src="video/milla-h.mp4?v=1" type="video/mp4"></video>
+          <video playsinline preload="none" width="1280" height="720" poster="video/milla-h.jpg?v=2" aria-label="Vídeo horizontal: conheça a Milla"><source src="video/milla-h.mp4?v=2" type="video/mp4"></video>
           <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla na horizontal"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
         </div>
         <figcaption><b>Conheça a Milla</b><span class="num">horizontal · 1:41</span></figcaption>
       </figure>
       <figure class="vid vid-v" data-fmt="v" hidden>
         <div class="vid-caixa">
-          <video playsinline preload="none" width="720" height="1280" poster="video/milla.jpg?v=6" aria-label="Vídeo vertical: conheça a Milla"><source src="video/milla.mp4?v=6" type="video/mp4"></video>
+          <video playsinline preload="none" width="720" height="1280" poster="video/milla.jpg?v=7" aria-label="Vídeo vertical: conheça a Milla"><source src="video/milla.mp4?v=7" type="video/mp4"></video>
           <button class="btn vid-play" type="button" aria-label="Assistir ao vídeo da Milla na vertical"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Assistir</button>
         </div>
         <figcaption><b>Conheça a Milla</b><span class="num">vertical · 1:41</span></figcaption>
@@ -615,7 +632,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       </div>
       <h3 class="d3" style="margin-bottom:22px">Quanto custa em 12 meses</h3>
       <div class="barras" id="barras">
-        <div class="linha-b"><header><div><b>Milla</b> <span>O ano à vista, com a implantação pela metade</span></div><strong class="num">R$ 7.370</strong></header><div class="trilho"><i class="m" style="width:24.57%"></i></div></div>
+        <div class="linha-b"><header><div><b>Milla</b> <span>O ano à vista, com a implantação pela metade</span></div><strong class="num">R$ 5.788</strong></header><div class="trilho"><i class="m" style="width:19.29%"></i></div></div>
         <div class="linha-b"><header><div><b>Principal plataforma do mercado</b> <span>R$ 2.500 por mês, em média*</span></div><strong class="num">R$ 30.000</strong></header><div class="trilho"><i style="width:100%"></i></div></div>
       </div>
     </div>
@@ -623,14 +640,14 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 
   <section class="faixa">
     <div class="w faixa-in">
-      <div class="gigante num" id="gigante">R$ 22.630</div>
-      <p>a menos no primeiro ano pagando à vista na promoção, comparado à mensalidade média da principal plataforma do mercado.* Em dois anos, R$ 47.110.</p>
+      <div class="gigante num" id="gigante">R$ 24.212</div>
+      <p>a menos no primeiro ano pagando à vista na promoção, comparado à mensalidade média da principal plataforma do mercado.* Em dois anos, R$ 49.424.</p>
     </div>
   </section>
 
   <section class="claro" style="padding-top:56px">
     <div class="w">
-      <p class="nota">Valores da Milla com a mensalidade de R$ 460 da promoção dos 20 primeiros contratos, a mesma em todas as renovações, dentro das 2.000 mensagens por mês. * Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes.</p>
+      <p class="nota">Valores da Milla com a mensalidade de R$ 399 da promoção dos 20 primeiros contratos, a mesma em todas as renovações, dentro das 2.000 mensagens por mês. * Mensalidade média por cliente divulgada pela imprensa especializada em setembro de 2025. A empresa não publica tabela de preços, e a média inclui grandes redes.</p>
 
       <div class="bloco" id="funcoes" style="margin-top:96px;margin-bottom:0">
         <h2 class="d2">Tudo o que a Milla faz.</h2>
@@ -686,7 +703,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   <section class="claro" style="padding-top:24px">
     <div class="w">
       <div class="bloco" style="margin-bottom:12px"><h2 class="d2">Perguntas.</h2></div>
-      <details><summary>Como funciona a promoção?</summary><p>É o nosso lançamento. Os 20 primeiros contratos da Milla pagam R$ 460 por mês, e esse valor continua o mesmo a cada renovação. Há dois jeitos: implantação de R$ 3.700, paga uma vez, mais R$ 460 por mês, em contrato de 6 meses; ou o ano inteiro pago à vista, R$ 5.520, com a implantação pela metade, R$ 1.850. Os dois se renovam sozinhos.</p></details>
+      <details><summary>Como funciona a promoção?</summary><p>É o nosso lançamento. Os 20 primeiros contratos da Milla pagam R$ 399 por mês, e esse valor continua o mesmo a cada renovação. Há dois jeitos: implantação de R$ 2.000, paga uma vez, mais R$ 399 por mês, em contrato de 6 meses; ou o ano inteiro pago à vista, R$ 4.788, com a implantação pela metade, R$ 1.000. Os dois se renovam sozinhos.</p></details>
       <details><summary>Ela atende no Instagram também?</summary><p>Sim. A mesma Milla responde no WhatsApp e no direct do Instagram, e tudo cai no mesmo painel. O Instagram entra assim que a Meta concluir a aprovação, que está em análise.</p></details>
       <details><summary>Ela pede CPF ou dados de pagamento?</summary><p>Não. Documentos, dados pessoais e pagamento ficam com o corretor. A Milla faz o atendimento e passa o cliente para a sua equipe.</p></details>
       <details><summary>A Milla substitui o corretor?</summary><p>Não. Ela faz o primeiro atendimento e organiza o pedido. Quem fecha é o corretor, e ele assume a conversa quando quiser.</p></details>
@@ -724,7 +741,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <p><a href="entrar/">Já é cliente? Entrar no app da Milla</a></p>
     </div>
     <div>
-      <p>Preços em reais. A mensalidade de R$ 460 vale para os 20 primeiros contratos e continua a mesma a cada renovação, com 2.000 mensagens por mês e R$ 0,20 por mensagem a mais. Contrato de 6 meses pagando por mês, ou de 1 ano pagando à vista, renovado sozinho; na renovação, a franquia e o preço da mensagem a mais podem ser revistos, com 30 dias de aviso. A implantação é R$ 3.700, paga uma vez; nos 20 primeiros contratos, quem paga o ano à vista (R$ 5.520) paga metade da implantação, R$ 1.850.</p>
+      <p>Preços em reais. A mensalidade de R$ 399 vale para os 20 primeiros contratos e continua a mesma a cada renovação, com 2.000 mensagens por mês e R$ 0,20 por mensagem a mais. Contrato de 6 meses pagando por mês, ou de 1 ano pagando à vista, renovado sozinho; na renovação, a franquia e o preço da mensagem a mais podem ser revistos, com 30 dias de aviso. A implantação é R$ 2.000, paga uma vez; nos 20 primeiros contratos, quem paga o ano à vista (R$ 4.788) paga metade da implantação, R$ 1.000.</p>
     </div>
   </div>
 </footer>
@@ -758,7 +775,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   </form>
 </dialog>
 <aside class="oferta-fixa" id="ofertaFixa" aria-label="Planos da Milla">
-  <p><b class="num">R$ 460 por mês</b> nos 20 primeiros contratos<span class="num">Implantação pela metade no ano à vista</span></p>
+  <p><b class="num">R$ 399 por mês</b> nos 20 primeiros contratos<span class="num">Implantação pela metade no ano à vista</span></p>
   <a class="btn" href="#planos">Ver planos</a>
 </aside>
 
@@ -799,7 +816,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     });
   });
   /* resumo falado no menu: cada botão fala uma frase (voz do vídeo); o botão de som liga e desliga e a escolha fica guardada */
-  var VOZ = { planos: "voz/planos.mp3", painel: "voz/painel.mp3", videos: "voz/videos.mp3", funcoes: "voz/funcoes.mp3" };
+  var VOZ = { planos: "voz/planos.mp3?v=1794850814", painel: "voz/painel.mp3?v=1794281505", videos: "voz/videos.mp3?v=1794281505", funcoes: "voz/funcoes.mp3?v=1794281505" };
   var somBtn = document.getElementById("somMenu"), somLigado = true, tocando = null, vozes = {};
   try { somLigado = localStorage.getItem("milla-som") !== "0"; } catch (e) {}
   function pintaSom() {
@@ -1287,7 +1304,7 @@ if (window.gsap && window.ScrollTrigger && !CALMO && !SO3D) {
   // barras e o número grande
   gsap.utils.toArray('#barras .trilho i').forEach((b, i) => gsap.from(b, { scaleX: 0, ease: 'none', scrollTrigger: { trigger: b, start: 'top 92%', end: 'top 55%', scrub: true } }));
   const gig = document.getElementById('gigante'), cont = { v: 0 };
-  gsap.to(cont, { v: 22630, ease: 'none', scrollTrigger: { trigger: '.faixa', start: 'top 85%', end: 'top 25%', scrub: true }, onUpdate: () => { gig.textContent = 'R$ ' + Math.round(cont.v).toLocaleString('pt-BR'); } });
+  gsap.to(cont, { v: 24212, ease: 'none', scrollTrigger: { trigger: '.faixa', start: 'top 85%', end: 'top 25%', scrub: true }, onUpdate: () => { gig.textContent = 'R$ ' + Math.round(cont.v).toLocaleString('pt-BR'); } });
 
   // só desenha quando a cena aparece; no fim, os blocos voltam a formar a marca
   if (cena) {
