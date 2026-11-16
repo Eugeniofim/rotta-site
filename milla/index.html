@@ -378,6 +378,9 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
 .testar-x:hover { color: var(--marfim); background: rgba(246,243,236,.06) }
 .testar-nota { color: var(--dim-noite); font-size: 13.5px; text-align: center }
 .testar-nota b { color: var(--marfim) }
+.testar-codigo { margin: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px 12px 12px 3px; background: rgba(255,181,46,.1); border: 1px solid rgba(255,181,46,.35); font-size: 14px; color: var(--dim-noite) }
+.testar-codigo b { font-family: var(--mono); font-weight: 500; font-size: 22px; letter-spacing: .12em; color: var(--janela) }
+.testar-vivo { text-align: center; color: var(--janela); font-weight: 600; font-size: 15.5px; text-underline-offset: 4px }
 @media (max-width: 520px) { .testar-caixa { padding: 26px 18px 20px } .testar h2 { font-size: 26px } .testar-dupla { grid-template-columns: 1fr } }
 </style>
 </head>
@@ -768,8 +771,10 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
       <span class="rot">Pronto</span>
       <h2 tabindex="-1" id="testarTit2">Agora mande um oi para a Milla</h2>
       <p class="testar-sub">A conversa abre no WhatsApp. Pergunte por um imóvel, peça fotos, marque uma visita: ela responde em segundos.</p>
+      <p class="testar-codigo" id="testarCodigo" hidden>Seu código de teste <b></b></p>
       <a class="btn" id="testarWa" href="https://wa.me/5541963493440?text=Oi%20Milla" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.5-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zM12 0a12 12 0 0 0-10.3 18L0 24l6.2-1.6A12 12 0 1 0 12 0z"/></svg>Abrir o WhatsApp</a>
-      <p class="testar-nota">Depois, a gente fala com você para mostrar o painel e tirar as dúvidas.</p>
+      <a class="testar-vivo" id="testarVivo" href="testar/" hidden>Acompanhar o CRM ao vivo</a>
+      <p class="testar-nota" id="testarNota">Depois, a gente fala com você para mostrar o painel e tirar as dúvidas.</p>
     </div>
   </form>
 </dialog>
@@ -916,15 +921,37 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   dlg.addEventListener("click", function (e) { if (e.target === dlg) fecha(); });
   f.querySelectorAll("[data-fecha]").forEach(function (b) { b.addEventListener("click", fecha); });
   document.querySelectorAll("[data-testar]").forEach(function (a) { a.addEventListener("click", abre); });
-  document.getElementById("testarWa").addEventListener("click", function () { setTimeout(fecha, 400); });
+  document.getElementById("testarWa").addEventListener("click", function () { setTimeout(function () { if (vivo) location.href = "testar/"; else fecha(); }, 500); });
+  /* ?testar=1 (vem da página do CRM ao vivo): já abre o formulário */
+  if (/[?&]testar=1/.test(location.search)) setTimeout(function () { abre({ preventDefault: function () {} }); }, 600);
 
   function falha(msg, campo) {
     erro.textContent = msg;
     f.querySelectorAll("[aria-invalid]").forEach(function (c) { c.removeAttribute("aria-invalid"); });
     if (campo) { campo.setAttribute("aria-invalid", "true"); campo.focus(); }
   }
+  /* TESTE AO VIVO (16/11/2026): a sala da demonstração dá um código; o WhatsApp abre com ele e esta aba
+     vira o CRM ao vivo (milla/testar/), que mostra só a conversa deste número. Sem código, segue o teste de antes. */
+  var vivo = null;
+  function codigoAoVivo(nome, fone) {
+    return fetch("https://uopfqlogjzuqpabptxkb.supabase.co/rest/v1/rpc/teste_novo", { method: "POST", headers: { apikey: CHAVE, Authorization: "Bearer " + CHAVE, "Content-Type": "application/json", "Content-Profile": "millademo" }, body: JSON.stringify({ p_nome: nome, p_fone: fone }) })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (r) {
+        if (!r || !r.ok || !/^\d{6}$/.test(r.codigo || "")) return null;
+        vivo = { codigo: r.codigo, fone: fone, nome: nome, em: Date.now() };
+        try { localStorage.setItem("milla_teste", JSON.stringify(vivo)); } catch (e) {}
+        return vivo;
+      }).catch(function () { return null; });
+  }
   function pronto() {
     p1.hidden = true; p2.hidden = false;
+    var wa = document.getElementById("testarWa"), cod = document.getElementById("testarCodigo");
+    if (vivo) {
+      wa.href = "https://wa.me/5541963493440?text=" + encodeURIComponent("Oi Milla! Meu código de teste é " + vivo.codigo + ".");
+      cod.querySelector("b").textContent = vivo.codigo.replace(/(\d{3})(\d{3})/, "$1 $2"); cod.hidden = false;
+      document.getElementById("testarVivo").hidden = false;
+      document.getElementById("testarNota").textContent = "Ao abrir o WhatsApp, esta página vira o CRM ao vivo: volte aqui e veja a sua conversa chegando.";
+    }
     document.getElementById("testarTit2").focus();
   }
   /* o aviso some quando a pessoa corrige */
@@ -941,7 +968,8 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     if (!d.aceite) return falha("Marque que aceita o contato para seguir.", f.aceite);
     falha("");
     enviar.disabled = true;
-    manda(d).then(function (r) {
+    var pedeCodigo = codigoAoVivo(d.nome, d.whats);
+    manda(d).then(function (r) { return pedeCodigo.then(function () { return r; }); }).then(function (r) {
       enviar.disabled = false;
       if (r && r.ok === false && r.erro === "whats") return falha("Confira o WhatsApp, com o DDD.", f.whats);
       if (r && r.ok === false && r.erro === "email") return falha("Confira o e-mail.", f.email);
@@ -949,7 +977,7 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
     }).catch(function () {
       enviar.disabled = false;
       try { localStorage.setItem("milla_teste_pendente", JSON.stringify(d)); } catch (e) {}
-      pronto();
+      pedeCodigo.then(pronto);
     });
   });
 })();

@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teste ao vivo · Milla</title>
+<meta name="description" content="Converse com a Milla no WhatsApp e veja, ao vivo, o CRM da imobiliária se montando com a sua conversa.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#070C12">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap">
+<!--
+  TESTE AO VIVO (16/11/2026). Pedido do Eugênio: "a pessoa testa no celular e já vê mexendo lá dentro".
+  O formulário Testar do site faz o pré-cadastro (CRM de vendas) e pede um código à sala da demonstração
+  (millademo.teste_novo). Esta página pergunta a millademo.teste_ao_vivo(código, número) a cada 3 s e mostra
+  SÓ a conversa daquele número: nada de login, nada das conversas de outras pessoas.
+  O código e o número ficam no aparelho (localStorage), nunca no endereço.
+-->
+<style>
+:root {
+  --noite: #070C12; --noite-2: #0E1823; --noite-3: #16222F; --noite-4: #1D2C3C;
+  --janela: #FFB52E; --janela-2: #FFC75A; --janela-suave: rgba(255,181,46,.12); --janela-borda: rgba(255,181,46,.4);
+  --marfim: #F6F3EC; --dim: #A3AFBB; --fraco: #7D8996;
+  --linha: rgba(246,243,236,.12); --erro: #FF8A80; --ok: #46D98A; --wa: #25D366;
+  --quente: #FF8A7A; --frio: #8EC2FF;
+  --display: "Bricolage Grotesque", "Avenir Next", Arial, sans-serif;
+  --corpo: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html, body { margin: 0 }
+body {
+  min-height: 100vh; min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto;
+  background: radial-gradient(900px 700px at 15% 0%, var(--noite-3), var(--noite) 70%) fixed, var(--noite);
+  color: var(--marfim); font: 400 16px/1.5 var(--corpo);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+a { color: var(--janela) }
+.topo, .pe, main { max-width: 1180px; width: 100%; margin: 0 auto }
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap }
+.topo a.marca { display: inline-flex }
+.topo svg { height: 28px; width: auto; display: block }
+.topo .direita { display: flex; align-items: center; gap: 14px; font-size: 14.5px }
+.vivo { display: inline-flex; align-items: center; gap: 8px; font: 500 12.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--janela) }
+.vivo i { width: 8px; height: 8px; border-radius: 2px 2px 2px .5px; background: var(--janela); box-shadow: 0 0 12px var(--janela); animation: pisca 1.6s ease-in-out infinite }
+@keyframes pisca { 50% { opacity: .35 } }
+.topo .voltar { color: var(--dim); text-decoration: none }
+.topo .voltar:hover { color: var(--marfim) }
+main { padding: 22px 0 28px }
+h1 { font: 700 clamp(28px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.03em; margin: 0 0 6px }
+.sub { color: var(--dim); margin: 0 0 20px; max-width: 46em }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 50px; padding: 0 22px; border: 0; border-radius: 14px 14px 14px 4px; background: var(--janela); color: var(--noite); font: 700 16.5px var(--corpo); text-decoration: none; cursor: pointer }
+.btn:hover { background: var(--janela-2) }
+.btn.linha { background: transparent; color: var(--marfim); box-shadow: inset 0 0 0 1.5px var(--linha) }
+.btn.linha:hover { box-shadow: inset 0 0 0 1.5px var(--janela-borda) }
+.btn svg { width: 20px; height: 20px }
+.btn:focus-visible, a:focus-visible, input:focus-visible, button:focus-visible { outline: 3px solid var(--marfim); outline-offset: 3px }
+
+/* o painel: conversa à esquerda, o CRM à direita */
+.painel { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start }
+.bloco { background: rgba(14,24,35,.86); border: 1px solid var(--linha); border-radius: 22px 22px 22px 6px; overflow: hidden }
+.bloco-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 15px 18px; border-bottom: 1px solid var(--linha) }
+.bloco-cab h2 { font: 700 18px/1.2 var(--display); margin: 0 }
+.bloco-cab .sm { color: var(--fraco); font-size: 13px }
+.conversa { height: min(64vh, 620px); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: radial-gradient(rgba(246,243,236,.035) 1px, transparent 1.3px) 0 0 / 22px 22px }
+.b { max-width: 84%; padding: 9px 12px 7px; border-radius: 16px 16px 16px 4px; background: var(--noite-4); font-size: 15px; line-height: 1.42; white-space: pre-wrap; overflow-wrap: anywhere; animation: entra .35s cubic-bezier(.16,1,.3,1) both }
+.b small { display: block; margin-top: 3px; font: 500 11px var(--mono); color: var(--fraco); text-align: right }
+.b.voce { align-self: flex-end; background: var(--marfim); color: var(--noite); border-radius: 16px 16px 4px 16px }
+.b.voce small { color: #5B6773 }
+.b.milla { border: 1px solid var(--janela-borda) }
+.b.milla .quem, .b.equipe .quem { display: block; font: 600 12px var(--mono); color: var(--janela); margin-bottom: 2px }
+.b.equipe { border: 1px solid rgba(70,217,138,.4) }
+.b.equipe .quem { color: var(--ok) }
+@keyframes entra { from { opacity: 0; transform: translateY(8px) scale(.98) } }
+.digitando { align-self: flex-start; display: none; gap: 4px; padding: 12px 14px; border-radius: 16px 16px 16px 4px; background: var(--noite-4) }
+.digitando.on { display: inline-flex }
+.digitando i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); animation: pula 1.1s infinite }
+.digitando i:nth-child(2) { animation-delay: .15s } .digitando i:nth-child(3) { animation-delay: .3s }
+@keyframes pula { 30% { transform: translateY(-4px); opacity: .6 } }
+.espera { margin: auto; text-align: center; max-width: 340px; display: grid; gap: 12px; justify-items: center; color: var(--dim) }
+.espera b { color: var(--marfim); font: 700 20px/1.2 var(--display) }
+.codigo { font: 500 26px/1 var(--mono); letter-spacing: .12em; color: var(--janela) }
+.qr { width: 150px; height: 150px; padding: 10px; background: var(--marfim); border-radius: 14px; display: none }
+.qr svg, .qr img { width: 100%; height: 100% }
+@media (hover: hover) and (min-width: 900px) { .qr.pronto { display: block } }
+
+.crm { display: grid; gap: 18px }
+.ficha { padding: 16px 18px; display: grid; gap: 12px }
+.linha-f { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; font-size: 14.5px }
+.linha-f span:first-child { color: var(--fraco); font: 500 12px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .06em }
+.vazio-f { color: var(--fraco); font-size: 14.5px }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 8px 8px 8px 2px; font-size: 12.5px; font-weight: 700 }
+.chip.quente { color: var(--quente); background: rgba(255,138,122,.13) }
+.chip.morno { color: var(--janela); background: var(--janela-suave) }
+.chip.frio { color: var(--frio); background: rgba(142,194,255,.12) }
+.chip.status { color: var(--marfim); background: var(--noite-4) }
+.imovel { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border-radius: 14px 14px 14px 4px; background: var(--noite-2); border: 1px solid var(--linha); text-decoration: none; color: var(--marfim) }
+.imovel img { width: 84px; height: 64px; object-fit: cover; border-radius: 10px 10px 10px 3px; background: var(--noite-4) }
+.imovel b { display: block; font-size: 14.5px; line-height: 1.3 }
+.imovel span { color: var(--dim); font-size: 13px }
+.lead { border: 1px solid var(--janela-borda); border-radius: 16px 16px 16px 4px; padding: 14px; display: grid; gap: 10px; background: linear-gradient(160deg, rgba(255,181,46,.08), transparent 60%); animation: entra .5s cubic-bezier(.16,1,.3,1) both }
+.lead-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap }
+.lead-top b { font: 700 16px var(--display) }
+.lead p { margin: 0; color: var(--dim); font-size: 14.5px }
+.tempo { list-style: none; margin: 0; padding: 12px 18px 16px; display: grid; gap: 0 }
+.tempo li { display: grid; grid-template-columns: 54px 18px minmax(0, 1fr); gap: 8px; align-items: start; font-size: 14.5px; padding: 6px 0; animation: entra .4s both }
+.tempo li time { font: 500 12px/1.9 var(--mono); color: var(--fraco) }
+.tempo li i { width: 10px; height: 10px; margin-top: 6px; border-radius: 3px 3px 3px 1px; background: var(--janela); box-shadow: 0 0 10px rgba(255,181,46,.5) }
+.tempo li.ok i { background: var(--ok); box-shadow: 0 0 10px rgba(70,217,138,.5) }
+.fim { margin-top: 22px; padding: 20px; border-radius: 22px 22px 22px 6px; background: var(--janela-suave); border: 1px solid var(--janela-borda); display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between }
+.fim p { margin: 0; max-width: 40em }
+.fim .acoes { display: flex; flex-wrap: wrap; gap: 10px }
+
+/* entrar com o código (quem fez o pré-cadastro em outro aparelho) */
+.cartao { max-width: 440px; margin: 30px auto 0; background: rgba(14,24,35,.86); border: 1px solid var(--linha); border-radius: 26px 26px 26px 6px; padding: 26px 24px }
+label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 6px }
+input { width: 100%; font: 500 16px var(--corpo); color: var(--marfim); background: rgba(7,12,18,.8); border: 1px solid var(--linha); border-radius: 12px 12px 12px 3px; padding: 13px 14px; min-height: 50px }
+.msg { min-height: 22px; margin-top: 12px; font-size: 14.5px; color: var(--dim) }
+.msg.erro { color: var(--erro) }
+.cartao .btn { width: 100%; margin-top: 18px }
+.pe { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; font-size: 13.5px; color: var(--fraco) }
+[hidden] { display: none !important }
+
+@media (max-width: 900px) {
+  .painel { grid-template-columns: minmax(0, 1fr) }
+  .crm { order: -1 }
+  .conversa { height: min(70vh, 560px) }
+  .linha-f { grid-template-columns: 96px minmax(0, 1fr) }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important }
+}
+</style>
+</head>
+<body>
+<header class="topo">
+  <a class="marca" href="../" aria-label="Milla, página inicial"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -126.9 2804.3 824.3"><g transform="translate(0 -112.2) scale(8.243)"><path d="M26 8H46.5V41.5H8V26A18 18 0 0 1 26 8Z" fill="#FFF4E0"/><path d="M53.5 8H74A18 18 0 0 1 92 26V41.5H53.5Z" fill="#FFB52E"/><path d="M53.5 48.5H92V64A18 18 0 0 1 74 82H53.5Z" fill="#FFF4E0"/><path d="M8 48.5H46.5V82H26L8 92Z" fill="#FFF4E0"/></g><g transform="translate(914.3 0)"><path d="M45.9996337890625 660.0V0.0H239.33599853515625L402.6676025390625 514.9971923828125H404.6676025390625L565.9991455078125 0.0H750.3352661132812V660.0H631.3333740234375V128.00213623046875H629.3333740234375L457.33477783203125 660.0H337.666748046875L167.00152587890625 127.6688232421875H165.00152587890625V660.0Z M823.3330078125 660.0V137.9996337890625H950.0018310546875V660.0Z M1018.3330078125 660.0V-30.0006103515625H1145.0018310546875V660.0Z M1213.3330078125 660.0V-30.0006103515625H1340.0018310546875V660.0Z M1542.9999389648438 673.6666870117188Q1502.6666259765625 673.6666870117188 1467.4999084472656 659.3333740234375Q1432.3331909179688 645.0000610351562 1410.4997863769531 613.6667175292969Q1388.6663818359375 582.3333740234375 1388.6663818359375 530.9999389648438Q1388.6663818359375 483.99981689453125 1406.6664428710938 454.3330993652344Q1424.66650390625 424.6663818359375 1455.8332214355469 406.3330383300781Q1486.9999389648438 387.99969482421875 1525.6665649414062 378.1663818359375Q1564.3331909179688 368.33306884765625 1604.9996337890625 361.33306884765625Q1659.3328247070312 351.6663818359375 1685.9994506835938 345.8330383300781Q1712.6660766601562 339.99969482421875 1721.6661071777344 331.4997253417969Q1730.6661376953125 322.999755859375 1730.6661376953125 307.66650390625Q1730.6661376953125 268.6671142578125 1703.6664733886719 248.00079345703125Q1676.6668090820312 227.33447265625 1635.0005493164062 227.33447265625Q1609.3341064453125 227.33447265625 1584.0009765625 237.00103759765625Q1558.6678466796875 246.6676025390625 1541.8346862792969 269.6674499511719Q1525.0015258789062 292.66729736328125 1524.0016479492188 333.00048828125L1409.66650390625 322.00054931640625Q1410.6663208007812 264.6668701171875 1431.1663513183594 226.33334350585938Q1451.6663818359375 187.99981689453125 1485.3332214355469 165.66641235351562Q1519.0000610351562 143.3330078125 1558.8336181640625 133.66632080078125Q1598.6671752929688 123.9996337890625 1638.3340454101562 123.9996337890625Q1707.3346557617188 123.9996337890625 1755.5014953613281 149.83319091796875Q1803.6683349609375 175.666748046875 1829.0016174316406 226.00039672851562Q1854.3348999023438 276.33404541015625 1854.3348999023438 350.66766357421875V446.66754150390625Q1854.668212890625 482.000732421875 1854.8348693847656 517.8339233398438Q1855.0015258789062 553.6671142578125 1855.1681823730469 589.1669616699219Q1855.3348388671875 624.6668090820312 1855.3348388671875 660.0H1742.66650390625Q1744.3330688476562 619.3336181640625 1745.6663208007812 579.1671447753906Q1746.9995727539062 539.0006713867188 1748.3328247070312 494.66754150390625H1741.3328857421875Q1735.6663208007812 544.3339233398438 1709.3330383300781 585.0003967285156Q1682.999755859375 625.6668701171875 1640.6664733886719 649.6667785644531Q1598.3331909179688 673.6666870117188 1542.9999389648438 673.6666870117188ZM1589.001220703125 576.9987182617188Q1613.0007934570312 576.9987182617188 1637.6671447753906 567.3322448730469Q1662.33349609375 557.665771484375 1683.1666259765625 537.6660766601562Q1703.999755859375 517.6663818359375 1716.9996337890625 486.6666564941406Q1729.99951171875 455.66693115234375 1730.6661376953125 413.6671142578125L1730.9994506835938 390.333740234375L1757.6661376953125 384.667236328125Q1747.9995727539062 399.00048828125 1726.3330993652344 407.1671447753906Q1704.6666259765625 415.33380126953125 1677.1669006347656 420.0004577636719Q1649.6671752929688 424.6671142578125 1621.6674499511719 429.6670837402344Q1593.667724609375 434.66705322265625 1569.66796875 443.8336181640625Q1545.668212890625 453.00018310546875 1530.8350219726562 468.83331298828125Q1516.0018310546875 484.66644287109375 1516.0018310546875 512.332763671875Q1516.0018310546875 542.6658325195312 1536.0017395019531 559.832275390625Q1556.0016479492188 576.9987182617188 1589.001220703125 576.9987182617188Z" fill="#FFF4E0"/><path transform="translate(800.5 -60.0) scale(1.72)" d="M26 8H74A18 18 0 0 1 92 26V64A18 18 0 0 1 74 82H26L8 92V26A18 18 0 0 1 26 8Z" fill="#FFB52E"/></g></svg></a>
+  <div class="direita"><span class="vivo"><i aria-hidden="true"></i>CRM ao vivo</span><a class="voltar" href="../">Conhecer a Milla</a></div>
+</header>
+
+<main>
+  <!-- sem teste neste aparelho: entrar com o número e o código -->
+  <section id="entrar" hidden>
+    <h1>Acompanhe o seu teste</h1>
+    <p class="sub">Fez o cadastro em outro aparelho? Digite o mesmo WhatsApp e o código de 6 números que apareceu para você.</p>
+    <form class="cartao" id="formCodigo" novalidate>
+      <label for="cWhats">WhatsApp</label>
+      <input id="cWhats" type="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 99999-9999" maxlength="20">
+      <label for="cCodigo">Código do teste</label>
+      <input id="cCodigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000">
+      <p class="msg" id="cMsg" role="alert"></p>
+      <button class="btn" type="submit">Acompanhar ao vivo</button>
+      <p class="msg">Ainda não fez o teste? <a href="../?testar=1">Comece por aqui</a>.</p>
+    </form>
+  </section>
+
+  <!-- o teste: a conversa e o CRM se montando -->
+  <section id="teste" hidden>
+    <h1 id="titulo">O seu teste, ao vivo</h1>
+    <p class="sub">A sua conversa com a Milla no WhatsApp e, junto, o que a equipe da imobiliária vê no CRM, no mesmo instante. Esta é a Imobiliária Milla, de demonstração: os imóveis são de exemplo.</p>
+    <div class="painel">
+      <section class="bloco" aria-labelledby="tConversa">
+        <div class="bloco-cab"><h2 id="tConversa">Conversa no WhatsApp</h2><span class="sm" id="atualizado">conectando…</span></div>
+        <div class="conversa" id="conversa" aria-live="polite">
+          <div class="espera" id="espera">
+            <b>Esperando a sua mensagem</b>
+            <span>Mande um oi para a Milla no WhatsApp com o seu código:</span>
+            <span class="codigo" id="codigoTxt">——————</span>
+            <div class="qr" id="qr" aria-hidden="true"></div>
+            <a class="btn" id="abrirWa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.5 12.4c-.2.7-1.4 1.3-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.6-.6-2.9-1.2-4.7-4.1-4.9-4.3-.1-.2-1.2-1.6-1.2-3s.7-2.2 1-2.5c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 1.9 1.1 1 2 1.3 2.3 1.4.3.1.4.1.6-.1l.8-1c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3.1.2.1.7-.1 1.4z"/></svg>Abrir o WhatsApp</a>
+          </div>
+          <div class="digitando" id="digitando" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
+      </section>
+      <div class="crm">
+        <section class="bloco" aria-labelledby="tFicha">
+          <div class="bloco-cab"><h2 id="tFicha">Ficha no CRM</h2><span class="sm">o que a Milla anotou</span></div>
+          <div class="ficha" id="ficha"><p class="vazio-f">A ficha aparece com a primeira mensagem.</p></div>
+        </section>
+        <section class="bloco" aria-labelledby="tTempo">
+          <div class="bloco-cab"><h2 id="tTempo">O que aconteceu</h2><span class="sm">em tempo real</span></div>
+          <ol class="tempo" id="tempo"><li><time>agora</time><i aria-hidden="true"></i><span>Teste aberto. A Milla está online, 24 horas.</span></li></ol>
+        </section>
+      </div>
+    </div>
+    <div class="fim">
+      <p><b>É isso que a sua equipe vê, para todos os clientes:</b> a conversa, a ficha, o lead e o aviso no WhatsApp do corretor da vez. Peça um imóvel, fotos ou uma visita e veja o lead nascer.</p>
+      <div class="acoes"><a class="btn" href="https://wa.me/5541991566444?text=Ol%C3%A1%21%20Quero%20contratar%20a%20Milla%20no%20plano%20Pro." target="_blank" rel="noopener">Quero a Milla</a><a class="btn linha" href="../app/">Ver o CRM completo</a></div>
+    </div>
+  </section>
+</main>
+
+<footer class="pe">
+  <span>Milla · uma criação do studio Ti Artes</span>
+  <span>A conversa de teste é apagada em até 7 dias.</span>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var API = "https://uopfqlogjzuqpabptxkb.supabase.co/rest/v1/rpc/", CHAVE = "sb_publishable_VKIdd2RNpMf3e4IEDprxJw_TOKPIHT2", NUMERO = "5541963493440";
+  var $ = function (id) { return document.getElementById(id); };
+  var guarda = null;
+  try { guarda = JSON.parse(localStorage.getItem("milla_teste") || "null"); } catch (e) {}
+  var IMOVEIS = null, vistos = 0, eventos = {}, ultimaOk = 0, parar = Date.now() + 2 * 3600e3, timer = null;
+  /* o teste vale um dia, como no banco */
+  if (guarda && (!guarda.codigo || !guarda.fone || Date.now() - (guarda.em || 0) > 864e5)) guarda = null;
+
+  function rpc(nome, corpo) {
+    return fetch(API + nome, { method: "POST", headers: { apikey: CHAVE, Authorization: "Bearer " + CHAVE, "Content-Type": "application/json", "Content-Profile": "millademo" }, body: JSON.stringify(corpo) })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function hora(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); }
+  function waLink(c) { return "https://wa.me/" + NUMERO + "?text=" + encodeURIComponent("Oi Milla! Meu código de teste é " + c + "."); }
+
+  /* ---------- sem teste neste aparelho: o formulário do código ---------- */
+  if (!guarda) {
+    $("entrar").hidden = false;
+    $("formCodigo").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var fone = $("cWhats").value.replace(/\D/g, ""), cod = $("cCodigo").value.replace(/\D/g, "");
+      var msg = $("cMsg"); msg.className = "msg erro";
+      if (fone.length < 10) { msg.textContent = "Confira o WhatsApp, com o DDD."; return $("cWhats").focus(); }
+      if (cod.length !== 6) { msg.textContent = "O código tem 6 números."; return $("cCodigo").focus(); }
+      msg.className = "msg"; msg.textContent = "Procurando o seu teste…";
+      rpc("teste_ao_vivo", { p_codigo: cod, p_fone: fone }).then(function (r) {
+        if (!r || !r.ok) { msg.className = "msg erro"; msg.textContent = "Não achei esse teste. Confira o número e o código (ele vale por 24 horas)."; return; }
+        guarda = { codigo: cod, fone: fone, nome: r.nome || "", em: Date.now() };
+        try { localStorage.setItem("milla_teste", JSON.stringify(guarda)); } catch (e2) {}
+        $("entrar").hidden = true; comeca();
+      }).catch(function () { msg.className = "msg erro"; msg.textContent = "Sem conexão agora. Tente de novo em instantes."; });
+    });
+    return;
+  }
+  comeca();
+
+  /* ---------- o teste ---------- */
+  function comeca() {
+    $("teste").hidden = false;
+    if (guarda.nome) $("titulo").textContent = guarda.nome.split(" ")[0] + ", o seu teste ao vivo";
+    $("codigoTxt").textContent = guarda.codigo.replace(/(\d{3})(\d{3})/, "$1 $2");
+    $("abrirWa").href = waLink(guarda.codigo);
+    qr(waLink(guarda.codigo));
+    fetch("../aovivo/dados/imoveis.json").then(function (r) { return r.json(); }).then(function (l) { IMOVEIS = l; }).catch(function () {});
+    busca();
+    timer = setInterval(function () { if (document.visibilityState === "visible") busca(); }, 3000);
+    setInterval(relogio, 1000);
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") busca(); });
+  }
+  function relogio() {
+    if (!ultimaOk) return;
+    var s = Math.round((Date.now() - ultimaOk) / 1000);
+    $("atualizado").textContent = s < 5 ? "atualizado agora" : "atualizado há " + s + " s";
+  }
+  function busca() {
+    if (Date.now() > parar) { clearInterval(timer); $("atualizado").textContent = "pausado: recarregue para continuar"; return; }
+    rpc("teste_ao_vivo", { p_codigo: guarda.codigo, p_fone: guarda.fone }).then(function (r) {
+      ultimaOk = Date.now(); relogio();
+      if (!r || !r.ok) { $("atualizado").textContent = "o teste expirou"; clearInterval(timer); return; }
+      pinta(r);
+    }).catch(function () { $("atualizado").textContent = "sem conexão, tentando de novo…"; });
+  }
+
+  /* a conversa: só acrescenta o que é novo (o que já está na tela não pisca) */
+  function pinta(r) {
+    var msgs = r.msgs || [], box = $("conversa");
+    if (msgs.length) $("espera").hidden = true;
+    var noFim = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    for (var i = vistos; i < msgs.length; i++) {
+      var m = msgs[i], d = m.dir === "cliente" ? "voce" : m.dir === "equipe" ? "equipe" : "milla";
+      var b = el("div", "b " + d);
+      if (d !== "voce") b.appendChild(el("span", "quem", d === "equipe" ? (m.por || "Corretor") + " · equipe" : "Milla"));
+      b.appendChild(document.createTextNode(m.texto || ""));
+      b.appendChild(el("small", "", hora(m.quando)));
+      box.insertBefore(b, $("digitando"));
+    }
+    vistos = msgs.length;
+    /* a Milla "digitando": a última fala foi sua e ela ainda não respondeu */
+    var ult = msgs[msgs.length - 1];
+    $("digitando").classList.toggle("on", !!ult && ult.dir === "cliente" && Date.now() - new Date(ult.quando) < 60000);
+    if (noFim || msgs.length <= 2) box.scrollTop = box.scrollHeight;
+    ficha(r); tempo(r);
+  }
+
+  function linha(rot, valor) { var l = el("div", "linha-f"); l.appendChild(el("span", "", rot)); var v = el("span"); if (typeof valor === "string") v.textContent = valor; else v.appendChild(valor); l.appendChild(v); return l; }
+  function imovelDe(ref) { return (IMOVEIS || []).find(function (x) { return String(x.ref) === String(ref); }); }
+  var STATUS = { "novo": "Novo", "em atendimento": "Em atendimento", "visita marcada": "Visita marcada", "proposta": "Proposta", "atendido": "Fechado", "perdido": "Perdido" };
+  function ficha(r) {
+    var f = $("ficha"), msgs = r.msgs || [], peds = r.pedidos || [];
+    if (!msgs.length) return;
+    f.textContent = "";
+    var nome = (r.conversa && r.conversa.nome || "").trim() || guarda.nome || "Cliente";
+    f.appendChild(linha("Cliente", nome));
+    f.appendChild(linha("WhatsApp", "•••• " + String(guarda.fone).slice(-4)));
+    f.appendChild(linha("Canal", "WhatsApp · Milla atendendo"));
+    var p = peds[peds.length - 1];
+    if (!p) { f.appendChild(el("p", "vazio-f", "Converse com a Milla: quando você pedir um imóvel, fotos ou uma visita, o lead aparece aqui.")); return; }
+    peds.slice().reverse().forEach(function (p) {
+      var lead = el("div", "lead"), top = el("div", "lead-top");
+      top.appendChild(el("b", "", p.rotulo || "Lead"));
+      var chips = el("span");
+      if (p.temperatura) chips.appendChild(el("span", "chip " + p.temperatura, p.temperatura.charAt(0).toUpperCase() + p.temperatura.slice(1)));
+      chips.appendChild(document.createTextNode(" "));
+      chips.appendChild(el("span", "chip status", STATUS[p.status] || p.status || "Novo"));
+      top.appendChild(chips); lead.appendChild(top);
+      if (p.mensagem) lead.appendChild(el("p", "", p.mensagem));
+      var extra = p.extra && typeof p.extra === "object" ? Object.keys(p.extra).filter(function (k) { return !/mail|cpf/i.test(k); }).map(function (k) { return k + ": " + p.extra[k]; }).join(" · ") : "";
+      if (extra) lead.appendChild(el("p", "", extra));
+      var im = p.imovelRef && imovelDe(p.imovelRef);
+      if (im) {
+        var a = el("a", "imovel"); a.href = im.url || "../imobiliaria/"; a.target = "_blank"; a.rel = "noopener";
+        var img = el("img"); img.src = im.capa || ""; img.alt = ""; img.loading = "lazy"; a.appendChild(img);
+        var t = el("span"); t.appendChild(el("b", "", "Ref. " + im.ref + " · " + (im.titulo || ""))); t.appendChild(el("span", "", [im.bairro, im.precoFmt].filter(Boolean).join(" · "))); a.appendChild(t);
+        lead.appendChild(a);
+      } else if (p.imovelRef) lead.appendChild(el("p", "", "Imóvel Ref. " + p.imovelRef));
+      f.appendChild(lead);
+    });
+  }
+
+  /* o que aconteceu: cada coisa entra uma vez, na hora em que aconteceu */
+  function evento(chave, iso, txt, ok) {
+    if (eventos[chave]) return;
+    eventos[chave] = true;
+    var li = el("li", ok ? "ok" : ""); li.appendChild(el("time", "", hora(iso) || "agora")); var i = el("i"); i.setAttribute("aria-hidden", "true"); li.appendChild(i); li.appendChild(el("span", "", txt));
+    $("tempo").appendChild(li);
+  }
+  function tempo(r) {
+    var msgs = r.msgs || [], peds = r.pedidos || [];
+    var c1 = msgs.find(function (m) { return m.dir === "cliente"; });
+    if (c1) evento("c1", c1.quando, "Chegou a sua mensagem no WhatsApp da imobiliária.");
+    var r1 = c1 && msgs.find(function (m) { return m.dir !== "cliente" && new Date(m.quando) >= new Date(c1.quando); });
+    if (r1) { var s = Math.max(1, Math.round((new Date(r1.quando) - new Date(c1.quando)) / 1000)); evento("r1", r1.quando, "A Milla respondeu em " + (s < 60 ? s + " segundos" : Math.round(s / 60) + " min") + ".", true); }
+    if (msgs.length) evento("ficha", (c1 || msgs[0]).quando, "A conversa virou ficha no CRM, com o seu nome.");
+    peds.forEach(function (p, k) {
+      evento("p" + k, p.criadoEm, "Lead anotado: " + (p.rotulo || "pedido") + (p.imovelRef ? " · Ref. " + p.imovelRef : "") + ".", true);
+      if (p.avisados && p.avisados.length) evento("a" + k, p.criadoEm, "Aviso no WhatsApp de " + p.avisados.join(", ") + ", da equipe, com os botões Confirmar, Outro horário e Eu assumo.");
+      if (p.respondeu) evento("q" + k, null, p.respondeu + " pegou o lead.", true);
+    });
+    var n = msgs.length;
+    if (n >= 6) evento("n6", msgs[5].quando, "Já são " + n + " mensagens trocadas, todas guardadas no CRM.");
+  }
+
+  /* QR do WhatsApp com o código (só no computador): conversa no celular, assiste aqui */
+  function qr(texto) {
+    if (!window.matchMedia || !matchMedia("(hover: hover) and (min-width: 900px)").matches) return;
+    var s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
+    s.onload = function () {
+      try { var q = window.qrcode(0, "M"); q.addData(texto); q.make(); var box = $("qr"); box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); box.classList.add("pronto"); } catch (e) {}
+    };
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
