@@ -926,7 +926,20 @@ footer { position: relative; z-index: 1; background: var(--noite); padding-block
   dlg.addEventListener("click", function (e) { if (e.target === dlg) fecha(); });
   f.querySelectorAll("[data-fecha]").forEach(function (b) { b.addEventListener("click", fecha); });
   document.querySelectorAll("[data-testar]").forEach(function (a) { a.addEventListener("click", abre); });
-  document.getElementById("testarWa").addEventListener("click", function () { setTimeout(function () { if (vivo) location.href = "testar/"; else fecha(); }, 500); });
+  /* no computador (16/11/2026, pedido do Eugênio: "a tela do CRM original já abre ao lado"): o WhatsApp Web abre
+     numa janela estreita à direita e esta aba vira o CRM ao vivo, que abre espaço para ela. No celular, o WhatsApp
+     abre o app e esta aba vira o CRM em meio segundo. */
+  document.getElementById("testarWa").addEventListener("click", function (e) {
+    var pc = false;
+    try { pc = matchMedia("(hover: hover) and (pointer: fine) and (min-width: 1100px)").matches; } catch (x) {}
+    if (vivo && pc) {
+      var sw = Math.max(screen.availWidth || 0, outerWidth || 0, innerWidth || 0), sh = Math.max(screen.availHeight || 0, 600);
+      var w = window.open("https://web.whatsapp.com/send?phone=5541963493440&text=" + encodeURIComponent("Oi Milla! Meu código de teste é " + vivo.codigo + "."), "milla-whats",
+        "popup=yes,width=460,height=" + sh + ",left=" + Math.max(0, (screen.availLeft || 0) + sw - 460) + ",top=" + Math.max(0, screen.availTop || 0));
+      if (w) { e.preventDefault(); try { sessionStorage.setItem("milla_teste_lado", "1"); } catch (x) {} location.href = "testar/"; return; }
+    }
+    setTimeout(function () { if (vivo) location.href = "testar/"; else fecha(); }, 500);
+  });
   /* ?testar=1 (vem da página do CRM ao vivo): já abre o formulário */
   if (/[?&]testar=1/.test(location.search)) setTimeout(function () { abre({ preventDefault: function () {} }); }, 600);
 
