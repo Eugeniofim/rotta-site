@@ -701,3 +701,119 @@ body.entrar .meio { padding: 0; }
   .rl-cel { min-height: 26px; font-size: 10px; border-radius: 5px; }
   .rl-h-hora { font-size: 9.5px; }
 }
+
+/* =====================================================
+   SUA ASSINATURA (assinatura.js) e o ADM da Milla (adm.js) · 16/11/2026
+   Cor da situação: verde em dia, âmbar vence logo/hoje, vermelho em aberto, azul carência ou "avisou".
+   ===================================================== */
+.as-verde { --sc: var(--verde); --sc-s: var(--verde-suave); }
+.as-ambar { --sc: var(--ambar); --sc-s: var(--ambar-suave); }
+.as-verm { --sc: var(--vermelho); --sc-s: var(--vermelho-suave); }
+.as-azul { --sc: var(--azul); --sc-s: var(--azul-suave); }
+.as-cinza { --sc: var(--dim); --sc-s: var(--sup3); }
+.as-rot { font: 500 10.5px/1.3 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--sc, var(--fraco)); }
+/* a linha embaixo do nome da imobiliária */
+.as-lado { margin: -6px 2px 14px; padding: 11px 14px 11px; border-radius: var(--canto-p); background: var(--sc-s); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sc) 38%, transparent); display: flex; flex-direction: column; gap: 2px; color: var(--texto); transition: background .18s var(--ease); }
+.as-lado:hover, .as-lado.on { color: var(--texto); box-shadow: inset 0 0 0 1.5px var(--sc); }
+.as-lado b { font-size: 14px; line-height: 1.3; }
+.as-lado small { font-size: 12px; color: var(--dim); }
+.so-cel { display: none !important; }
+.as-cel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 15px; border-radius: var(--canto-p); background: var(--sc-s); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sc) 38%, transparent); color: var(--texto); }
+.as-cel > span:first-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.as-cel b { font-size: 14.5px; }
+/* a faixa do Início */
+.as-faixa { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 16px; padding: 14px 18px; border-radius: var(--canto); background: var(--sc-s); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--sc) 50%, transparent); color: var(--texto); }
+.as-faixa:hover { color: var(--texto); box-shadow: inset 0 0 0 1.5px var(--sc); }
+.as-faixa b { font-size: 15.5px; }
+.as-faixa .btn { grid-row: span 2; grid-column: 2; }
+/* a tela */
+.as-tela { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 18px; align-items: start; }
+.as-cartao, .as-pagar { background: var(--sup); border: 1px solid var(--linha); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.as-pagar h2 { margin: 0; font: 700 19px/1.2 var(--f-titulo); letter-spacing: -.01em; }
+.as-pill { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; width: fit-content; max-width: 100%; padding: 6px 12px; border-radius: 14px; background: var(--sc-s); color: var(--sc); font-size: 13px; font-weight: 700; }
+.as-pill i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.as-pill small { font-weight: 600; opacity: .8; }
+.as-valor { font: 700 44px/1 var(--f-titulo); letter-spacing: -.04em; }
+.as-valor small { font: 500 15px var(--f-texto); color: var(--dim); margin-left: 8px; letter-spacing: 0; }
+.as-linhas { margin: 0; border-radius: 14px; background: var(--sup2); border: 1px solid var(--linha); }
+.as-linhas div { display: flex; justify-content: space-between; gap: 14px; padding: 11px 14px; }
+.as-linhas div + div { border-top: 1px solid var(--linha); }
+.as-linhas dt { color: var(--dim); }
+.as-linhas dd { margin: 0; font-weight: 600; text-align: right; }
+.as-meses { display: flex; flex-wrap: wrap; gap: 6px; }
+.as-mes { appearance: none; font: inherit; min-width: 50px; min-height: 42px; padding: 5px 8px; border-radius: 10px; border: 1px dashed var(--linha2); background: transparent; color: var(--fraco); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+button.as-mes { cursor: pointer; }
+.as-mes small { font-size: 10px; font-weight: 600; text-transform: none; letter-spacing: 0; opacity: .85; }
+.as-mes.ok { border-style: solid; border-color: color-mix(in srgb, var(--verde) 45%, transparent); background: var(--verde-suave); color: var(--verde); }
+.as-mes.atr { border-style: solid; border-color: color-mix(in srgb, var(--vermelho) 50%, transparent); background: var(--vermelho-suave); color: var(--vermelho); }
+.as-mes.prox { border-style: solid; border-color: var(--ambar-borda); background: var(--ambar-suave); color: var(--ambar); }
+.as-mes.avisado { border-style: solid; border-color: var(--azul-borda); background: var(--azul-suave); color: var(--azul); }
+.as-pix { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+.as-qr { background: #fff; border-radius: 14px; padding: 6px; line-height: 0; min-width: 160px; min-height: 160px; }
+.as-qr canvas { width: 180px; height: 180px; image-rendering: pixelated; border-radius: 8px; }
+.as-pix-tx { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.as-cod { font: 400 11.5px/1.45 var(--f-mono); resize: none; word-break: break-all; }
+.as-ja { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-top: 4px; border-top: 1px solid var(--linha); padding-top: 14px; }
+/* o item do ADM no menu: depois de um traço, com a marca de que é só do estúdio */
+.mi-adm { margin-top: 10px; }
+.mi-adm::after { content: "ADM"; position: static; margin-left: auto; font: 500 10px/1 var(--f-mono); letter-spacing: .12em; color: var(--ambar); padding: 4px 6px; border-radius: 6px; background: var(--ambar-suave); }
+.mi-adm::before { content: ""; position: absolute; left: 12px; right: 12px; top: -6px; height: 1px; background: var(--linha); }
+.mi-adm.on::before { left: -14px; right: auto; top: 10px; bottom: 10px; height: auto; width: 3px; border-radius: 0 3px 3px 0; background: var(--ambar); }
+/* o ADM */
+.adm-sub { max-width: 70ch; margin-top: 6px; }
+.adm-kpis .kpi { cursor: default; }
+.adm-kpis .kpi:hover { transform: none; }
+.adm-kpis .kpi b { font-size: 34px; }
+.adm-lista { display: flex; flex-direction: column; gap: 12px; }
+.adm-card { display: grid; grid-template-columns: minmax(220px, 1.1fr) minmax(0, 1.4fr) auto; gap: 16px 20px; align-items: center; padding: 18px 20px; border-radius: 20px; background: var(--sup); border: 1px solid var(--linha); }
+.adm-card.adm-verm { border-color: color-mix(in srgb, var(--vermelho) 45%, transparent); }
+.adm-card.adm-ambar { border-color: var(--ambar-borda); }
+.adm-card.adm-avisou { border-color: var(--azul-borda); }
+.adm-c1 { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+.adm-quem { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.adm-quem b { font: 700 17px/1.25 var(--f-titulo); letter-spacing: -.01em; }
+.adm-c2 { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.adm-val { font: 700 24px/1 var(--f-titulo); letter-spacing: -.02em; }
+.adm-val small { font: 500 13px var(--f-texto); color: var(--dim); margin-left: 4px; }
+.adm-app { width: fit-content; font-size: 12.5px; font-weight: 700; color: var(--ambar); padding: 5px 10px; border-radius: 8px 8px 8px 2px; background: var(--ambar-suave); border: 0; }
+.adm-semapp { color: var(--dim); background: var(--sup3); cursor: pointer; }
+.adm-c3 { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.adm-aviso { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; padding: 12px 14px; border-radius: 14px; background: var(--azul-suave); box-shadow: inset 0 0 0 1px var(--azul-borda); font-size: 13.5px; color: var(--dim); }
+.adm-aviso b { color: var(--azul); }
+.adm-linkcel { display: flex; flex-direction: column; gap: 3px; padding: 13px 15px; border-radius: var(--canto-p); background: var(--sup); border: 1px solid var(--ambar-borda); color: var(--texto); }
+.adm-linkcel b { font: 700 17px/1.2 var(--f-titulo); }
+/* as janelas */
+.adm-modal { width: min(640px, 100%); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: var(--fundo); border: 1px solid var(--linha2); border-radius: 22px 22px 22px 6px; box-shadow: var(--sombra); overflow: hidden; }
+.adm-mcab { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px 14px; border-bottom: 1px solid var(--linha); }
+.adm-mcab h2 { margin: 0; font: 700 19px/1.2 var(--f-titulo); }
+.adm-mcorpo { padding: 16px 20px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.adm-mpe { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 14px 20px 18px; border-top: 1px solid var(--linha); }
+.adm-form { display: flex; flex-direction: column; gap: 7px; }
+.adm-form label { margin-top: 6px; }
+.adm-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.adm-2 > div { display: flex; flex-direction: column; gap: 7px; }
+.adm-check { display: flex !important; align-items: center; gap: 9px; min-height: 44px; margin-top: 28px !important; font-weight: 600; cursor: pointer; }
+.adm-check input { width: 18px; height: 18px; accent-color: var(--ambar); }
+.adm-txt { font-size: 13.5px; line-height: 1.5; resize: vertical; }
+#adm-msg { color: var(--vermelho); min-height: 18px; }
+@media (max-width: 1100px) {
+  .adm-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .adm-c3 { grid-column: 1 / -1; justify-content: flex-start; }
+  .as-tela { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .so-cel { display: flex !important; }
+  .as-cel-wrap { flex-direction: column; }
+  .as-faixa { grid-template-columns: minmax(0, 1fr); }
+  .as-faixa .btn { grid-row: auto; grid-column: auto; width: fit-content; }
+  .as-cartao, .as-pagar { padding: 18px 16px; }
+  .as-valor { font-size: 38px; }
+  .as-pix { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .adm-card { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .adm-c3 .btn { flex: 1 1 auto; }
+  .adm-kpis .kpi b { font-size: 28px; }
+  .adm-2 { grid-template-columns: minmax(0, 1fr); }
+  .adm-check { margin-top: 0 !important; }
+  .modal { align-items: flex-end; padding: 0; }
+  .adm-modal { width: 100%; max-height: 92dvh; border-radius: 22px 22px 0 0; }
+}

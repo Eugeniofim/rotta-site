@@ -15,6 +15,7 @@
      #/imoveis    os imóveis da API do site deles (dados/imoveis.json)
      #/gestao     só quem gere: relatórios com gráficos mensais (relatorios.js)
      #/equipe     só quem gere: quem recebe o aviso e quem entra no app (aba da Gestão)
+     #/assinatura só quem gere: a mensalidade da imobiliária com o estúdio, o Pix e o "Já paguei" (assinatura.js)
 
    Sem banco (config.js do fonte) abre a demonstração com conversas de exemplo.
    Com banco, só a conta dona da sala entra (a RLS confere de novo no banco).
@@ -31,6 +32,8 @@ const ICO = {
   inicio: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
   sair: 'M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11',
   gestao: 'M3 21h18M6 17v-5M11 17V6M16 17v-8M20 17v-3',
+  clientes: 'M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2',
+  assinatura: 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 10h18M7 15h4',
   equipe: 'M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM21 20v-1a4 4 0 0 0-3-3.9M15.5 4.1a3.5 3.5 0 0 1 0 6.8',
 };
 /* as camadas (16/11/2026): o menu tem o que a equipe usa todo dia; quem gere ganha mais dois itens,
@@ -38,7 +41,9 @@ const ICO = {
    Cada coisa num lugar só. */
 const MENU = [['inicio', 'Início'], ['whats', 'WhatsApp'], ['leads', 'Leads'], ['imoveis', 'Imóveis'], ['equipe', 'Equipe'], ['gestao', 'Gestão']];
 const SO_GESTOR = ['equipe', 'gestao'];
-const TELAS = MENU.map(([id]) => id);
+/* 16/11/2026: a Sua assinatura (assinatura.js) é uma tela sem item no menu: abre pela linha embaixo do nome da
+   imobiliária (computador) ou pelo topo da Gestão (celular). O ADM do estúdio NÃO mora aqui: tem endereço próprio (adm.html). */
+const TELAS = [...MENU.map(([id]) => id), 'assinatura'];
 const menuVisivel = () => MENU.filter(([id]) => !SO_GESTOR.includes(id) || GESTOR());
 const menuOn = (id, tela) => tela === id;
 const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
@@ -199,6 +204,7 @@ function renderLado() {
   $('lado').innerHTML = `
     <a class="marca" href="#/inicio" aria-label="Milla, início">${LOGO}</a>
     <div class="conta"><span class="conta-rot">Imobiliária</span><b>${esc(MARCA)}</b><span class="online"><i aria-hidden="true"></i>Milla atendendo · 24 h</span></div>
+    ${typeof asLinhaLado === 'function' ? asLinhaLado() : ''}
     <nav class="menu" aria-label="Menu">${menuVisivel().map(([id, l]) => `<a class="mi ${menuOn(id, r.tela) ? 'on' : ''} ${id === SO_GESTOR[0] ? 'mi-gestao' : ''}" href="#/${id}" ${menuOn(id, r.tela) ? 'aria-current="page"' : ''}>${svg(ICO[id])}<span>${l}</span>${n[id] ? `<span class="n">${n[id]}</span>` : ''}</a>`).join('')}</nav>
     <div class="rodape">A Milla responde 24 h pelo número da ${esc(MARCA)}. Quem responde aqui assume a conversa; a Milla volta quando você devolver.</div>
     ${SITE ? `<a class="mi site" href="${esc(SITE)}" target="_blank" rel="noopener">${svg(ICO.site)}<span>Ver o site</span></a>` : ''}
@@ -508,7 +514,7 @@ document.addEventListener('click', async e => {
   }
   if (a === 'demo-entrar') { const id = DEMO_PESSOAS.some(x => x.id === v) ? v : 'carla'; demoPessoa.mem = id; try { localStorage.setItem(DEMO_QUEM, id); localStorage.setItem(DEMO_CHAVE, '1'); } catch (x) {} S.rotaAnterior = ''; location.hash = '#/inicio'; render(); return; }
   if (a === 'demo-sair') { demoPessoa.mem = ''; try { localStorage.removeItem(DEMO_QUEM); localStorage.removeItem(DEMO_CHAVE); } catch (x) {} render(); return; }
-  if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.papel = ''; AC.carregou = false; AC.lista = []; EQ.carregou = false; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
+  if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.papel = ''; if (typeof AS !== 'undefined') Object.assign(AS, { dados: null, carregou: false, semFuncao: false, erro: '' }); AC.carregou = false; AC.lista = []; EQ.carregou = false; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
   if (a === 'esqueci') {
     const email = ($('e-mail') && $('e-mail').value.trim()) || '';
     if (!email) { $('entrar-msg').textContent = 'Escreva o seu e-mail acima e toque de novo em "Esqueci a senha".'; return; }
@@ -620,7 +626,10 @@ function render() {
     if (r.tela === 'inicio') inCarregar().then(() => { if (rota().tela === 'inicio') render(); });
     if (r.tela === 'equipe' && GESTOR()) Promise.all([eqCarregar(), acCarregar()]).then(() => { if (rota().tela === 'equipe') render(); });
     if (r.tela === 'gestao' && GESTOR()) ldCarregar().then(() => { if (rota().tela === 'gestao') render(); });
+    if (r.tela === 'assinatura' && GESTOR()) asCarregar(true).then(() => { if (rota().tela === 'assinatura') render(); });
   }
+  /* a linha da assinatura no menu: carrega uma vez para quem gere */
+  if (GESTOR() && !AS.carregou && !AS.buscando && !(real && WZ.dona !== true)) asCarregar().then(render);
   let html;
   if (real && WZ.dona === false) html = vNaoDona();
   else if (r.tela === 'inicio') html = vInicio();
@@ -628,14 +637,19 @@ function render() {
   else if (r.tela === 'imoveis') html = vImoveis();
   else if (r.tela === 'equipe') html = GESTOR() ? vEquipe() : vSoGestor('Equipe');
   else if (r.tela === 'gestao') html = GESTOR() ? vRelatorios() : vSoGestor('Gestão');
+  else if (r.tela === 'assinatura') html = vAssinatura();
   else html = vWhats(r.param);
+  /* o que entra logo abaixo da faixa do celular: o aviso da mensalidade no Início e a linha da assinatura na Gestão */
+  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() : r.tela === 'gestao' && GESTOR() ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + '</div>' : '') : '';
+  if (extra) { const fx = faixaCel(); html = html.includes(fx) ? html.replace(fx, fx + extra) : extra + html; }
   $('meio').innerHTML = html;
+  if (r.tela === 'assinatura') asPinta();
   if (r.tela === 'gestao' && GESTOR() && typeof rlAnima === 'function') rlAnima();
   renderLado();
   document.body.classList.toggle('tela-whats', r.tela === 'whats');
   document.body.classList.toggle('tela-inicio', r.tela === 'inicio');
   if (r.tela === 'whats' && !(real && WZ.dona === false)) wzLiga();
-  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe' }[r.tela]);
+  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe', assinatura: 'Sua assinatura' }[r.tela]);
 }
 window.addEventListener('hashchange', render);
 
