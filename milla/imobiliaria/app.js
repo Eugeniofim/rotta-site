@@ -467,7 +467,7 @@ function faixaMilla() {
     + '<p>A Milla é a atendente da imobiliária no WhatsApp: entende o que você procura, mostra os imóveis do site, faz a conta da temporada com o sinal e anota a visita para o corretor certo. De madrugada, no domingo, no feriado.</p>'
     + '<ul><li>Busca por balneário, quartos, valor e datas</li><li>Pacote da temporada: noites, total e sinal</li><li>Visita e proposta passadas para a equipe</li><li>Entende áudio e responde em áudio</li></ul>'
     + '<div class="fm-botoes"><a class="btn btn-gold btn-quad" target="_blank" rel="noopener" href="' + wa('Oi, Milla! Tem casa com piscina pro réveillon?') + '">Testar a Milla no WhatsApp</a>'
-    + '<a class="btn btn-line-claro btn-quad" href="https://rottaguide.com/milla/app/" target="_blank" rel="noopener">Ver o Painel Milla CRM</a></div></div>'
+    + '<a class="btn btn-line-claro btn-quad" href="https://rottaguide.com/milla/testar/" target="_blank" rel="noopener">Ver o Painel Milla CRM</a></div></div>'
     + '<div class="fm-tel" aria-label="Exemplo de conversa com a Milla"><div class="fm-topo"><img src="arte/emblema-claro.svg" alt=""><span><b>Milla · Imobiliária Milla</b><small>online</small></span></div><div class="fm-conversa">'
     + b('cli', 'Oi! Tem casa com piscina pro réveillon? Somos 8, de 28/12 a 02/01', '22:41')
     + b('mil', 'Tenho sim! A Ref. 528 é uma casa em Pontal do Sul com piscina, 5 quartos e até 12 pessoas. Livre nas suas datas: 5 noites × R$ 1.180 = <b>R$ 5.900</b>. O sinal de 50% (R$ 2.950) garante as datas. Quer que eu anote a reserva?', '22:41')
@@ -500,15 +500,15 @@ function faixaParceiros() {
 
 function moldura() {
   const links = [['#/', 'Home'], ['#/imoveis?neg=venda', 'Comprar'], ['#/imoveis?neg=aluguel', 'Alugar'], ['#/imoveis?neg=temporada', 'Temporada'], ['#/negocie', 'Anuncie seu Imóvel'], ['#/financie', 'Financie'], ['#/sobre', 'Empresa'], ['#/favoritos', 'Favoritos'], ['#/contato', 'Contato'], ['#/cliente', 'Área do Cliente']];
-  $('#menu').innerHTML = links.map(([h, t]) => '<a href="' + h + '">' + t + '</a>').join('') + '<a class="btn-crm" href="https://rottaguide.com/milla/app/" target="_blank" rel="noopener"><img src="arte/emblema.svg" alt="" width="18" height="18">Painel Milla CRM</a>';
+  $('#menu').innerHTML = links.map(([h, t]) => '<a href="' + h + '">' + t + '</a>').join('') + '<a class="btn-crm" href="https://rottaguide.com/milla/testar/" target="_blank" rel="noopener"><img src="arte/emblema.svg" alt="" width="18" height="18">Painel Milla CRM</a>';
   $('#topo-creci').textContent = C.creci;
   $('#topo-links').innerHTML = '<div class="fone"><small>Milla · atendimento 24 h</small><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a></div>'
     + '<a class="area" href="#/cliente">Área do Cliente</a><a href="#/favoritos">Meus Favoritos</a>'
-    + '<a class="btn-crm" href="https://rottaguide.com/milla/app/" target="_blank" rel="noopener"><img src="arte/emblema.svg" alt="" width="18" height="18">Painel Milla CRM</a>';
+    + '<a class="btn-crm" href="https://rottaguide.com/milla/testar/" target="_blank" rel="noopener"><img src="arte/emblema.svg" alt="" width="18" height="18">Painel Milla CRM</a>';
   $('#wa-flut').innerHTML = '<a href="' + wa() + '" target="_blank" rel="noopener" aria-label="Falar com a Milla no WhatsApp">' + ICO.wa + '</a>';
   $('#rodape').innerHTML = '<div><a class="marca" href="#/"><img src="arte/logo-claro.svg" alt="' + esc(C.nome) + '" style="height:46px;width:auto"></a><span style="font-size:13px;font-weight:300;display:block;margin-top:10px">' + esc(C.slogan) + ' de Pontal do Sul a Praia de Leste: Shangri-lá, Ipanema, Santa Terezinha e todos os balneários de Pontal do Paraná.</span></div>'
     + '<div><b>Para você</b><a href="#/negocie">Anuncie seu imóvel</a><br><a href="#/financie">Financie seu imóvel</a><br><a href="privacidade.html">Política de privacidade</a><br><a href="creditos.html">Créditos das fotos</a></div>'
-    + '<div><b>Acesso Rápido</b><a href="#/">Home</a><br><a href="#/imoveis?neg=aluguel">Alugar</a><br><a href="#/imoveis?neg=venda">Comprar</a><br><a href="#/imoveis?neg=temporada">Temporada</a><br><a href="#/sobre">Empresa</a><br><a href="#/favoritos">Favoritos</a><br><a href="#/contato">Contato</a><br><a href="#/cliente">Área do Cliente</a><br><a href="https://rottaguide.com/milla/app/" style="color:var(--dourado)">Painel Milla CRM</a></div>'
+    + '<div><b>Acesso Rápido</b><a href="#/">Home</a><br><a href="#/imoveis?neg=aluguel">Alugar</a><br><a href="#/imoveis?neg=venda">Comprar</a><br><a href="#/imoveis?neg=temporada">Temporada</a><br><a href="#/sobre">Empresa</a><br><a href="#/favoritos">Favoritos</a><br><a href="#/contato">Contato</a><br><a href="#/cliente">Área do Cliente</a><br><a href="https://rottaguide.com/milla/testar/" style="color:var(--dourado)">Painel Milla CRM</a></div>'
     + '<div style="font-size:15px;font-weight:300;line-height:1.7"><b>Contatos</b>' + esc(C.nome) + '<br>' + esc(C.endereco) + '<br>' + esc(C.cidade) + '<br><a href="' + wa() + '" target="_blank" rel="noopener">' + fone(C.whatsapp) + '</a> · WhatsApp da Milla</div>';
   $('#rodape-fim').innerHTML = '<span>' + esc(C.nome) + ' · site de demonstração · imóveis, nomes e imagens fictícios</span><span>© ' + new Date().getFullYear() + ' Ti Artes · v' + APP_VERSAO + '</span>';
   $('#cookies').hidden = cookiesDecidido();
