@@ -54,18 +54,21 @@
   const resolve = (v) => (v && TEMAS[v] ? v : pelaData()); // "auto" ou nada = calendário
   const daUrl = new URLSearchParams(location.search).get("tema");
   const naNuvem = nuvemLigada();
-  let pronto;
+  let pronto, nuvemDados = null;
   if (daUrl && TEMAS[daUrl]) pronto = Promise.resolve(daUrl);
   else if (!naNuvem) pronto = Promise.resolve(escolhido());
   else {
     let guardado = null;
     try { guardado = localStorage.getItem("glk_tema_nuvem"); } catch (e) {}
-    const busca = fetch(N.url + "/rest/v1/rpc/estado", {
+    nuvemDados = fetch(N.url + "/rest/v1/rpc/estado", {
       method: "POST",
       headers: { apikey: N.chave, Authorization: "Bearer " + N.chave, "Content-Type": "application/json", "Content-Profile": N.sala },
       body: '{"p_token":""}'
-    }).then((r) => (r.ok ? r.json() : null)).then((j) => {
-      const t = (j && j.regras && j.regras.tema) || "auto";
+    }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    nuvemDados.then((j) => { if (j && j.site) { try { localStorage.setItem("glk_site", JSON.stringify(j.site)); } catch (e) {} } });
+    const busca = nuvemDados.then((j) => {
+      if (!j) return null;
+      const t = (j.regras && j.regras.tema) || "auto";
       try { localStorage.setItem("glk_tema_nuvem", t); } catch (e) {}
       return t;
     }).catch(() => null);
@@ -73,7 +76,7 @@
       : Promise.race([busca, new Promise((ok) => setTimeout(() => ok(null), 900))]).then(resolve);
   }
 
-  window.GlikiTema = { id: null, T: null, TEMAS, pelaData, pronto, nuvem: naNuvem };
+  window.GlikiTema = { id: null, T: null, TEMAS, pelaData, pronto, nuvem: naNuvem, nuvemDados };
   pronto.then((final) => { window.GlikiTema.id = final; window.GlikiTema.T = TEMAS[final]; if (!soDados) aplicar(final); });
   if (soDados) return;
 

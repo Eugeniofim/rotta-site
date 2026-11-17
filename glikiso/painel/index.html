@@ -157,6 +157,38 @@
   @keyframes sobe { from { transform: translateY(12px); opacity: 0; } }
 
   .entrar-painel { max-width: 420px; margin: 8vh auto 0; }
+  /* relatórios */
+  .rel .barra-linha { grid-template-columns: 150px 1fr 40px; }
+  .rel .barra-linha span:first-child { font-weight: 600; }
+  .rel h3 { font: 500 11px/1 var(--rotulo); letter-spacing: .14em; text-transform: uppercase; color: var(--tinta-2); margin: 16px 0 10px; }
+  .numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .numeros div { padding: 12px; border-radius: 12px; background: #fbf4ea; }
+  .numeros b { display: block; font: 400 26px/1 var(--display); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .numeros span { font-size: 12px; color: var(--tinta-2); }
+  .topo-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+  .topo-lista li { display: flex; justify-content: space-between; gap: 10px; }
+  /* página Site */
+  .q-lista { display: grid; gap: 10px; }
+  .q-linha { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid var(--linha); background: #fff; }
+  .q-linha.escondido { opacity: .55; }
+  .q-foto { position: relative; width: 76px; height: 76px; border-radius: 12px; overflow: hidden; background: #efe4d3; display: grid; place-items: center; cursor: pointer; font-size: 12px; color: var(--tinta-2); }
+  .q-foto img { width: 100%; height: 100%; object-fit: cover; }
+  .q-foto::after { content: "Trocar"; position: absolute; inset: auto 0 0; padding: 3px 0; font: 600 10px/1.2 var(--texto); text-align: center; background: rgba(42,25,19,.7); color: var(--creme); }
+  .q-campos { display: grid; grid-template-columns: 1fr 160px; gap: 10px; min-width: 0; }
+  .q-campos .campo { margin: 0; }
+  .q-acoes { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .q-mostra { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 600; margin-right: 6px; }
+  .cidades-site { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+  @media (max-width: 1100px) { .cidades-site { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 760px) {
+    .q-linha { grid-template-columns: 64px minmax(0, 1fr); }
+    .q-foto { width: 64px; height: 64px; }
+    .q-campos { grid-template-columns: 1fr; }
+    .q-acoes { grid-column: 1 / -1; justify-content: flex-start; }
+    .cidades-site { grid-template-columns: 1fr; }
+    .numeros { grid-template-columns: 1fr 1fr; }
+    .rel .barra-linha { grid-template-columns: 110px 1fr 34px; }
+  }
   .conteudo-casca { min-width: 0; }
   .faixa-demo { margin: 16px 34px 0; padding: 12px 16px; border-radius: 14px; background: #fff4d6; border: 1px solid #e8cf94; font-size: 14px; }
   .faixa-demo a { color: var(--tinta); font-weight: 700; margin-left: 6px; }
@@ -282,11 +314,13 @@ const I = window.ICONE;
 const DIA = 86400000;
 const LINK_CLUBE = new URL("../clube/", location.href).href;
 const PAGINAS = {
-  inicio: { nome: "Início", icone: I.grafico, tela: telaInicio },
+  inicio: { nome: "Início", icone: I.casa, tela: telaInicio },
+  relatorios: { nome: "Relatórios", icone: I.grafico, tela: telaRelatorios },
   clientes: { nome: "Clientes", icone: I.grupo, tela: telaClientes },
   balcao: { nome: "Balcão", icone: I.loja, tela: telaBalcao },
   codigos: { nome: "Etiquetas", icone: I.ticket, tela: telaCodigos },
   avisos: { nome: "Avisos", icone: I.megafone, tela: telaAvisos },
+  site: { nome: "Site", icone: I.cookie, tela: telaSite },
   premios: { nome: "Prêmios e regras", icone: I.presente, tela: telaPremios },
   tema: { nome: "Tema do site", icone: I.estrela, tela: telaTema }
 };
@@ -421,6 +455,75 @@ function telaInicio(d) {
         </ul>
       </div>
     </div>`;
+}
+
+/* ---------- Relatórios ---------- */
+let periodo = 30;
+const esc = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+function barrasRel(lista) {
+  const max = Math.max(1, ...lista.map((x) => x.n));
+  return lista.length ? `<div class="barras">${lista.map((x) => `<div class="barra-linha"><span>${esc(x.nome)}</span><span class="barra"><i style="width:${(x.n / max) * 100}%"></i></span><b>${x.n}</b></div>`).join("")}</div>` : `<p class="sub">Nada ainda neste período.</p>`;
+}
+function telaRelatorios(d) {
+  const r = C.relatorio(d, periodo);
+  const pct = (a, b) => (b ? Math.round((a / b) * 100) + "%" : "—");
+  const lider = r.porLugar[0];
+  const maisClicado = r.cliques.porBotao[0];
+  const e = r.etiquetas;
+  return `<div class="cabeca"><div><p class="rotulo">Onde e quando vende mais</p><h1>Relatórios</h1><p class="sub">Compras que passaram pelo clube (nota, balcão e etiqueta) e cliques nos botões do site.</p></div>
+      <div class="chips">${[7, 30, 90].map((n) => `<label><input type="radio" name="periodo" value="${n}" ${n === periodo ? "checked" : ""}><span>${n} dias</span></label>`).join("")}</div></div>
+    <div class="grade g4">
+      <div class="caixa destaque"><p class="rotulo">Compras no clube</p><p class="numero">${r.compras}</p><p class="numero-nota">nos últimos ${r.dias} dias</p></div>
+      <div class="caixa"><p class="rotulo">Onde vende mais</p><p class="numero" style="font-size:30px">${lider && lider.n ? esc(lider.nome) : "—"}</p><p class="numero-nota">${lider && lider.n ? pct(lider.n, r.compras) + " das compras" : "sem compras no período"}</p></div>
+      <div class="caixa"><p class="rotulo">Cliques no site</p><p class="numero">${r.cliques.total}</p><p class="numero-nota">${maisClicado ? "mais tocado: " + esc(maisClicado.nome) : "nenhum clique ainda"}</p></div>
+      <div class="caixa"><p class="rotulo">Voltaram</p><p class="numero">${pct(r.clube.voltaram, r.clube.ativos)}</p><p class="numero-nota">${r.clube.voltaram} de ${r.clube.ativos} compraram 2 vezes ou mais</p></div>
+    </div>
+    <div class="grade g2 rel" style="margin-top:14px">
+      <div class="caixa"><h2>Onde vende mais</h2>${barrasRel(r.porLugar)}<p class="nota-barras">Cada compra conta uma vez, venha da nota, do balcão ou da etiqueta da máquina.</p></div>
+      <div class="caixa"><h2>Quando vende mais</h2>${barrasRel(r.porDia)}<h3>Horário</h3>${barrasRel(r.porHora)}</div>
+      <div class="caixa"><h2>Cliques no site</h2>${barrasRel(r.cliques.porBotao)}</div>
+      <div class="caixa"><h2>Cliques por cidade</h2>${barrasRel(r.cliques.porCidade)}<p class="nota-barras">Cidade escolhida na página quando a pessoa tocou no botão.</p></div>
+      <div class="caixa"><h2>Etiquetas da máquina</h2>
+        <div class="numeros"><div><b>${e.impressas}</b><span>impressas</span></div><div><b>${e.usadas}</b><span>usadas (${pct(e.usadas, e.impressas)})</span></div><div><b>${e.repetidas}</b><span>tentativas com etiqueta já usada</span></div></div>
+        <p class="sub" style="font-size:14px">Cada etiqueta vale uma vez: na 2ª leitura o clube recusa e anota a tentativa${e.repetidas ? ` (${e.mesmaPessoa} da mesma pessoa, ${e.repetidas - e.mesmaPessoa} de outra)` : ""}. Códigos que não existem: ${e.inexistentes}.</p>
+        ${e.lotes.length ? `<h3>Por lote</h3><ul class="topo-lista">${e.lotes.slice().reverse().map((l) => `<li><span>${esc(C.CANAIS[l.canal] || l.canal)} · ${C.dataBR(l.data)}</span><span>${l.usadas} de ${l.qtd} (${l.pct}%)</span></li>`).join("")}</ul>` : ""}</div>
+      <div class="caixa"><h2>Clube</h2>
+        <div class="numeros"><div><b>${r.clube.novos}</b><span>entraram</span></div><div><b>${r.notas.celular}</b><span>notas lidas no celular</span></div><div><b>${r.notas.balcao}</b><span>notas no balcão</span></div></div>
+        <p class="sub" style="font-size:14px">Tentativas com nota já usada: ${r.notas.repetidas}.</p>
+        ${r.clube.topo.length ? `<h3>Quem mais comprou</h3><ul class="topo-lista">${r.clube.topo.map((x) => `<li><span>${esc(x.nome)}</span><b>${x.n} compra${x.n > 1 ? "s" : ""}</b></li>`).join("")}</ul>` : ""}</div>
+    </div>
+    <div class="caixa" style="margin-top:14px"><h2>Vendas de fora do clube</h2><p class="sub">O delivery do Cardápio Web e as vendas da loja na Yooga ainda não entram aqui. O Cardápio Web tem API: com a autorização da Melissa, os pedidos (valor, dia e cliente) entram neste relatório. A Yooga não publica API; o caminho é pedir acesso a eles.</p></div>`;
+}
+
+/* ---------- Site (o que aparece na vitrine) ---------- */
+let siteEdit = null;
+function telaSite(d) {
+  if (!siteEdit) siteEdit = C.siteAtual(d);
+  const s = siteEdit;
+  const campo = (k, nome, rot, ajuda, ph) => `<label class="campo">${rot}${ajuda ? `<span class="ajuda">${ajuda}</span>` : ""}<input data-cidade="${k}" data-campo="${nome}" value="${esc(nome === "cupom-codigo" ? (s.cidades[k].cupom || {}).codigo : nome === "cupom-texto" ? (s.cidades[k].cupom || {}).texto : s.cidades[k][nome])}" placeholder="${ph || ""}"></label>`;
+  return `<div class="cabeca"><div><p class="rotulo">Vitrine</p><h1>Site</h1><p class="sub">Escolha os cookies de "Os queridinhos", troque as fotos e os links de cada cidade. Ao salvar, o site muda para todo mundo.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-linha" href="../" target="_blank" rel="noopener">${I.casa}Ver o site</a><button class="btn btn-escuro" type="button" id="salvarSite">Salvar o site</button></div></div>
+    <div class="caixa"><h2>Os queridinhos</h2><p class="sub" style="margin:-6px 0 14px">A ordem aqui é a ordem no site. Toque na foto para trocar (foto quadrada ou em pé fica melhor).</p>
+      <div class="q-lista">${s.queridinhos.map((q, i) => `
+        <div class="q-linha${q.mostrar === false ? " escondido" : ""}">
+          <label class="q-foto" title="Trocar a foto">${q.foto ? `<img src="${esc(q.foto)}" alt="">` : "Sem foto"}<input type="file" accept="image/*" data-foto="${i}" hidden></label>
+          <div class="q-campos"><label class="campo">Nome<input data-q="${i}" data-campo="nome" value="${esc(q.nome)}" maxlength="60"></label><label class="campo">Selo<input data-q="${i}" data-campo="selo" value="${esc(q.selo)}" maxlength="20" placeholder="ex.: Novo"></label></div>
+          <div class="q-acoes"><label class="q-mostra"><input type="checkbox" data-mostrar="${i}" ${q.mostrar === false ? "" : "checked"}>Mostrar</label>
+            <button type="button" class="btn btn-linha btn-peq" data-mover="${i}" data-dir="-1" aria-label="Subir ${esc(q.nome)}" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" class="btn btn-linha btn-peq" data-mover="${i}" data-dir="1" aria-label="Descer ${esc(q.nome)}" ${i === s.queridinhos.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" class="btn btn-linha btn-peq" data-tirar="${i}">Tirar</button></div>
+        </div>`).join("")}</div>
+      <button class="btn btn-led" type="button" id="novoCookie" style="margin-top:14px">${I.mais}Adicionar cookie</button>
+    </div>
+    <div class="cidades-site">${Object.entries(s.cidades).map(([k, c]) => `<div class="caixa"><h2>${esc(c.nome)}</h2>
+      ${campo(k, "delivery", "Delivery", "link do Cardápio Web", "https://")}
+      ${campo(k, "ifood", "iFood", "", "https://")}
+      ${campo(k, "whatsapp", "WhatsApp", "", "https://wa.me/...")}
+      ${campo(k, "cupom-codigo", "Cupom", "código (vazio = sem cupom)", "ex.: VOLTEI10")}
+      ${campo(k, "cupom-texto", "Texto do cupom", "", "ex.: 10% no próximo pedido")}
+      ${campo(k, "aviso", "Recado", "aparece quando não tem cupom", "")}
+      ${campo(k, "nota", "Letra miúda", "", "")}
+    </div>`).join("")}</div>`;
 }
 
 /* ---------- Clientes ---------- */
@@ -698,6 +801,53 @@ function telaPremios(d) {
 
 /* ---------- o que cada tela faz ---------- */
 const ligar = {
+  relatorios() {
+    document.querySelectorAll('input[name="periodo"]').forEach((r) => r.addEventListener("change", () => { periodo = Number(r.value); ir("relatorios"); }));
+  },
+  site() {
+    const s = siteEdit;
+    document.querySelectorAll("[data-q]").forEach((el) => el.addEventListener("input", () => { s.queridinhos[Number(el.dataset.q)][el.dataset.campo] = el.value; }));
+    document.querySelectorAll("[data-mostrar]").forEach((el) => el.addEventListener("change", () => { s.queridinhos[Number(el.dataset.mostrar)].mostrar = el.checked; ir("site"); }));
+    document.querySelectorAll("[data-mover]").forEach((b) => b.addEventListener("click", () => {
+      const i = Number(b.dataset.mover), j = i + Number(b.dataset.dir);
+      [s.queridinhos[i], s.queridinhos[j]] = [s.queridinhos[j], s.queridinhos[i]];
+      ir("site");
+    }));
+    document.querySelectorAll("[data-tirar]").forEach((b) => b.addEventListener("click", () => { s.queridinhos.splice(Number(b.dataset.tirar), 1); ir("site"); }));
+    $("novoCookie").addEventListener("click", () => { s.queridinhos.push({ nome: "Cookie novo", selo: "", foto: "", mostrar: false }); ir("site"); });
+    document.querySelectorAll("[data-foto]").forEach((el) => el.addEventListener("change", async () => {
+      const arq = el.files[0];
+      if (!arq) return;
+      toast("Subindo a foto…");
+      const r = await C.subirFoto(arq);
+      if (!r.ok) { if (r.sessao) return pedirLogin("Entre de novo para trocar a foto."); return toast(r.erro); }
+      const q = s.queridinhos[Number(el.dataset.foto)];
+      q.foto = r.url;
+      if (q.mostrar === false && q.nome) q.mostrar = true;
+      toast("Foto trocada. Toque em Salvar o site.");
+      ir("site");
+    }));
+    document.querySelectorAll("[data-cidade]").forEach((el) => el.addEventListener("input", () => {
+      const c = s.cidades[el.dataset.cidade], v = el.value.trim();
+      if (el.dataset.campo === "cupom-codigo") c.cupom = v ? { codigo: v.toUpperCase(), texto: (c.cupom || {}).texto || "" } : null;
+      else if (el.dataset.campo === "cupom-texto") { if (c.cupom) c.cupom.texto = v; }
+      else c[el.dataset.campo] = v;
+    }));
+    $("salvarSite").addEventListener("click", async () => {
+      const semFoto = s.queridinhos.find((q) => q.mostrar !== false && !q.foto);
+      if (semFoto) return toast(`"${semFoto.nome}" está sem foto. Ponha uma foto ou desmarque Mostrar.`);
+      if (!s.queridinhos.some((q) => q.mostrar !== false)) return toast("Deixe pelo menos um cookie aparecendo.");
+      for (const [k, c] of Object.entries(s.cidades)) for (const campo of ["delivery", "ifood", "whatsapp"]) {
+        if (c[campo] && !/^https:\/\/\S+$/.test(c[campo])) return toast(`O link de ${campo} em ${c.nome} precisa começar com https://`);
+      }
+      const b = $("salvarSite");
+      b.disabled = true;
+      const r = await C.salvarSite(JSON.parse(JSON.stringify(s)));
+      b.disabled = false;
+      if (r && r.ok === false) { if (r.sessao) return pedirLogin("Entre de novo para salvar."); return toast(r.erro || "Não deu para salvar agora"); }
+      toast(C.nuvem ? "Site salvo. Já vale para quem abrir o site." : "Salvo na demonstração (só neste aparelho).");
+    });
+  },
   tema() {
     document.querySelectorAll("[data-usar-tema]").forEach((b) => b.addEventListener("click", async () => {
       if (C.nuvem) { const r = await C.salvarTema(b.dataset.usarTema); if (r && r.ok === false) return toast(r.erro || "Não deu para trocar agora"); }
