@@ -623,6 +623,8 @@
       if (q === "1") localStorage.setItem("glk_modo", "nuvem");
       if (q === "0") localStorage.setItem("glk_modo", "demo");
       m = localStorage.getItem("glk_modo");
+      /* valendo: a demonstração só abre com ?nuvem=0 no próprio link; não fica presa no aparelho */
+      if (N.ligado && m === "demo" && q !== "0") { localStorage.removeItem("glk_modo"); m = null; }
     } catch (e) {}
     return !!(N.url && N.chave && N.sala && (m ? m === "nuvem" : N.ligado));
   }
@@ -764,5 +766,6 @@
     });
   }
   if (querNuvem()) instalarNuvem(Clube);
+  else Clube.demoNoValendo = !!N.ligado; // está na demonstração, mas o clube de verdade existe: avisar na tela
   window.Clube = Clube;
 })();

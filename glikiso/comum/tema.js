@@ -47,6 +47,7 @@
     try {
       const q = new URLSearchParams(location.search).get("nuvem");
       m = q === "1" ? "nuvem" : q === "0" ? "demo" : localStorage.getItem("glk_modo");
+      if (N && N.ligado && m === "demo" && q !== "0") m = null;
     } catch (e) {}
     return !!(N && N.url && N.chave && N.sala && (m ? m === "nuvem" : N.ligado));
   }

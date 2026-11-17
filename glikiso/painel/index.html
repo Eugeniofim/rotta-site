@@ -157,6 +157,10 @@
   @keyframes sobe { from { transform: translateY(12px); opacity: 0; } }
 
   .entrar-painel { max-width: 420px; margin: 8vh auto 0; }
+  .conteudo-casca { min-width: 0; }
+  .faixa-demo { margin: 16px 34px 0; padding: 12px 16px; border-radius: 14px; background: #fff4d6; border: 1px solid #e8cf94; font-size: 14px; }
+  .faixa-demo a { color: var(--tinta); font-weight: 700; margin-left: 6px; }
+  @media (max-width: 900px) { .faixa-demo { margin: 12px 16px 0; } }
   .entrar-painel h1 { margin-top: 2px; }
   /* o clube sugere: cada linha já vem com o botão que resolve */
   .sugere { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -252,7 +256,10 @@
       <a href="../" target="_blank" rel="noopener">Página de links</a>
     </div>
   </aside>
-  <main class="conteudo" id="conteudo"></main>
+  <main class="conteudo-casca">
+    <div class="faixa-demo" id="faixaDemo" hidden>Você está na <b>demonstração</b>, com clientes de exemplo. <a href="./?nuvem=1">Abrir o painel de verdade →</a></div>
+    <div class="conteudo" id="conteudo"></div>
+  </main>
 </div>
 <dialog class="ficha" id="ficha"><div class="ficha-corpo" id="fichaCorpo"></div></dialog>
 <dialog class="leitor" id="leitor" aria-label="Ler a nota com a câmera">
@@ -288,6 +295,7 @@ let pagina = "inicio";
 function ir(p) {
   if (C.nuvem && !C.Sessao.ler()) return pedirLogin();
   pagina = PAGINAS[p] ? p : "inicio";
+  $("faixaDemo").hidden = !C.demoNoValendo;
   const d = C.ler();
   const pendentes = d.resgates.filter((r) => !r.entregue).length;
   $("menu").innerHTML = Object.entries(PAGINAS).map(([id, x]) =>
@@ -817,7 +825,7 @@ function pedirLogin(msg) {
   $("conteudo").innerHTML = `<div class="entrar-painel caixa">
       <p class="rotulo">Clube Glikilovers</p>
       <h1>Painel da loja</h1>
-      <p class="sub" style="margin:6px 0 18px">${msg || "Entre com o e-mail e a senha do painel."}</p>
+      <p class="sub" style="margin:6px 0 18px">${msg || "Entre com o e-mail e a senha do painel. É o mesmo login do TI ARTES OS."}</p>
       <form id="formLogin" novalidate>
         <label class="campo">E-mail<input name="email" type="email" autocomplete="username" required></label>
         <label class="campo">Senha<input name="senha" type="password" autocomplete="current-password" required></label>
