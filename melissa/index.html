@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melissa Hallais — Alsácia, revelada · Guia · Fotógrafa</title>
+<meta name="description" content="Guia oficial brasileira, fotógrafa e motorista na Alsácia, Lorena, Champagne e Floresta Negra. Passeios a pé, de bicicleta e de barco, sessões de fotos e roteiros sob medida — em português e inglês.">
+<meta property="og:title" content="Melissa Hallais — Alsácia, revelada">
+<meta property="og:description" content="Eu não entrego cenários, entrego a alma da região.">
+<meta property="og:image" content="img/og.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B110D'/%3E%3Ctext x='50' y='70' font-size='56' text-anchor='middle' fill='%23CBA24B' font-family='Georgia,serif' font-style='italic'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B110D; --bg-2:#10160F; --panel:#141B14; --panel-2:#18201A;
+  --ink:#ECE5D4; --ink-2:#A39C8B; --ink-3:#6f6a5d;
+  --gold:#CBA24B; --gold-2:#E7C979; --green:#2E7D5B; --green-d:#123427;
+  --line:rgba(236,229,212,.12); --line-2:rgba(236,229,212,.07);
+  --f-display:"Fraunces",Georgia,serif; --f-body:"Inter",system-ui,sans-serif;
+  --r:18px; --maxw:1280px; --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.02;letter-spacing:-.015em}
+.wrap{width:min(100% - 44px, var(--maxw));margin-inline:auto}
+.eyebrow{font-family:var(--f-body);font-size:12px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
+section{position:relative}
+::selection{background:var(--gold);color:#120d04}
+
+/* film grain overlay */
+.grain{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.055;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:60;width:min(100% - 28px, 1320px);
+  display:flex;align-items:center;justify-content:space-between;padding:10px 12px 10px 22px;
+  border:1px solid var(--line);border-radius:999px;background:rgba(12,18,13,.4);backdrop-filter:blur(16px);
+  transition:background .4s,box-shadow .4s,border-color .4s}
+.nav.solid{background:rgba(10,15,11,.82);box-shadow:0 14px 40px -24px #000;border-color:var(--line-2)}
+.brand{font-family:var(--f-display);font-size:20px;letter-spacing:.01em;color:var(--ink)}
+.brand b{font-weight:500;color:var(--gold-2)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:14px;font-weight:500;color:var(--ink-2);transition:color .25s}
+.nav-links a:hover{color:var(--ink)}
+.nav-right{display:flex;gap:12px;align-items:center}
+.lang{display:flex;gap:2px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang-btn{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:999px;cursor:pointer;background:none;border:0;color:var(--ink-2);transition:.25s}
+.lang-btn.on{background:var(--gold);color:#120d04}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--f-body);font-weight:600;font-size:14px;
+  padding:12px 22px;border-radius:999px;background:var(--gold);color:#120d04;cursor:pointer;border:0;
+  transition:transform .3s var(--ease),box-shadow .3s,filter .3s;box-shadow:0 0 0 rgba(203,162,75,0)}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 16px 40px -14px rgba(203,162,75,.55)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.ghost:hover{background:rgba(236,229,212,.06);box-shadow:none;border-color:var(--gold)}
+.nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:8px;color:var(--ink)}
+.nav-burger span{width:22px;height:2px;background:currentColor;transition:.3s}
+
+/* ---------- hero ---------- */
+.hero{height:100svh;min-height:620px;position:relative;display:flex;align-items:center;overflow:hidden;perspective:1200px}
+.hero-stage{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;will-change:transform}
+.hero-media{position:absolute;inset:-6%;z-index:0}
+.hero-media img{width:100%;height:100%;object-fit:cover;filter:saturate(1.05) contrast(1.03)}
+.hero-grad{position:absolute;inset:0;z-index:1;
+  background:
+    radial-gradient(130% 90% at 72% 18%, rgba(203,162,75,.14), transparent 46%),
+    linear-gradient(180deg, rgba(8,12,9,.62) 0%, rgba(8,12,9,.2) 30%, rgba(8,12,9,.55) 66%, rgba(8,12,9,.95) 100%)}
+#dust{position:absolute;inset:0;z-index:2;pointer-events:none}
+.hero-inner{position:relative;z-index:3;width:100%;transform:translateZ(60px)}
+.hero .kicker{display:inline-flex;align-items:center;gap:12px;margin-bottom:26px}
+.hero .kicker .line{width:46px;height:1px;background:var(--gold)}
+.hero h1{font-size:clamp(3.2rem,10vw,9rem);line-height:.9;color:#fcf7ea}
+.hero h1 em{font-style:italic;color:var(--gold-2)}
+.hero .tagline{font-family:var(--f-display);font-style:italic;font-size:clamp(1.2rem,2.5vw,2rem);max-width:24ch;margin-top:30px;color:#e9e2d2;opacity:.95}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:38px}
+.scrollcue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:4;font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:9px}
+.scrollcue .bar{width:1px;height:44px;background:linear-gradient(var(--gold),transparent);animation:cue 2.4s var(--ease) infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- section scaffold ---------- */
+.band{padding:clamp(76px,12vw,160px) 0}
+.band.tight{padding-block:clamp(60px,8vw,110px)}
+.glowtop{position:absolute;inset:auto 0 auto 0;top:-10%;height:420px;z-index:-1;pointer-events:none;
+  background:radial-gradient(60% 100% at 50% 0,rgba(203,162,75,.08),transparent 70%)}
+.head{max-width:64ch}
+.head .eyebrow{margin-bottom:18px;display:block}
+.head h2{font-size:clamp(2.2rem,5.2vw,4rem);color:#f6efe0}
+.head h2 em{font-style:italic;color:var(--gold-2)}
+.head p{margin-top:20px;color:var(--ink-2);font-size:1.08rem;max-width:52ch}
+
+[data-reveal]{opacity:0;transform:translateY(34px);transition:opacity 1.05s var(--ease),transform 1.05s var(--ease)}
+[data-reveal].in{opacity:1;transform:none}
+.d1{transition-delay:.09s}.d2{transition-delay:.18s}.d3{transition-delay:.27s}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:1fr 1.08fr;gap:clamp(34px,6vw,92px);align-items:center}
+.about-photo{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:4/5;
+  box-shadow:0 50px 90px -50px #000, 0 0 0 1px var(--line)}
+.about-photo img{width:100%;height:116%;object-fit:cover;will-change:transform}
+.about-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,12,9,.7),transparent 46%)}
+.about-photo .cap{position:absolute;left:18px;bottom:15px;z-index:2;color:#e9e2d2;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.about h2{font-size:clamp(2rem,4.6vw,3.4rem);color:#f6efe0}
+.about .lead{font-family:var(--f-display);font-size:clamp(1.3rem,2.4vw,1.8rem);line-height:1.3;margin:22px 0 16px;color:var(--gold-2);font-style:italic}
+.about p{color:var(--ink-2)}
+.facets{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:36px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.facet{background:var(--panel);padding:22px 24px;transition:background .3s}
+.facet:hover{background:var(--panel-2)}
+.facet .n{font-family:var(--f-display);font-size:13px;letter-spacing:.14em;color:var(--gold)}
+.facet h4{font-family:var(--f-display);font-weight:500;font-size:1.25rem;margin:7px 0 5px;color:var(--ink)}
+.facet p{font-size:14px;color:var(--ink-2)}
+
+/* ---------- regions ---------- */
+.regions-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+.region{position:relative;border-radius:var(--r);overflow:hidden;min-height:clamp(270px,34vw,440px);display:flex;align-items:flex-end;isolation:isolate;border:1px solid var(--line-2)}
+.region:first-child{grid-column:1/-1;min-height:clamp(320px,42vw,560px)}
+.region .rmedia{position:absolute;inset:-10% 0;z-index:-2;will-change:transform}
+.region .rmedia img{width:100%;height:100%;object-fit:cover;filter:saturate(1.02);transition:transform 1.2s var(--ease)}
+.region::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(0deg,rgba(7,11,8,.92),rgba(7,11,8,.15) 62%)}
+.region:hover .rmedia img{transform:scale(1.07)}
+.region .rbody{padding:clamp(24px,3vw,38px);width:100%}
+.region .num{font-family:var(--f-display);font-size:13px;color:var(--gold);letter-spacing:.12em}
+.region h3{font-size:clamp(1.7rem,3vw,2.8rem);margin:6px 0 7px;color:#fcf7ea}
+.region p{font-size:14.5px;max-width:42ch;color:var(--ink-2)}
+
+/* ---------- experiences ---------- */
+.exp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+.exp{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .5s var(--ease),box-shadow .5s,border-color .5s}
+.exp:hover{transform:translateY(-6px);box-shadow:0 36px 70px -46px #000;border-color:var(--line)}
+.exp .ephoto{aspect-ratio:16/10;overflow:hidden;position:relative}
+.exp .ephoto::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,27,20,.55),transparent 55%)}
+.exp .ephoto img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
+.exp:hover .ephoto img{transform:scale(1.08)}
+.exp .ebody{padding:22px 22px 24px;display:flex;flex-direction:column;gap:9px;flex:1}
+.exp .tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.exp h3{font-size:1.55rem;color:var(--ink)}
+.exp p{font-size:14px;color:var(--ink-2);flex:1}
+.exp .ebar{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:14px;border-top:1px solid var(--line-2)}
+.exp .price{font-family:var(--f-display);font-size:15px;color:var(--ink-2)}
+.exp .price b{font-size:1.35rem;font-weight:500;color:var(--gold-2)}
+.exp .go{font-size:13.5px;font-weight:600;color:var(--gold);display:inline-flex;gap:6px;align-items:center}
+.exp .go:hover{color:var(--gold-2)}
+
+/* ---------- 3 C's ---------- */
+.cs{position:relative;border:1px solid var(--line);border-radius:clamp(18px,3vw,30px);
+  background:linear-gradient(160deg,var(--green-d),#0b150f 70%);padding:clamp(44px,6vw,80px) clamp(28px,5vw,66px);overflow:hidden}
+.cs::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 120% at 85% 0,rgba(203,162,75,.14),transparent 60%);pointer-events:none}
+.cs h2{color:#fcf7ea;font-size:clamp(2rem,4.6vw,3.4rem);margin-top:16px;max-width:20ch}
+.cs h2 em{font-style:italic;color:var(--gold-2)}
+.cs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,4vw,56px);margin-top:50px}
+.c{border-top:1px solid rgba(203,162,75,.4);padding-top:24px}
+.c .big{font-family:var(--f-display);font-style:italic;font-size:clamp(2.2rem,4vw,3.2rem);color:var(--gold-2)}
+.c h4{font-family:var(--f-display);font-weight:500;font-size:1.5rem;margin:10px 0 8px;color:var(--ink)}
+.c p{font-size:15px;color:var(--ink-2)}
+
+/* ---------- gallery ---------- */
+.gal{columns:4;column-gap:14px;margin-top:46px}
+.gal img{width:100%;border-radius:12px;margin-bottom:14px;break-inside:avoid;filter:brightness(.92) saturate(1.02);transition:transform .6s var(--ease),filter .6s}
+.gal img:hover{transform:scale(1.015);filter:brightness(1.04) saturate(1.1)}
+
+/* ---------- testimonials ---------- */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
+.test{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:30px 28px}
+.test .stars{color:var(--gold);letter-spacing:3px;font-size:15px}
+.test blockquote{font-family:var(--f-display);font-size:1.22rem;line-height:1.42;margin:16px 0 18px;color:var(--ink)}
+.test .who{font-size:13.5px;color:var(--ink-3);letter-spacing:.04em}
+.ph-note{margin-top:22px;font-size:13px;color:var(--ink-3);font-style:italic}
+
+/* ---------- CTA ---------- */
+.cta{position:relative;border-radius:clamp(18px,3vw,30px);overflow:hidden;text-align:center;padding:clamp(66px,9vw,130px) 24px;border:1px solid var(--line-2)}
+.cta .ctamedia{position:absolute;inset:-12% 0;z-index:-2;will-change:transform}
+.cta .ctamedia img{width:100%;height:100%;object-fit:cover}
+.cta::after{content:"";position:absolute;inset:0;z-index:-1;background:
+  radial-gradient(80% 120% at 50% 0,rgba(203,162,75,.16),transparent 55%),
+  linear-gradient(0deg,rgba(7,11,8,.9),rgba(7,11,8,.58))}
+.cta h2{color:#fcf7ea;font-size:clamp(2.1rem,5.4vw,3.9rem);max-width:17ch;margin-inline:auto}
+.cta h2 em{font-style:italic;color:var(--gold-2)}
+.cta p{margin:18px auto 32px;max-width:46ch;color:#d8d1c0}
+
+/* ---------- footer ---------- */
+.foot{background:var(--bg-2);border-top:1px solid var(--line);padding:clamp(58px,8vw,100px) 0 42px;color:var(--ink-2)}
+.foot a:hover{color:var(--gold-2)}
+.foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:42px;padding-bottom:50px;border-bottom:1px solid var(--line-2)}
+.foot .fbrand{font-family:var(--f-display);font-size:32px;color:#f6efe0}
+.foot .fbrand b{color:var(--gold-2);font-weight:500}
+.foot .fbrand+p{margin-top:14px;max-width:36ch;font-size:15px}
+.foot h5{font-family:var(--f-body);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.foot ul{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:15px}
+.foot-bot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:28px;font-size:13px;color:var(--ink-3)}
+.foot-bot .bise{font-family:var(--f-display);font-style:italic;font-size:17px;color:var(--gold-2)}
+
+/* ---------- responsive ---------- */
+@media(max-width:920px){
+  .nav-links{display:none}
+  .nav-burger{display:flex}
+  .about{grid-template-columns:1fr;gap:30px}
+  .exp-grid,.cs-grid,.test-grid{grid-template-columns:1fr}
+  .regions-grid{grid-template-columns:1fr}
+  .region:first-child{grid-column:auto}
+  .gal{columns:2}
+  .foot-top{grid-template-columns:1fr;gap:34px}
+  .menu-open .nav-links{display:flex;position:absolute;inset:58px 8px auto 8px;flex-direction:column;gap:0;background:rgba(10,15,11,.97);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:20px;padding:10px 20px 18px}
+  .menu-open .nav-links a{padding:14px 0;border-bottom:1px solid var(--line-2);color:var(--ink)}
+}
+@media(max-width:560px){ .facets{grid-template-columns:1fr} .gal{columns:1} }
+@media(prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} [data-reveal]{opacity:1;transform:none} #dust{display:none} }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<nav class="nav" id="nav">
+  <a href="#top" class="brand" data-i18n="brand">Melissa <b>Hallais</b></a>
+  <div class="nav-links" id="navlinks">
+    <a href="#sobre" data-i18n="nav_about">Sobre</a>
+    <a href="#regioes" data-i18n="nav_regions">Regiões</a>
+    <a href="#experiencias" data-i18n="nav_exp">Experiências</a>
+    <a href="#fotos" data-i18n="nav_photos">Fotos</a>
+    <a href="#contato" data-i18n="nav_contact">Contato</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang" role="group" aria-label="Idioma / Language">
+      <button class="lang-btn on" data-lang="pt" aria-pressed="true">PT</button>
+      <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a href="https://app.melissahallais.com" class="btn" data-i18n="nav_book">Reservar</a>
+    <button class="nav-burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-stage" data-stage>
+    <div class="hero-media" data-hero><img src="img/home.jpg" alt="Alsácia — Petite France, Estrasburgo"></div>
+    <div class="hero-grad"></div>
+  </div>
+  <canvas id="dust"></canvas>
+  <div class="hero-inner wrap">
+    <span class="kicker"><span class="line"></span><span class="eyebrow" data-i18n="hero_eyebrow">Alsácia · Lorena · Champagne · Floresta Negra</span></span>
+    <h1 data-i18n="hero_h1">Alsácia,<br><em>revelada</em></h1>
+    <p class="tagline" data-i18n="hero_tag">Eu não entrego cenários. Entrego a alma da região.</p>
+    <div class="hero-cta">
+      <a href="https://app.melissahallais.com" class="btn" data-i18n="hero_cta1">Reservar uma experiência</a>
+      <a href="#experiencias" class="btn ghost" data-i18n="hero_cta2">Ver os passeios</a>
+    </div>
+  </div>
+  <div class="scrollcue"><span data-i18n="scroll">role</span><span class="bar"></span></div>
+</header>
+
+<!-- SOBRE -->
+<section class="band" id="sobre"><div class="glowtop"></div>
+  <div class="wrap about">
+    <div class="about-photo" data-reveal>
+      <img src="img/melissa.jpg" alt="Melissa Hallais, guia e fotógrafa" data-about>
+      <span class="cap">Strasbourg · France</span>
+    </div>
+    <div>
+      <span class="eyebrow" data-reveal data-i18n="about_eyebrow">Quem conduz você</span>
+      <h2 data-reveal class="d1" data-i18n="about_h2">Brasileira, guia credenciada e fotógrafa. Há mais de dez anos na Alsácia.</h2>
+      <p class="lead" data-reveal class="d2" data-i18n="about_lead">Transformo turistas em viajantes curiosos — gente que quer ver a região além do clichê.</p>
+      <p data-reveal class="d2" data-i18n="about_p">Guio em português e inglês, com o olhar de quem fotografa enquanto conta a história de cada rua. Sem grupo de quarenta pessoas atrás de uma sombrinha: experiências pequenas, com intenção, e as fotos vão junto — sem cobrança extra.</p>
+      <div class="facets" data-reveal class="d3">
+        <div class="facet"><span class="n">01</span><h4 data-i18n="f1_t">Guia credenciada</h4><p data-i18n="f1_p">Guia oficial, parceira de agências, cruzeiros e viajantes independentes.</p></div>
+        <div class="facet"><span class="n">02</span><h4 data-i18n="f2_t">Fotógrafa</h4><p data-i18n="f2_p">As fotos do passeio são suas. Memórias, não só fotografias.</p></div>
+        <div class="facet"><span class="n">03</span><h4 data-i18n="f3_t">Motorista</h4><p data-i18n="f3_p">Circuitos panorâmicos de carro, van, trem ou bicicleta.</p></div>
+        <div class="facet"><span class="n">04</span><h4 data-i18n="f4_t">Autoral</h4><p data-i18n="f4_p">Roteiros sob medida, feitos para o seu tempo e o seu interesse.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGIÕES -->
+<section class="band tight" id="regioes">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow" data-reveal data-i18n="reg_eyebrow">Onde eu te levo</span>
+      <h2 data-reveal class="d1" data-i18n="reg_h2">Quatro regiões, <em>uma só maneira de enxergar.</em></h2>
+      <p data-reveal class="d2" data-i18n="reg_p">No coração da Europa, entre a França e a Alemanha — cada uma com a sua luz, a sua mesa e a sua história.</p>
+    </div>
+    <div class="regions-grid">
+      <article class="region" data-reveal>
+        <div class="rmedia" data-par><img src="img/tour-rota-vinhos.jpg" alt="Alsácia"></div>
+        <div class="rbody"><span class="num">01</span><h3 data-i18n="reg1_t">Alsácia</h3><p data-i18n="reg1_p">Estrasburgo, Colmar, Obernai e a Rota dos Vinhos — vilarejos de enxaimel, cegonhas e catedral.</p></div>
+      </article>
+      <article class="region" data-reveal>
+        <div class="rmedia" data-par><img src="img/tour-floresta.jpg" alt="Floresta Negra"></div>
+        <div class="rbody"><span class="num">02</span><h3 data-i18n="reg2_t">Floresta Negra</h3><p data-i18n="reg2_p">Do outro lado do Reno, a Alemanha de lagos, bosques e estradas panorâmicas.</p></div>
+      </article>
+      <article class="region" data-reveal class="d1">
+        <div class="rmedia" data-par><img src="img/tour-vinhedos.jpg" alt="Lorena"></div>
+        <div class="rbody"><span class="num">03</span><h3 data-i18n="reg3_t">Lorena</h3><p data-i18n="reg3_p">Vizinha discreta da Alsácia, de cidades nobres e paisagens que poucos conhecem.</p></div>
+      </article>
+      <article class="region" data-reveal class="d2">
+        <div class="rmedia" data-par><img src="img/tour-estrasburgo.jpg" alt="Champagne"></div>
+        <div class="rbody"><span class="num">04</span><h3 data-i18n="reg4_t">Champagne</h3><p data-i18n="reg4_p">A região do espumante mais famoso do mundo — vinhedos, caves e brindes.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIÊNCIAS -->
+<section class="band tight" id="experiencias"><div class="glowtop"></div>
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow" data-reveal data-i18n="exp_eyebrow">O que fazemos juntos</span>
+      <h2 data-reveal class="d1" data-i18n="exp_h2">Experiências, <em>não excursões.</em></h2>
+      <p data-reveal class="d2" data-i18n="exp_p">A pé, de bicicleta ou de barco; com câmera na mão ou taça na mesa. Reserva e disponibilidade pelo app.</p>
+    </div>
+    <div class="exp-grid">
+      <article class="exp" data-reveal>
+        <div class="ephoto"><img src="img/tour-estrasburgo.jpg" alt="Passeio a pé"></div>
+        <div class="ebody"><span class="tag" data-i18n="exp1_tag">A pé</span><h3 data-i18n="exp1_t">Passeios guiados</h3><p data-i18n="exp1_p">Estrasburgo, Colmar e a Petite France, no ritmo de quem conversa — história sem decoreba.</p>
+          <div class="ebar"><span class="price"><span data-i18n="from">a partir de</span> <b>€52</b></span><a class="go" href="https://app.melissahallais.com"><span data-i18n="book">Reservar</span> →</a></div></div>
+      </article>
+      <article class="exp" data-reveal class="d1">
+        <div class="ephoto"><img src="img/tour-vinhedos.jpg" alt="Sessão de fotos"></div>
+        <div class="ebody"><span class="tag" data-i18n="exp2_tag">Fotografia</span><h3 data-i18n="exp2_t">Sessão de fotos</h3><p data-i18n="exp2_p">Você e a Alsácia do jeito mais fotogênico — vinhedos, castelos, a cidade velha. Escolha o cenário.</p>
+          <div class="ebar"><span class="price"><span data-i18n="from">a partir de</span> <b>€180</b></span><a class="go" href="https://app.melissahallais.com"><span data-i18n="book">Reservar</span> →</a></div></div>
+      </article>
+      <article class="exp" data-reveal class="d2">
+        <div class="ephoto"><img src="img/tour-floresta.jpg" alt="Passeio de bicicleta"></div>
+        <div class="ebody"><span class="tag" data-i18n="exp3_tag">De bicicleta</span><h3 data-i18n="exp3_t">Bike & vinho</h3><p data-i18n="exp3_p">Pela Rota dos Vinhos ou pela Floresta Negra, com paradas que valem o pedal.</p>
+          <div class="ebar"><span class="price"><span data-i18n="from">a partir de</span> <b>€78</b></span><a class="go" href="https://app.melissahallais.com"><span data-i18n="book">Reservar</span> →</a></div></div>
+      </article>
+      <article class="exp" data-reveal>
+        <div class="ephoto"><img src="img/tour-natal.jpg" alt="Tour gourmet"></div>
+        <div class="ebody"><span class="tag" data-i18n="exp4_tag">Gourmet</span><h3 data-i18n="exp4_t">Mercados & mesa</h3><p data-i18n="exp4_p">Os mercados de Natal e a cozinha alsaciana, com degustação de vinho harmonizada.</p>
+          <div class="ebar"><span class="price"><span data-i18n="from">a partir de</span> <b>€45</b></span><a class="go" href="https://app.melissahallais.com"><span data-i18n="book">Reservar</span> →</a></div></div>
+      </article>
+      <article class="exp" data-reveal class="d1">
+        <div class="ephoto"><img src="img/tour-rota-vinhos.jpg" alt="Rota dos Vinhos"></div>
+        <div class="ebody"><span class="tag" data-i18n="exp5_tag">Dia inteiro</span><h3 data-i18n="exp5_t">Rota dos Vinhos</h3><p data-i18n="exp5_p">Riquewihr e Ribeauvillé, vilarejos medievais e almoço com tempo — sem comissão escondida.</p>
+          <div class="ebar"><span class="price"><span data-i18n="from">a partir de</span> <b>€120</b></span><a class="go" href="https://app.melissahallais.com"><span data-i18n="book">Reservar</span> →</a></div></div>
+      </article>
+      <article class="exp" data-reveal class="d2">
+        <div class="ephoto"><img src="img/capa.jpg" alt="Roteiro sob medida"></div>
+        <div class="ebody"><span class="tag" data-i18n="exp6_tag">Sob medida</span><h3 data-i18n="exp6_t">Roteiro privado</h3><p data-i18n="exp6_p">Barco, trem, carro — vários dias, vários interesses. Conte o que você sonha e eu desenho.</p>
+          <div class="ebar"><span class="price" data-i18n="exp6_price">sob consulta</span><a class="go" href="https://wa.me/33682051120"><span data-i18n="talk">Falar comigo</span> →</a></div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 3 C's -->
+<section class="band tight">
+  <div class="wrap">
+    <div class="cs" data-reveal>
+      <span class="eyebrow" data-i18n="cs_eyebrow">A minha assinatura</span>
+      <h2 data-i18n="cs_h2">Eu te ofereço os meus <em>3 C's.</em></h2>
+      <div class="cs-grid">
+        <div class="c"><div class="big">Culture</div><h4 data-i18n="c1_t">Cultura</h4><p data-i18n="c1_p">A história de verdade — fatos e lendas, a beleza e as cicatrizes. A Alsácia além dos cinco clichês.</p></div>
+        <div class="c"><div class="big">Capture</div><h4 data-i18n="c2_t">Registro</h4><p data-i18n="c2_p">Enquanto caminhamos, eu fotografo. Você leva a viagem — e você dentro dela.</p></div>
+        <div class="c"><div class="big">Casual</div><h4 data-i18n="c3_t">Leveza</h4><p data-i18n="c3_p">Sem pressa, sem formalidade. Uma amiga brasileira que conhece cada esquina.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOTOS -->
+<section class="band tight" id="fotos">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow" data-reveal data-i18n="gal_eyebrow">Memórias, não só fotografias</span>
+      <h2 data-reveal class="d1" data-i18n="gal_h2">O que você <em>leva pra casa.</em></h2>
+    </div>
+    <div class="gal" data-reveal class="d1">
+      <img src="img/p-t1-1.jpg" alt=""><img src="img/p-t2-1.jpg" alt=""><img src="img/p-t4-1.jpg" alt="">
+      <img src="img/p-t1-2.jpg" alt=""><img src="img/p-t2-2.jpg" alt=""><img src="img/p-t4-2.jpg" alt="">
+      <img src="img/p-t1-3.jpg" alt=""><img src="img/p-t2-3.jpg" alt=""><img src="img/p-t4-3.jpg" alt="">
+      <img src="img/p-t1-4.jpg" alt=""><img src="img/p-t2-4.jpg" alt=""><img src="img/p-t4-4.jpg" alt="">
+    </div>
+  </div>
+</section>
+
+<!-- DEPOIMENTOS -->
+<section class="band tight">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow" data-reveal data-i18n="test_eyebrow">Quem já viajou comigo</span>
+      <h2 data-reveal class="d1" data-i18n="test_h2">Histórias, calor humano e <em>as fotos que ficam.</em></h2>
+    </div>
+    <div class="test-grid">
+      <div class="test" data-reveal><div class="stars">★★★★★</div><blockquote data-i18n="test1">[Depoimento real do Google — entra aqui]</blockquote><div class="who" data-i18n="test1_who">Viajante · Google</div></div>
+      <div class="test" data-reveal class="d1"><div class="stars">★★★★★</div><blockquote data-i18n="test2">[Depoimento real do Airbnb — entra aqui]</blockquote><div class="who" data-i18n="test2_who">Traveler · Airbnb</div></div>
+      <div class="test" data-reveal class="d2"><div class="stars">★★★★★</div><blockquote data-i18n="test3">[Depoimento real do Google — entra aqui]</blockquote><div class="who" data-i18n="test3_who">Viajante · Google</div></div>
+    </div>
+    <p class="ph-note" data-i18n="test_note">Nota: seus depoimentos reais do Google e do Airbnb entram aqui — me diga quais usar (ou ligo o widget de avaliações do Google).</p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="band tight">
+  <div class="wrap">
+    <div class="cta" data-reveal>
+      <div class="ctamedia" data-par><img src="img/tour-rota-vinhos.jpg" alt=""></div>
+      <h2 data-i18n="cta_h2">Pronta pra te mostrar <em>a minha Alsácia?</em></h2>
+      <p data-i18n="cta_p">Veja as datas, escolha a experiência e reserve — em minutos, pelo app.</p>
+      <a href="https://app.melissahallais.com" class="btn" data-i18n="cta_btn">Reservar agora</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot" id="contato">
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="fbrand">Melissa <b>Hallais</b></div>
+        <p data-i18n="foot_tag">Guia oficial, fotógrafa e motorista na Alsácia, Lorena, Champagne e Floresta Negra. Em português e inglês.</p>
+      </div>
+      <div>
+        <h5 data-i18n="foot_explore">Explorar</h5>
+        <ul>
+          <li><a href="#sobre" data-i18n="nav_about">Sobre</a></li>
+          <li><a href="#regioes" data-i18n="nav_regions">Regiões</a></li>
+          <li><a href="#experiencias" data-i18n="nav_exp">Experiências</a></li>
+          <li><a href="#fotos" data-i18n="nav_photos">Fotos</a></li>
+          <li><a href="https://app.melissahallais.com" data-i18n="nav_book">Reservar</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 data-i18n="foot_contact">Contato</h5>
+        <ul>
+          <li><a href="https://wa.me/33682051120">WhatsApp · +33 6 82 05 11 20</a></li>
+          <li><a href="mailto:guide@melissahallais.com">guide@melissahallais.com</a></li>
+          <li><a href="https://instagram.com/melissalsacia">Instagram · @melissalsacia</a></li>
+          <li>Strasbourg · France</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 Melissa Hallais · Official Tour Guide Alsace (PT·EN)</span>
+      <span class="bise">À bientôt !</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+/* ---------- i18n ---------- */
+const EN = {
+  brand:'Melissa <b>Hallais</b>', nav_about:'About', nav_regions:'Regions', nav_exp:'Experiences',
+  nav_photos:'Photos', nav_contact:'Contact', nav_book:'Book',
+  hero_eyebrow:'Alsace · Lorraine · Champagne · Black Forest', hero_h1:'Unveil<br><em>Alsace</em>',
+  hero_tag:'I don’t deliver scenery. I deliver the soul of the region.',
+  hero_cta1:'Book an experience', hero_cta2:'See the tours', scroll:'scroll',
+  about_eyebrow:'Who guides you', about_h2:'Brazilian, accredited guide and photographer. More than ten years in Alsace.',
+  about_lead:'I turn tourists into curious travelers — people who want to see the region beyond the cliché.',
+  about_p:'I guide in Portuguese and English, with the eye of someone who photographs while telling the story of each street. No group of forty behind an umbrella: small, intentional experiences — and the photos come with it, at no extra charge.',
+  f1_t:'Accredited guide', f1_p:'Official guide, partner to agencies, cruises and independent travelers.',
+  f2_t:'Photographer', f2_p:'The tour photos are yours. Memories, not just photographs.',
+  f3_t:'Driver', f3_p:'Panoramic circuits by car, van, train or bicycle.',
+  f4_t:'Bespoke', f4_p:'Tailor-made itineraries, built around your time and interests.',
+  reg_eyebrow:'Where I take you', reg_h2:'Four regions, <em>one way of seeing.</em>',
+  reg_p:'In the heart of Europe, between France and Germany — each with its own light, table and history.',
+  reg1_t:'Alsace', reg1_p:'Strasbourg, Colmar, Obernai and the Wine Route — half-timbered villages, storks and cathedral.',
+  reg2_t:'Black Forest', reg2_p:'Across the Rhine, the Germany of lakes, woods and panoramic roads.',
+  reg3_t:'Lorraine', reg3_p:'Alsace’s quiet neighbor, of noble towns and landscapes few know.',
+  reg4_t:'Champagne', reg4_p:'Home of the world’s most famous sparkling wine — vineyards, cellars and toasts.',
+  exp_eyebrow:'What we do together', exp_h2:'Experiences, <em>not excursions.</em>',
+  exp_p:'On foot, by bike or by boat; camera in hand or glass on the table. Booking and availability in the app.',
+  exp1_tag:'On foot', exp1_t:'Guided walks', exp1_p:'Strasbourg, Colmar and Petite France, at the pace of a conversation — history, not recitation.',
+  exp2_tag:'Photography', exp2_t:'Photo session', exp2_p:'You and Alsace at their most photogenic — vineyards, castles, the old town. Choose your backdrop.',
+  exp3_tag:'By bike', exp3_t:'Bike & wine', exp3_p:'Along the Wine Route or the Black Forest, with stops worth the ride.',
+  exp4_tag:'Gourmet', exp4_t:'Markets & table', exp4_p:'The Christmas markets and Alsatian cuisine, with a paired wine tasting.',
+  exp5_tag:'Full day', exp5_t:'The Wine Route', exp5_p:'Riquewihr and Ribeauvillé, medieval villages and an unhurried lunch — no hidden commission.',
+  exp6_tag:'Bespoke', exp6_t:'Private itinerary', exp6_p:'Boat, train, car — several days, several interests. Tell me your dream and I design it.',
+  exp6_price:'on request', from:'from', book:'Book', talk:'Talk to me',
+  cs_eyebrow:'My signature', cs_h2:'I offer you my <em>three C’s.</em>',
+  c1_t:'Culture', c1_p:'The real history — facts and legends, beauty and scars. Alsace beyond the five clichés.',
+  c2_t:'Capture', c2_p:'As we walk, I photograph. You take the journey — and you inside it.',
+  c3_t:'Casual', c3_p:'No rush, no formality. A Brazilian friend who knows every corner.',
+  gal_eyebrow:'Memories, not just photographs', gal_h2:'What you <em>take home.</em>',
+  test_eyebrow:'Those who traveled with me', test_h2:'Stories, warmth and <em>the photos that stay.</em>',
+  test1:'[Real Google review goes here]', test1_who:'Traveler · Google',
+  test2:'[Real Airbnb review goes here]', test2_who:'Traveler · Airbnb',
+  test3:'[Real Google review goes here]', test3_who:'Traveler · Google',
+  test_note:'Note: your real Google and Airbnb reviews go here — tell me which to use (or I can embed the Google reviews widget).',
+  cta_h2:'Ready for me to show you <em>my Alsace?</em>', cta_p:'See the dates, choose your experience and book — in minutes, in the app.',
+  cta_btn:'Book now',
+  foot_tag:'Official guide, photographer and driver in Alsace, Lorraine, Champagne and the Black Forest. In Portuguese and English.',
+  foot_explore:'Explore', foot_contact:'Contact'
+};
+function applyLang(lang){
+  const dict = lang==='en' ? EN : null;
+  document.documentElement.lang = lang==='en' ? 'en' : 'pt';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(dict){ if(dict[k]!==undefined){ if(el.dataset.pt===undefined) el.dataset.pt=el.innerHTML; el.innerHTML=dict[k]; } }
+    else if(el.dataset.pt!==undefined){ el.innerHTML=el.dataset.pt; }
+  });
+  document.querySelectorAll('.lang-btn').forEach(b=>{const on=b.dataset.lang===lang;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});
+  try{ localStorage.setItem('mh_lang',lang); }catch(e){}
+}
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.lang)));
+try{ if(localStorage.getItem('mh_lang')==='en') applyLang('en'); }catch(e){}
+
+/* ---------- nav + menu ---------- */
+const nav=document.getElementById('nav');
+const onScroll=()=>nav.classList.toggle('solid',scrollY>40); onScroll(); addEventListener('scroll',onScroll,{passive:true});
+document.getElementById('burger').addEventListener('click',()=>document.body.classList.toggle('menu-open'));
+document.querySelectorAll('#navlinks a').forEach(a=>a.addEventListener('click',()=>document.body.classList.remove('menu-open')));
+
+/* ---------- reveal ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12,rootMargin:'0px 0px -7% 0px'});
+document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));
+
+/* ---------- gold dust (atmosphere) ---------- */
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+(function(){ if(reduce) return;
+  const cv=document.getElementById('dust'), cx=cv.getContext('2d'); let w,h,parts,raf;
+  function size(){ w=cv.width=cv.offsetWidth*devicePixelRatio; h=cv.height=cv.offsetHeight*devicePixelRatio;
+    const n=Math.min(70,Math.round(w*h/26000/devicePixelRatio));
+    parts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,r:(Math.random()*1.6+.4)*devicePixelRatio,
+      vx:(Math.random()-.5)*.14*devicePixelRatio,vy:(-Math.random()*.3-.05)*devicePixelRatio,a:Math.random()*.5+.15})); }
+  function tick(){ cx.clearRect(0,0,w,h);
+    for(const p of parts){ p.x+=p.vx; p.y+=p.vy; if(p.y<-10){p.y=h+10;p.x=Math.random()*w;} if(p.x<-10)p.x=w+10; if(p.x>w+10)p.x=-10;
+      cx.beginPath(); cx.arc(p.x,p.y,p.r,0,6.283); cx.fillStyle='rgba(227,201,121,'+p.a+')'; cx.shadowColor='rgba(227,201,121,.8)'; cx.shadowBlur=6*devicePixelRatio; cx.fill(); }
+    raf=requestAnimationFrame(tick); }
+  size(); tick(); addEventListener('resize',size);
+})();
+
+/* ---------- smooth scroll + 3D parallax ---------- */
+if(!reduce && window.Lenis && window.gsap){
+  gsap.registerPlugin(ScrollTrigger);
+  const lenis=new Lenis({lerp:.085,wheelMultiplier:1});
+  lenis.on('scroll',ScrollTrigger.update);
+  gsap.ticker.add(t=>lenis.raf(t*1000)); gsap.ticker.lagSmoothing(0);
+  gsap.to('[data-hero] img',{yPercent:20,scale:1.18,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('.hero-inner',{yPercent:-18,opacity:.2,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}});
+  document.querySelectorAll('[data-par]').forEach(el=>{
+    gsap.fromTo(el,{yPercent:-10},{yPercent:10,ease:'none',scrollTrigger:{trigger:el.closest('.region,.cta'),start:'top bottom',end:'bottom top',scrub:true}});
+  });
+  gsap.fromTo('[data-about]',{yPercent:-7},{yPercent:7,ease:'none',scrollTrigger:{trigger:'.about-photo',start:'top bottom',end:'bottom top',scrub:true}});
+  // hero mouse 3D tilt (depth)
+  const stage=document.querySelector('[data-stage]'), inner=document.querySelector('.hero-inner');
+  if(matchMedia('(pointer:fine)').matches){
+    addEventListener('mousemove',e=>{ const x=(e.clientX/innerWidth-.5), y=(e.clientY/innerHeight-.5);
+      gsap.to(stage,{rotateY:x*6,rotateX:-y*5,duration:.9,ease:'power2.out',transformOrigin:'50% 50%'});
+      gsap.to(inner,{x:x*-26,y:y*-16,duration:.9,ease:'power2.out'}); },{passive:true});
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const id=a.getAttribute('href');if(id.length>1){e.preventDefault();lenis.scrollTo(id,{offset:-10});document.body.classList.remove('menu-open');}}));
+}
+</script>
+</body>
+</html>
