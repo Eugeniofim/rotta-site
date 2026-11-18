@@ -62,3 +62,9 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - **Instrutores:** visitante com nome (avulsa, Wellhub ou GoGood); "aula vazia" à vista; feriado desmarca a aula sozinho; aquarela, musicalização e violão com só o ponto 1 em "como o valor é calculado".
 - **Administração:** Wellhub R$ 25,50 e GoGood R$ 27,00 por aula; planos do particular; chave Pix e link do cartão em Regras; feriados em Escola → Horários; terapias em Cursos; avisos automáticos com "quando vai" editável; backup todo dia 15 do mês anterior e botão "Conectar o Google Drive".
 - **Banco:** 134 testes (era 103). `como-usar.pdf` refeito para a v8. O `tutorial.mp4` ainda é o da v7 (entrada antiga).
+
+## v9 (planilha de alunos ativos, 18/11)
+- **Trazer a planilha para o app:** Inscrições → "Trazer do Google Forms" agora aceita a planilha do Excel (.xlsx) além do .csv. O app arruma sozinho o CPF que o Excel guardou sem o zero da frente, a data no formato do Excel, nome todo em maiúsculas e celular sem DDD (põe 41), e mostra um relatório: quantas entraram, quem já estava no app (mesmo CPF ou celular não entra duas vezes) e o que conferir (celular sem o 9, sem DDD, sem contato de emergência, CPF que não confere).
+- Respostas de perguntas antigas do formulário ficam guardadas na ficha. Ao confirmar, a administração escolhe o plano (1x a 4x, Wellhub ou GoGood).
+- Banco: `importar_inscricao` (só a administração; repetido não entra). 138 testes.
+- **Dados reais não entram nesta demonstração pública.** `fonte/alunos-ficticios.xlsx` é uma planilha FALSA com os mesmos títulos e defeitos da real, para o teste (`fonte/teste-planilha-alunos.js`).

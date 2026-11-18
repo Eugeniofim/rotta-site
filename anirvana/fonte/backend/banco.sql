@@ -861,7 +861,7 @@ begin
   -- respostas: o que não é saúde vai para fichas; saúde vai para fichas_saude
   saude := (select coalesce(jsonb_object_agg(k, d->k), '{}') from unnest(campos_saude) k where d ? k);
   insert into public.fichas (aluno_id, formulario, respostas, emergencia_nome, emergencia_telefone, indicado_por, completa)
-    values (aid, form, (d - campos_saude) - array['nome','tel','email','nasc','cpf','endereco','atv','plano','modo','turmas','instr','experimental','saudeOk','priv','whats'],
+    values (aid, form, (d - campos_saude) - array['nome','tel','email','nasc','cpf','endereco','atv','plano','modo','turmas','instr','experimental','saudeOk','priv','whats','conferir'],
             d->>'emergNome', d->>'emergTel', quem, true);
   insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'privacidade', 'v1');
   if coalesce((d->>'termos')::boolean, false) or coalesce((d->>'ciente')::boolean, false) then insert into public.consentimentos (aluno_id, tipo, versao) values (aid, 'termos', form || '-v1'); end if;
@@ -1473,3 +1473,30 @@ begin
 end $$;
 drop trigger if exists cobrancas_plataforma on public.cobrancas;
 create trigger cobrancas_plataforma before insert on public.cobrancas for each row execute function public.sem_cobranca_plataforma();
+
+-- ---------- trazer a planilha de alunos / respostas do Google Forms (só a administração) ----------
+-- o app lê o .xlsx ou .csv, arruma CPF sem zero, data do Excel e celular sem DDD, e manda linha por linha;
+-- cada uma vira inscrição "nova" (origem google_forms), que a administração confirma escolhendo o plano.
+-- Não passa pelo limite de 3 por dia nem pela conferência do CPF da inscrição pública: o que estiver
+-- estranho vem marcado em dados->'conferir' para a administração olhar antes de confirmar.
+create or replace function public.importar_inscricao(p jsonb) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare novo uuid; v_cpf text := regexp_replace(coalesce(p->>'cpf',''), '\D', '', 'g'); v_tel text := right(regexp_replace(coalesce(p->>'tel',''), '\D', '', 'g'), 11);
+begin
+  if not public.eh_admin() then raise exception 'Só a administração traz planilhas.'; end if;
+  if length(trim(coalesce(p->>'nome',''))) < 3 then raise exception 'Linha sem nome.'; end if;
+  if not exists (select 1 from public.atividades where id = p->>'atv') then raise exception 'Atividade inválida.'; end if;
+  if length(p::text) > 20000 then raise exception 'Linha longa demais.'; end if;
+  -- quem já é aluno (mesmo CPF ou celular) ou já está esperando confirmação não entra de novo
+  if exists (select 1 from public.alunos a left join public.alunos_privado ap on ap.aluno_id = a.id
+             where not a.apagado and ((length(v_cpf) = 11 and regexp_replace(coalesce(ap.cpf,''), '\D', '', 'g') = v_cpf)
+                                   or (length(v_tel) >= 10 and right(regexp_replace(coalesce(a.telefone,''), '\D', '', 'g'), 11) = v_tel)))
+     or exists (select 1 from public.inscricoes i where i.estado = 'nova'
+             and ((length(v_cpf) = 11 and regexp_replace(coalesce(i.dados->>'cpf',''), '\D', '', 'g') = v_cpf)
+               or (length(v_tel) >= 10 and right(regexp_replace(coalesce(i.dados->>'tel',''), '\D', '', 'g'), 11) = v_tel))) then
+    return null; end if;
+  insert into public.inscricoes (origem, dados) values ('google_forms', p - 'origem') returning id into novo;
+  return novo;
+end $$;
+revoke execute on function public.importar_inscricao(jsonb) from public, anon;
+grant execute on function public.importar_inscricao(jsonb) to authenticated;

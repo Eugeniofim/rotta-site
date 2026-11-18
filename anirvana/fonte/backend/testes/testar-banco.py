@@ -424,5 +424,18 @@ confere('backup todo dia 15', s and valor(o) == '15', o)
 s, o = como(U['admin'], "select count(*) from conexao_google")
 confere('token do Google Drive: nenhum login lê', s and valor(o) == '0', o)
 
+# ---------- trazer a planilha de alunos (só a administração; repetido não entra) ----------
+linha = """{"atv":"yoga","nome":"Teste Planilha","cpf":"012.345.678-90","tel":"(41) 99999-0001","nasc":"1990-05-04","conferir":["celular sem DDD (pus 41)"]}"""
+s, o = como(U['kamala'], f"select importar_inscricao('{linha}'::jsonb)")
+confere('instrutora não traz planilha', not s and 'administração' in o, o)
+s, o = como(U['admin'], f"select importar_inscricao('{linha}'::jsonb)"); id_imp = valor(o)
+s2, o2 = psql(f"select origem || ':' || estado || ':' || (dados->'conferir'->>0) from inscricoes where id = '{id_imp}'")
+confere('linha da planilha vira inscrição nova (Google Forms) com o que conferir', s and s2 and valor(o2) == 'google_forms:nova:celular sem DDD (pus 41)', o + o2)
+s, o = como(U['admin'], f"select coalesce(importar_inscricao('{linha}'::jsonb)::text, 'repetida')")
+confere('a mesma pessoa não entra duas vezes', s and valor(o) == 'repetida', o)
+s, o = como(U['admin'], f"select confirmar_inscricao('{id_imp}')")
+s2, o2 = psql(f"select m.plano_id || ':' || coalesce(f.respostas ? 'conferir', false)::text from matriculas m join fichas f on f.aluno_id = m.aluno_id where m.aluno_id = '{valor(o)}'")
+confere('confirmada: plano do yoga e a ficha sem a etiqueta "conferir"', s and s2 and valor(o2) == 'yoga-2x:false', o + o2)
+
 print(f'\n{ok} ok · {falhas} falhas')
 sys.exit(1 if falhas else 0)

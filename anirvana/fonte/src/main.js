@@ -351,12 +351,16 @@ const ACT = {
       <div class="li"><span class="ico-b">${ic('phone')}</span><div class="main-c"><span class="t num">${escapeH(contato || '—')}</span><span class="s">${F.crianca ? `WhatsApp de ${escapeH(x.respNome || 'responsável')}` : 'WhatsApp'}</span></div>${contato ? `<button class="btn ghost sm" data-act="copiar" data-v="${escapeH(contato)}">${ic('copy','sm')}Copiar</button>` : ''}</div></div>
       ${blocoFicha(a, 'admin')}
       ${i.origem === 'forms' && !x.priv ? `<div class="alert warn"><span class="ib">${ic('circle-alert')}</span><div><div class="t">Falta o aceite da privacidade</div><div class="s">Quem veio do Google Forms recebe o link para aceitar a política de privacidade no primeiro acesso.</div></div></div>` : ''}
+      ${x.atv === 'yoga' && i.estado === 'nova' ? `<div class="field"><label>Plano</label><div class="optgrid">${[...PLANOS_MENSAIS, 'wellhub', 'gogood'].map(k => `<button type="button" class="opt ${(x.plano || '2x') === k ? 'on' : ''}" data-act="opt" data-grp="cPlano" data-v="${k}">${PLANOS_YOGA[k].nome}<br><b class="num">${brl(S.regras.planos[k])}</b></button>`).join('')}</div><input type="hidden" id="cPlano" value="${escapeH(x.plano || '2x')}"></div>` : ''}
+      ${(x.conferir || []).length && i.estado === 'nova' ? `<div class="alert warn"><span class="ib">${ic('circle-alert')}</span><div><div class="t">Conferir</div><div class="s">${x.conferir.map(escapeH).join(' · ')}</div></div></div>` : ''}
       ${x.atv === 'particular' && i.estado === 'nova' ? `<div class="field"><label>Quem vai dar a aula particular</label><div class="optgrid">${EQUIPE.filter(p => p.atvs.includes('particular')).map(p => `<button type="button" class="opt ${x.instr === p.id ? 'on' : ''}" data-act="opt" data-grp="cInstr" data-v="${p.id}">${av(p.nome)}${escapeH(p.nome)}</button>`).join('')}</div><input type="hidden" id="cInstr" value="${escapeH(x.instr || '')}"><span class="help">${x.modo === 'online' ? 'Pediu online.' : 'Pediu presencial.'} O aluno só aparece para a professora escolhida.</span></div>` : ''}
       <div class="sheet-foot"><button class="btn sec" data-act="fechar">Depois</button><button class="btn pri" data-act="confirmarInscricao" data-v="${i.id}">${ic('check')}Confirmar matrícula</button></div></div>`); },
   confirmarInscricao:(d) => { const ii = S.inscricoes.find(x => x.id === d.v); if (ii && ii.dados.atv === 'particular' && !ii.dados.instr){ const sel = $('#cInstr')?.value; if (!sel){ ACT.verInscricao(d); setTimeout(() => avisar('Escolha quem vai dar a aula particular', 'circle-alert'), 300); return; } ii.dados.instr = sel; }
+    if (ii && ii.dados.atv === 'yoga' && $('#cPlano')) ii.dados.plano = $('#cPlano').value;
     const r = confirmarInscricao(d.v); salvar(); fecharFolha(); reRender(); avisar(`Matrícula confirmada. A ficha já aparece para ${r.quem.join(', ') || 'a equipe'}, e a família recebeu o WhatsApp de boas-vindas.`, 'user-plus'); },
   linkInscricao:() => ACT.copiar({v:'https://rottaguide.com/anirvana#inscricao'}),
   importarForms:() => folhaImportar(),
+  fecharImport:() => { fecharFolha(); if (UI.role === 'admin') ir('admin', 'inscricoes'); },
   inscricaoBalcao:() => { UI.insc = {passo:0, d:{}, balcao:true}; folhaInscricao(); },
   salvarMinhaFicha:() => { inscSalvar(); const falta = inscValida(UI.insc.passo); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; }
     const a = alunoPor(S, UI.who.aluno), d = UI.insc.d, F = FORMULARIOS[formDe(d.atv)], antes = !!(a.ficha && a.ficha.completa);
@@ -459,7 +463,9 @@ document.addEventListener('input', e => {
   if (k === 'busca'){ UI.busca = el.value; clearTimeout(_buscaT); _buscaT = setTimeout(() => { const pos = el.selectionStart; reRender(); const b = $('#busca'); if (b){ b.focus(); b.setSelectionRange(pos,pos); } }, 220); }
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'csvForms' && e.target.files[0]){ const atv = $('#impAtv')?.value || 'yoga', fr = new FileReader(); fr.onload = () => { const n = importarForms(String(fr.result), atv); salvar(); fecharFolha(); reRender(); avisar(n ? `${n} ${n === 1 ? 'inscrição importada' : 'inscrições importadas'} do formulário de ${ATIV[atv].curto}` : 'Não achei respostas nesse arquivo', n ? 'check' : 'circle-alert'); }; fr.readAsText(e.target.files[0]); return; }
+  if (e.target.id === 'csvForms' && e.target.files[0]){ const atv = $('#impAtv')?.value || 'yoga', arq = e.target.files[0];
+    importarArquivo(arq, atv).then(rel => { salvar(); reRender(); if (!rel.n && !rel.repetidos.length){ fecharFolha(); avisar('Não achei respostas nesse arquivo', 'circle-alert'); return; } folhaRelatorioImport(rel, atv); })
+      .catch(err => avisar('Não consegui ler essa planilha: ' + err.message, 'circle-alert')); return; }
   const el = e.target, k = el.dataset.actIn; if (!k) return;
   if (k === 'precoPart'){ const v = num(el.value); if (v > 0){ S.regras.planosPart = S.regras.planosPart || {}; S.regras.planosPart[el.dataset.v] = v; salvar(); reRender(); avisar(`Particular · ${PLANOS_PART[el.dataset.v].nome}: ${brl(v)}`); } }
   if (k === 'cfgPag'){ const c = S.config = S.config || {}; if (el.dataset.v === 'taxaCartao'){ const v = num(el.value); if (v >= 0){ S.regras.taxaCartao = v; salvar(); reRender(); avisar(`Cartão: acréscimo de ${brl(v)}`); } } else { c[el.dataset.v] = el.value.trim(); salvar(); avisar(el.dataset.v === 'chavePix' ? 'Chave Pix salva: o copia e cola já sai com ela' : 'Link do cartão salvo', 'check'); } }

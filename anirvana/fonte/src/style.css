@@ -557,3 +557,4 @@ button.brand:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
 .drive .main-c{flex:1;min-width:200px}
 .drive .end{display:flex;gap:6px;flex-wrap:wrap}
 .drive .main-c{display:flex;flex-direction:column;gap:2px}
+.tag.warn{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn)}
