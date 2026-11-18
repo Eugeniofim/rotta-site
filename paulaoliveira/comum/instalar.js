@@ -7,7 +7,10 @@
    - iPhone dentro do Instagram: precisa abrir no Safari antes. */
 (function () {
   var pedido = null, ouvintes = [];
-  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); pedido = e; ouvintes.forEach(function (f) { f(); }); });
+  var avisa = function () { ouvintes.forEach(function (f) { try { f(); } catch (x) {} }); };
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); pedido = e; avisa(); });
+  var jaInstalou = false;
+  window.addEventListener('appinstalled', function () { pedido = null; jaInstalou = true; avisa(); });
 
   var ua = navigator.userAgent || '';
   function dentroDeOutroApp() { return /Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly/i.test(ua); }
@@ -16,7 +19,7 @@
   function instalado() { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
 
   function situacao() {
-    if (instalado()) return 'instalado';
+    if (instalado() || jaInstalou) return 'instalado';
     if (dentroDeOutroApp()) return android() ? 'instagram-android' : 'instagram-iphone';
     if (pedido) return 'umtoque';
     if (iphone()) return 'iphone';
@@ -118,7 +121,8 @@
   document.head.append(css);
 
   window.Instalar = {
-    situacao: situacao, html: html, tocar: tocar, copiarEndereco: copiarEndereco, mostrarSeta: mostrarSeta,
+    situacao: situacao, html: html, tocar: tocar, copiarEndereco: copiarEndereco, mostrarSeta: mostrarSeta, linkChrome: linkChrome,
+    aoMudar: function (f) { ouvintes.push(f); },
     conteudo: function () { return { t: '', p: [] }; }
   };
 

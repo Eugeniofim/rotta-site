@@ -24,7 +24,14 @@ function meusPresentes(){return Est.ler().cupons.filter(c=>!c.usado&&(!c.validad
 /* trocar pontos por cupom de desconto ou brinde */
 Pontos.trocar=function(m,id){const p=Pontos.premios(M).find(x=>x.id===id);if(!p)return;if(Pontos.meu(M).saldo<p.pts)return;
  abre(`<h2>${esc(p.t)}</h2><p>${esc(p.d)}</p><p>Saem <b>${p.pts.toLocaleString('pt-BR')} pontos</b> do seu saldo. Seu nível continua o mesmo.</p><button class="acao" onclick="confirmaTroca('${id}')">Trocar ${p.pts.toLocaleString('pt-BR')} pontos</button><button class="acao vazada" onclick="dlg.close()">Agora não</button>`)};
-function confirmaTroca(id){const p=Pontos.premios(M).find(x=>x.id===id),c=Rec.conta(M);if(!p||Pontos.meu(M).saldo<p.pts)return;
+/* no Clube de verdade, quem troca é o banco e o cupom nasce na loja (js/nuvem.js) */
+function trocaNuvem(id){const p=Pontos.premios(M).find(x=>x.id===id);if(!p)return;
+ abre(`<h2>${esc(p.t)}</h2><p>Trocando seus pontos…</p>`);
+ const falhou=t=>abre(`<h2>Não deu para trocar</h2><p>${esc(t||'Tente de novo daqui a pouco.')}</p><button class="acao" onclick="dlg.close()">Fechar</button>`);
+ PontosNuvem.trocar(id).then(d=>{if(!d||!d.ok)return falhou(d&&d.erro);const c=d.cupom;
+  abre(c.tipo!=='brinde'?`<h2>Seu cupom está pronto</h2><p>Use no pagamento da próxima compra, no app ou no site da loja. Vale até ${new Date(c.vence+'T12:00:00').toLocaleDateString('pt-BR')} e é só seu.</p><div class="cupom-g"><span>${esc(c.codigo)}</span><small>${esc(p.t)}</small></div><button class="acao" onclick="copia('${esc(c.codigo)}',this)">Copiar o código</button><button class="acao vazada" onclick="dlg.close()">Fechar</button>`
+   :`<h2>Seu brinde está guardado</h2><p>${esc(p.t)} vai junto no seu próximo pedido. A Fada recebe o aviso no painel para separar.</p><button class="acao" onclick="dlg.close()">Fechar</button>`)}).catch(()=>falhou())}
+function confirmaTroca(id){if(window.PontosNuvem)return trocaNuvem(id);const p=Pontos.premios(M).find(x=>x.id===id),c=Rec.conta(M);if(!p||Pontos.meu(M).saldo<p.pts)return;
  const item={id:'c'+Date.now(),premio:p.id,t:p.t,tipo:p.tipo,valor:p.valor||null,codigo:p.tipo==='cupom'?codigo():null,em:new Date().toISOString(),validade:new Date(Date.now()+60*864e5).toISOString(),nome:c?c.nome:'Visitante'};
  Est.mexe(s=>s.cupons.unshift(item));Pontos.debitar(M,p.pts,'Trocou por '+p.t.toLowerCase());
  abre(p.tipo==='cupom'?`<h2>Seu cupom está pronto</h2><p>Use no pagamento da próxima compra. Vale por 60 dias e é só seu.</p><div class="cupom-g"><span>${item.codigo}</span><small>${esc(p.t)}</small></div><button class="acao" onclick="copia('${item.codigo}',this)">Copiar o código</button><button class="acao vazada" onclick="dlg.close()">Fechar</button><p class="miudo">Na sacola do app ele já entra sozinho. O e-mail com o cupom também sai na hora.</p>`
@@ -114,6 +121,7 @@ function inicio(){
  ${tona.length?`<section class="secao"><h2 class="rv">À tona agora <a href="#/loja">A loja</a></h2><div class="trilho">${tona.map(cartaoP).join('')}</div></section>`:''}
  <section class="secao"><h2 class="rv">Os mais esperados <a href="#/loja?c=perfume">Todos</a></h2><div class="trilho">${esperados.map(cartaoP).join('')}</div></section>
  <section class="secao"><a class="clube-c rv" href="#/clube"><div><span class="rotulo">Clube da Fada</span><b>${eu.nivel.atual.n}</b><small>${eu.nivel.prox?'Faltam '+eu.nivel.falta.toLocaleString('pt-BR')+' pontos para '+eu.nivel.prox.n:'Você está no nível mais alto'}</small></div><strong>${eu.saldo.toLocaleString('pt-BR')}<small>pontos</small></strong></a></section>
+ ${cartaoApp(true)}
  <footer class="rodape">${EST}<p>Perfumaria botânica · Cosméticos naturais<br>Escola da Fada · Receitas exclusivas</p><small>Prévia feita pela Ti Artes</small></footer>`
 }
 function contaHTML(f){return f?[['d','dias'],['h','horas'],['m','min']].map(([k,t])=>`<span><b>${String(f[k]).padStart(2,'0')}</b><small>${t}</small></span>`).join(''):''}
@@ -282,12 +290,22 @@ function abre(h){const d=$('#dlg');d.innerHTML=`<button class="fechar" aria-labe
 const dlg=$('#dlg');dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
 function toast(t){const e=$('#toast');e.firstElementChild.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
 function baixar(){abre(Instalar.html())}
+/* "Baixe o app" no fim da tela inicial: o mesmo instalador do menu, no jeito certo de cada celular.
+   Android com Chrome: um toque abre a janela de instalar do próprio celular. iPhone: a Apple só deixa pelos dois toques do Safari.
+   Dentro do Instagram não dá para instalar: o botão leva para o Chrome (Android) ou explica o Safari (iPhone). Some quando o app já está instalado. */
+function cartaoApp(entra){const s=Instalar.situacao();if(s==='instalado')return '';
+ const sub={umtoque:'Um toque e ele aparece na sua tela, sem passar por loja de aplicativos.',android:'Fica na sua tela como um app, sem passar por loja de aplicativos.',iphone:'Dois toques no iPhone e ele fica na sua tela de início.','instagram-android':'Dentro do Instagram não dá para instalar: abra no Chrome e baixe com um toque.','instagram-iphone':'Dentro do Instagram não dá para instalar: abra no Safari e baixe em dois toques.',computador:'Abra este endereço no celular para baixar.'}[s]||'';
+ const bt=s==='umtoque'?`<button class="acao" onclick="baixarJa(this)">Baixar o app</button>`:s==='instagram-android'?`<a class="acao" href="${Instalar.linkChrome()}">Abrir no Chrome</a>`:s==='computador'?`<button class="acao" onclick="Instalar.copiarEndereco(this)">Copiar o endereço</button>`:`<button class="acao" onclick="baixar()">${s==='instagram-iphone'?'Como abrir no Safari':'Baixar o app'}</button>`;
+ return `<section class="secao" id="app-c"><div class="app-c${entra?' rv':''}"><img src="icone-192.png" alt="" width="64" height="64"><div><span class="rotulo">O app da Fada</span><b>Baixe o app e ganhe ${Pontos.regras(M).app} pontos</b><small>${sub}</small></div>${bt}<ul class="app-v"><li>Aviso quando um perfume volta à tona</li><li>Seus pontos e cupons do Clube</li><li>A Escola e as receitas da Fada</li></ul></div></section>`}
+function refazApp(){const c=$('#app-c');if(!c)return;const h=cartaoApp(false);if(!h)return c.remove();c.outerHTML=h}
+function baixarJa(b){Instalar.tocar(b).then(ok=>{if(ok){toast('Pronto, o app está na sua tela');refazApp()}})}
+Instalar.aoMudar(refazApp);
 function conversa(txt){window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(txt),'_blank','noopener')}
 function favorita(id,b){let f=favs();f=f.includes(id)?f.filter(x=>x!==id):[id,...f];try{localStorage.setItem('fada_favs',JSON.stringify(f))}catch(e){}b.setAttribute('aria-pressed',f.includes(id));toast(f.includes(id)?'Guardado nos favoritos':'Tirado dos favoritos')}
 function abreMenu(){abre(`<h2>Fada Marinha</h2><ul class="menu-g">${[['loja?c=perfume','Perfumes'],['loja?c=corpo','Cosméticos naturais'],['loja?c=cabelo','Cabelo'],['escola','Escola da Fada'],['receitas','Receitas da Fada'],['lancamentos','Lançamentos exclusivos'],['clube','Clube da Fada'],['avisos','Avisos']].map(([a,t])=>`<li><a href="#/${a}" onclick="dlg.close()">${t}<small>→</small></a></li>`).join('')}<li><a href="#/adm" onclick="dlg.close()">Painel da Fada<small>ADM</small></a></li></ul><p class="miudo">Prévia feita pela Ti Artes. O painel fica só com a Fada na versão final.</p>`)}
 let semAviso=false;
 function colocar(id){semAviso=true;Loja.colocar(M,id);semAviso=false;const p=Loja.produto(M,id);toast(p.nome+' na sacola');atualizaSacola()}
-function atualizaSacola(){const it=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),n=it.reduce((s,x)=>s+x.qtd,0),v=it.reduce((s,x)=>s+x.p.preco*x.qtd,0);$('#sacola-f').hidden=!n;$('#sacola-t').textContent=n?`Sacola · ${n} · ${R(v)}`:''}
+function atualizaSacola(){const it=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),n=it.reduce((s,x)=>s+x.qtd,0),v=it.reduce((s,x)=>s+x.p.preco*x.qtd,0);$('#sacola-f').hidden=!n;document.body.classList.toggle('com-sacola',!!n);$('#sacola-t').textContent=n?`Sacola · ${n} · ${R(v)}`:''}
 let cupomEscolhido=null;
 function contaSacola(){const it=Loja.sacola(M).map(i=>({...i,p:Loja.produto(M,i.id)})).filter(x=>x.p),sub=it.reduce((s,x)=>s+x.p.preco*x.qtd,0),ps=meusPresentes(),cs=ps.filter(c=>c.tipo==='cupom'),br=ps.filter(c=>c.tipo==='brinde');
  if(cupomEscolhido&&!cs.find(c=>c.id===cupomEscolhido))cupomEscolhido=null;if(cupomEscolhido===null&&cs.length)cupomEscolhido=cs[0].id;
@@ -298,7 +316,11 @@ function abreSacola(){const {it,sub,cs,br,cp,desc,v}=contaSacola();
  ${desc?`<div class="soma" style="font-weight:500;font-size:15px"><span>Cupom ${cp.codigo}</span><span>−${R(desc)}</span></div>`:''}${cp&&cp.valor==='frete'?`<div class="soma" style="font-weight:500;font-size:15px"><span>Frete</span><span>Grátis</span></div>`:''}
  <div class="soma"><span>Total</span><span>${R(v)}</span></div><p class="miudo">${Loja.parcela(v,4)} ou Pix. Rende ${Pontos.rende(M,v).toLocaleString('pt-BR')} pontos no Clube da Fada.</p><button class="acao" onclick="pagar()">Finalizar compra</button>`:'<p>Sua sacola está vazia.</p><a class="acao" href="#/loja" onclick="dlg.close()">Ver a loja</a>'}`)}
 function qtd(id,d){const it=Loja.sacola(M).find(i=>i.id===id);if(!it)return;semAviso=true;Loja.quantidade(M,id,it.qtd+d);semAviso=false;atualizaSacola();abreSacola()}
-function pagar(){const {v}=contaSacola();
+/* no Clube de verdade, quem cobra é a loja da Fada: o app abre o caixa dela (ou a página do perfume) */
+function pagarNaLoja(){const {it,v,cp}=contaSacola(),p=it[0]&&it[0].p,url=p?PontosNuvem.loja+'/produtos/'+encodeURIComponent(p.slug||p.id)+'/':PontosNuvem.loja+'/';
+ abre(`<h2>Pagamento</h2><p>O pagamento é feito na loja da Fada, com Pix, cartão e frete, como sempre. Quando ele for aprovado, os pontos caem aqui sozinhos.</p>${it.length>1?`<p>Na loja, coloque na sacola: ${it.map(x=>esc(x.p.nome)+(x.qtd>1?' ('+x.qtd+')':'')).join(', ')}.</p>`:''}${cp&&cp.codigo?`<p>No pagamento, use o cupom <b>${esc(cp.codigo)}</b>.</p>`:''}<p>Esta compra rende <b>${Pontos.rende(M,v).toLocaleString('pt-BR')} pontos</b>. Use na loja o mesmo e-mail do Clube.</p><a class="acao" id="ir-loja" href="${url}" target="_blank" rel="noopener">Ir para o pagamento</a><button class="acao vazada" onclick="dlg.close()">Voltar</button>`);
+ if(PontosNuvem.lojaLigada()){const b=$('#ir-loja');b.textContent='Abrindo o caixa da loja…';PontosNuvem.caixa(it.map(x=>({nid:x.p.nid,qtd:x.qtd}))).then(u=>{if(u)b.href=u;b.textContent='Ir para o pagamento'}).catch(()=>{b.textContent='Ir para o pagamento'})}}
+function pagar(){if(window.PontosNuvem)return pagarNaLoja();const {v}=contaSacola();
  abre(`<h2>Pagamento</h2><p>Na versão de verdade, este passo abre o pagamento da loja da Fada na Nuvemshop: Pix, cartão, frete e nota fiscal. A compra entra na conta dela e os pontos caem sozinhos.</p><p>Esta compra rende <b>${Pontos.rende(M,v).toLocaleString('pt-BR')} pontos</b>.</p><button class="acao" onclick="simula()">Simular compra aprovada</button><button class="acao vazada" onclick="dlg.close()">Voltar</button>`)}
 function simula(){const {it,v,cp,br}=contaSacola();dlg.close();Est.mexe(s=>s.cupons.forEach(c=>{if((cp&&c.id===cp.id)||br.find(b=>b.id===c.id)){c.usado=true;c.usadoEm=new Date().toISOString()}}));cupomEscolhido=null;semAviso=true;it.forEach(x=>Loja.tirar(M,x.id));semAviso=false;Pontos.compra(M,v,it.map(x=>x.p.nome).join(', '));atualizaSacola();ir('clube')}
 function fila(id){const p=Loja.produto(M,id),c=Rec.conta(M);
