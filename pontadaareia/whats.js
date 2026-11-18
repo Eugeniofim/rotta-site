@@ -64,7 +64,7 @@ const wzTexto = t => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" targe
 
 /* ---------- dados de exemplo (sem banco) ----------
    16/11/2026: a demonstração é a Imobiliária Milla (fictícia), a mesma do site de demonstração
-   (rottaguide.com/milla/imobiliaria): os mesmos imóveis (dados/puxa-demo.py) e a mesma equipe —
+   (milla-app.com/imobiliaria): os mesmos imóveis (dados/puxa-demo.py) e a mesma equipe —
    Carla Menezes (dona, vendas e captação), Rafael Duarte (temporada), Bianca Torres (locação).
    A conversa da Juliana (Ref. 528) é a mesma da faixa "Pergunte. A Milla responde" do site.
    Os números de telefone são de mentira (5541900000…) e nada sai daqui. */
@@ -223,7 +223,7 @@ async function wzLer(path) {
 async function wzCarregar(numero) {
   if (!WZ_REAL()) {
     WZ_EXEMPLO = WZ_EXEMPLO || wzDemo();
-    WZ.lista = WZ_EXEMPLO.conv.slice().sort((a, b) => b.ultimaEm.localeCompare(a.ultimaEm));
+    WZ.lista = WZ_EXEMPLO.conv.slice().sort((a, b) => (b.voce ? 1 : 0) - (a.voce ? 1 : 0) || b.ultimaEm.localeCompare(a.ultimaEm));   /* teste ao vivo: a conversa de quem testa no topo */
     WZ.msgs = numero ? WZ_EXEMPLO.msgs.filter(m => m.numero === numero) : [];
     WZ.pedidos = numero ? WZ_EXEMPLO.ped.filter(p => p.telefone === numero) : [];
     WZ.leads = new Set(WZ_EXEMPLO.ped.filter(p => !['atendido', 'perdido'].includes(p.status)).map(p => p.telefone));
@@ -281,7 +281,7 @@ async function wzCofre(corpo) {
 function wzItem(c, aberto) {
   const quem = c.ultimaDir === 'robo' ? 'Milla: ' : c.ultimaDir === 'equipe' ? 'Você: ' : '';
   const temLead = WZ.leads.has(c.numero);
-  return `<button type="button" class="wz-item ${aberto ? 'on' : ''} ${c.naoLidas ? 'nova' : ''}" data-act="wz-abrir" data-n="${esc(c.numero)}">
+  return `<button type="button" class="wz-item ${aberto ? 'on' : ''} ${c.naoLidas ? 'nova' : ''} ${c.voce ? 'voce' : ''}" data-act="wz-abrir" data-n="${esc(c.numero)}">
     ${av(wzNome(c) || '?')}
     <span class="wz-meio"><span class="wz-l1"><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzQuando(c.ultimaEm))}</span></span>
       <span class="wz-l2"><span class="wz-ult">${esc(quem + (c.ultima || ''))}</span>${c.naoLidas ? `<span class="wz-n" aria-label="${c.naoLidas} não lidas">${c.naoLidas}</span>` : ''}</span>
@@ -337,13 +337,13 @@ function vWhats(numero) {
         <div class="wz-lista" id="wz-lista">${wzListaHtml(numero)}</div>${WZ.erro && WZ.erro !== 'sessao' ? `<div class="wz-aviso sm">${esc(WZ.erro)}</div>` : ''}</div>
       <div class="wz-col-conversa">${c ? `
         <div class="wz-cab"><button type="button" class="btn btn-line btn-p wz-voltar" data-act="ir" data-h="#/whats" aria-label="Voltar para a lista">‹</button>${av(wzNome(c))}<span class="wz-cab-tx"><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzNum(c.numero))}</span></span>
-          <a class="btn btn-wa btn-p" href="https://wa.me/${esc(c.numero)}" target="_blank" rel="noopener" title="Abre a conversa no SEU WhatsApp, por outro número">Meu WhatsApp</a></div>
+          ${String(c.numero).startsWith('teste-') ? '' : `<a class="btn btn-wa btn-p" href="https://wa.me/${esc(c.numero)}" target="_blank" rel="noopener" title="Abre a conversa no SEU WhatsApp, por outro número">Meu WhatsApp</a>`}</div>
         <div class="wz-corpo" id="wz-corpo">${wzCorpoHtml(c)}</div>
         <form class="wz-form" id="wz-form" aria-label="Responder pelo número da ${esc(WZ_MARCA)}"><label for="wz-texto" class="oculto">Resposta</label><textarea id="wz-texto" class="inp" rows="1" placeholder="Responder para ${esc(wzNome(c).split(' ')[0])}…">${esc(WZ.rascunho && WZ.rascunho[c.numero] || '')}</textarea><button type="submit" class="btn btn-navy" ${WZ.enviando ? 'disabled' : ''}>Enviar</button></form>`
       : `<div class="wz-nada"><span class="wz-nada-ico" aria-hidden="true">${typeof SIMBOLO === 'function' ? SIMBOLO() : ''}</span><b>${WZ.lista.length ? 'Escolha uma conversa' : 'Nenhuma conversa ainda'}</b><span class="sm">${WZ.lista.length ? 'A Milla responde sozinha. Abra uma conversa para ver tudo, assumir ou responder pelo número da ' + esc(WZ_MARCA) + '.' : ''}</span></div>`}</div>
       ${c ? `<aside class="wz-col-ficha" aria-label="Ficha de ${esc(wzNome(c))}"><div class="ficha-cab">${av(wzNome(c))}<span><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzNum(c.numero))}</span></span></div>
         ${WZ.pedidos.length ? WZ.pedidos.map(wzLeadHtml).join('') : '<div class="sm ficha-vazia">A Milla ainda não anotou um pedido desta pessoa. Quando ela pedir visita, reserva ou proposta, a ficha aparece aqui.</div>'}
-        <div class="ficha-acoes"><a class="btn btn-wa btn-p" href="https://wa.me/${esc(c.numero)}" target="_blank" rel="noopener">Abrir no meu WhatsApp</a></div></aside>` : ''}
+        ${String(c.numero).startsWith('teste-') ? '' : `<div class="ficha-acoes"><a class="btn btn-wa btn-p" href="https://wa.me/${esc(c.numero)}" target="_blank" rel="noopener">Abrir no meu WhatsApp</a></div>`}</aside>` : ''}
     </div>`;
 }
 
@@ -389,6 +389,7 @@ document.addEventListener('click', async e => {
   if (a === 'wz-abrir') { ir('#/whats/' + encodeURIComponent(el.dataset.n)); return; }
   if (a === 'wz-filtro') { WZ.filtro = el.dataset.v; document.querySelectorAll('.wz-filtros .chip').forEach(b => b.classList.toggle('on', b.dataset.v === WZ.filtro)); wzPinta(); return; }
   if (a === 'wz-sair') { if (typeof authSignOut === 'function') await authSignOut(); WZ.dona = null; WZ.lista = []; WZ.carregou = false; render(); return; }
+  if (a === 'wz-robo' && String(el.dataset.n || '').startsWith('teste-')) { toast('No teste, a Milla segue atendendo você. No app de verdade, este botão passa a conversa para a equipe.'); return; }
   if (a === 'wz-robo') {
     const ligar = el.dataset.v === 'ligar', n = el.dataset.n;
     el.disabled = true;
@@ -428,6 +429,8 @@ document.addEventListener('submit', async e => {
   e.preventDefault();
   const n = wzAberto(), caixa = $('wz-texto'), texto = caixa.value.trim();
   if (!n || !texto || WZ.enviando) return;
+  /* teste ao vivo: a conversa é de quem testa; quem responde é ela, pelo WhatsApp */
+  if (String(n).startsWith('teste-')) { toast('No teste, quem escreve é você, pelo WhatsApp. Aqui você vê a conversa chegando.'); return; }
   const c = WZ.lista.find(x => x.numero === n);
   WZ.enviando = true; const bt = e.target.querySelector('button'); bt.disabled = true; bt.textContent = 'Enviando…';
   const r = await wzCofre({ para: n, texto, nome: c ? (c.nome || '').split(' ')[0] : '' });

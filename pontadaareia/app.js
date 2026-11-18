@@ -331,6 +331,14 @@ function eqDoLead(p) {
   if ((e.falhou || []).length) return { sc: 'warn', t: 'O aviso não saiu: ' + (e.falhou[0].porque || 'erro') };
   return null;
 }
+/* FOLGA (18/11/2026, Ponta d'a Areia: "quando uma corretora estiver de folga, como fazemos para não ir cliente para ela?").
+   De folga = ativo: false na linha dela (itens · equipe_wa). O cofre (aviso-equipe.js, equipeDe) já pula quem tem
+   ativo false: ela não entra na vez do rodízio nem no "todos de uma vez". Ela continua na lista, com os produtos dela;
+   um toque em "Voltou da folga" devolve. Toda gravação da pessoa passa por eqDados, para a folga não sumir quando se
+   mexe nos produtos. */
+const eqDados = (x, muda) => { const y = Object.assign({}, x, muda || {});
+  return { nome: y.nome, numero: y.numero, ...(y.produtos ? { produtos: y.produtos } : {}), ...(y.folga ? { ativo: false, folgaDesde: y.folgaDesde || new Date().toISOString() } : {}) }; };
+const eqDiaFolga = x => { const d = x.folgaDesde ? new Date(x.folgaDesde) : null; return d && !isNaN(d) ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''; };
 const eqNum = v => { let d = String(v || '').replace(/\D/g, ''); if (d.length === 10 || d.length === 11) d = '55' + d; return d.length >= 12 && d.length <= 15 ? d : ''; };
 async function eqCarregar() {
   if (!REAL()) { if (!EQ.carregou) { EQ.lista = DEMO_EQUIPE.map(x => Object.assign({}, x, { produtos: x.produtos.slice() })); EQ.cfg = { modo: 'rodizio', prazoMin: 10, fds: 'segura' }; } EQ.carregou = true; return; }
@@ -341,7 +349,8 @@ async function eqCarregar() {
     const r = await supaFetch('itens?colecao=eq.equipe_wa&apagado=eq.false&select=id,dados&order=atualizado_em.asc&limit=20');
     if (r.status === 401) { authSave(null); throw new Error('sessao'); }
     if (!r.ok) throw new Error('banco ' + r.status);
-    EQ.lista = (await r.json()).map(x => ({ nome: (x.dados && x.dados.nome) || 'Equipe', numero: (x.dados && x.dados.numero) || x.id, ...(x.dados && Array.isArray(x.dados.produtos) ? { produtos: x.dados.produtos } : {}) }));
+    EQ.lista = (await r.json()).map(x => ({ nome: (x.dados && x.dados.nome) || 'Equipe', numero: (x.dados && x.dados.numero) || x.id, ...(x.dados && Array.isArray(x.dados.produtos) ? { produtos: x.dados.produtos } : {}),
+      ...(x.dados && x.dados.ativo === false ? { folga: true, folgaDesde: x.dados.folgaDesde || '' } : {}) }));
     try {
       const c = await supaFetch('itens?colecao=eq.equipe_cfg&id=eq.cfg&apagado=eq.false&select=dados');
       const l = c.ok ? await c.json() : [];
@@ -400,8 +409,10 @@ function vEquipe() {
   const cheia = EQ.lista.length >= EQ_MAX;
   const rz = EQ.cfg.modo === 'rodizio';
   const prods = x => `<span class="eq-prods" role="group" aria-label="O que ${esc(x.nome)} atende">${EQ_PRODUTOS.map(([v, t]) => `<button type="button" class="chip ${eqProds(x).includes(v) ? 'on' : ''}" data-act="eq-prod" data-n="${esc(x.numero)}" data-p="${v}" aria-pressed="${eqProds(x).includes(v)}">${t}</button>`).join('')}</span>`;
-  const linha = x => `<div class="lead eq-linha">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span>${rz ? prods(x) : ''}</span>
-    <span class="lr"><button type="button" class="btn btn-line btn-p" data-act="eq-tirar" data-n="${esc(x.numero)}" aria-label="Tirar ${esc(x.nome)} da lista">Tirar</button></span></div>`;
+  const folga = x => x.folga ? `<span class="sm eq-folga">De folga${eqDiaFolga(x) ? ' desde ' + eqDiaFolga(x) : ''}: não recebe cliente novo</span>` : '';
+  const linha = x => `<div class="lead eq-linha ${x.folga ? 'eq-de-folga' : ''}">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span>${folga(x)}${rz ? prods(x) : ''}</span>
+    <span class="lr eq-acoes"><button type="button" class="btn btn-line btn-p eq-folga-btn ${x.folga ? 'on' : ''}" data-act="eq-folga" data-n="${esc(x.numero)}" aria-pressed="${x.folga ? 'true' : 'false'}" aria-label="${x.folga ? esc(x.nome) + ' voltou da folga' : 'Pôr ' + esc(x.nome) + ' de folga'}">${x.folga ? 'Voltou da folga' : 'De folga'}</button><button type="button" class="btn btn-line btn-p" data-act="eq-tirar" data-n="${esc(x.numero)}" aria-label="Tirar ${esc(x.nome)} da lista">Tirar</button></span></div>`;
+  const todasFolga = EQ.carregou && EQ.lista.length > 0 && EQ.lista.every(x => x.folga);
   return `${faixaCel()}<div class="topo"><div><h1>Equipe <small>· quem recebe os avisos e quem entra no app</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: a lista não é gravada.</div>'}</div></div>
     <h2 class="ac-tit">Quem recebe o aviso de cada pedido</h2>
     <div class="box eq-modo-box">
@@ -416,8 +427,10 @@ function vEquipe() {
       <div>Quando a Milla anota um pedido (visita, reserva, proposta), ${rz ? 'a pessoa da vez' : 'cada pessoa desta lista'} recebe no WhatsApp dela, saindo do número da Milla, o pedido com 3 botões:</div>
       <div class="eq-botoes"><span><b>Confirmar</b> o cliente recebe a confirmação na hora.</span><span><b>Outro horário</b> a Milla pede outros dias ao cliente.</span><span><b>Eu assumo</b> a Milla fica quieta na conversa e você recebe o link para falar com o cliente.</span></div>
       <div class="sm">Vale o primeiro toque: quem tocar depois fica sabendo quem já respondeu. Até ${EQ_MAX} pessoas.</div>
+      <div class="sm">Folga: toque em <b>De folga</b> no nome da pessoa e ela não recebe cliente novo${rz ? ' (a vez passa para a próxima pessoa)' : ''}. Na volta, toque em <b>Voltou da folga</b>.</div>
     </div>
     ${EQ.erro ? `<div class="wz-aviso sm">${esc(EQ.erro)}</div>` : ''}
+    ${todasFolga ? '<div class="wz-aviso sm">Toda a equipe está de folga: os pedidos ficam só aqui no painel, em Leads, sem aviso no WhatsApp.</div>' : ''}
     <div class="lead-lista">${!EQ.carregou ? '<div class="sm">Carregando a equipe…</div>' : (EQ.lista.map(linha).join('') || '<div class="box sm">Ninguém na lista ainda: os pedidos só aparecem aqui no painel, em Leads.</div>')}</div>
     ${cheia ? '' : `<form class="box eq-form" id="eq-form" aria-label="Pôr alguém na equipe">
       <label class="sm b" for="eq-nome">Nome</label><input id="eq-nome" class="inp" maxlength="40" placeholder="Ex.: Ana" autocomplete="off" required>
@@ -482,15 +495,25 @@ document.addEventListener('click', async e => {
     const atual = eqProds(x), p = el.dataset.p, novo = atual.includes(p) ? atual.filter(y => y !== p) : [...atual, p];
     if (!novo.length) { toast('Cada pessoa precisa atender pelo menos um produto.'); return; }
     const antes = x.produtos; x.produtos = EQ_PRODUTOS.map(y => y[0]).filter(y => novo.includes(y));
-    const ok = await eqGrava(x.numero, { nome: x.nome, numero: x.numero, produtos: x.produtos }, false);
+    const ok = await eqGrava(x.numero, eqDados(x), false);
     if (!ok) x.produtos = antes;
     toast(ok ? x.nome + ' atende: ' + x.produtos.map(y => (EQ_PRODUTOS.find(z => z[0] === y) || [, y])[1].toLowerCase()).join(', ') + '.' : 'Não gravou. Tente de novo.'); render(); return;
+  }
+  if (a === 'eq-folga') {
+    const x = EQ.lista.find(y => y.numero === el.dataset.n); if (!x) return;
+    const vai = !x.folga, desde = vai ? new Date().toISOString() : '';
+    el.disabled = true;
+    const ok = await eqGrava(x.numero, eqDados(x, { folga: vai, folgaDesde: desde }), false);
+    if (ok) { x.folga = vai; x.folgaDesde = desde; }
+    const rz = EQ.cfg.modo === 'rodizio';
+    toast(!ok ? 'Não gravou. Tente de novo.' : vai ? x.nome + ' está de folga: não recebe cliente novo' + (rz ? '; a vez passa para a próxima pessoa.' : '.') : x.nome + ' voltou da folga' + (rz ? ' e entra de novo no rodízio.' : ' e volta a receber os avisos.'));
+    render(); return;
   }
   if (a === 'eq-tirar') {
     const x = EQ.lista.find(y => y.numero === el.dataset.n); if (!x) return;
     if (!confirm('Tirar ' + x.nome + ' da equipe? Esse número deixa de receber o aviso dos pedidos.')) return;
     el.disabled = true;
-    const ok = await eqGrava(x.numero, { nome: x.nome, numero: x.numero, ...(x.produtos ? { produtos: x.produtos } : {}) }, true);
+    const ok = await eqGrava(x.numero, eqDados(x), true);
     if (ok) EQ.lista = EQ.lista.filter(y => y !== x);
     toast(ok ? x.nome + ' saiu da equipe.' : 'Não gravou. Tente de novo.'); render(); return;
   }
@@ -614,7 +637,7 @@ document.addEventListener('submit', async e => {
 /* ---------- render ---------- */
 function render() {
   const real = REAL(), logado = LOGADO();
-  const porta = S.senhaNova ? vSenhaNova() : (real && !logado ? (S.primeiro ? vPrimeiro() : vEntrar()) : (!real && !demoDentro() ? vEntrarDemo() : ''));
+  const porta = S.senhaNova ? vSenhaNova() : (real && !logado ? (S.primeiro ? vPrimeiro() : vEntrar()) : (!real && typeof testePorta === 'function' && testePorta() ? testePorta() : (!real && !demoDentro() ? vEntrarDemo() : '')));
   document.body.classList.toggle('entrar', !!porta);
   if (porta) { $('meio').innerHTML = porta; $('lado').innerHTML = ''; $('barra-cel').innerHTML = ''; document.title = 'Milla · ' + MARCA + ' · entrar'; return; }
   if (real && WZ.dona === null) { confereDona(); $('meio').innerHTML = '<div class="sm" style="padding:24px">Conferindo a conta…</div>'; renderLado(); return; }
@@ -646,6 +669,7 @@ function render() {
   if (r.tela === 'assinatura') asPinta();
   if (r.tela === 'gestao' && GESTOR() && typeof rlAnima === 'function') rlAnima();
   renderLado();
+  if (typeof testeDepoisDoRender === 'function') testeDepoisDoRender();
   document.body.classList.toggle('tela-whats', r.tela === 'whats');
   document.body.classList.toggle('tela-inicio', r.tela === 'inicio');
   if (r.tela === 'whats' && !(real && WZ.dona === false)) wzLiga();
@@ -660,6 +684,7 @@ window.addEventListener('hashchange', render);
   if (volta && volta.tipo === 'signup') setTimeout(() => toast('E-mail confirmado: bem-vinda ao app da Milla.'), 400);
   if (volta && volta.erro) S.entrarMsg = 'O link do e-mail não valeu (' + volta.erro + '). Peça outro em "Esqueci a senha".';
   if (!REAL()) { WZ_EXEMPLO = WZ_EXEMPLO || wzDemo(); LD.lista = WZ_EXEMPLO.ped; LD.carregou = true; }
+  if (typeof testeInicio === 'function') testeInicio();   /* teste ao vivo: só na cópia milla/testar */
   render();
   carregarCatalogo('2026-11-16').then(() => render());
 })();

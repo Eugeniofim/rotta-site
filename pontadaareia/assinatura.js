@@ -130,7 +130,7 @@ if (typeof module !== 'undefined') module.exports = { ESTUDIO_UID, MILLA_SALAS, 
 const AS = { dados: null, carregou: false, buscando: false, semFuncao: false, erro: '', avisando: false, pixAberto: false };
 /* demonstração (sem banco): a dona fictícia vê uma assinatura de exemplo; o Pix não é gerado */
 function asDemo() {
-  const h = asHoje(), ini = asIso(new Date(h.getFullYear(), h.getMonth() - 3, 10)), a = { id: 'demo', plano: 'Milla · atendente no WhatsApp + CRM', valor: 460, inicio: ini, diaVenc: 10, status: 'ativo', pagos: {}, avisos: {}, pix: null, estudio: 'studio Ti Artes', demo: true };
+  const h = asHoje(), ini = asIso(new Date(h.getFullYear(), h.getMonth() - 3, 10)), a = { id: 'demo', plano: 'Milla · atendente no WhatsApp + CRM', valor: 349, inicio: ini, diaVenc: 10, status: 'ativo', pagos: {}, avisos: {}, pix: null, estudio: 'studio Ti Artes', demo: true };
   asVencs(a, h).forEach(v => { if (asDias(v, h) < 0) a.pagos[v] = { em: v }; });
   return a;
 }
