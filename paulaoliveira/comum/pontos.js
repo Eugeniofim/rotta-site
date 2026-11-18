@@ -51,6 +51,8 @@
   function hoje() { return new Date().toISOString(); }
 
   var ouvintes = [];
+  /* Clube na nuvem (fada/app/js/nuvem.js): quando ligado, quem decide ponto é o banco, não este aparelho */
+  function nv() { return window.PontosNuvem && window.PontosNuvem.ativo ? window.PontosNuvem : null; }
   function avisa() { ouvintes.forEach(function (f) { try { f(); } catch (e) {} }); }
 
   /* regras e prêmios: o padrão daqui + o que a Paula mudou no painel (fica na loja de demonstração) */
@@ -72,12 +74,14 @@
   }
   function meu(m) {
     var s = estado(m), saldo = 0, ganhos = 0;
-    s.extrato.forEach(function (e) { saldo += e.pts; if (e.pts > 0) ganhos += e.pts; });
+    if (s.srv) { saldo = +s.srv.saldo || 0; ganhos = +s.srv.ganhos || 0; }
+    else s.extrato.forEach(function (e) { saldo += e.pts; if (e.pts > 0) ganhos += e.pts; });
     return { saldo: saldo, ganhos: ganhos, extrato: s.extrato, feitos: s.feitos, nivel: nivel(m, ganhos) };
   }
 
   /* chave = o que rendeu; unica = só vale uma vez */
   function ganhar(m, chave, pts, texto, unica) {
+    if (nv()) return nv().ganhar(m, chave, pts, texto, unica);
     var s = estado(m);
     if (unica && s.feitos[chave]) return 0;
     var antes = nivel(m, meu(m).ganhos).i;
@@ -142,7 +146,12 @@
   }
   function passo(qual) {
     var m = entM, c = CFG[m], h = '';
-    if (qual === 'login') {
+    if (qual === 'login' && nv()) {
+      h = '<img class="ent-ic" src="icone-192.png" alt=""><p class="ent-sobre">' + esc(c.loja) + '</p>' +
+        '<h1>' + esc(c.ola) + '</h1><p>Use o mesmo e-mail das suas compras na loja: assim os pontos delas caem sozinhos na sua conta.</p>' +
+        '<form onsubmit="Pontos._entEmail(event)"><label class="campo">Seu nome<input required name="nome" autocomplete="name"></label><label class="campo">E-mail<input required name="email" type="email" autocomplete="email" spellcheck="false"></label><button class="acao">Continuar</button></form>' +
+        '<button type="button" class="ent-depois" onclick="Pontos._entFim()">Agora não</button>';
+    } else if (qual === 'login') {
       h = '<img class="ent-ic" src="icone-192.png" alt=""><p class="ent-sobre">' + esc(c.loja) + '</p>' +
         '<h1>' + esc(c.ola) + '</h1><p>Membro sabe dos lotes antes, junta pontos e troca por presentes. Entra com um toque: nome e e-mail vêm do Google, sem senha nova.</p>' +
         botaoGoogle(m, "Pontos._entGoogle()") +
@@ -188,6 +197,23 @@
     s.feitos.celular = f.wa.value.trim(); s.feitos.emailOk = !!f.em.checked; salva(m, s);
     var c = logado(m); if (c) Rec.entrar(m, Object.assign({}, c, { wa: s.feitos.celular }));
     if (f.d.value) { marca(m, 'nascimento', f.d.value); ganhar(m, 'aniversario', regras(m).aniversario, 'Contou o aniversário', true); }
+    if (nv()) {
+      var b = f.querySelector('button'), quem = logado(m) || {};
+      var erro = f.querySelector('.ent-erro'); if (erro) erro.remove();
+      b.disabled = true; b.textContent = 'Entrando…';
+      nv().entrar({ nome: quem.nome, email: quem.email, whats: s.feitos.celular, niver: f.d.value ? f.d.value.slice(5) : null, aceita: !!f.em.checked })
+        .then(function (r) {
+          if (r && r.esperando > 0) diz('Achamos ' + fmt(r.esperando) + ' pontos das suas compras na loja');
+          passo(permissao() === 'granted' ? 'pronto' : 'avisos');
+        })
+        .catch(function (er) {
+          b.disabled = false; b.textContent = 'Continuar';
+          var p = document.createElement('p'); p.className = 'ent-erro'; p.setAttribute('role', 'alert');
+          p.textContent = (er && er.message) || 'Não deu para entrar agora. Tente de novo.';
+          b.before(p);
+        });
+      return;
+    }
     passo(permissao() === 'granted' ? 'pronto' : 'avisos');
   }
   function entrada(m, forcar) {
@@ -223,17 +249,19 @@
       '<div class="pts-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + n.pct + '" aria-label="Caminho até o próximo nível"><i style="width:' + Math.max(3, n.pct) + '%"></i></div>' +
       '<p class="pts-falta">' + (n.prox ? 'Faltam <b>' + fmt(n.falta) + '</b> pontos para ' + esc(n.prox.n) : 'Você está no nível mais alto do ' + esc(c.clube)) + '</p></div>';
 
-    if (!conta) h += '<div class="pts-aviso"><p><b>Seja membro para não perder seus pontos.</b> Eles ficam guardados na sua conta, em qualquer celular.</p>' + botaoGoogle(m, "Pontos.google('" + m + "')") + '</div>';
+    var N = nv(), membro = N ? N.membro() : conta;
+    if (!membro) h += '<div class="pts-aviso"><p><b>Seja membro para não perder seus pontos.</b> Eles ficam guardados na sua conta, em qualquer celular.</p>' +
+      (N ? '<button type="button" class="acao" onclick="Pontos.entrada(\'' + m + '\', true)">Seja membro</button>' : botaoGoogle(m, "Pontos.google('" + m + "')")) + '</div>';
 
     h += '<h2>Como ganhar pontos</h2><ul class="pts-lista">' +
       linhaGanho('avisos', 'Ligar os avisos', perm === 'denied' ? 'Bloqueados neste celular: ligue nos Ajustes.' : perm === 'sem' ? 'No iPhone, pelo app na tela de início.' : 'Para saber de cada lote na hora.', '+' + r.avisos,
         perm === 'denied' ? '' : perm === 'sem' ? bt('baixar()', 'Baixar') : bt("Pontos.ativarAvisos('" + m + "')", 'Ligar'), !!f.avisos) +
       linhaGanho('app', 'Baixar o app', 'Uma vez, quando abrir pelo ícone.', '+' + r.app, bt('baixar()', 'Baixar'), !!f.app) +
-      linhaGanho('compra', 'Comprar', r.compra === 1 ? '1 ponto para cada real.' : r.compra + ' pontos para cada real.', 'R$ 1 = ' + r.compra, '<a class="pts-b" href="' + c.lojaLink + '">Ver</a>', false) +
-      linhaGanho('voto', 'Votar em qual volta primeiro', f.voto ? 'Seu voto: ' + esc(f.votoNome || '') : 'A Paula vê a votação no painel.', '+' + r.voto, bt("Pontos.votar('" + m + "')", 'Votar'), !!f.voto) +
-      linhaGanho('senha', 'Pegar a senha de um lote', 'Entre na fila de um perfume esgotado.', '+' + r.senha, '<a class="pts-b" href="' + c.lojaLink + '">Ver</a>', !!f.senha) +
+      linhaGanho('compra', 'Comprar', (r.compra === 1 ? '1 ponto para cada real' : r.compra + ' pontos para cada real') + (N ? ', no app ou no site da loja. Cai sozinho.' : '.'), 'R$ 1 = ' + r.compra, '<a class="pts-b" href="' + c.lojaLink + '">Ver</a>', false) +
+      (N ? '' : linhaGanho('voto', 'Votar em qual volta primeiro', f.voto ? 'Seu voto: ' + esc(f.votoNome || '') : 'A Paula vê a votação no painel.', '+' + r.voto, bt("Pontos.votar('" + m + "')", 'Votar'), !!f.voto) +
+      linhaGanho('senha', 'Pegar a senha de um lote', 'Entre na fila de um perfume esgotado.', '+' + r.senha, '<a class="pts-b" href="' + c.lojaLink + '">Ver</a>', !!f.senha)) +
       linhaGanho('aniversario', 'Contar seu aniversário', 'E ganha +' + r.aniversarioMes + ' no seu mês.', '+' + r.aniversario, bt("Pontos.aniversario('" + m + "')", 'Contar'), !!f.aniversario) +
-      linhaGanho('avaliar', 'Avaliar um perfume que você usa', 'Vale uma vez por perfume.', '+' + r.avaliar, bt("Pontos.avaliar('" + m + "')", 'Avaliar'), false) +
+      (N ? '' : linhaGanho('avaliar', 'Avaliar um perfume que você usa', 'Vale uma vez por perfume.', '+' + r.avaliar, bt("Pontos.avaliar('" + m + "')", 'Avaliar'), false)) +
       linhaGanho('amiga', 'Chamar uma amiga', f.convites ? 'Convites enviados: ' + f.convites + '. Os pontos entram quando ela comprar.' : 'Os pontos entram quando ela fizer a primeira compra.', '+' + r.amiga, bt("Pontos.convidar('" + m + "')", 'Chamar'), false) +
       '</ul>';
 
@@ -251,6 +279,9 @@
       ? '<ul class="pts-extrato">' + eu.extrato.slice(0, 40).map(function (e) { return '<li><span>' + data(e.em) + '</span><span>' + esc(e.t) + '</span><b class="' + (e.pts < 0 ? 'neg' : '') + '">' + (e.pts > 0 ? '+' : '−') + fmt(Math.abs(e.pts)) + '</b></li>'; }).join('') + '</ul>'
       : '<p>Ainda não tem nada aqui. Comece ligando os avisos.</p>');
 
+    if (N) h += '<p class="miudo">Seus pontos ficam guardados na sua conta do ' + esc(c.clube) + ', em qualquer celular.</p>' +
+      (membro ? '<button type="button" class="acao vazada" onclick="PontosNuvem.sair()">Sair deste celular</button>' : '') + '</div>';
+    if (N) return h;
     h += '<p class="miudo">Prévia: os pontos ficam guardados só neste aparelho.</p>' +
       (conta && conta.exemplo ? '<button type="button" class="acao vazada" onclick="Pontos.sair(\'' + m + '\')">Sair da conta de exemplo</button>' : '') +
       '</div>';
@@ -293,7 +324,7 @@
     ganhar(m, 'avaliou-' + id, regras(m).avaliar, 'Avaliou ' + p.nome, true);
   }
   function convidar(m) {
-    var c = CFG[m], url = location.href.split('#')[0].split('?')[0] + '?convite=' + (logado(m) ? 'ANA' : 'AMIGA') + '#/' + (m === 'paula' ? 'elenco' : 'cardume');
+    var c = CFG[m], url = location.href.split('#')[0].split('?')[0] + '?convite=' + (nv() && nv().membro() ? nv().membro().indicacao : (logado(m) ? 'ANA' : 'AMIGA')) + '#/' + (m === 'paula' ? 'elenco' : 'cardume');
     var txt = 'Entra no ' + c.clube + ' da ' + c.loja + ' comigo. Os lotes esgotam rápido e quem está lá sabe antes:';
     var s = estado(m); s.feitos.convites = (s.feitos.convites || 0) + 1; salva(m, s);
     window.open(Rec.redes(url, txt)[0].u, '_blank', 'noopener');
@@ -324,6 +355,7 @@
   var css = document.createElement('style');
   css.textContent = [
     '.pts{max-width:640px}',
+    '.ent-erro{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#FBE9E5;color:#8A2A1B;font-size:14px;line-height:1.4}',
     '.pts-sobre,.ent-sobre{font:var(--pt-rotulo);letter-spacing:.08em;text-transform:uppercase;opacity:.8}',
     '.pts h2{margin:38px 0 6px;font:var(--pt-h2)}',
     '.pts-cartao{position:relative;margin-top:22px;padding:20px 22px 18px;background:var(--pt-cartao);color:var(--pt-cartao-tx);border-radius:var(--pt-canto,18px);overflow:hidden;box-shadow:0 18px 40px -18px #0009}',
@@ -390,6 +422,11 @@
     _entEmail: function (e) { e.preventDefault(); Rec.entrar(entM, { nome: e.target.nome.value.trim(), email: e.target.email.value.trim() }); avisa(); proximoDepoisDoLogin(); },
     _entAvisos: function () { ativarAvisos(entM, function () { passo('pronto'); }); },
     _entPasso: passo, _entFim: fechaEntrada, _entCadastro: cadastro, estado: estado,
+    espelhar: function (m, d) {
+      var s = d ? estado(m) : { extrato: [], feitos: {} };
+      if (d) { s.extrato = d.extrato || []; s.srv = d.srv || null; Object.keys(d.feitos || {}).forEach(function (k) { s.feitos[k] = d.feitos[k]; }); }
+      salva(m, s);
+    },
     debitar: function (m, pts, t) { var s = estado(m); s.extrato.unshift({ t: t, pts: -Math.abs(pts), em: hoje() }); salva(m, s); }
   };
 

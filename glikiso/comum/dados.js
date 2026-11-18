@@ -38,6 +38,23 @@
   /* Onde pode haver balcão. Loja sem CNPJ cadastrado (Caiobá, por enquanto) soma sem a nota. */
   const BALCOES = ["loja-pgua", "caioba", "loja-cwb"];
 
+  /* O site como está hoje: é o ponto de partida da página Site do painel. */
+  const SITE_PADRAO = {
+    queridinhos: [
+      { nome: "Ninho com Nutella", selo: "Mais pedido", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534310/d007d98a10332570-CD0E-46B0-9CFE-5500D1232C31.jpeg", mostrar: true },
+      { nome: "Red Velvet com brigadeiro branco", selo: "Mais pedido", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534328/3e4050ffIMG_7539.jpeg", mostrar: true },
+      { nome: "Lotus Biscoff", selo: "", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534332/a3372658IMG_7114.jpeg", mostrar: true },
+      { nome: "Nutella", selo: "", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534333/739cd598IMG_1781045522397.jpeg", mostrar: true },
+      { nome: "Potinho cookie com Nutella", selo: "Potinho", foto: "https://storage.googleapis.com/prod-cardapio-web/uploads/item/image/4534327/18548989IMG_1777486853223.jpeg", mostrar: true }
+    ],
+    cidades: {
+      curitiba: { nome: "Curitiba", delivery: "https://app.cardapioweb.com/gliki_so_cookeria", ifood: "https://www.ifood.com.br/delivery/curitiba-pr/gliki-so-cookeria-cwb-jardim-botanico/c791c14d-640e-49d2-a5f6-0c6bb1f65d93", whatsapp: "https://wa.me/message/ITSRMUQZQP64O1", cupom: { codigo: "PRIMEIRACOMPRA", texto: "5% off no 1º pedido do delivery" }, nota: "No delivery: 1% de cashback em todo pedido e entrega grátis a partir de R$ 150." },
+      paranagua: { nome: "Paranaguá", delivery: "https://app.cardapioweb.com/glikisocookeria", ifood: "", whatsapp: "https://wa.me/message/MN4TFKPZ2ZHAO1", cupom: null, aviso: "Compre 3 cookies e ganhe 1. As regras estão no cardápio.", nota: "No delivery: 1% de cashback em todo pedido." },
+      caioba: { nome: "Caiobá", delivery: "", ifood: "", whatsapp: "https://wa.me/message/MN4TFKPZ2ZHAO1", cupom: null, aviso: "Endereço e horários de Caiobá estão nos destaques do nosso Instagram.", nota: "" }
+    }
+  };
+  const BOTOES = { delivery: "Delivery", ifood: "iFood", whatsapp: "WhatsApp", mapa: "Mapa", instagram: "Instagram", "grupo-vip": "Grupo VIP", avaliar: "Avaliar no Google", clube: "Clube", "baixar-app": "Baixar o app", pedir: "Pedir agora", "como-comprar": "Como comprar (máquina)" };
+
   const REGRAS_PADRAO = {
     pontosPorNota: 10,
     notasPorDia: 3,
@@ -205,6 +222,18 @@
       d.resgates.push(r);
     });
 
+    // cliques do site e tentativas repetidas, para o relatório da demonstração
+    d.cliques = []; d.tentativas = [];
+    const pesos = { delivery: 9, whatsapp: 6, ifood: 4, mapa: 3, instagram: 3, "grupo-vip": 2, clube: 3, "baixar-app": 1, avaliar: 1 };
+    for (let k = 0; k < 30; k++) {
+      const dia = new Date(agora() - k * DIA).toISOString().slice(0, 10);
+      Object.entries(pesos).forEach(([botao, peso]) => ["curitiba", "paranagua", "caioba"].forEach((cidade, ci) => {
+        const n = Math.floor(rnd() * peso * (ci === 0 ? 1.4 : ci === 1 ? 1 : 0.35));
+        if (n) d.cliques.push({ dia, botao, cidade, n });
+      }));
+    }
+    for (let k = 0; k < 9; k++) d.tentativas.push({ data: agora() - Math.floor(rnd() * 25) * DIA, tipo: k < 6 ? "etiqueta" : "nota", codigo: "", membro: d.membros[k % d.membros.length].id, motivo: k % 3 ? "ja_usada" : "mesma_pessoa" });
+
     d.avisos.push(
       { id: "A1", data: agora() - 6 * DIA, titulo: "Sabor novo: Brigadeiro Belga", texto: "Chegou o clássico da Gliki com chocolate nobre. Já no delivery!", publico: "todos", alcance: 21 },
       { id: "A2", data: agora() - 1 * DIA, titulo: "Domingo tem inauguração", texto: "A 1ª máquina de cookies do Paraná abre no Jockey Plaza às 10h. Vem com a gente!", publico: "Curitiba", alcance: 13 }
@@ -356,6 +385,67 @@
   }
   const faltaUmSelo = (m) => !m.passaporte && Object.keys(selosDe(m)).length === PASSAPORTE.length - 1;
 
+  /* Relatório: onde e quando vende mais, cliques do site, etiquetas. Contas feitas aqui, com o que o painel já tem. */
+  function relatorio(d, dias) {
+    const desde = agora() - dias * DIA;
+    const compras = [];
+    d.membros.forEach((m) => m.extrato.forEach((e) => { if (ehCompra(e) && e.data >= desde) compras.push({ canal: e.canal, data: e.data, membro: m.id }); }));
+    const porLugar = PASSAPORTE.map((c) => ({ id: c, nome: NOME_SELO[c], n: compras.filter((x) => x.canal === c).length })).sort((a, b) => b.n - a.n);
+    const DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    const porDia = DIAS.map((nome, i) => ({ nome, n: compras.filter((x) => new Date(x.data).getDay() === i).length }));
+    const faixa = (h) => (h < 12 ? 0 : h < 18 ? 1 : 2);
+    const porHora = ["Manhã (até 12h)", "Tarde (12h às 18h)", "Noite (depois das 18h)"].map((nome, i) => ({ nome, n: compras.filter((x) => faixa(new Date(x.data).getHours()) === i).length }));
+    const cliques = (d.cliques || []).filter((c) => new Date(c.dia + "T12:00:00").getTime() >= desde - DIA);
+    const somaPor = (campo, nomes) => {
+      const t = {};
+      cliques.forEach((c) => { const k = c[campo] || "outro"; t[k] = (t[k] || 0) + c.n; });
+      return Object.entries(t).map(([k, n]) => ({ id: k, nome: (nomes && nomes[k]) || k, n })).sort((a, b) => b.n - a.n);
+    };
+    const NOME_CIDADE = { curitiba: "Curitiba", paranagua: "Paranaguá", caioba: "Caiobá", maquina: "Máquina do Jockey", outro: "Sem cidade (topo do site)" };
+    const codigos = Object.values(d.codigos || {});
+    const lotes = (d.lotes || []).map((l) => {
+      const dele = codigos.filter((c) => c.lote === l.id);
+      const usadas = dele.filter((c) => c.usadoEm || c.usadoPor).length;
+      return { ...l, usadas, pct: l.qtd ? Math.round((usadas / l.qtd) * 100) : 0 };
+    });
+    const tent = (d.tentativas || []).filter((t) => t.data >= desde);
+    const notas = Object.values(d.notas || {}).filter((n) => n.data >= desde);
+    const porPessoa = {};
+    compras.forEach((x) => (porPessoa[x.membro] = (porPessoa[x.membro] || 0) + 1));
+    const ativos = Object.values(porPessoa);
+    return {
+      dias, compras: compras.length, porLugar, porDia, porHora,
+      cliques: { total: cliques.reduce((s, c) => s + c.n, 0), porBotao: somaPor("botao", BOTOES), porCidade: somaPor("cidade", NOME_CIDADE) },
+      etiquetas: { lotes, impressas: lotes.reduce((s, l) => s + l.qtd, 0), usadas: lotes.reduce((s, l) => s + l.usadas, 0),
+        usadasNoPeriodo: codigos.filter((c) => c.usadoEm && c.usadoEm >= desde).length,
+        repetidas: tent.filter((t) => t.tipo === "etiqueta" && t.motivo !== "nao_existe").length,
+        mesmaPessoa: tent.filter((t) => t.tipo === "etiqueta" && t.motivo === "mesma_pessoa").length,
+        inexistentes: tent.filter((t) => t.tipo === "etiqueta" && t.motivo === "nao_existe").length },
+      notas: { celular: notas.filter((n) => !n.balcao).length, balcao: notas.filter((n) => n.balcao).length,
+        repetidas: tent.filter((t) => t.tipo === "nota").length,
+        valor: notas.reduce((s, n) => s + (Number(n.valor) || 0), 0) },
+      clube: { novos: d.membros.filter((m) => m.desde >= desde).length, ativos: ativos.length, voltaram: ativos.filter((n) => n >= 2).length,
+        topo: Object.entries(porPessoa).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, n]) => ({ nome: (Clube.membro(d, id) || {}).nome || id, n })) }
+    };
+  }
+
+  /* fotos: reduz no aparelho (máx. 1200 px, WebP) antes de subir */
+  function reduzirFoto(arquivo, lado = 1200) {
+    return new Promise((ok, falha) => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, lado / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob((b) => (b ? ok(b) : falha(new Error("Não deu para ler essa foto."))), "image/webp", 0.82);
+        URL.revokeObjectURL(img.src);
+      };
+      img.onerror = () => falha(new Error("Esse arquivo não é uma foto."));
+      img.src = URL.createObjectURL(arquivo);
+    });
+  }
+
   /* "Sua próxima jogada": o que vale mais a pena para ESTA pessoa agora, no máximo 2 */
   function missoes(d, m) {
     const r = d.regras, lista = [];
@@ -423,7 +513,15 @@
   }
 
   const Clube = {
-    CANAIS, CIDADES, CNPJS, LOJAS, REGRAS_PADRAO, PREMIOS_PADRAO, PASSAPORTE, NOME_SELO, BALCOES,
+    CANAIS, CIDADES, CNPJS, LOJAS, REGRAS_PADRAO, PREMIOS_PADRAO, PASSAPORTE, NOME_SELO, BALCOES, SITE_PADRAO, BOTOES, relatorio,
+    /* o site que vale agora: o padrão com o que a dona já mudou por cima */
+    siteAtual(d) {
+      const s = JSON.parse(JSON.stringify(SITE_PADRAO));
+      const m = (d && d.site) || {};
+      if (Array.isArray(m.queridinhos) && m.queridinhos.length) s.queridinhos = m.queridinhos;
+      if (m.cidades) for (const k of Object.keys(s.cidades)) if (m.cidades[k]) s.cidades[k] = { ...s.cidades[k], ...m.cidades[k] };
+      return s;
+    },
     /* quantas compras até o prêmio mais barato, contando as boas-vindas */
     comprasAtePrimeiro(d) { const p = Math.min(...d.premios.map((x) => x.pontos)); return { n: Math.max(1, Math.ceil((p - d.regras.bonusCadastro) / umaCompra(d))), premio: d.premios.find((x) => x.pontos === p) }; },
     mascaraFone, chaveFone, analisarNota, checarNota, selosDe, dobroAtivo, missoes, sugestoes, seguidos,
@@ -608,7 +706,13 @@
     salvarRegras(regras, premios) {
       return mexer((d) => { Object.assign(d.regras, regras); if (premios) d.premios = premios; return { regras: d.regras, premios: d.premios }; });
     },
-    salvarTema(tema) { try { localStorage.setItem("glk_tema", tema); } catch (e) {} return { ok: true }; }
+    salvarTema(tema) { try { localStorage.setItem("glk_tema", tema); } catch (e) {} return { ok: true }; },
+    salvarSite(site) { mexer((d) => { d.site = site; }); return { ok: true }; },
+    /* na demonstração a foto fica no próprio aparelho */
+    async subirFoto(arquivo) {
+      const b = await reduzirFoto(arquivo, 900);
+      return await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok({ ok: true, url: r.result }); r.readAsDataURL(b); });
+    }
   };
 
   /* ---------- nuvem: o clube de verdade (Supabase do estúdio, sala glikiso) ----------
@@ -623,6 +727,8 @@
       if (q === "1") localStorage.setItem("glk_modo", "nuvem");
       if (q === "0") localStorage.setItem("glk_modo", "demo");
       m = localStorage.getItem("glk_modo");
+      /* valendo: a demonstração só abre com ?nuvem=0 no próprio link; não fica presa no aparelho */
+      if (N.ligado && m === "demo" && q !== "0") { localStorage.removeItem("glk_modo"); m = null; }
     } catch (e) {}
     return !!(N.url && N.chave && N.sala && (m ? m === "nuvem" : N.ligado));
   }
@@ -755,6 +861,20 @@
       avisar(titulo, texto, publico) { return chama("avisar", { p_titulo: titulo, p_texto: texto, p_publico: publico, p_alcance: cache ? K.publico(cache, publico).length : 0 }, true); },
       ligarDobro(canal) { return chama("ligar_dobro", { p_canal: canal || null }, true); },
       salvarRegras(regras, premios) { return chama("salvar_regras", { p_regras: regras, p_premios: premios || null }, true); },
+      salvarSite(site) { return chama("salvar_site", { p_site: site }, true); },
+      async subirFoto(arquivo) {
+        try {
+          const s = await Sessao.valida();
+          if (!s) return { ok: false, erro: "Entre de novo no painel.", sessao: true };
+          const b = await reduzirFoto(arquivo);
+          const nome = "vitrine/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".webp";
+          const r = await fetch(N.url + "/storage/v1/object/glikiso-fotos/" + nome, {
+            method: "POST", headers: { apikey: N.chave, Authorization: "Bearer " + s.access_token, "Content-Type": "image/webp", "cache-control": "31536000" }, body: b
+          });
+          if (!r.ok) return { ok: false, erro: "Não deu para subir a foto (" + r.status + ")." };
+          return { ok: true, url: N.url + "/storage/v1/object/public/glikiso-fotos/" + nome };
+        } catch (e) { return falhou(e); }
+      },
       async salvarTema(tema) {
         const r = await chama("salvar_tema", { p_tema: tema }, true);
         if (r && r.ok !== false) { try { localStorage.setItem("glk_tema_nuvem", tema); } catch (e) {} }
@@ -764,5 +884,6 @@
     });
   }
   if (querNuvem()) instalarNuvem(Clube);
+  else Clube.demoNoValendo = !!N.ligado; // está na demonstração, mas o clube de verdade existe: avisar na tela
   window.Clube = Clube;
 })();

@@ -1057,6 +1057,80 @@ $("marque").href = CONFIG.instagram;
 $("clube").href = CONFIG.grupoVip;
 $("clubeLink").href = CONFIG.clube;
 $("admLink").href = CONFIG.painel;
+/* ---------- o que a Melissa edita no painel (página Site) ---------- */
+const limpaTexto = (t) => String(t || "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]).slice(0, 80);
+const linkBom = (u) => typeof u === "string" && /^https:\/\/[^\s"'<>]+$/.test(u);
+function mesclarSite(site) {
+  if (!site || typeof site !== "object") return false;
+  if (Array.isArray(site.queridinhos)) {
+    const lista = site.queridinhos.filter((q) => q && q.mostrar !== false && q.nome && linkBom(q.foto))
+      .map((q) => ({ nome: limpaTexto(q.nome), foto: q.foto, selo: limpaTexto(q.selo) }));
+    if (lista.length) CONFIG.queridinhos = lista;
+  }
+  if (site.cidades && typeof site.cidades === "object") {
+    for (const [k, v] of Object.entries(site.cidades)) {
+      const c = CONFIG.cidades[k];
+      if (!c || !v || typeof v !== "object") continue;
+      for (const campo of ["delivery", "ifood", "whatsapp"]) {
+        if (!(campo in v)) continue;
+        if (v[campo] === "") delete c[campo]; else if (linkBom(v[campo])) c[campo] = v[campo];
+      }
+      for (const campo of ["nota", "aviso"]) if (campo in v) { if (v[campo]) c[campo] = limpaTexto(v[campo]).slice(0, 140); else delete c[campo]; }
+      if ("cupom" in v) c.cupom = v.cupom && v.cupom.codigo ? { codigo: limpaTexto(v.cupom.codigo).slice(0, 24), texto: limpaTexto(v.cupom.texto) } : undefined;
+    }
+  }
+  return true;
+}
+/* primeiro a última versão guardada (sem piscar), depois a da nuvem se mudou */
+try {
+  if (window.GlikiTema && GlikiTema.nuvem) { const g = JSON.parse(localStorage.getItem("glk_site") || "null"); if (g) mesclarSite(g); }
+  else { const demo = JSON.parse(localStorage.getItem("glk_demo_v3") || "null"); if (demo && demo.site) mesclarSite(demo.site); } // demonstração: o que foi salvo no painel deste aparelho
+} catch (e) {}
+if (window.GlikiTema && GlikiTema.nuvemDados) GlikiTema.nuvemDados.then((j) => {
+  if (j && j.site && mesclarSite(j.site)) { desenharCidades(); desenharPedido(); desenharRota(); }
+});
+
+/* ---------- cliques: quantas vezes cada botão é tocado (sem dado pessoal) ---------- */
+(function () {
+  const N = window.GLIKI_NUVEM;
+  if (!N || !N.url || !(window.GlikiTema && GlikiTema.nuvem)) return;
+  const tipo = (a) => {
+    const h = a.getAttribute("href") || "";
+    if (a.hasAttribute("data-instalar")) return "baixar-app";
+    if (/cardapioweb/.test(h)) return "delivery";
+    if (/ifood/.test(h)) return "ifood";
+    if (/chat\.whatsapp/.test(h)) return "grupo-vip";
+    if (/wa\.me|whatsapp/.test(h)) return "whatsapp";
+    if (/google\.com\/maps|maps\.app/.test(h)) return "mapa";
+    if (/instagram/.test(h)) return "instagram";
+    if (/g\.co\/kgs|g\.page/.test(h)) return "avaliar";
+    if (/(^|\/)clube\//.test(h)) return "clube";
+    if (h === "#pedir") return "pedir";
+    if (h === "#maquinaArea") return "como-comprar";
+    return null;
+  };
+  const cidadeDe = (a) => {
+    const p = a.closest(".parada");
+    const m = p && p.className.match(/p-(curitiba|paranagua|caioba|maquina)/);
+    if (m) return m[1];
+    if (a.closest("#pedido") || a.id === "zap" || a.closest("#zapEscolha")) return cidadeAtual;
+    return null;
+  };
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    const b = a && tipo(a);
+    if (!b) return;
+    const lugar = a.id === "zap" || a.closest("#zapEscolha") ? "botao-zap" : ((a.closest("section, header, footer, nav") || {}).id || "");
+    try {
+      fetch(N.url + "/rest/v1/rpc/clicar", {
+        method: "POST", keepalive: true,
+        headers: { apikey: N.chave, Authorization: "Bearer " + N.chave, "Content-Type": "application/json", "Content-Profile": N.sala },
+        body: JSON.stringify({ p_botao: b, p_cidade: cidadeDe(a), p_origem: lugar })
+      }).catch(() => {});
+    } catch (er) {}
+  }, true);
+})();
+
 $("avaliar").href = CONFIG.avaliacao;
 $("insta").href = CONFIG.instagram;
 $("status").textContent = statusMaquina();

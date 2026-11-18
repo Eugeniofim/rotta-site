@@ -16,8 +16,8 @@
    Para responder e para assumir/devolver: rota whats-enviar do cofre, com o
    login da dona (o cofre confere que ela é a dona da sala).
 
-   Sem banco (demonstração), a tela mostra conversas de exemplo — os textos do
-   Milla são de um teste real (03/11/2026) com os 207 imóveis da API do site deles.
+   Sem banco (demonstração), a tela mostra as conversas de exemplo da Imobiliária Milla
+   (fictícia, 16/11/2026), com os mesmos imóveis do site de demonstração.
    ===================================================== */
 'use strict';
 
@@ -62,45 +62,154 @@ const wzNome = c => (c && (c.nome || wzNum(c.numero))) || '';
 /* texto da Milla com o link clicável (só links do próprio site e http(s)) */
 const wzTexto = t => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, '<br>');
 
-/* ---------- dados de exemplo (sem banco) ---------- */
+/* ---------- dados de exemplo (sem banco) ----------
+   16/11/2026: a demonstração é a Imobiliária Milla (fictícia), a mesma do site de demonstração
+   (rottaguide.com/milla/imobiliaria): os mesmos imóveis (dados/puxa-demo.py) e a mesma equipe —
+   Carla Menezes (dona, vendas e captação), Rafael Duarte (temporada), Bianca Torres (locação).
+   A conversa da Juliana (Ref. 528) é a mesma da faixa "Pergunte. A Milla responde" do site.
+   Os números de telefone são de mentira (5541900000…) e nada sai daqui. */
+const DEMO_EQUIPE = [
+  { nome: 'Carla', numero: '5541900000011', produtos: ['venda'] },
+  { nome: 'Rafael', numero: '5541900000012', produtos: ['temporada'] },
+  { nome: 'Bianca', numero: '5541900000013', produtos: ['aluguel'] },
+];
 function wzDemo() {
   const h = (min) => new Date(Date.now() - min * 60000).toISOString();
+  const em = (min) => new Date(Date.now() + min * 60000).toISOString();
+  const T = { ju: '5541900000101', ma: '5541900000102', pa: '5541900000103', an: '5541900000104', da: '5541900000105', fe: '5541900000106' };
   const conv = [
-    { numero: '5511900000001', nome: 'Carla', ultima: 'Obrigada, Carla! A equipe confirma o horário e eu te aviso por aqui.', ultimaEm: h(4), ultimaDir: 'robo', clienteEm: h(5), naoLidas: 2, robo: 'ligado' },
-    { numero: '5511900000002', nome: 'Rafael', ultima: 'Oi Rafael, aqui é a Ana! Sábado às 10h está confirmado no V204.', ultimaEm: h(38), ultimaDir: 'equipe', clienteEm: h(58), naoLidas: 0, robo: 'pausado', pausadoAte: new Date(Date.now() + 20 * 3600000).toISOString() },
-    { numero: '5511900000003', nome: 'Júlia', ultima: 'Perfeito, Júlia! Anotei tudo e a equipe fala com você por aqui para avaliar o imóvel.', ultimaEm: h(171), ultimaDir: 'robo', clienteEm: h(173), naoLidas: 1, robo: 'ligado' },
-    { numero: '5511900000004', nome: 'Marcos', ultima: 'Separei 2 apartamentos para aluguel anual no Centro. Quer ver as fotos?', ultimaEm: h(264), ultimaDir: 'robo', clienteEm: h(266), naoLidas: 0, robo: 'ligado' },
+    { numero: T.ju, nome: 'Juliana', ultima: 'Anotei, Juliana! O Rafael, que cuida da temporada, confirma a reserva com você por aqui.', ultimaEm: h(5), ultimaDir: 'robo', clienteEm: h(6), naoLidas: 2, robo: 'ligado' },
+    { numero: T.ma, nome: 'Marcelo', ultima: 'Oi Marcelo, aqui é a Carla! Sábado às 10h está confirmado na Ref. 612.', ultimaEm: h(38), ultimaDir: 'equipe', clienteEm: h(59), naoLidas: 0, robo: 'pausado', pausadoAte: em(20 * 60) },
+    { numero: T.an, nome: 'Antônio', ultima: 'Obrigada, Antônio! Anotei tudo e a Carla, que cuida das vendas, combina a avaliação com você por aqui.', ultimaEm: h(171), ultimaDir: 'robo', clienteEm: h(173), naoLidas: 1, robo: 'ligado' },
+    { numero: T.pa, nome: 'Patrícia', ultima: 'Oi Patrícia, é a Bianca! Aceita pet pequeno, sim. Quarta às 15h fica bom?', ultimaEm: h(240), ultimaDir: 'equipe', clienteEm: h(295), naoLidas: 0, robo: 'pausado', pausadoAte: em(14 * 60) },
+    { numero: T.da, nome: 'Daniel', ultima: 'Anotei a sua proposta: R$ 350.000 com 30% de entrada. A Carla leva ao proprietário e te responde por aqui.', ultimaEm: h(1458), ultimaDir: 'robo', clienteEm: h(1460), naoLidas: 0, robo: 'ligado' },
+    { numero: T.fe, nome: 'Fernanda', ultima: 'Combinado! Quando decidirem, é só me chamar aqui.', ultimaEm: h(2890), ultimaDir: 'robo', clienteEm: h(2891), naoLidas: 0, robo: 'ligado' },
   ];
   const m = (numero, dir, texto, min, extra) => Object.assign({ numero, dir, texto, quando: h(min) }, extra || {});
   const msgs = [
-    m('5511900000001', 'cliente', 'Boa noite! Vocês têm casa pra 6 pessoas no Natal?', 12),
-    m('5511900000001', 'robo', 'Boa noite! Sou a Milla, agente virtual da Sua Imobiliária. Separei 3 casas para 6 pessoas no Natal. A primeira fica a duas quadras do mar:\n\nRef. T108 · Casa com piscina na Praia Mansa, 3 quartos, até 6 pessoas. R$ 780 por diária.', 12),
-    m('5511900000001', 'cliente', 'Gostei dessa. Posso ver sábado de manhã?', 7),
-    m('5511900000001', 'robo', 'Anotei sábado de manhã e já avisei a equipe. Assim que confirmarem, te aviso por aqui. Como posso te chamar?', 7),
-    m('5511900000001', 'cliente', 'Carla', 5),
-    m('5511900000001', 'robo', 'Obrigada, Carla! A equipe confirma o horário e eu te aviso por aqui.', 4),
-    m('5511900000002', 'cliente', 'Áudio de 14 segundos', 62),
-    m('5511900000002', 'robo', 'Entendi: apartamento de 2 quartos para comprar, até R$ 450 mil, perto do centro. Tenho uma opção boa:\n\nRef. V204 · Apartamento no Centro, 2 quartos, 1 vaga, 68 m². R$ 430.000.', 62),
-    m('5511900000002', 'cliente', 'Gostei. Dá pra ver sábado às 10h? Sou o Rafael', 59),
-    m('5511900000002', 'robo', 'Anotei sua visita para sábado às 10h no V204. A equipe confirma em seguida por aqui mesmo.', 58),
-    m('5511900000002', 'equipe', 'Oi Rafael, aqui é a Ana! Sábado às 10h está confirmado no V204.', 38, { por: 'Ana' }),
-    m('5511900000003', 'cliente', 'Olá, tenho uma casa e queria colocar para alugar na temporada. Vocês fazem?', 175),
-    m('5511900000003', 'robo', 'Fazemos sim. Me conta como é a casa e em que bairro fica?', 174),
-    m('5511900000003', 'cliente', 'É um sobrado de 3 quartos com piscina, no Jardim das Palmeiras. Meu nome é Júlia', 173),
-    m('5511900000003', 'robo', 'Perfeito, Júlia! Anotei tudo e a equipe fala com você por aqui para avaliar o imóvel.', 171),
-    m('5511900000004', 'cliente', 'Bom dia, procuro apartamento pra alugar no Centro, até 2.500', 266),
-    m('5511900000004', 'robo', 'Separei 2 apartamentos para aluguel anual no Centro. Quer ver as fotos?', 264),
+    m(T.ju, 'cliente', 'Oi! Tem casa com piscina pro réveillon? Somos 8, de 28/12 a 02/01', 14),
+    m(T.ju, 'robo', 'Tenho sim! A Ref. 528 é uma casa em Pontal do Sul com piscina, 5 quartos e até 12 pessoas. Livre nas suas datas: 5 noites × R$ 1.180 = R$ 5.900. O sinal de 50% (R$ 2.950) garante as datas. Quer que eu anote a reserva?', 14),
+    m(T.ju, 'cliente', 'Quero! Sou a Juliana', 6),
+    m(T.ju, 'robo', 'Anotei, Juliana! O Rafael, que cuida da temporada, confirma a reserva com você por aqui.', 5),
+    m(T.ma, 'cliente', 'Áudio de 14 segundos', 62),
+    m(T.ma, 'robo', 'Entendi: casa de 3 quartos para comprar em Pontal do Sul, até R$ 800 mil. Tenho uma que acabou de baixar o preço:\n\nRef. 612 · Casa nova em Pontal do Sul, 3 quartos (1 suíte), 2 vagas, piscina, 167 m². Era R$ 790.000, agora R$ 750.000.', 61),
+    m(T.ma, 'cliente', 'Gostei. Dá pra ver sábado às 10h? Sou o Marcelo', 59),
+    m(T.ma, 'robo', 'Anotei a sua visita para sábado às 10h na Ref. 612. A Carla confirma em seguida por aqui mesmo.', 58),
+    m(T.ma, 'equipe', 'Oi Marcelo, aqui é a Carla! Sábado às 10h está confirmado na Ref. 612.', 38, { por: 'Carla' }),
+    m(T.pa, 'cliente', 'Bom dia, procuro casa pra alugar o ano todo em Pontal do Sul, até 2.500', 300),
+    m(T.pa, 'robo', 'Bom dia! Tenho uma boa:\n\nRef. 621 · Casa mobiliada em Pontal do Sul, 3 quartos (1 suíte), piscina, 2 vagas. R$ 2.200 por mês. Quer que eu marque uma visita?', 299),
+    m(T.pa, 'cliente', 'Quero, pode ser quarta à tarde? E aceita pet?', 296),
+    m(T.pa, 'robo', 'Anotei a visita para quarta à tarde. Sobre o pet, quem confirma é a Bianca, que cuida da locação: ela fala com você por aqui.', 295),
+    m(T.pa, 'equipe', 'Oi Patrícia, é a Bianca! Aceita pet pequeno, sim. Quarta às 15h fica bom?', 240, { por: 'Bianca' }),
+    m(T.an, 'cliente', 'Boa tarde. Tenho um sobrado em Shangri-lá e quero vender. Vocês avaliam?', 175),
+    m(T.an, 'robo', 'Avaliamos sim, sem custo. Me conta: quantos quartos, o tamanho do terreno e se a documentação está em dia?', 174),
+    m(T.an, 'cliente', '3 quartos, terreno de 12 por 30, escriturado. Sou o Antônio', 173),
+    m(T.an, 'robo', 'Obrigada, Antônio! Anotei tudo e a Carla, que cuida das vendas, combina a avaliação com você por aqui.', 171),
+    m(T.da, 'cliente', 'Oi, o apartamento 627 aceita financiamento?', 1470),
+    m(T.da, 'robo', 'Aceita sim. A Ref. 627 é um apartamento em Praia de Leste com elevador e vaga coberta: 2 quartos (1 suíte), 62 m², R$ 380.000.', 1469),
+    m(T.da, 'cliente', 'Quero fazer uma proposta de 350 mil com 30% de entrada', 1460),
+    m(T.da, 'robo', 'Anotei a sua proposta: R$ 350.000 com 30% de entrada. A Carla leva ao proprietário e te responde por aqui.', 1458),
+    m(T.fe, 'cliente', 'Quanto fica a 618 no réveillon pra 10 pessoas?', 2895),
+    m(T.fe, 'robo', 'A Ref. 618 é uma casa mobiliada com piscina em Pontal do Sul: 4 quartos (2 suítes), até 10 pessoas, R$ 1.600 por diária. De 29/12 a 02/01 são 4 noites: R$ 6.400. O sinal de 50% (R$ 3.200) garante as datas.', 2894),
+    m(T.fe, 'cliente', 'Vou ver com o pessoal e te falo', 2891),
+    m(T.fe, 'robo', 'Combinado! Quando decidirem, é só me chamar aqui.', 2890),
   ];
   const ped = [
-    { id: 'demo-p1', temperatura: 'quente', telefone: '5511900000001', nome: 'Carla', rotulo: 'Interesse em imóvel', imovelRef: 'T108', status: 'novo', mensagem: 'Carla quer ver a T108 (Praia Mansa, piscina) para 6 pessoas no Natal.', extra: { Pedido: 'Visita', Quando: 'sábado de manhã' }, criadoEm: h(4),
-      equipe: { modo: 'rodizio', produto: 'temporada', vez: 'Bruno', passouDe: ['Ana'], avisados: ['Ana', 'Bruno'], falhou: [], em: h(14), prazo: new Date(Date.now() + 6 * 60000).toISOString() } },
-    { id: 'demo-p2', temperatura: 'quente', telefone: '5511900000002', nome: 'Rafael', rotulo: 'Interesse em imóvel', imovelRef: 'V204', status: 'visita marcada', mensagem: 'Rafael quer visitar o apartamento V204 no Centro, até R$ 450 mil.', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(58),
-      equipe: { avisados: ['Ana', 'Bruno'], falhou: [], em: h(58), resposta: { acao: 'confirmado', por: 'Ana', em: h(38), clienteAvisado: true } } },
-    { id: 'demo-p3', temperatura: 'morno', telefone: '5511900000003', nome: 'Júlia', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Júlia tem um sobrado de 3 quartos com piscina no Jardim das Palmeiras e quer alugar na temporada.', extra: { Pedido: 'Anunciar para temporada' }, criadoEm: h(171),
-      equipe: { avisados: ['Ana'], falhou: [], em: h(171) } },
-    { id: 'demo-p4', temperatura: 'frio', telefone: '5511900000004', nome: 'Marcos', rotulo: 'Interesse em imóvel', imovelRef: 'A302', status: 'novo', mensagem: 'Marcos procura apartamento para aluguel anual no Centro, até R$ 2.500.', extra: { Pedido: 'Aluguel anual' }, criadoEm: h(264) },
+    { id: 'demo-p1', temperatura: 'quente', telefone: T.ju, nome: 'Juliana', rotulo: 'Reserva de temporada', imovelRef: '528', status: 'novo', mensagem: 'Juliana quer reservar a Ref. 528 (Pontal do Sul, piscina) de 28/12 a 02/01 para 8 pessoas: 5 noites × R$ 1.180 = R$ 5.900, sinal de R$ 2.950.', extra: { Pedido: 'Reserva', Datas: '28/12 a 02/01', Pessoas: 8 }, criadoEm: h(5), origem: 'robo-whatsapp',
+      equipe: { modo: 'rodizio', produto: 'temporada', vez: 'Rafael', passouDe: [], avisados: ['Rafael'], falhou: [], em: h(5), prazo: em(6) } },
+    { id: 'demo-p2', temperatura: 'quente', telefone: T.ma, nome: 'Marcelo', rotulo: 'Interesse em imóvel', imovelRef: '612', status: 'visita marcada', mensagem: 'Marcelo quer visitar a casa Ref. 612 em Pontal do Sul (baixou para R$ 750 mil).', extra: { Pedido: 'Visita', Quando: 'sábado às 10h' }, criadoEm: h(58), origem: 'robo-whatsapp', statusEm: h(38),
+      equipe: { modo: 'rodizio', produto: 'venda', avisados: ['Carla'], falhou: [], em: h(58), resposta: { acao: 'confirmado', por: 'Carla', em: h(38), clienteAvisado: true } } },
+    { id: 'demo-p3', temperatura: 'morno', telefone: T.an, nome: 'Antônio', rotulo: 'Anunciar imóvel', imovelRef: '', status: 'novo', mensagem: 'Antônio quer vender um sobrado de 3 quartos em Shangri-lá (terreno 12 × 30, escriturado).', extra: { Pedido: 'Vender o imóvel', 'Balneário': 'Shangri-lá' }, criadoEm: h(171), origem: 'robo-whatsapp',
+      equipe: { modo: 'rodizio', produto: 'venda', vez: 'Carla', avisados: ['Carla'], passouDe: [], falhou: [], em: h(171), prazo: h(161) } },
+    { id: 'demo-p4', temperatura: 'quente', telefone: T.pa, nome: 'Patrícia', rotulo: 'Aluguel anual', imovelRef: '621', status: 'em atendimento', mensagem: 'Patrícia quer visitar a casa Ref. 621 (R$ 2.200 por mês) e pergunta se aceita pet.', extra: { Pedido: 'Visita', Quando: 'quarta à tarde' }, criadoEm: h(295), origem: 'robo-whatsapp', statusEm: h(240),
+      equipe: { modo: 'rodizio', produto: 'aluguel', avisados: ['Bianca'], falhou: [], em: h(295), resposta: { acao: 'assumido', por: 'Bianca', em: h(262), clienteAvisado: true } } },
+    { id: 'demo-p5', temperatura: 'quente', telefone: T.da, nome: 'Daniel', rotulo: 'Interesse em imóvel', imovelRef: '627', status: 'proposta', mensagem: 'Daniel propõe R$ 350.000 pelo apartamento Ref. 627, com 30% de entrada e o resto financiado.', extra: { Pedido: 'Proposta', Valor: 'R$ 350.000', Entrada: '30%' }, criadoEm: h(1458), origem: 'robo-whatsapp', statusEm: h(1400),
+      equipe: { modo: 'rodizio', produto: 'venda', avisados: ['Carla'], falhou: [], em: h(1458), resposta: { acao: 'assumido', por: 'Carla', em: h(1441), clienteAvisado: true } } },
   ];
-  return { conv, msgs, ped };
+  const todos = ped.concat(wzDemoHistorico()).sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
+  return { conv, msgs, ped: todos };
+}
+/* seis meses de leads de exemplo para os relatórios: sempre os mesmos (sorteio com semente),
+   contados a partir de hoje. Sem telefone: são só números, não há conversa por trás. */
+function wzDemoHistorico() {
+  let s = 20261116;
+  const rnd = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const um = l => l[Math.floor(rnd() * l.length)];
+  const NOMES = ['Ana Paula', 'Bruno', 'Camila', 'Diego', 'Eduarda', 'Felipe', 'Gabriela', 'Henrique', 'Isabela', 'João Pedro', 'Karina', 'Lucas', 'Mariana', 'Natália', 'Otávio', 'Priscila', 'Renato', 'Sabrina', 'Thiago', 'Vanessa', 'William', 'Aline', 'Caio', 'Débora', 'Everton', 'Fabiana', 'Gustavo', 'Helena', 'Igor', 'Jéssica', 'Leandro', 'Michele', 'Paulo', 'Raquel', 'Sérgio', 'Tatiane', 'Vitor', 'Yasmin', 'Rodrigo', 'Luana'];
+  /* os imóveis mais procurados aparecem mais vezes (a lista repete) */
+  const REFS = {
+    venda: ['612', '612', '627', '627', '615', '615', '624', '636', '639', '642', '645', '651', '654', '660', '663', '666', '630', '648', '519', '522', '510'],
+    aluguel: ['621', '621', '621', '514', '515', '520', '531', '540'],
+    temporada: ['528', '528', '528', '618', '618', '657', '657', '633', '633', '524', '539', '516', '513', '507', '505'],
+  };
+  const BALN = ['Shangri-lá', 'Pontal do Sul', 'Ipanema', 'Praia de Leste', 'Atami', 'Canoas', 'Grajaú'];
+  /* leads por mês, do mais antigo ao atual (o atual vale até hoje): a temporada sobe no verão */
+  const POR_MES = { venda: [13, 14, 15, 17, 20, 24], aluguel: [8, 7, 7, 6, 6, 6], temporada: [3, 4, 6, 11, 21, 38], captacao: [2, 2, 3, 4, 5, 7] };
+  const FECHA = { venda: .14, aluguel: .32, temporada: .46, captacao: .4 };
+  const QUEM = { venda: [['Carla', .85], ['Rafael', 1]], captacao: [['Carla', 1]], temporada: [['Rafael', .8], ['Bianca', 1]], aluguel: [['Bianca', .9], ['Carla', 1]] };
+  const ROT = { venda: 'Interesse em imóvel', aluguel: 'Aluguel anual', temporada: 'Reserva de temporada', captacao: 'Anunciar imóvel' };
+  const agora = Date.now(), hoje = new Date(), DIA = 86400000, saida = [];
+  /* cada pessoa da equipe tem um jeito (Gestão · Desempenho da equipe, 16/11/2026): a Carla é rápida e
+     fecha mais; o Rafael responde no meio-termo e às vezes perde a vez; a Bianca demora mais e deixa
+     lead parado, mas fecha bem a locação */
+  const PERFIL = { Carla: { vel: .5, fecha: 1.3, falta: .03, para: .12 }, Rafael: { vel: 1.1, fecha: 1, falta: .13, para: .3 }, Bianca: { vel: 2.3, fecha: .95, falta: .06, para: .5 } };
+  const OUTRO = { Carla: 'Rafael', Rafael: 'Bianca', Bianca: 'Carla' };
+  /* quando as pessoas escrevem: mais à noite e no fim de semana (0 a 23 h) */
+  const HORA = [1, .5, .3, .2, .2, .4, 1, 2, 3, 3.2, 3.2, 3, 3.3, 3, 2.8, 2.8, 3, 3.5, 4.3, 5.2, 5.6, 5, 3.6, 2];
+  const HORA_SOMA = HORA.reduce((a, b) => a + b, 0);
+  const SEMANA = [1.55, 1, .95, .95, 1, 1.1, 1.4];   /* domingo a sábado */
+  const umaHora = () => { let r = rnd() * HORA_SOMA; for (let h = 0; h < 24; h++) { r -= HORA[h]; if (r <= 0) return h; } return 20; };
+  const quando = (ini, fim) => {
+    for (let t = 0; t < 30; t++) {
+      const d = new Date(ini + rnd() * Math.max(0, fim - ini)); d.setHours(umaHora(), Math.floor(rnd() * 60), 0, 0);
+      if (d.getTime() >= ini && d.getTime() <= fim && rnd() * 1.55 <= SEMANA[d.getDay()]) return d.getTime();
+    }
+    return ini + rnd() * Math.max(0, fim - ini);
+  };
+  let n = 0;
+  for (let i = 0; i < 6; i++) {
+    const ini = new Date(hoje.getFullYear(), hoje.getMonth() - (5 - i), 1).getTime();
+    const fim = Math.min(new Date(hoje.getFullYear(), hoje.getMonth() - (5 - i) + 1, 1).getTime(), agora - 3 * 3600000);
+    const fracao = i === 5 ? (fim - ini) / (new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1).getTime() - ini) : 1;
+    for (const prod of Object.keys(POR_MES)) {
+      const qtd = Math.round(POR_MES[prod][i] * fracao);
+      for (let k = 0; k < qtd; k++) {
+        const criado = quando(ini, fim), idade = (agora - criado) / DIA;
+        const q = rnd(); const por = QUEM[prod].find(([, lim]) => q <= lim)[0], pf_ = PERFIL[por];
+        /* perdeu a vez: o aviso foi para outra pessoa antes, que não tocou no prazo */
+        const perdeu = rnd() < PERFIL[OUTRO[por]].falta ? OUTRO[por] : '';
+        /* ninguém respondeu (o rodízio deu a volta): raro, e só nos recentes */
+        const esgotou = idade < 12 && rnd() < .035;
+        const novinho = !esgotou && idade < 1.3 && rnd() < .55;
+        const r = rnd(), pf = FECHA[prod] * pf_.fecha * (idade > 25 ? 1 : .5);
+        let status = esgotou || novinho ? 'novo' : r < pf ? 'atendido' : (idade > 25 ? 'perdido' : idade > 6 ? um(['proposta', 'visita marcada', 'em atendimento', 'perdido', 'perdido']) : um(['em atendimento', 'visita marcada', 'proposta']));
+        const decidido = status === 'atendido' || status === 'perdido';
+        /* quando o status andou pela última vez: quem deixa parado tem leads em aberto sem mexer há dias */
+        const mexeu = decidido ? criado + (1 + rnd() * 11) * DIA
+          : status === 'novo' ? 0 : (rnd() < pf_.para ? criado + rnd() * Math.min(idade, 2) * DIA : agora - rnd() * Math.min(idade, 5) * DIA);
+        const statusEm = mexeu ? new Date(Math.min(agora - 3600000, Math.max(criado + 600000, mexeu))).toISOString() : '';
+        const respMin = (3 + rnd() * rnd() * 30) * (2.6 - i * .4) * pf_.vel;   /* a equipe fica mais rápida mês a mês */
+        const ref = REFS[prod] ? um(REFS[prod]) : '';
+        const nome = um(NOMES);
+        const pedido = prod === 'venda' ? um(['Visita', 'Visita', 'Proposta', 'Financiamento']) : prod === 'temporada' ? 'Reserva' : prod === 'aluguel' ? 'Visita' : um(['Vender o imóvel', 'Vender o imóvel', 'Anunciar para temporada', 'Anunciar para locação']);
+        const extra = { Pedido: pedido }; if (prod === 'captacao') extra['Balneário'] = um(BALN);
+        const canal = rnd(), origem = canal < .6 ? 'robo-whatsapp' : canal < .83 ? 'robo-instagram' : canal < .95 ? 'site' : 'robo-whatsapp';
+        const em = new Date(criado).toISOString();
+        const equipe = { modo: 'rodizio', produto: prod === 'captacao' ? 'venda' : prod, falhou: [], em };
+        if (esgotou) Object.assign(equipe, { avisados: [por, OUTRO[por]], passouDe: [por, OUTRO[por]], esgotou: true });
+        else if (novinho && rnd() < .5) Object.assign(equipe, { avisados: [por], vez: por });
+        else Object.assign(equipe, { avisados: perdeu ? [perdeu, por] : [por], ...(perdeu ? { passouDe: [perdeu] } : {}),
+          resposta: { acao: um(['confirmado', 'confirmado', 'confirmado', 'assumido', 'outro']), por, em: new Date(criado + respMin * 60000).toISOString(), clienteAvisado: true } });
+        saida.push({
+          id: 'demo-h' + (++n), nome, telefone: '', rotulo: ROT[prod], imovelRef: ref, status, statusEm: statusEm || undefined,
+          temperatura: status === 'atendido' ? 'quente' : status === 'perdido' ? 'frio' : um(['quente', 'morno', 'morno', 'frio']),
+          mensagem: prod === 'captacao' ? nome + ' quer ' + pedido.toLowerCase().replace('vender o imóvel', 'vender um imóvel') + ' em ' + extra['Balneário'] + '.' : nome + ' pediu ' + pedido.toLowerCase() + ' da Ref. ' + ref + '.',
+          extra, criadoEm: em, origem, ...(canal >= .95 ? { anuncio: { titulo: 'Casas em Pontal do Paraná' } } : {}), equipe,
+        });
+      }
+    }
+  }
+  return saida;
 }
 let WZ_EXEMPLO = null;
 
@@ -297,13 +406,15 @@ document.addEventListener('change', async e => {
   if (act !== 'wz-status' && act !== 'wz-temp') return;
   const id = e.target.dataset.id, valor = e.target.value, campo = act === 'wz-temp' ? 'temperatura' : 'status';
   const status = campo === 'status' ? valor : null;
-  const p = WZ.pedidos.find(x => x.id === id); const antes = p ? p[campo] : undefined; if (p) p[campo] = valor;
+  const p = WZ.pedidos.find(x => x.id === id); const antes = p ? p[campo] : undefined, antesEm = p ? p.statusEm : undefined; if (p) p[campo] = valor;
+  /* quando o status mudou: os relatórios contam o Fechado no mês em que fechou (16/11/2026) */
+  if (p && status) p.statusEm = new Date().toISOString();
   let ok = true;
   if (WZ_REAL() && p) {
     const dados = Object.assign({}, p); delete dados.id;
     try { const r = await supaFetch('pedidos?id=eq.' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify({ data: dados }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (x) { ok = false; }
   }
-  if (!ok && p) p[campo] = antes;
+  if (!ok && p) { p[campo] = antes; if (status) p.statusEm = antesEm; }
   if (ok && status) { if (['atendido', 'perdido'].includes(status)) WZ.leads.delete(p && p.telefone); else if (p) WZ.leads.add(p.telefone); }
   if (ok) wzPinta();
   toast(!ok ? 'Não gravou. Tente de novo.' : campo === 'temperatura' ? 'Lead ' + tempNome(valor).toLowerCase() + '.' : 'Status do lead: ' + (WZ_STATUS.find(s => s[0] === status) || [, status])[1] + '.');

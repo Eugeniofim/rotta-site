@@ -442,7 +442,8 @@
 </head>
 <body>
 <div class="demo" id="demo">
-  <b>Protótipo</b>
+  <b>Demonstração</b>
+  <a href="./?nuvem=1" id="irValendo" hidden>Ir para o clube de verdade</a>
   <button type="button" id="simular">Simular compra na máquina</button>
   <a href="../painel/" target="_blank" rel="noopener">Abrir o painel da Melissa</a>
 </div>
@@ -1164,6 +1165,7 @@ $("simular").addEventListener("click", () => {
 
 /* ---------- começo ---------- */
 lerLink();
+if (C.demoNoValendo) $("irValendo").hidden = false;
 (async () => {
   if (C.nuvem) {
     $("demo").hidden = true;

@@ -1,5 +1,100 @@
 [
  {
+  "ref": "D081",
+  "id": 952,
+  "titulo": "Sobrado Moderno - Atami",
+  "transacao": "temporada",
+  "tipo": "Sobrado",
+  "bairro": "Atami",
+  "cidade": "Pontal do Paraná",
+  "uf": "PR",
+  "preco": 3950,
+  "dorm": 5,
+  "suites": 5,
+  "banheiros": 7,
+  "vagas": 2,
+  "areaConstruida": null,
+  "areaTotal": null,
+  "condominio": null,
+  "emCondominio": false,
+  "caracteristicas": [],
+  "resumo": "A Imobiliária Ponta D’Areia apresenta este belíssimo imóvel, ideal para quem busca conforto, sofisticação e momentos especiais. Com 5 suítes climatizadas, ambientes amplos e bem distribuídos, sala de TV, cozinha, sala de jantar e uma charmosa sacada com espaço de convivência e redes de descanso. Na área externa, piscina e espaço de lazer coberto completam a experiência, proporcionando o equilíbrio perfeito entre descanso, privacidade e lazer.",
+  "descricao": "DESCRIÇÃO DO IMÓVEL:TÉRREO:Sala de TV Sala de jantar Cozinha 1 banheiro social LavanderiaSEGUNDO PISO:5 suítesSacada privativaÁREA EXTERNA: PiscinaÁrea de lazer coberta1 lavaboCOMODIDADES:Ar-condicionado em todas as suítes.INFORMAÇÔES SOBRE A LOCAÇÃO: Valor da locação diária para os períodos de Natal, Réveillon e Carnaval: consultar disponibilidade e valores.Locação diária (fevereiro a novembro): pacotes mínimos de 05 diárias.Locação temporada (dezembro e janeiro): pacotes mínimos de 10 diárias.Reserve seu imóvel com um de nossos corretores da Ponta D’Areia Imóveis.",
+  "fotos": [
+   "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/11/sobrado-moderno-atami-1794493125.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-1-1794490756.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-2-1794490773.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-3-1794490773.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-4-1794490791.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-5-1794490791.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-6-1794490826.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-15-1794490942.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-14-1794490931.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-16-1794490962.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-7-1794490846.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/imovel-952-8-1794490846.jpeg"
+  ],
+  "url": "https://www.pontadaareiaimoveis.com.br/imovel/sobrado-moderno-atami",
+  "maxPessoas": 11,
+  "piscina": true,
+  "proximoMar": 0,
+  "financiavel": false,
+  "aceitaPermuta": false,
+  "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
+  "feriadoConsultar": false,
+  "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/11/sobrado-moderno-atami-1794493125.jpeg"
+ },
+ {
+  "ref": "v070",
+  "id": 950,
+  "titulo": "Triplex a Venda - Atami Sul",
+  "transacao": "venda",
+  "tipo": "Triplex",
+  "bairro": "Atami Sul",
+  "cidade": "Pontal do Paraná",
+  "uf": "PR",
+  "preco": 2250000,
+  "dorm": 2,
+  "suites": 2,
+  "banheiros": 3,
+  "vagas": 1,
+  "areaConstruida": null,
+  "areaTotal": 360,
+  "condominio": null,
+  "emCondominio": false,
+  "caracteristicas": [],
+  "resumo": "Exclusividade e sofisticação no Condomínio Atami Sul! Este triplex de alto padrão possui aproximadamente 400m² de área construída, 5 suítes, amplos ambientes integrados, cozinha moderna, piscina privativa, espaço gourmet com churrasqueira e salão de jogos. Localizado próximo ao mar, oferece conforto, privacidade e lazer para toda a família. Um verdadeiro refúgio no litoral paranaense, ideal para aproveitar momentos especiais com qualidade de vida!",
+  "descricao": "MEDIDAS DO IMÓVEL:Área do terreno: 360 m² Área construída: aproximadamente 400 m²DISTRIBUIÇÃO DO IMÓVEL:PAVIMENTO TÉRREO:01 Lavabo Sala de jantar Sala de TV CozinhaPAVIMENTO SUPERIOR:2 Suítes 02 DormitóriosÁREA SOCIAL:Cozinha gourmet Churrasqueira Sala de jantar externa PiscinaSALÃO DE JOGOS:– TERCEIRO PAVIMENTO:Mesa de sinuca reversível para ping-pong Mesa de pebolimEDÍCULA:1 suíte para hóspedesChurrasqueiraLavanderia",
+  "fotos": [
+   "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/11/triplex-a-venda-atami-sul-1793972284.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-1-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-2-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-3-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-4-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-5-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-6-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-7-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-8-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-9-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-10-1793972246.jpeg",
+   "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/11/triplex-a-venda-atami-sul-950-11-1793972246.jpeg"
+  ],
+  "url": "https://www.pontadaareiaimoveis.com.br/imovel/triplex-a-venda-atami-sul",
+  "maxPessoas": null,
+  "piscina": true,
+  "proximoMar": 0,
+  "financiavel": false,
+  "aceitaPermuta": false,
+  "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
+  "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/11/triplex-a-venda-atami-sul-1793972284.jpeg"
+ },
+ {
   "ref": "D064",
   "id": 947,
   "titulo": "Excelente Sobrado - Atami Norte",
@@ -45,6 +140,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -97,6 +195,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/09/casa-para-locacao-diaria-em-pontal-do-sul-1789571101-copia-946-3eacfe2c.jpeg"
  },
  {
@@ -141,6 +242,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/casa-de-temporada-atami-sul-1793471705.jpg"
  },
@@ -177,6 +281,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/terreno-em-pontal-do-sul-1793469705.jpeg"
  },
  {
@@ -214,6 +321,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/excelente-terreno-a-venda-pontal-do-sul-1793469253.jpeg"
  },
  {
@@ -263,6 +373,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/06/excelente-sobrado-456-copia-940-1b5d9c93-copia-941-caadac75.jpeg"
  },
  {
@@ -312,6 +425,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/06/excelente-sobrado-456-copia-940-1b5d9c93.jpeg"
  },
@@ -363,6 +479,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-sobrado-atami-norte-716-copia-939-b2ac43cf.jpg"
  },
  {
@@ -411,6 +530,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/casa-com-piscina-pontal-do-sul-1792516778.jpeg"
  },
@@ -452,6 +574,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/loft-aconchegante-para-locacao-mensal-pontal-do-sul-1792068932.jpeg"
  },
  {
@@ -503,6 +628,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/sobrado-de-alto-padrao-no-atami-porteira-fechada-1791814824.jpg"
  },
  {
@@ -552,6 +680,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/10/casa-para-locacao-mensal-pontal-do-sul-1791556681.jpg"
  },
  {
@@ -595,12 +726,15 @@
    "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/09/imovel-929-13-1789571114.jpeg"
   ],
   "url": "https://www.pontadaareiaimoveis.com.br/imovel/casa-para-locacao-diaria-em-pontal-do-sul",
-  "maxPessoas": null,
+  "maxPessoas": 7,
   "piscina": false,
   "proximoMar": 0,
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/09/casa-para-locacao-diaria-em-pontal-do-sul-1789571101.jpeg"
  },
@@ -651,6 +785,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/09/casa-de-temporada-pontal-do-sul-1789393250.jpg"
  },
@@ -708,6 +845,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/09/excelente-apartamento-em-pontal-do-sul-1788981745.jpeg"
  },
  {
@@ -758,6 +898,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/08/sobrado-para-locacao-temporada.jpeg"
  },
@@ -807,6 +950,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/08/whatsapp-image-2026-08-26-at-14-06-46-2.jpeg"
  },
@@ -857,6 +1003,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/08/casa-ampla-no-atami-norte-em-pontal-do-parana.jpeg"
  },
  {
@@ -904,6 +1053,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/08/exelentre-sobrado-pontal-do-sul-920.jpeg"
  },
  {
@@ -942,6 +1094,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/07/terreno-em-localizacao-privilegiada-n-atami-norte.jpg"
  },
  {
@@ -992,6 +1147,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/07/sobrado-a-venda-no-balneario-atami.jpg"
  },
  {
@@ -1044,6 +1202,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/07/sobrado-de-alto-padrao-com-ampla-area-de-lazer.jpg"
  },
  {
@@ -1087,12 +1248,15 @@
    "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2026/07/sobrado-amplo-em-pontal-do-sul-905-905-1-1783514933.jpg"
   ],
   "url": "https://www.pontadaareiaimoveis.com.br/imovel/sobrado-amplo-em-pontal-do-sul-905",
-  "maxPessoas": null,
+  "maxPessoas": 10,
   "piscina": true,
   "proximoMar": 3,
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/07/sobrado-amplo-em-pontal-do-sul-905.jpg"
  },
@@ -1142,6 +1306,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/07/sobrado-amplo-em-pontal-do-sul.jpg"
  },
  {
@@ -1186,6 +1353,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/06/a264b21a-eda2-456d-8898-aa531ff5ecaa.jpg"
  },
  {
@@ -1233,6 +1403,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/06/whatsapp-image-2026-06-18-at-10-29-29-am.jpeg"
  },
  {
@@ -1280,6 +1453,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/06/uma-agradavel-kitneti.jpeg"
  },
  {
@@ -1331,6 +1507,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/06/belissimo-sobrado-em-atami-sul.jpg"
  },
  {
@@ -1379,6 +1558,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/05/excelente-casa-itatiaia.jpg"
  },
  {
@@ -1429,6 +1611,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/05/excelente-sobrado-pontal-do-sul-878.jpeg"
  },
@@ -1464,6 +1649,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente-sobrado-pontal-do-sul-873.jpg"
  },
  {
@@ -1499,6 +1687,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente-sobrado-pontal-do-sul-872.jpeg"
  },
  {
@@ -1549,6 +1740,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente-casa-atami-sul-867.jpg"
  },
@@ -1599,6 +1793,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente-casa-atami-sul-862.jpeg"
  },
  {
@@ -1643,6 +1840,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente.jpeg"
  },
  {
@@ -1691,6 +1891,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente-sobrado-atami-norte-859.jpg"
  },
  {
@@ -1740,6 +1943,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/04/excelente-casa-santa-clara.jpg"
  },
  {
@@ -1789,6 +1995,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/03/excelente-sobrado-857.jpg"
  },
  {
@@ -1839,6 +2048,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/03/excelente-sobrado-atami-norte-856.jpg"
  },
@@ -1889,6 +2101,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/03/excelente-sobrado-atami-norte-852.jpeg"
  },
  {
@@ -1936,6 +2151,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/03/excelente-sobrado-vila-nova.jpg"
  },
  {
@@ -1983,6 +2201,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/exelnte-imovel-pontal-do-sul.jpg"
  },
  {
@@ -2018,6 +2239,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/exelente-terreno-pontal-do-sul.jpg"
  },
  {
@@ -2061,6 +2285,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/excelente-sala-comercial-pontal-do-sul-838.jpg"
  },
  {
@@ -2101,6 +2328,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/06/excelente-barracao-comercial-pontal-do-sul-837.jpeg"
  },
  {
@@ -2138,6 +2368,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/excelente-barracao-comercial-pontal-do-sul.jpg"
  },
  {
@@ -2175,6 +2408,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/exelente-terreno.jpg"
  },
  {
@@ -2222,6 +2458,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/exelente-sobrado-atami-norte.jpg"
  },
  {
@@ -2271,6 +2510,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/02/exelente-casa.jpg"
  },
@@ -2321,6 +2563,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -2371,6 +2616,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/01/exelente-apartamento-pontal-do-sul.jpg"
  },
@@ -2410,6 +2658,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/01/excelente-terreno-atami-norte.jpg"
  },
  {
@@ -2459,6 +2710,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -2511,6 +2765,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -2562,6 +2819,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -2613,6 +2873,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 7,
   "feriadoConsultar": false,
@@ -2657,6 +2920,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/12/excelente-loft-pontal-do-sul.jpeg"
  },
@@ -2700,6 +2966,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/12/excelente-sala-comercial-pontal-do-sul.jpeg"
  },
  {
@@ -2750,6 +3019,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/12/excelente-sobrado-atami-norte-793.jpg"
  },
@@ -2796,6 +3068,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/11/residencial-dona-clara-pontal-do-sul-792.jpeg"
  },
  {
@@ -2847,6 +3122,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": false,
@@ -2899,6 +3177,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/10/excelente-casa-atami-norte.jpg"
  },
  {
@@ -2947,6 +3228,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -2999,6 +3283,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/10/excelente-sobrado-atami-norte-779.jpg"
  },
@@ -3049,6 +3336,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/09/excelente-sobrado-pontal-do-sul-774.jpeg"
  },
@@ -3101,6 +3391,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-atami-norte-770.jpg"
  },
@@ -3150,6 +3443,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-pontal-do-sul-768.jpeg"
  },
  {
@@ -3201,6 +3497,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-atami-norte-767.jpg"
  },
@@ -3250,6 +3549,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-apartamento-pontal-do-sul-766.jpeg"
  },
  {
@@ -3297,6 +3599,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-pontal-do-sul-759.jpeg"
  },
  {
@@ -3345,6 +3650,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-atami-sul-756.jpg"
  },
  {
@@ -3393,6 +3701,9 @@
   "financiavel": true,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-pontal-do-sul-755.jpeg"
  },
  {
@@ -3442,6 +3753,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/07/excelente-casa-pontal-do-sul-752.jpg"
  },
  {
@@ -3488,6 +3802,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/07/excelente-casa.jpg"
  },
  {
@@ -3537,6 +3854,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/06/excelente-sobrado-atami-norte-746.jpg"
  },
  {
@@ -3584,6 +3904,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/06/excelente-casa-atami-sul.jpg"
  },
  {
@@ -3618,6 +3941,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/05/ea75d527-2a3f-4a0a-9fad-c9590b9f1ac8.jpg"
  },
  {
@@ -3670,6 +3996,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/05/736.jpg"
  },
  {
@@ -3711,6 +4040,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/04/excelente-barracao-comercial-pontal-do-sul-730.jpg"
  },
  {
@@ -3758,6 +4090,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/03/excelente-sobrado-pontal-do-sul-725.jpeg"
  },
  {
@@ -3807,6 +4142,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/03/excelente-sobrado-atami-norte-724.jpg"
  },
  {
@@ -3855,6 +4193,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -3907,6 +4248,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -3960,6 +4304,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4012,6 +4359,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-sobrado-atami-norte-717.jpg"
  },
  {
@@ -4062,6 +4412,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4101,6 +4454,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-terreno-atami-norte-710.jpg"
  },
  {
@@ -4150,6 +4506,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-sobrado-atami-sul-705.jpg"
  },
  {
@@ -4199,6 +4558,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4251,6 +4613,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/03/excelente-casa-pontal-do-sul-701.jpeg"
  },
  {
@@ -4287,6 +4652,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-terreno-atami-norte-695.jpg"
  },
  {
@@ -4335,6 +4703,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4386,6 +4757,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-casa-pontal-do-sul-693.jpeg"
  },
  {
@@ -4430,6 +4804,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-sobrado-atami-norte-692.jpg"
  },
  {
@@ -4478,6 +4855,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4530,6 +4910,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4582,6 +4965,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-sobrado-atami-norte-684.jpg"
  },
  {
@@ -4625,6 +5011,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4677,6 +5066,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4729,6 +5121,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-apartamento-atami-norte-676.jpg"
  },
  {
@@ -4778,6 +5173,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-apartamento-atami-norte-675.jpg"
  },
  {
@@ -4826,6 +5224,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-apartamento-atami-norte-674.jpg"
  },
  {
@@ -4875,6 +5276,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -4920,6 +5324,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-sobrado-atami-norte-670.jpeg"
  },
  {
@@ -4969,6 +5376,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-sobrado-atami-norte-668.jpg"
  },
  {
@@ -5017,6 +5427,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -5069,6 +5482,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -5083,7 +5499,7 @@
   "bairro": "Atami Norte",
   "cidade": "Pontal do Paraná",
   "uf": "PR",
-  "preco": 1650,
+  "preco": 1700,
   "dorm": 2,
   "suites": 1,
   "banheiros": 1,
@@ -5120,6 +5536,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -5172,6 +5591,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/11/excelente-sobrado-atami-norte-655.jpg"
  },
  {
@@ -5220,6 +5642,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -5266,12 +5691,15 @@
    "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2024/11/excelente-sobrado-atami-norte-653-653-18-1732736915.jpg"
   ],
   "url": "https://www.pontadaareiaimoveis.com.br/imovel/excelente-sobrado-atami-norte-653",
-  "maxPessoas": 9,
+  "maxPessoas": 10,
   "piscina": true,
   "proximoMar": 0,
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -5318,12 +5746,15 @@
    "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2024/11/excelente-sobrado-atami-norte-652-7-1732733691.jpg"
   ],
   "url": "https://www.pontadaareiaimoveis.com.br/imovel/excelente-sobrado-atami-norte",
-  "maxPessoas": 14,
+  "maxPessoas": 10,
   "piscina": true,
   "proximoMar": 0,
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/11/excelente-sobrado-atami-norte.jpg"
@@ -5376,6 +5807,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/11/excelente-sobrado-atami-norte-650.jpg"
  },
@@ -5426,6 +5860,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/11/sobrado-pontal-do-sul.jpeg"
  },
  {
@@ -5468,12 +5905,15 @@
    "https://www.pontadaareiaimoveis.com.br/uploads/galeria-imoveis/2024/10/sobrado-641-4-1730407167.jpg"
   ],
   "url": "https://www.pontadaareiaimoveis.com.br/imovel/casa",
-  "maxPessoas": null,
+  "maxPessoas": 10,
   "piscina": true,
   "proximoMar": 0,
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/10/sobrado.jpg"
@@ -5525,6 +5965,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/10/excelente-sobrado-atami-sul-636.jpg"
  },
  {
@@ -5559,6 +6002,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/10/excelente-terreno-shangri-la.jpg"
  },
  {
@@ -5609,6 +6055,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/09/excelente-sobrado-atami-norte-631.jpg"
@@ -5658,6 +6107,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 10,
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/09/excelente-casa-pontal-do-sul-626.jpg"
@@ -5709,6 +6161,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/09/excelente-sobrado-atami-sul-621.jpg"
  },
  {
@@ -5758,6 +6213,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -5810,6 +6268,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/09/excelente-sobrado-atami-sul-619.jpg"
@@ -5858,6 +6319,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/08/excelente-sobrado-atami-sul.jpg"
  },
@@ -5908,6 +6372,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/07/excelente-sobrado-atami-sul-607.jpg"
  },
  {
@@ -5957,6 +6424,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/05/excelente-sobrado-pontal-do-sul-586.jpeg"
  },
  {
@@ -6005,6 +6475,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -6056,6 +6529,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/04/excelente-sobrado-atami-norte-575.jpg"
  },
  {
@@ -6103,6 +6579,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/12/excelente-sobrado-shangri-la-568.jpg"
  },
  {
@@ -6143,6 +6622,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/03/excelente-barracao-santa-clara-555.jpg"
  },
  {
@@ -6154,7 +6636,7 @@
   "bairro": "Itatiaia",
   "cidade": "Pontal do Paraná",
   "uf": "PR",
-  "preco": 700,
+  "preco": 800,
   "dorm": 2,
   "suites": 1,
   "banheiros": 2,
@@ -6169,7 +6651,7 @@
    "Piscina"
   ],
   "resumo": "Localizado no Balneário Itatiaia, o imóvel proporciona conforto e tranquilidade visando oferecer uma experiência inesquecível para toda a família.",
-  "descricao": "COMPOSIÇÃO DO IMÓVEL:\nSala de TvSala de jantar Cozinha02 Dormitórios 01 Suíte01 Bwc socialChurrasqueiraPiscina05 Vagas de garagem\n > Capacidade para 10 pessoas.\n> 02 Dormitórios com ar condicionado e 01 com ar portátil.> Possui internet no imóvel.\n> Valor da locação diária para o período de natal, réveillon e carnaval a consultar.\nLocação diária (fevereiro a novembro) pacotes de no mínimo 05 diárias.Locação temporada (dezembro e janeiro) pacotes de no mínimo 10 diárias.",
+  "descricao": "COMPOSIÇÃO DO IMÓVEL:\nSala de TvSala de jantar Cozinha02 Dormitórios 01 Suíte01 Bwc socialChurrasqueiraPiscina05 Vagas de garagemCOMIDADE DO IMÓVEL:\n> Capacidade para 10 pessoas.> Valor de 2.990,00 por 10 dias.>Valor de 3.200,00 por 7 dias.\n> 02 Dormitórios com ar condicionado e 01 com ar portátil.> Possui internet no imóvel.\n> Valor da locação diária para o período de natal, réveillon e carnaval a consultar.\nLocação diária (fevereiro a novembro) pacotes de no mínimo 05 diárias.Locação temporada (dezembro e janeiro) pacotes de no mínimo 10 diárias.",
   "fotos": [
    "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/02/excelente-casa-itatiaial-552.jpg",
    "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/02/excelente-casa-itatiaial-552-552-6-1707505182.jpg",
@@ -6191,6 +6673,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -6241,6 +6726,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 7,
   "feriadoConsultar": true,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/02/excelente-casa-pontal-do-sul-548.jpeg"
@@ -6293,6 +6781,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/01/excelente-sobrado-atami-norte-545.jpg"
  },
@@ -6343,6 +6834,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/01/excelente-sobrado-atami-norte-542.jpg"
  },
@@ -6394,6 +6888,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/01/excelente-sobrado-atami-norte-533.jpg"
  },
@@ -6440,6 +6937,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/05/excelente-terreno-pontal-do-sul.png"
  },
  {
@@ -6487,6 +6987,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -6530,6 +7033,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-pontal-do-sul.jpeg"
  },
  {
@@ -6576,6 +7082,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/11/excelente-kitnet-pontal-do-sul-505.jpeg"
  },
  {
@@ -6624,6 +7133,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/11/excelente-imovel-itatiaia.jpeg"
  },
  {
@@ -6672,6 +7184,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/10/excelente-casa-pontal-do-sul-498.jpeg"
  },
  {
@@ -6721,6 +7236,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/10/excelente-sobrado-atami-sul-494.jpeg"
  },
  {
@@ -6770,6 +7288,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/10/excelente-sobrado-atami-norte-486.jpeg"
  },
@@ -6818,6 +7339,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/09/excelente-casa-pontal-do-sul-485.jpeg"
  },
@@ -6869,6 +7393,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/09/excelente-sobrado-atami-norte-484.jpg"
  },
@@ -6921,6 +7448,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/09/excelente-sobrado-atami-sul-483.jpg"
  },
@@ -6966,6 +7496,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-casa-pontal-do-sul-480.jpg"
  },
@@ -7015,6 +7548,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/08/excelente-casa-pontal-do-sul-472.jpg"
  },
@@ -7060,6 +7596,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/01/excelente-barracao-pontal-do-sul.jpeg"
  },
  {
@@ -7109,6 +7648,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/06/excelente-sobrado-456.jpeg"
  },
  {
@@ -7160,6 +7702,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/05/excelente-sobrado-443.jpg"
  },
@@ -7211,6 +7756,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/03/excelente-sobrado-426.jpg"
  },
  {
@@ -7259,6 +7807,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/03/excelente-casa-424.jpeg"
  },
  {
@@ -7308,6 +7859,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -7359,6 +7913,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/02/excelente-sobrado-402.jpg"
  },
  {
@@ -7370,7 +7927,7 @@
   "bairro": "Atami Norte",
   "cidade": "Pontal do Paraná",
   "uf": "PR",
-  "preco": 650000,
+  "preco": 598000,
   "dorm": 3,
   "suites": 1,
   "banheiros": 1,
@@ -7406,6 +7963,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/01/excelente-casa-401.jpg"
  },
  {
@@ -7453,6 +8013,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/12/excelente-triplex-395.jpg"
  },
  {
@@ -7498,6 +8061,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -7550,6 +8116,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -7604,6 +8173,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -7654,6 +8226,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -7706,6 +8281,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -7744,6 +8322,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/09/excelente-terreno-343.jpg"
  },
  {
@@ -7789,6 +8370,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/09/excelente-casa-341.jpeg"
  },
  {
@@ -7800,7 +8384,7 @@
   "bairro": "Atami Sul",
   "cidade": "Pontal do Paraná",
   "uf": "PR",
-  "preco": 2500000,
+  "preco": 2600000,
   "dorm": 3,
   "suites": 2,
   "banheiros": 4,
@@ -7838,6 +8422,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/09/excelente-sobrado-340.jpg"
  },
  {
@@ -7885,6 +8472,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/12/excelente-sobrado-336.jpeg"
  },
@@ -7931,6 +8521,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/08/excelente-sobrado-325.jpeg"
  },
  {
@@ -7980,6 +8573,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/08/excelente-triplex-318.jpg"
  },
@@ -8031,6 +8627,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/06/excelente-sobrado-308.jpg"
  },
@@ -8081,6 +8680,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/09/excelente-sobrado-307.jpeg"
  },
@@ -8132,6 +8734,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/12/excelente-sobrado-304.jpeg"
  },
@@ -8183,6 +8788,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-297.jpg"
  },
@@ -8225,6 +8833,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-ponto-comercial.jpg"
  },
  {
@@ -8273,6 +8884,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-263.jpg"
  },
  {
@@ -8321,6 +8935,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/sobrado-vila-nova.jpg"
  },
  {
@@ -8370,6 +8987,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/06/excelente-casa-253.jpg"
@@ -8421,6 +9041,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/01/excelente-casa-252.jpg"
  },
  {
@@ -8471,6 +9094,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-241.jpeg"
  },
  {
@@ -8519,6 +9145,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-235.jpg"
  },
  {
@@ -8567,6 +9196,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-199.jpeg"
  },
  {
@@ -8616,6 +9248,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-casa-185.jpeg"
  },
@@ -8665,6 +9300,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -8710,6 +9348,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -8748,6 +9389,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelentes-salas-comerciais.jpg"
  },
  {
@@ -8795,6 +9439,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "minDiariasBaixa": 5,
   "minDiariasAlta": 10,
   "feriadoConsultar": true,
@@ -8846,6 +9493,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/12/excelente-sobrado-151.jpeg"
  },
@@ -8894,6 +9544,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/01/d048.jpeg"
  },
@@ -8942,6 +9595,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-130.jpeg"
  },
@@ -8990,6 +9646,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-casa-119.jpg"
  },
@@ -9038,6 +9697,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/01/d032.jpg"
  },
@@ -9086,6 +9748,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-sobrado-109.jpg"
  },
@@ -9136,6 +9801,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/06/excelente-casa-96.jpg"
  },
  {
@@ -9187,6 +9855,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/01/excelente-sobrado-95.jpg"
  },
@@ -9236,6 +9907,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-94.jpeg"
  },
  {
@@ -9280,6 +9954,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-casa-93.jpeg"
  },
  {
@@ -9328,6 +10005,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-92.jpeg"
  },
@@ -9376,6 +10056,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/08/excelente-casa-87.jpg"
  },
@@ -9425,6 +10108,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/01/excelente-casa-81.jpg"
  },
@@ -9470,6 +10156,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-casa-74.jpeg"
  },
@@ -9519,6 +10208,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2024/09/excelente-sobrado-71.jpg"
  },
@@ -9570,6 +10262,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/02/excelente-casa-69.jpeg"
  },
@@ -9607,6 +10302,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/08/excelente-terreno-68.jpeg"
  },
  {
@@ -9658,6 +10356,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2026/03/excelente-sobrado-65.jpg"
  },
@@ -9706,6 +10407,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2023/02/excelente-sobrado-63.jpg"
  },
@@ -9755,6 +10459,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "feriadoConsultar": false,
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/11/excelente-sobrado-lv003.jpg"
  },
@@ -9804,6 +10511,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-sobrado-47.jpg"
  },
  {
@@ -9852,6 +10562,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2022/06/excelente-apartamento-46.jpeg"
  },
  {
@@ -9900,6 +10613,9 @@
   "financiavel": false,
   "aceitaPermuta": false,
   "publicado": true,
+  "distanciaMar": null,
+  "distanciaMarMetros": null,
+  "corretor": "",
   "capa": "https://www.pontadaareiaimoveis.com.br/uploads/properties/2025/02/excelente-sobrado-42.jpg"
  }
 ]
