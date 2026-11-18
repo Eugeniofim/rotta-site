@@ -1592,7 +1592,8 @@
     });
   }
 
-  const TELAS = { cotacao: telaCotacao, proposta: telaProposta, voucher: telaVoucher, passaportes: telaPassaportes, cnt: telaCnt, cliente: telaCliente, clientes: telaClientes };
+  const TELAS = { cotacao: telaCotacao, proposta: telaProposta, voucher: telaVoucher, passaportes: telaPassaportes, cnt: telaCnt, cliente: telaCliente, clientes: telaClientes,
+    material: () => MATERIAL.tela($('#palco'), { esc, aviso, agencia: AG.nome || 'Simonetta Viagens', icoZap: ICO_ZAP }) };
   function rota() {
     const aba = (location.hash.replace(/^#\/?/, '').split('/')[0]) || 'cotacao';
     const tela = TELAS[aba] ? aba : 'cotacao';
