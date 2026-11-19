@@ -354,7 +354,9 @@ async function eqCarregar() {
     try {
       const c = await supaFetch('itens?colecao=eq.equipe_cfg&id=eq.cfg&apagado=eq.false&select=dados');
       const l = c.ok ? await c.json() : [];
-      if (l[0] && l[0].dados) EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10, fds: l[0].dados.fds === 'igual' ? 'igual' : 'segura' };
+      /* EQ.cfgResto (19/11/2026): o que a tela não mostra (repasse: false = fila estrita; acompanhar = nenhum lead parado)
+         precisa voltar intacto quando o dono muda o modo ou o prazo; antes, gravar aqui apagava os dois */
+      if (l[0] && l[0].dados) { EQ.cfgResto = Object.assign({}, l[0].dados); EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10, fds: l[0].dados.fds === 'igual' ? 'igual' : 'segura' }; }
     } catch (x) { /* sem a configuração: avisa todos, como antes */ }
     EQ.erro = ''; EQ.carregou = true;
   } catch (e) { EQ.erro = 'Não consegui ler a equipe agora. Tente de novo em alguns segundos.'; }
@@ -445,7 +447,7 @@ async function eqGravaCfg() {
   if (!REAL()) return true;
   try {
     await authEnsure();
-    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin, fds: EQ.cfg.fds }, apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
+    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: Object.assign({}, EQ.cfgResto || {}, { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin, fds: EQ.cfg.fds }), apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
     return r.ok;
   } catch (e) { return false; }
 }
