@@ -678,3 +678,19 @@ body[data-tela="cliente"] { background: #edf2ea; }
 .mat-msg summary { cursor: pointer; font-weight: 600; color: var(--marinho); }
 .mat-msg textarea { width: 100%; margin-top: 10px; }
 @media (max-width: 720px) { .mat-blocos li { grid-template-columns: minmax(0, 1fr) auto; } .mat-n { display: none; } }
+
+/* caixa de entrada do material */
+.mat-solta-p { margin: 12px 0; padding: 18px; grid-auto-flow: column; justify-content: center; align-items: center; gap: 12px; }
+.mat-soltos-tit { margin: 10px 0 4px; font-weight: 600; font-size: 14px; color: var(--marinho); }
+.mat-soltos, .mat-cx { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.mat-soltos li, .mat-cx li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 10px; border: 1px solid var(--linha); border-radius: 8px; background: var(--papel); font-size: 14px; }
+.mat-soltos li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mat-soltos em { font-style: normal; color: var(--verde-txt); font-weight: 600; }
+.mat-cx { margin-top: 10px; }
+.mat-cx li { border-color: var(--verde); background: var(--menta-2); }
+.mat-cx li.erro { border-color: var(--rubro); background: var(--rubro-bg); }
+.mat-cx li div { display: grid; gap: 2px; min-width: 0; }
+.mat-cx li div > span { color: var(--cinza); font-size: 13px; }
+.mat-fones { margin-top: 12px; }
+.link-btn { color: var(--verde-txt); font-weight: 600; text-decoration: underline; cursor: pointer; margin-left: 8px; }
+.mat-fone { font-size: 13px; padding: 4px 8px; min-height: 30px; max-width: 200px; font-family: var(--f-mono); }

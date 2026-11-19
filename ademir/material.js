@@ -98,13 +98,97 @@
     dados.pax = dados.pax.filter(p => p !== b);
   }
 
+  /* ---------- caixa de entrada: PDF solto, como chegou (um arquivo com o grupo todo, por exemplo) ---------- */
+
+  /* o tipo pelo que está escrito no documento */
+  function tipoDoTexto(texto) {
+    const t = N(texto);
+    if (/VOUCHER DE HOSPEDAGEM|HOTEL CONFIRMATION|CONFIRMACAO DE HOSPEDAGEM/.test(t)) return 'hotel';
+    if (/SEGURO|ASSISTENCIA (EM )?VIAGEM|APOLICE|CORIS|CHUBB|ASSIST CARD|AFFINITY|GTA ASSIST|INTERMAC|TRAVEL ACE|UNIVERSAL ASSISTANCE|SINISTRO/.test(t)) return 'seguro';
+    if (/BILHETE ELETRONICO|E-?TICKET|ELECTRONIC TICKET|ITINERARY RECEIPT|RECIBO DE ITINERARIO|NUMERO DO BILHETE|TICKET NUMBER|LOCALIZADOR/.test(t)) return 'passagem';
+    if (/VOUCHER DE HOSPEDAGEM|HOSPEDAGEM|CHECK-?IN.*CHECK-?OUT|HOTEL CONFIRMATION|RESERVA DE HOTEL/.test(t)) return 'hotel';
+    if (/TRANSFER|TRASLADO|MEET AND GREET|MOTORISTA/.test(t)) return 'transfer';
+    if (/LOCACAO DE (VEICULO|CARRO)|RENTAL CAR|CAR RENTAL|RETIRADA DO VEICULO/.test(t)) return 'carro';
+    if (/INGRESSO|ADMISSION|ENTRY|VIP PASS|BADGE|\bPASS\b|TICKET|ENTRADA/.test(t)) return 'ingresso';
+    return 'outro';
+  }
+
+  /* quem aparece numa página: todas as palavras de uma das grafias do nome estão no texto */
+  function quemNaPagina(texto, pax) {
+    const tk = new Set(tokens(texto));
+    return pax.filter(p => p.grafias.some(g => { const w = tokens(g); return w.length >= 2 && w.every(x => tk.has(x)); })).map(p => p.id);
+  }
+
+  /* distribui as páginas de um PDF entre os passageiros.
+     Página sem nome = continuação da anterior (a 2ª folha do seguro). Página com várias pessoas fica de fora
+     (é lista do grupo: não vai o nome dos outros no material de ninguém). */
+  function distribuiPaginas(textos, pax) {
+    const porPax = {}, varias = [], semDono = [];
+    let dono = null;
+    textos.forEach((tx, i) => {
+      const q = quemNaPagina(tx, pax);
+      if (q.length === 1) dono = q[0];
+      else if (q.length > 1) { varias.push(i); dono = null; return; }
+      if (!dono) { semDono.push(i); return; }
+      (porPax[dono] = porPax[dono] || []).push(i);
+    });
+    return { porPax, varias, semDono };
+  }
+
+  /* telefone para o link do WhatsApp: só números, com 55 quando é celular do Brasil sem o país */
+  function foneZap(s) {
+    const bruto = String(s == null ? '' : s).trim();
+    let d = bruto.replace(/\D/g, '');
+    if (/^(\+|00)/.test(bruto)) { d = d.replace(/^00/, ''); return d.length >= 8 && d.length <= 15 ? d : ''; }   /* já veio com o país */
+    if (/^0\d{10,11}$/.test(d)) d = d.slice(1);   /* 0 11 9xxxx-xxxx */
+    if (d.length === 10 || d.length === 11) d = '55' + d;
+    return d.length >= 11 && d.length <= 15 ? d : '';
+  }
+
+  /* a planilha "relação de pax": acha a coluna do nome e a do telefone (pelo título ou pelo conteúdo) */
+  function leTabelaPax(linhas) {
+    const L = (linhas || []).map(r => (r || []).map(c => String(c == null ? '' : c).trim()));
+    const cab = L.findIndex(r => r.filter(Boolean).length >= 2 && r.some(c => /NOME|PASSAGEIR|HOSPEDE|^PAX$/.test(N(c))));
+    const titulos = cab >= 0 ? L[cab].map(N) : [];
+    let cNome = titulos.findIndex(c => /^NOME( COMPLETO)?$|PASSAGEIR|HOSPEDE|^PAX$/.test(c));
+    if (cNome < 0) cNome = titulos.findIndex(c => /NOME/.test(c) && !/SOBRENOME|SOCIAL|EMPRESA|MAE|PAI/.test(c));
+    const cSobre = titulos.findIndex(c => /SOBRENOME/.test(c));
+    let cFone = titulos.findIndex(c => /WHATS|CELULAR|TELEFONE|FONE|CONTATO|TEL\b/.test(c));
+    const corpo = L.slice(cab + 1);
+    if (cFone < 0) {   /* sem título: a coluna com mais números de telefone */
+      const n = Math.max(0, ...corpo.map(r => r.length));
+      let melhor = -1, qtd = 0;
+      for (let c = 0; c < n; c++) { const k = corpo.filter(r => foneZap(r[c])).length; if (k > qtd) { qtd = k; melhor = c; } }
+      cFone = qtd >= 1 ? melhor : -1;
+    }
+    if (cNome < 0) cNome = 0;
+    return corpo.map(r => {
+      const nome = [r[cNome], cSobre >= 0 ? r[cSobre] : ''].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+      return { nome, fone: cFone >= 0 ? foneZap(r[cFone]) : '' };
+    }).filter(x => tokens(x.nome).length >= 2);
+  }
+
+  /* põe os telefones da planilha nos passageiros; quem está na planilha e não tem arquivo vira linha nova */
+  function juntaPlanilha(dados, lista) {
+    let fones = 0, novos = 0;
+    for (const x of lista) {
+      let p = dados.pax.find(q => q.grafias.some(g => mesmaPessoa(g, x.nome)));
+      if (!p) { p = { id: 'p' + (dados.pax.length + 1) + 'x', grafias: [x.nome], arquivos: {}, duvida: false, nome: /[a-z]/.test(x.nome) ? x.nome : tituloNome(x.nome), daPlanilha: true }; dados.pax.push(p); novos++; }
+      if (x.fone && !p.fone) { p.fone = x.fone; fones++; }
+    }
+    dados.pax.sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+    return { fones, novos };
+  }
+
   const nomeArquivo = (nome) => String(nome).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) + '.pdf';
   const grupoBonito = (pasta) => tituloNome(String(pasta || '').replace(/[_]+/g, ' ')).replace(/\b(\d{2,4})\b/g, '$1');
 
   /* ======================================================================
      A tela (só no navegador)
      ====================================================================== */
-  const CDN = { pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js', zip: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js' };
+  const CDN = { pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js', zip: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+    ler: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', lerTrab: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+    planilha: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js' };
   const carrega = (url, nome) => new Promise((ok, erro) => {
     if (window[nome]) return ok(window[nome]);
     const s = document.createElement('script'); s.src = url; s.onload = () => ok(window[nome]); s.onerror = () => erro(new Error('Não consegui carregar ' + nome + '. Confira a internet.'));
@@ -119,7 +203,7 @@
   let S = null;
 
   async function lePastaHandle(dir) {
-    const entradas = [], refs = new Map(), prontos = new Map();
+    const entradas = [], refs = new Map(), prontos = new Map(), planilhas = [];
     let n = 0;
     async function anda(h, pasta, nivel) {
       for await (const [nome, x] of h.entries()) {
@@ -128,24 +212,25 @@
           if (nivel < 3) await anda(x, nivel === 0 ? nome : pasta, nivel + 1);
         } else if (/\.(pdf|jpe?g|png)$/i.test(nome)) {
           const ref = 'r' + (++n); refs.set(ref, { handle: x, nome }); entradas.push({ pasta, arquivo: nome, ref });
-        }
+        } else if (nivel === 0 && /\.(xlsx|xls|csv)$/i.test(nome) && !/^~\$/.test(nome)) planilhas.push({ nome, handle: x });
       }
     }
     await anda(dir, '', 0);
-    return { entradas, refs, prontos };
+    return { entradas, refs, prontos, planilhas };
   }
   function leListaArquivos(files) {
-    const entradas = [], refs = new Map(), prontos = new Map();
+    const entradas = [], refs = new Map(), prontos = new Map(), planilhas = [];
     let n = 0, grupo = '';
     for (const f of files) {
       const partes = (f.webkitRelativePath || f.name).split('/');
       grupo = grupo || (partes.length > 1 ? partes[0] : '');
       const pasta = partes.length > 2 ? partes[1] : '';
       if (pasta && ehSaida(pasta)) { if (/\.pdf$/i.test(f.name)) prontos.set(f.name, { getFile: async () => f }); continue; }
+      if (partes.length === 2 && /\.(xlsx|xls|csv)$/i.test(f.name)) { planilhas.push({ nome: f.name, file: f }); continue; }
       if (!/\.(pdf|jpe?g|png)$/i.test(f.name)) continue;
       const ref = 'r' + (++n); refs.set(ref, { file: f, nome: f.name }); entradas.push({ pasta, arquivo: f.name, ref });
     }
-    return { entradas, refs, prontos, grupo };
+    return { entradas, refs, prontos, planilhas, grupo };
   }
   const arquivoDe = async (r) => r.file || r.handle.getFile();
 
@@ -160,7 +245,8 @@
       const pronto = lido.prontos.get(nomeArquivo(p.nome)) || [...lido.prontos.entries()].find(([k]) => mesmaPessoa(k.replace(/\.pdf$/i, ''), p.nome))?.[1];
       p.pronto = pronto ? { handle: pronto, paginas: null, antigo: true } : null;
     }
-    return { dados, refs: lido.refs, grupo, dir, podeGravar: !!(dir && dir.getDirectoryHandle), soltos: dados.soltos, gerando: false };
+    return { dados, refs: lido.refs, grupo, dir, podeGravar: !!(dir && dir.getDirectoryHandle), gerando: false,
+      soltosPdf: lido.entradas.filter(e => !e.pasta && /\.pdf$/i.test(e.arquivo)), planilhas: lido.planilhas || [], caixa: [], fonesDe: '', nCaixa: 0 };
   }
   function guardaOrdem() {
     const pref = lePref(); pref.grupos = pref.grupos || {};
@@ -171,6 +257,7 @@
   function tela(palco, ctx) {
     const { esc, aviso, agencia, icoZap } = ctx;
     const temPasta = 'showDirectoryPicker' in window;
+    const podeCompartilhar = !!(navigator.canShare && (() => { try { return navigator.canShare({ files: [new File(['x'], 'x.pdf', { type: 'application/pdf' })] }); } catch (e) { return false; } })());
 
     function pinta() {
       if (!S) {
@@ -203,7 +290,16 @@
             <label class="marca"><input type="checkbox" data-entra="${i}"${b.entra ? ' checked' : ''}> <b>${esc(b.pasta)}</b></label>
             <span class="mat-tipo t-${b.tipo}">${esc(TIPOS[b.tipo].nome)}</span><span class="mat-n">${b.n} arquivo${b.n === 1 ? '' : 's'}</span>
             <span class="mat-mexe"><button class="chip" data-sobe="${i}" aria-label="Subir ${esc(b.pasta)}"${i ? '' : ' disabled'}>↑</button><button class="chip" data-desce="${i}" aria-label="Descer ${esc(b.pasta)}"${i < d.blocos.length - 1 ? '' : ' disabled'}>↓</button></span></li>`).join('')}</ol>
-          ${S.soltos.length ? `<p class="nota">Soltos na pasta do grupo, fora das subpastas (não entram): ${S.soltos.map(esc).join(' · ')}</p>` : ''}
+        </section>
+
+        <section class="cartao mat-caixa"><h2>Caixa de entrada</h2>
+          <p class="sub">Tem um PDF com o grupo todo, como os ingressos ou os seguros? Solte aqui: eu leio cada página, acho o nome de cada passageiro e separo. Ele entra na ordem acima como mais uma pasta.</p>
+          <div class="mat-solta mat-solta-p" id="cx-solta"><b>Solte aqui os PDFs</b><span>ou</span><label class="btn fantasma">Escolher PDFs<input type="file" id="cx-input" accept="application/pdf,.pdf" multiple hidden></label></div>
+          ${S.soltosPdf.length ? `<p class="mat-soltos-tit">Soltos na pasta do grupo:</p><ul class="mat-soltos">${S.soltosPdf.map((e, i) => { const feito = S.caixa.find(c => c.nome === e.arquivo); return `<li><span>${esc(e.arquivo)}</span>${feito ? '<em>lido</em>' : `<button class="chip" data-ler-solto="${i}">Ler e separar</button>`}</li>`; }).join('')}</ul>` : ''}
+          ${S.caixa.length ? `<ul class="mat-cx">${S.caixa.map((c, i) => `<li class="${c.erro ? 'erro' : ''}"><div><b>${esc(c.nome)}</b>${c.erro ? `<span class="mat-erro">${esc(c.erro)}</span>` : `<span>${esc(TIPOS[c.tipo].nome)} · ${c.paginas} pág. · separei para <b>${c.pessoas}</b> passageiro${c.pessoas === 1 ? '' : 's'}${c.varias ? ` · ${c.varias} pág. com vários nomes ${c.varias === 1 ? 'ficou' : 'ficaram'} de fora` : ''}${c.semDono ? ` · ${c.semDono} pág. sem nome conhecido ${c.semDono === 1 ? 'ficou' : 'ficaram'} de fora` : ''}${c.peloNome ? ' · pelo nome do arquivo' : ''}</span>`}</div>
+            <button class="chip" data-tira-cx="${i}">Tirar</button></li>`).join('')}</ul>` : ''}
+          <p class="nota mat-fones">${(() => { const n = d.pax.filter(p => p.fone).length; return `Telefones: <b>${n} de ${d.pax.length}</b>${S.fonesDe ? ' (da planilha ' + esc(S.fonesDe) + ')' : ''}.`; })()}
+            <label class="link-btn">Ler telefones de uma planilha<input type="file" id="cx-planilha" accept=".xlsx,.xls,.csv" hidden></label></p>
         </section>
 
         <section class="cartao mat-pax"><div class="mat-pax-cab"><h2>Passageiros</h2>
@@ -212,11 +308,12 @@
             <div class="mat-linha mat-titulos" role="row"><span role="columnheader">Nome</span>${entram.map(b => `<span role="columnheader" class="mat-col">${esc(b.pasta)}</span>`).join('')}<span role="columnheader">Material</span></div>
             ${d.pax.map(p => { const f = faltaDe(p); return `<div class="mat-linha${p.marcado ? '' : ' desl'}" role="row">
               <span role="cell" class="mat-nome"><label class="marca"><input type="checkbox" data-marca="${p.id}"${p.marcado ? ' checked' : ''}> <b>${esc(p.nome)}</b></label>
-                ${p.duvida ? '<em class="mat-duvida">nome parecido com outro: confira</em>' : ''}
+                ${p.duvida ? '<em class="mat-duvida">nome parecido com outro: confira</em>' : ''}${p.daPlanilha ? '<em class="mat-duvida">só na planilha</em>' : ''}
+                <input class="mat-fone" data-fone="${p.id}" value="${p.fone ? '+' + esc(p.fone) : ''}" placeholder="WhatsApp" inputmode="tel" aria-label="WhatsApp de ${esc(p.nome)}">
                 ${f.length ? `<select class="mat-junta" data-junta="${p.id}" aria-label="Juntar ${esc(p.nome)} com outra linha"><option value="">É a mesma pessoa que…</option>${d.pax.filter(o => o !== p).map(o => `<option value="${o.id}">${esc(o.nome)}</option>`).join('')}</select>` : ''}</span>
               ${entram.map(b => { const q = (p.arquivos[b.id] || []).length; return `<span role="cell" class="mat-col ${q ? 'tem' : 'falta'}" title="${esc(b.pasta)}">${q ? '✓' + (q > 1 ? ' ' + q : '') : 'falta'}</span>`; }).join('')}
               <span role="cell" class="mat-acoes">${p.erro ? `<em class="mat-erro">${esc(p.erro)}</em>` : ''}${p.pronto ? `<span class="mat-ok">${p.pronto.paginas ? p.pronto.paginas + ' pág.' : 'pronto'}</span>
-                <button class="btn fantasma mat-abrir" data-abrir="${p.id}">Abrir</button><button class="btn mat-zap" data-zap="${p.id}">${icoZap}WhatsApp</button>` : p.gerando ? '<span class="mat-ok">juntando…</span>' : ''}</span>
+                <button class="btn fantasma mat-abrir" data-abrir="${p.id}">Abrir</button><button class="btn mat-zap" data-zap="${p.id}" title="${p.fone ? 'Abre a conversa de ' + esc(p.nome.split(' ')[0]) : 'Escolher a conversa'}">${icoZap}WhatsApp</button>${p.fone && podeCompartilhar ? `<button class="btn fantasma" data-comp="${p.id}" title="Janela de compartilhar do Windows: leva o arquivo anexado">Compartilhar</button>` : ''}` : p.gerando ? '<span class="mat-ok">juntando…</span>' : ''}</span>
             </div>`; }).join('')}
           </div>
           <div class="mat-gera"><button class="btn primario" id="mat-gera"${!marcados.length || !entram.length || S.gerando ? ' disabled' : ''}>${S.gerando ? 'Juntando…' : `Gerar o material de ${marcados.length} passageiro${marcados.length === 1 ? '' : 's'}`}</button>
@@ -237,7 +334,7 @@
         try { const dir = await window.showDirectoryPicker({ mode: 'readwrite', id: 'material-grupo' }); await abre(dir); }
         catch (e) { if (e.name !== 'AbortError') aviso('Não consegui abrir a pasta: ' + e.message); }
       };
-      inp.onchange = async () => { if (!inp.files.length) return; const l = leListaArquivos([...inp.files]); S = montaEstado(l, l.grupo, null); pinta(); };
+      inp.onchange = async () => { if (!inp.files.length) return; const l = leListaArquivos([...inp.files]); S = montaEstado(l, l.grupo, null); pinta(); planilhaSozinha(); };
       zona.ondragover = (e) => { e.preventDefault(); zona.classList.add('em-cima'); };
       zona.ondragleave = () => zona.classList.remove('em-cima');
       zona.ondrop = async (e) => {
@@ -258,7 +355,68 @@
       try { grava = (await dir.queryPermission({ mode: 'readwrite' })) === 'granted'; } catch (e) { grava = false; }
       S = montaEstado(l, dir.name, grava ? dir : null);
       if (!l.entradas.length) aviso('Não achei PDF nas subpastas desta pasta. É a pasta do grupo?');
+      pinta(); await planilhaSozinha();
+    }
+    /* a planilha de passageiros que está solta na pasta do grupo (relação de pax, rooming list) */
+    async function planilhaSozinha() {
+      const l = S.planilhas; if (!l.length) return;
+      const x = l.find(p => /PAX|PASSAGEIR|ROOMING|LISTA|RELA/i.test(semAcento(p.nome))) || (l.length === 1 ? l[0] : null);
+      if (x) await lePlanilha(x, true);
+    }
+    async function lePlanilha(x, calado) {
+      try {
+        const XLSX = await carrega(CDN.planilha, 'XLSX'), f = x.file || await x.handle.getFile();
+        const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+        const linhas = wb.SheetNames.flatMap(n => XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: '' }));
+        const r = juntaPlanilha(S.dados, leTabelaPax(linhas));
+        S.fonesDe = x.nome; pinta();
+        aviso('Planilha ' + x.nome + ': ' + r.fones + ' telefone' + (r.fones === 1 ? '' : 's') + (r.novos ? ', e ' + r.novos + ' passageiro' + (r.novos === 1 ? '' : 's') + ' que não tinha' + (r.novos === 1 ? '' : 'm') + ' arquivo' : '') + '.');
+      } catch (e) { if (!calado) aviso('Não consegui ler a planilha ' + x.nome + '.'); }
+    }
+
+    /* caixa de entrada: lê o texto de cada página, acha o dono e separa */
+    async function processaCaixa(itens) {
+      const d = S.dados;
+      if (!d.pax.length) return aviso('Antes, preciso saber quem viaja: abra a pasta do grupo com as subpastas ou leia a planilha de passageiros.');
+      let pdfjs;
+      try { pdfjs = await carrega(CDN.ler, 'pdfjsLib'); pdfjs.GlobalWorkerOptions.workerSrc = CDN.lerTrab; } catch (e) { return aviso(e.message); }
+      for (const it of itens) {
+        const rel = { nome: it.nome, tipo: 'outro', paginas: 0, pessoas: 0, varias: 0, semDono: 0 };
+        try {
+          const f = it.file || await it.handle.getFile();
+          const doc = await pdfjs.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise;
+          const textos = [];
+          for (let i = 1; i <= doc.numPages; i++) { const pg = await doc.getPage(i); textos.push((await pg.getTextContent()).items.map(x => x.str).join(' ')); }
+          rel.paginas = doc.numPages;
+          if (!textos.join('').trim()) throw new Error('PDF sem texto (foto escaneada): não consigo ler os nomes');
+          rel.tipo = tipoDoTexto(textos.join(' '));
+          let dist = distribuiPaginas(textos, d.pax);
+          if (!Object.keys(dist.porPax).length) {   /* um PDF de uma pessoa só, com o nome no arquivo */
+            const dono = d.pax.find(p => pessoasDoArquivo(it.nome).some(n => p.grafias.some(g => mesmaPessoa(g, n))));
+            if (!dono) throw new Error('não achei o nome de nenhum passageiro neste PDF');
+            dist = { porPax: { [dono.id]: textos.map((x, i) => i) }, varias: [], semDono: [] }; rel.peloNome = true;
+          }
+          const id = 'cx:' + it.nome;
+          tiraBloco(id);
+          const b = { id, pasta: it.nome.replace(/\.pdf$/i, ''), tipo: rel.tipo, n: Object.keys(dist.porPax).length, entra: true };
+          const pos = d.blocos.findIndex(x => TIPOS[x.tipo].ordem > TIPOS[b.tipo].ordem);
+          d.blocos.splice(pos < 0 ? d.blocos.length : pos, 0, b);
+          for (const [pid, pags] of Object.entries(dist.porPax)) {
+            const ref = 'c' + (++S.nCaixa); S.refs.set(ref, { file: it.file, handle: it.handle, nome: it.nome, paginas: pags });
+            d.pax.find(p => p.id === pid).arquivos[id] = [ref];
+          }
+          Object.assign(rel, { pessoas: b.n, varias: dist.varias.length, semDono: dist.semDono.length });
+        } catch (e) { rel.erro = e.message; }
+        S.caixa = S.caixa.filter(c => c.nome !== it.nome).concat(rel);
+      }
       pinta();
+      const bons = S.caixa.filter(c => !c.erro && itens.some(i => i.nome === c.nome));
+      aviso(bons.length ? 'Separei ' + bons.map(c => c.nome + ' para ' + c.pessoas + ' passageiro' + (c.pessoas === 1 ? '' : 's')).join('; ') + '. Confira na lista.' : 'Não consegui separar: veja o motivo na caixa de entrada.');
+    }
+    function tiraBloco(id) {
+      const d = S.dados;
+      d.blocos = d.blocos.filter(b => b.id !== id);
+      d.pax.forEach(p => { delete p.arquivos[id]; });
     }
 
     function ligaLista() {
@@ -276,6 +434,17 @@
       q('[data-zap]').forEach(b => b.onclick = () => manda(d.pax.find(p => p.id === b.dataset.zap)));
       const t = palco.querySelector('#mat-texto');
       t.oninput = () => { const p = lePref(); p.msg = t.value; gravaPref(p); };
+      q('[data-comp]').forEach(b => b.onclick = () => manda(d.pax.find(p => p.id === b.dataset.comp), 'compartilhar'));
+      q('[data-fone]').forEach(c => c.onchange = () => { const p = d.pax.find(x => x.id === c.dataset.fone); p.fone = foneZap(c.value); if (c.value && !p.fone) aviso('Esse telefone parece incompleto: ponha o DDD.'); pinta(); });
+      const cxi = palco.querySelector('#cx-input'), cxz = palco.querySelector('#cx-solta');
+      cxi.onchange = () => { const l = [...cxi.files].filter(f => /\.pdf$/i.test(f.name)).map(f => ({ nome: f.name, file: f })); if (l.length) processaCaixa(l); };
+      cxz.ondragover = (e) => { e.preventDefault(); cxz.classList.add('em-cima'); };
+      cxz.ondragleave = () => cxz.classList.remove('em-cima');
+      cxz.ondrop = (e) => { e.preventDefault(); cxz.classList.remove('em-cima'); const l = [...e.dataTransfer.files].filter(f => /\.pdf$/i.test(f.name)).map(f => ({ nome: f.name, file: f })); if (l.length) processaCaixa(l); else aviso('Solte arquivos PDF.'); };
+      q('[data-ler-solto]').forEach(b => b.onclick = () => { const e = S.soltosPdf[+b.dataset.lerSolto], r = S.refs.get(e.ref); processaCaixa([{ nome: e.arquivo, file: r.file, handle: r.handle }]); });
+      q('[data-tira-cx]').forEach(b => b.onclick = () => { const c = S.caixa[+b.dataset.tiraCx]; tiraBloco('cx:' + c.nome); S.caixa = S.caixa.filter(x => x !== c); pinta(); });
+      const pl = palco.querySelector('#cx-planilha');
+      pl.onchange = () => { if (pl.files[0]) lePlanilha({ nome: pl.files[0].name, file: pl.files[0] }); };
     }
 
     async function arquivoPronto(p) {
@@ -288,8 +457,14 @@
     }
     /* WhatsApp: o link wa.me não leva arquivo. No Windows a janela de compartilhar leva o PDF até o WhatsApp Desktop;
        sem ela, baixo o PDF e abro o WhatsApp com a mensagem para ele arrastar o arquivo. */
-    async function manda(p) {
+    async function manda(p, modo) {
       const f = await arquivoPronto(p), txt = mensagem(p);
+      if (p.fone && modo !== 'compartilhar') {   /* sabe o número: abre a conversa da pessoa e deixa o PDF pronto para arrastar */
+        const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; a.click();
+        try { await navigator.clipboard.writeText(txt); } catch (e) { /* a mensagem vai no link */ }
+        window.open('https://wa.me/' + p.fone + '?text=' + encodeURIComponent(txt), '_blank', 'noopener');
+        return aviso('Abri a conversa com ' + p.nome.split(' ')[0] + '. O PDF baixou: arraste ' + f.name + ' para a conversa.');
+      }
       if (navigator.canShare && navigator.canShare({ files: [f] })) {
         try { await navigator.share({ files: [f], title: f.name, text: txt }); return; }
         catch (e) { if (e.name === 'AbortError') return; }
@@ -317,12 +492,12 @@
           const doc = await PDFLib.PDFDocument.create();
           for (const b of entram) {
             for (const ref of (p.arquivos[b.id] || [])) {
-              const r = S.refs.get(ref), f = await arquivoDe(r), bytes = await f.arrayBuffer();
+              const r = S.refs.get(ref), f = r.file || await r.handle.getFile(), bytes = await f.arrayBuffer();
               if (/\.pdf$/i.test(r.nome)) {
                 let src;
                 try { src = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true }); }
                 catch (e) { throw new Error('não abriu ' + r.nome); }
-                const pags = await doc.copyPages(src, src.getPageIndices()); pags.forEach(x => doc.addPage(x));
+                const pags = await doc.copyPages(src, r.paginas || src.getPageIndices()); pags.forEach(x => doc.addPage(x));
               } else {
                 const img = /\.png$/i.test(r.nome) ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
                 const w = 595.28, h = Math.min(841.89, w * img.height / img.width), pg = doc.addPage([w, Math.max(h, 200)]);
@@ -359,9 +534,10 @@
   function testeCarrega(palco, ctx, grupo, entradasComArquivo) {
     const refs = new Map(), entradas = [];
     entradasComArquivo.forEach((e, i) => { const ref = 'r' + (i + 1); refs.set(ref, { file: e.file, nome: e.arquivo }); entradas.push({ pasta: e.pasta, arquivo: e.arquivo, ref }); });
-    S = montaEstado({ entradas, refs, prontos: new Map() }, grupo, null);
+    S = montaEstado({ entradas, refs, prontos: new Map(), planilhas: ctx.planilhasTeste || [] }, grupo, null);
     tela(palco, ctx);
   }
 
-  return { tipoDaPasta, pessoasDoArquivo, mesmaPessoa, agrupa, juntaPax, nomeArquivo, grupoBonito, TIPOS, tela, testeCarrega };
+  return { tipoDaPasta, pessoasDoArquivo, mesmaPessoa, agrupa, juntaPax, nomeArquivo, grupoBonito, TIPOS, tela, testeCarrega,
+    tipoDoTexto, quemNaPagina, distribuiPaginas, foneZap, leTabelaPax, juntaPlanilha };
 });
