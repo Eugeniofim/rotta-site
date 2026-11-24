@@ -973,6 +973,27 @@ button.as-mes { cursor: pointer; }
 .lu-barra .cr-trilho { height: 12px; }
 .lu-nota { grid-column: 1 / -1; font-size: 13px; color: var(--dim); }
 .lu-nota b { color: var(--texto); }
+/* 24/11: os créditos da Milla (pessoas atendidas) */
+.cr-tela .as-valor small { display: block; margin: 6px 0 0; font: 500 13.5px/1.4 var(--f-texto); color: var(--dim); }
+.cr-dias { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding-top: 6px; }
+.cr-dia { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
+.cr-dia i { display: block; width: 100%; border-radius: 4px 4px 0 0; background: var(--azul); }
+.cr-dia.hoje i { background: var(--ambar); }
+.cr-dias-eixo { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; color: var(--fraco); }
+.cr-meses { width: 100%; border-collapse: collapse; font-size: 14px; }
+.cr-meses th { text-align: left; font: 500 11px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fraco); padding: 0 0 8px; }
+.cr-meses td { padding: 8px 0; border-top: 1px solid var(--linha); color: var(--texto); }
+.cr-meses th:not(:first-child), .cr-meses td:not(:first-child) { text-align: right; }
+.cr-regras { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.5; }
+.cr-movs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cr-movs li { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--linha); font-size: 14px; color: var(--texto); }
+.cr-movs li small { color: var(--dim); }
+.cr-movs li b { font: 700 15px var(--f-titulo); }
+.cr-recarga { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--sup2); border: 1px solid var(--linha); }
+.cr-estudio { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; border-top: 1px dashed var(--linha2); }
+.cr-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 10px; }
+.cr-campos label { display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 760px) { .cr-movs li { grid-template-columns: 46px minmax(0, 1fr) auto; } .cr-movs li > span:last-child { grid-column: 2 / -1; } .cr-dias { gap: 2px; } }
 @media (max-width: 1100px) { .cr-tela { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) {
   .cr-cartao { padding: 14px 15px; }

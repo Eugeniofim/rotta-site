@@ -15,7 +15,7 @@
      #/imoveis    os imóveis da API do site deles (dados/imoveis.json)
      #/gestao     só quem gere: relatórios com gráficos mensais (relatorios.js)
      #/equipe     só quem gere: quem recebe o aviso e quem entra no app (aba da Gestão)
-     #/creditos   só quem gere: os créditos do mês (a franquia de mensagens), sem custo nem margem (creditos.js)
+     #/creditos   só o dono e o estúdio: os créditos da Milla (1 crédito = 1 pessoa atendida no mês), o saldo e as pessoas atendidas, sem custo nem margem (creditos.js, 24/11)
      #/assinatura só quem gere: a mensalidade da imobiliária com o estúdio, o Pix e o "Já paguei" (assinatura.js)
      #/ia         só o dono e o estúdio: a IA na conta da imobiliária, a chave, o uso do mês e a reserva (ia.js)
 
