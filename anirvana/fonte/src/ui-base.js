@@ -138,10 +138,11 @@ function abrirFolha(html, {wide=false, onClose=null}={}){
   const sh = $('#sheet');
   sh.className = 'sheet' + (wide ? ' wide' : '');
   sh.innerHTML = `<div class="grab"></div>${html}`;
+  sh.scrollTop = 0;
   SHEET_ON_CLOSE = onClose;
   requestAnimationFrame(() => { $('#scrim').classList.add('on'); sh.classList.add('on'); });
   sh.setAttribute('role','dialog'); sh.setAttribute('aria-modal','true');
-  setTimeout(() => { const f = sh.querySelector('input:not([type=hidden]),button.btn.pri'); if (f && matchMedia('(min-width:760px)').matches) f.focus(); }, 320);
+  setTimeout(() => { const f = sh.querySelector('input:not([type=hidden]),button.btn.pri'); if (f && matchMedia('(min-width:760px)').matches) f.focus({preventScroll:true}); }, 320);
   pintarIcones(sh);
 }
 function fecharFolha(){
@@ -208,7 +209,7 @@ function graficoAno(dados, {alto=230, saldos=true}={}){
   });
   return `<div class="chart" data-chart='${escapeH(JSON.stringify(dados.map(d => ({m:d.mes, e:d.entradas, s:d.saidas, f:d.futuro}))))}'>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Entradas e saídas do Espaço por mês em 2026">${g}</svg>
-    ${saldos ? `<div class="saldos" style="margin-left:${(padL/W*100).toFixed(2)}%;margin-right:${(8/W*100).toFixed(2)}%">${dados.map(d => d.futuro ? '<span>—</span>' : `<span class="${d.entradas-d.saidas>=0?'pos':'neg'}">${d.entradas-d.saidas>=0?'+':'−'}${(Math.abs(d.entradas-d.saidas)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})}k</span>`).join('')}</div>` : ''}
+    ${saldos ? `<div class="saldos" style="margin-left:${(padL/W*100).toFixed(2)}%;margin-right:${(8/W*100).toFixed(2)}%">${dados.map(d => d.futuro ? '<span>—</span>' : `<span class="${d.entradas-d.saidas>=0?'pos':'neg'}">${d.entradas-d.saidas>=0?'+':'−'}${(Math.abs(d.entradas-d.saidas)/1000).toLocaleString('pt-BR',{maximumFractionDigits: innerWidth < 760 ? 0 : 1})}k</span>`).join('')}</div>` : ''}
     <div class="tip" role="status"></div>
   </div>`;
 }

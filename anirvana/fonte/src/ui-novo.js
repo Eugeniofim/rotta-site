@@ -555,7 +555,7 @@ function vAtividadesAdmin(){
       ${a.vis !== 'escolhido' ? `<div class="eyebrow" style="margin:6px 0">Horários</div><div class="row wrap" style="gap:6px">${ts.map(t => `<span class="chip" style="height:34px">${DIAS[t.dia]} ${t.h} · ${escapeH(PESSOA[t.instr]?.nome || '—')}<button class="x-mini" data-act="tirarHorario" data-v="${t.id}" aria-label="Tirar o horário ${DIAS[t.dia]} ${t.h}">${ic('x','sm')}</button></span>`).join('') || '<span class="small muted">Nenhum horário ainda.</span>'}<button class="btn ghost sm" data-act="novoHorario" data-v="${k}">${ic('plus','sm')}Horário</button></div>` : '<p class="small muted">Aula particular: o horário é combinado com a professora.</p>'}
     </div>`; }).join('')}</div>
   <div class="card" style="border-top:4px solid var(--folha)"><div class="card-h"><div><h3>Terapias com hora marcada</h3><span class="sub">Aparecem na aba Terapias do aluno, com o botão do WhatsApp de quem atende. O valor é lançado à mão no balanço.</span></div><button class="btn sec sm" data-act="terapia">${ic('plus','sm')}Nova terapia</button></div>
-    <div class="list">${(S.terapias || []).map(t => `<div class="li tap" data-act="terapia" data-v="${t.id}" role="button" tabindex="0"><span class="ico-b">${ic(t.icon || 'heart')}</span><div class="main-c"><span class="t">${escapeH(t.nome)}</span><span class="s">${t.quem ? 'com ' + escapeH(t.quem) : 'terapeuta a definir'} · WhatsApp ${escapeH(mascCel(t.whats || ESPACO.whats))}</span></div>${ic('pencil','sm')}</div>`).join('') || '<p class="small muted">Nenhuma terapia cadastrada.</p>'}</div></div>`;
+    <div class="list">${(S.terapias || []).map(t => `<div class="li tap" data-act="terapia" data-v="${t.id}" role="button" tabindex="0"><span class="ico-b">${ic(t.icon || 'heart')}</span><div class="main-c"><span class="t">${escapeH(t.nome)}</span><span class="s">${t.quem ? 'com ' + escapeH(t.quem) : 'terapeuta a definir'} · WhatsApp ${escapeH(mascCel(soDig(t.whats || ESPACO.whats).replace(/^55(?=\d{10,11}$)/, '')))}</span></div>${ic('pencil','sm')}</div>`).join('') || '<p class="small muted">Nenhuma terapia cadastrada.</p>'}</div></div>`;
 }
 function folhaAjuste(matId){
   const a = S.alunos.find(x => x.mats.some(m => m.id === matId)), m = a.mats.find(x => x.id === matId), aj = m.ajuste || {}, base = valorBase(S, m);
@@ -585,7 +585,7 @@ function folhaCatRen(nome){
   abrirFolha(`${folhaCab('Renomear categoria', escapeH(nome))}
   <form class="stack" id="fCatRen" data-v="${escapeH(nome)}">
     <div class="field"><label for="crNome">Novo nome</label><input class="inp" id="crNome" maxlength="32" required value="${escapeH(nome)}"></div>
-    <p class="small muted">${S.lanc.filter(l => l.cat === nome).length} lançamentos passam para o nome novo.</p>
+    <p class="small muted">${(n => `${n} ${n === 1 ? 'lançamento passa' : 'lançamentos passam'}`)(S.lanc.filter(l => l.cat === nome).length)} para o nome novo.</p>
     <div class="sheet-foot"><button type="button" class="btn sec" data-act="editarCats">Voltar</button><button class="btn pri" type="submit">${ic('check')}Renomear</button></div>
   </form>`);
 }
@@ -595,7 +595,7 @@ function folhaTerapia(id){
   <form class="stack" id="fTerapia" data-id="${id || ''}">
     <div class="grid g2"><div class="field"><label for="tpNome">Terapia</label><input class="inp" id="tpNome" required maxlength="40" value="${escapeH(t.nome)}" placeholder="Ex.: Reiki"></div>
       <div class="field"><label for="tpQuem">Quem atende</label><input class="inp" id="tpQuem" maxlength="40" value="${escapeH(t.quem || '')}" placeholder="Nome da terapeuta"></div></div>
-    <div class="field"><label for="tpWhats">WhatsApp para agendar</label><input class="inp num" id="tpWhats" type="tel" inputmode="tel" value="${escapeH(mascCel(t.whats || ESPACO.whats))}"><span class="help">Pode ser o da terapeuta ou o do Espaço.</span></div>
+    <div class="field"><label for="tpWhats">WhatsApp para agendar</label><input class="inp num" id="tpWhats" type="tel" inputmode="tel" value="${escapeH(mascCel(soDig(t.whats || ESPACO.whats).replace(/^55(?=\d{10,11}$)/, '')))}"><span class="help">Pode ser o da terapeuta ou o do Espaço.</span></div>
     <div class="field"><label for="tpDesc">Como é</label><textarea class="inp" id="tpDesc" maxlength="200">${escapeH(t.desc || '')}</textarea></div>
     <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="terapiaDel" data-v="${id}">${ic('x','sm')}Tirar</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
   </form>`);

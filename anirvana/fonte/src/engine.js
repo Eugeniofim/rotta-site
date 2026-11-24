@@ -534,7 +534,7 @@ function alertasAdmin(S){
   const subs = S.subs.filter(s => s.status === 'aberto');
   if (subs.length) A.push({cls:'warn', icon:'repeat', t:`${subs.length} pedido de substituição sem resposta`, s:subs.map(s => `${PESSOA[s.de].nome} · ${nomeTurma(TURMA[s.turma])} ${DIAS[pd(s.d).getDay()]} ${dataBR(s.d)}`).join(' · '), go:'admin-mais'});
   const pend = Object.values(S.aulas).filter(a => !a.feita);
-  if (pend.length) A.push({cls:'pri', icon:'list-checks', t:`${pend.length} chamadas de hoje por fazer`, s:pend.map(a => `${nomeTurma(TURMA[a.turma])} ${TURMA[a.turma].h} · ${PESSOA[a.instr].nome}`).join(' · '), go:'admin-mais'});
+  if (pend.length) A.push({cls:'pri', icon:'list-checks', t:`${pend.length} ${pend.length === 1 ? 'chamada' : 'chamadas'} de hoje por fazer`, s:pend.map(a => `${nomeTurma(TURMA[a.turma])} ${TURMA[a.turma].h} · ${PESSOA[a.instr].nome}`).join(' · '), go:'admin-mais'});
   return A;
 }
 /* ---------- formação ---------- */

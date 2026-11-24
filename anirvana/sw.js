@@ -1,4 +1,4 @@
-const CACHE = 'anirvana-v11';   /* SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO */
+const CACHE = 'anirvana-v12';   /* SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO */
 const ESSENCIAL = ['./', './index.html', './manifest.webmanifest', './icone-192.png', './favicon.png'];
 
 self.addEventListener('install', e => {

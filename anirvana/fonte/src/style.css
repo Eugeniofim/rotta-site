@@ -41,7 +41,7 @@ p{margin:0}
 .app{min-height:100%;display:grid;grid-template-columns:1fr}
 .rail{display:none}
 .main{min-width:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px calc(var(--nav-h) + 96px + env(safe-area-inset-bottom,0px))}
-.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.main > .wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .brand img{width:34px;height:auto;display:block}
@@ -582,3 +582,39 @@ button.brand:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
 .girando{width:34px;height:34px;border-radius:50%;border:3px solid color-mix(in srgb,var(--pri) 25%,transparent);border-top-color:var(--pri);animation:girar .9s linear infinite}
 @keyframes girar{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.girando{animation-duration:3s}}
+
+/* ---------- v12: pente fino de tela (relatório de 24/11) ---------- */
+/* a classe de página é só a do conteúdo; .row.wrap volta a ser só "quebra de linha" */
+/* barra do topo no celular: nada cortado, a logo não some */
+.topbar .brand img{flex:none}
+.topbar .brand>div{min-width:0;overflow:hidden}
+.brand b,.brand small{overflow:hidden;text-overflow:ellipsis}
+.topbar .rolebtn{min-width:0;flex:0 1 auto}
+.topbar .rolebtn>span:not(.av){min-width:0;overflow:hidden;text-overflow:ellipsis}
+.topbar .sino,.topbar .insc-btn,.topbar .nuvem-st{flex:none}
+@media (max-width:480px){
+  .insc-btn span{display:none}
+  .insc-btn{padding:0 10px}
+  .topbar:has(.voltar) .rolebtn>span:not(.av){display:none}
+  .topbar:has(.voltar) .brand>div{display:none}
+}
+@media (max-width:400px){ .eh-admin .topbar .brand>div{display:none} }
+/* a barra fixa não cobre o que o app rola para o topo */
+html{scroll-padding-top:calc(76px + env(safe-area-inset-top,0px))}
+/* números grandes não quebram o R$ numa linha e o valor na outra */
+.stat .v{white-space:nowrap;font-size:clamp(19px,6.2vw,26px)}
+/* gráfico do ano legível no celular */
+@media (max-width:759px){ .chart .ax{font-size:24px} .saldos span{font-size:10px;letter-spacing:-.02em} }
+/* tabela larga: sombra na borda mostra que dá para arrastar */
+.tbl-w{background:linear-gradient(90deg,var(--surface) 30%,transparent) left/28px 100% no-repeat local,linear-gradient(270deg,var(--surface) 30%,transparent) right/28px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.14),transparent) left/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.14),transparent) right/12px 100% no-repeat scroll}
+/* cartão do título com botão: o título ocupa o espaço, o botão fica ao lado */
+.card-h>div:first-child{flex:1 1 0;min-width:0}
+/* escrever aviso: campos com respiro */
+.escrever{display:grid;gap:14px}
+/* lojinha: cartões dos fornecedores inteiros no celular */
+@media (max-width:759px){ .ring-stage{height:190px} }
+/* alvos de toque maiores */
+.x-mini{width:32px;height:32px;margin-left:0}
+details>summary{min-height:36px;display:flex;align-items:center}
+/* e-mail e links longos quebram em lugar certo */
+.contato-a .s,.contato-a .t{overflow-wrap:break-word;word-break:normal}

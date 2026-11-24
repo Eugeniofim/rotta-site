@@ -63,7 +63,7 @@ p{margin:0}
 .app{min-height:100%;display:grid;grid-template-columns:1fr}
 .rail{display:none}
 .main{min-width:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px calc(var(--nav-h) + 96px + env(safe-area-inset-bottom,0px))}
-.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.main > .wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .brand img{width:34px;height:auto;display:block}
@@ -604,6 +604,42 @@ button.brand:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
 .girando{width:34px;height:34px;border-radius:50%;border:3px solid color-mix(in srgb,var(--pri) 25%,transparent);border-top-color:var(--pri);animation:girar .9s linear infinite}
 @keyframes girar{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.girando{animation-duration:3s}}
+
+/* ---------- v12: pente fino de tela (relatório de 24/11) ---------- */
+/* a classe de página é só a do conteúdo; .row.wrap volta a ser só "quebra de linha" */
+/* barra do topo no celular: nada cortado, a logo não some */
+.topbar .brand img{flex:none}
+.topbar .brand>div{min-width:0;overflow:hidden}
+.brand b,.brand small{overflow:hidden;text-overflow:ellipsis}
+.topbar .rolebtn{min-width:0;flex:0 1 auto}
+.topbar .rolebtn>span:not(.av){min-width:0;overflow:hidden;text-overflow:ellipsis}
+.topbar .sino,.topbar .insc-btn,.topbar .nuvem-st{flex:none}
+@media (max-width:480px){
+  .insc-btn span{display:none}
+  .insc-btn{padding:0 10px}
+  .topbar:has(.voltar) .rolebtn>span:not(.av){display:none}
+  .topbar:has(.voltar) .brand>div{display:none}
+}
+@media (max-width:400px){ .eh-admin .topbar .brand>div{display:none} }
+/* a barra fixa não cobre o que o app rola para o topo */
+html{scroll-padding-top:calc(76px + env(safe-area-inset-top,0px))}
+/* números grandes não quebram o R$ numa linha e o valor na outra */
+.stat .v{white-space:nowrap;font-size:clamp(19px,6.2vw,26px)}
+/* gráfico do ano legível no celular */
+@media (max-width:759px){ .chart .ax{font-size:24px} .saldos span{font-size:10px;letter-spacing:-.02em} }
+/* tabela larga: sombra na borda mostra que dá para arrastar */
+.tbl-w{background:linear-gradient(90deg,var(--surface) 30%,transparent) left/28px 100% no-repeat local,linear-gradient(270deg,var(--surface) 30%,transparent) right/28px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.14),transparent) left/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.14),transparent) right/12px 100% no-repeat scroll}
+/* cartão do título com botão: o título ocupa o espaço, o botão fica ao lado */
+.card-h>div:first-child{flex:1 1 0;min-width:0}
+/* escrever aviso: campos com respiro */
+.escrever{display:grid;gap:14px}
+/* lojinha: cartões dos fornecedores inteiros no celular */
+@media (max-width:759px){ .ring-stage{height:190px} }
+/* alvos de toque maiores */
+.x-mini{width:32px;height:32px;margin-left:0}
+details>summary{min-height:36px;display:flex;align-items:center}
+/* e-mail e links longos quebram em lugar certo */
+.contato-a .s,.contato-a .t{overflow-wrap:break-word;word-break:normal}
 
 </style>
 </head>
@@ -1529,7 +1565,7 @@ function alertasAdmin(S){
   const subs = S.subs.filter(s => s.status === 'aberto');
   if (subs.length) A.push({cls:'warn', icon:'repeat', t:`${subs.length} pedido de substituição sem resposta`, s:subs.map(s => `${PESSOA[s.de].nome} · ${nomeTurma(TURMA[s.turma])} ${DIAS[pd(s.d).getDay()]} ${dataBR(s.d)}`).join(' · '), go:'admin-mais'});
   const pend = Object.values(S.aulas).filter(a => !a.feita);
-  if (pend.length) A.push({cls:'pri', icon:'list-checks', t:`${pend.length} chamadas de hoje por fazer`, s:pend.map(a => `${nomeTurma(TURMA[a.turma])} ${TURMA[a.turma].h} · ${PESSOA[a.instr].nome}`).join(' · '), go:'admin-mais'});
+  if (pend.length) A.push({cls:'pri', icon:'list-checks', t:`${pend.length} ${pend.length === 1 ? 'chamada' : 'chamadas'} de hoje por fazer`, s:pend.map(a => `${nomeTurma(TURMA[a.turma])} ${TURMA[a.turma].h} · ${PESSOA[a.instr].nome}`).join(' · '), go:'admin-mais'});
   return A;
 }
 /* ---------- formação ---------- */
@@ -1796,10 +1832,11 @@ function abrirFolha(html, {wide=false, onClose=null}={}){
   const sh = $('#sheet');
   sh.className = 'sheet' + (wide ? ' wide' : '');
   sh.innerHTML = `<div class="grab"></div>${html}`;
+  sh.scrollTop = 0;
   SHEET_ON_CLOSE = onClose;
   requestAnimationFrame(() => { $('#scrim').classList.add('on'); sh.classList.add('on'); });
   sh.setAttribute('role','dialog'); sh.setAttribute('aria-modal','true');
-  setTimeout(() => { const f = sh.querySelector('input:not([type=hidden]),button.btn.pri'); if (f && matchMedia('(min-width:760px)').matches) f.focus(); }, 320);
+  setTimeout(() => { const f = sh.querySelector('input:not([type=hidden]),button.btn.pri'); if (f && matchMedia('(min-width:760px)').matches) f.focus({preventScroll:true}); }, 320);
   pintarIcones(sh);
 }
 function fecharFolha(){
@@ -1866,7 +1903,7 @@ function graficoAno(dados, {alto=230, saldos=true}={}){
   });
   return `<div class="chart" data-chart='${escapeH(JSON.stringify(dados.map(d => ({m:d.mes, e:d.entradas, s:d.saidas, f:d.futuro}))))}'>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Entradas e saídas do Espaço por mês em 2026">${g}</svg>
-    ${saldos ? `<div class="saldos" style="margin-left:${(padL/W*100).toFixed(2)}%;margin-right:${(8/W*100).toFixed(2)}%">${dados.map(d => d.futuro ? '<span>—</span>' : `<span class="${d.entradas-d.saidas>=0?'pos':'neg'}">${d.entradas-d.saidas>=0?'+':'−'}${(Math.abs(d.entradas-d.saidas)/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})}k</span>`).join('')}</div>` : ''}
+    ${saldos ? `<div class="saldos" style="margin-left:${(padL/W*100).toFixed(2)}%;margin-right:${(8/W*100).toFixed(2)}%">${dados.map(d => d.futuro ? '<span>—</span>' : `<span class="${d.entradas-d.saidas>=0?'pos':'neg'}">${d.entradas-d.saidas>=0?'+':'−'}${(Math.abs(d.entradas-d.saidas)/1000).toLocaleString('pt-BR',{maximumFractionDigits: innerWidth < 760 ? 0 : 1})}k</span>`).join('')}</div>` : ''}
     <div class="tip" role="status"></div>
   </div>`;
 }
@@ -2073,7 +2110,7 @@ function folhaLancar(tipo='saida', id){
       ${L ? '' : `<div class="seg" style="width:100%">${[['saida','Saída'],['entrada','Entrada']].map(([k,l]) => `<button type="button" style="flex:1" class="${tipo===k?'on':''}" data-act="lancTipo" data-v="${k}">${l}</button>`).join('')}</div>`}
       <input type="hidden" id="lTipo" value="${tipo}">
       <div class="field"><label for="lValor">Valor</label><input class="inp money num" id="lValor" inputmode="decimal" placeholder="0,00" required value="${L ? L.valor.toFixed(2).replace('.',',') : ''}"></div>
-      <div class="field"><label>Categoria <button type="button" class="btn ghost sm" data-act="editarCats" style="margin-left:6px">${ic('pencil','sm')}Editar categorias</button></label><div class="optgrid">${Object.entries(lista).map(([c,o]) => `<button type="button" class="opt ${c===catSel?'on':''}" data-act="opt" data-grp="lCat" data-v="${escapeH(c)}">${ic(o.icon || 'tag')}<span>${escapeH(c)}</span></button>`).join('')}</div><input type="hidden" id="lCat" value="${escapeH(catSel)}"><span class="help" id="lDica">${escapeH((lista[catSel] || {}).dica || '')}</span></div>
+      <div class="field"><label>Categoria <button type="button" class="btn ghost sm" data-act="editarCats" style="margin-left:6px">${ic('pencil','sm')}Editar categorias</button></label><div class="optgrid">${Object.entries(lista).map(([c,o]) => `<button type="button" class="opt ${c===catSel?'on':''}" data-act="opt" data-grp="lCat" data-v="${escapeH(c)}">${ic(o.icon || 'tag')}<span>${escapeH(c).replace(/\//g, '/<wbr>')}</span></button>`).join('')}</div><input type="hidden" id="lCat" value="${escapeH(catSel)}"><span class="help" id="lDica">${escapeH((lista[catSel] || {}).dica || '')}</span></div>
       <div class="field"><label for="lDesc">Descrição ou fornecedor</label><input class="inp" id="lDesc" list="lSug" value="${L ? escapeH(L.desc) : ''}" placeholder="${tipo==='saida'?'Ex.: Luz, Diarista Sonia, lâmpadas':'Ex.: Hospedagem Airbnb, Coworking'}" required><datalist id="lSug">${sugest.map(s => `<option value="${escapeH(s)}">`).join('')}</datalist><span class="help">O app lembra o que você já lançou e sugere a categoria.</span></div>
       <div class="field"><label for="lData">Data</label><input class="inp" type="date" id="lData" value="${L ? L.d : HOJE_ISO}"></div>
       <div class="sheet-foot">${L ? `<button type="button" class="btn ghost" data-act="lancDel" data-v="${L.id}">${ic('x','sm')}Apagar</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}${L ? 'Salvar' : `Lançar ${tipo==='saida'?'saída':'entrada'}`}</button></div>
@@ -2081,7 +2118,7 @@ function folhaLancar(tipo='saida', id){
 }
 /* categorias do balanço: criar, renomear e tirar (os lançamentos antigos vão junto no renomear) */
 function folhaCategorias(){
-  const linha = (nome, o, tipo) => `<div class="li"><span class="ico-b">${ic(o.icon || 'tag')}</span><div class="main-c"><span class="t">${escapeH(nome)}</span><span class="s">${tipo === 'ambos' ? 'entrada e saída' : tipo} · ${S.lanc.filter(l => l.cat === nome).length} lançamentos</span></div><div class="end"><button class="iconbtn" data-act="catRen" data-v="${escapeH(nome)}" aria-label="Renomear ${escapeH(nome)}" title="Renomear">${ic('pencil','sm')}</button><button class="iconbtn" data-act="catTirar" data-v="${escapeH(nome)}" aria-label="Tirar ${escapeH(nome)}" title="Tirar">${ic('x','sm')}</button></div></div>`;
+  const linha = (nome, o, tipo) => `<div class="li"><span class="ico-b">${ic(o.icon || 'tag')}</span><div class="main-c"><span class="t">${escapeH(nome)}</span><span class="s">${tipo === 'ambos' ? 'entrada e saída' : tipo} · ${(n => `${n} ${n === 1 ? 'lançamento' : 'lançamentos'}`)(S.lanc.filter(l => l.cat === nome).length)}</span></div><div class="end"><button class="iconbtn" data-act="catRen" data-v="${escapeH(nome)}" aria-label="Renomear ${escapeH(nome)}" title="Renomear">${ic('pencil','sm')}</button><button class="iconbtn" data-act="catTirar" data-v="${escapeH(nome)}" aria-label="Tirar ${escapeH(nome)}" title="Tirar">${ic('x','sm')}</button></div></div>`;
   const todas = {}; Object.entries(CAT_ENTRADA).forEach(([n, o]) => todas[n] = {o, t:'entrada'}); Object.entries(CAT_SAIDA).forEach(([n, o]) => todas[n] = todas[n] ? {o, t:'ambos'} : {o, t:'saída'});
   abrirFolha(`${folhaCab('Categorias do balanço', 'Tirar não apaga nada: os lançamentos antigos continuam no balanço')}
   <div class="stack">
@@ -2463,7 +2500,7 @@ function desenharChamada(){
   <div class="stack">
     ${n === 0 ? `<button class="vazia-btn" data-act="salvarChamada" data-v="vazia"><span class="ico-b">${ic('circle-slash')}</span><span><b>Ninguém veio · aula vazia</b><small>registra a aula e vale ${brl(S.regras.aulaVazia)} para você</small></span></button>` : ''}
     <div class="rollgrid">${lista.map(a => `<button class="roll ${CHAMADA.presentes.has(a.id)?'on':''}" data-act="marcar" data-v="${a.id}" aria-pressed="${CHAMADA.presentes.has(a.id)}">${av(a.nome)}<span class="col" style="gap:0"><span class="nm">${escapeH(a.nome.split(' ').slice(0,2).join(' '))}</span><span class="pl">${plano(a)}</span></span><span class="ck">${ic('check')}</span></button>`).join('')}</div>
-    ${outros.length ? `<details><summary class="small strong" style="cursor:pointer;color:var(--pri)">Veio alguém de outra turma? (${outros.length})</summary><div class="chips" style="flex-wrap:wrap;margin-top:10px">${outros.map(a => `<button class="chip" data-act="addExtra" data-v="${a.id}">${ic('plus','sm')}${escapeH(a.nome)}</button>`).join('')}</div></details>` : ''}
+    ${outros.length ? `<details ${CHAMADA.extrasAberto ? 'open' : ''} ontoggle="CHAMADA.extrasAberto = this.open"><summary class="small strong" style="cursor:pointer;color:var(--pri)">Veio alguém de outra turma? (${outros.length})</summary><div class="chips" style="flex-wrap:wrap;margin-top:10px">${outros.map(a => `<button class="chip" data-act="addExtra" data-v="${a.id}">${ic('plus','sm')}${escapeH(a.nome)}</button>`).join('')}</div></details>` : ''}
     ${t.atv === 'yoga' ? `<div class="visit-box"><div class="row" style="justify-content:space-between"><b>${ic('user-plus','sm')} Aula avulsa ou visitante</b><span class="tiny muted">quem não está na lista</span></div><span class="tiny muted">Você recebe: ${tipos.map(([k, l]) => `${l} ${brl(tx[k])}`).join(' · ')}</span>
       ${CHAMADA.visitantes.length ? `<div class="list">${CHAMADA.visitantes.map((v, i) => `<div class="li" style="padding:8px 4px">${av(v.nome)}<div class="main-c"><span class="t">${escapeH(v.nome)}</span><span class="s">${(tipos.find(x => x[0] === v.t) || tipos[0])[1]}${v.tel ? ' · ' + escapeH(v.tel) : ''}${v.t === 'avulsa' ? (v.pago && v.pago !== 'depois' ? ` · pagou (${v.pago})` : ' · <b style="color:var(--warn)">paga depois</b>') : ''}</span></div><button class="iconbtn" data-act="visitDel" data-v="${i}" aria-label="Tirar ${escapeH(v.nome)}">${ic('x')}</button></div>`).join('')}</div>` : ''}
       <div class="grid g2"><div class="field" style="margin:0"><label for="visNome">Nome</label><input class="inp" id="visNome" placeholder="Ex.: Joana Lima" autocomplete="off"></div>
@@ -2711,7 +2748,7 @@ function folhaPagar(matId, modo='pix'){
   <div class="stack">
     <div class="seg" style="width:100%">${[['pix',`Pix · ${brl(v)}`],['cartao',`Cartão · ${brl(vc)}`]].map(([k,l]) => `<button style="flex:1" class="${modo===k?'on':''}" data-act="pagarModo" data-v="${matId}" data-x="${k}">${l}</button>`).join('')}</div>
     ${modo === 'pix' ? `<div class="qr">${qrSVG(matId.length*991)}</div><p class="tiny muted" style="text-align:center">${chave ? 'Aponte a câmera do app do banco ou use o copia e cola' : 'QR de exemplo: falta pôr a chave Pix do Espaço em Mensalidades → Regras'}</p>
-      <div class="field"><label>Pix copia e cola · ${brl(v)}</label><div class="row"><input class="inp num" readonly value="${codigo}" id="pixCod" style="font-size:13px"><button class="btn sec" data-act="copiar" data-v="${codigo}">${ic('copy','sm')}Copiar</button></div></div>
+      <div class="field"><label>Pix copia e cola · ${brl(v)}</label><div class="row"><input class="inp num" readonly value="${codigo}" id="pixCod" style="font-size:16px;text-overflow:ellipsis"><button class="btn sec" data-act="copiar" data-v="${codigo}">${ic('copy','sm')}Copiar</button></div></div>
       <div class="sheet-foot"><button class="btn pri" data-act="confirmarPag" data-v="${matId}" data-x="pix">${ic('send')}Já paguei, avisar o Espaço</button></div>`
     : `<div class="li" style="padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><span class="ico-b">${ic('credit-card')}</span><div class="main-c"><span class="t num">${brl(v)} + ${brl(taxa)} = <b>${brl(vc)}</b></span><span class="s">Crédito ou débito. O acréscimo é a taxa da maquininha.</span></div></div>
       <ol class="small" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Toque em <b>Abrir o link do cartão</b>.</li><li>Digite o valor <b class="num">${brl(vc)}</b> e os dados do cartão (o Espaço não vê o número).</li><li>Volte aqui e toque em <b>Já paguei</b>.</li></ol>
@@ -2852,7 +2889,7 @@ function vLojaForn(){
   const proprios = FORNECEDORES.filter(f => f.pct === 0 && f.ativo !== false), inativos = FORNECEDORES.filter(f => f.ativo === false && !fs.some(x => x.id === f.id));
   return `<div class="row wrap" style="justify-content:space-between;align-items:center"><div class="alert pri" style="flex:1;min-width:260px"><span class="ib">${ic('store')}</span><div><div class="t">${brl(tot)} a pagar aos fornecedores</div><div class="s">Cada fornecedor tem a sua regra: consignado (ele fica com uma parte), repasse de 100% ou estoque do Espaço. Mudar o % vale só para as vendas novas.</div></div></div><button class="btn sol" data-act="novoForn">${ic('user-plus')}Cadastrar fornecedor</button></div>
   <div class="grid g3">${fs.map(f => `<div class="card" style="border-top:4px solid ${f.hue};${f.ativo === false ? 'opacity:.7' : ''}">
-    <div class="row" style="margin-bottom:10px"><span class="ico-b" style="background:${f.hue};color:#fff;font-weight:800;font-family:var(--f-display)">${escapeH(f.curto[0])}</span><div class="main-c" style="min-width:0;flex:1"><b style="font-size:15px">${escapeH(f.nome)}</b><span class="tiny muted">${f.modelo==='integral'?'Repasse de 100%':`Consignado · ${Math.round(f.pct*100)}% fornecedor`}${f.ativo === false ? ' · fora da lojinha' : ''}</span></div><button class="iconbtn" data-act="editarForn" data-v="${f.id}" aria-label="Editar ${escapeH(f.curto)}">${ic('pencil','sm')}</button></div>
+    <div class="row" style="margin-bottom:10px"><span class="ico-b" style="background:${f.hue};color:#fff;font-weight:800;font-family:var(--f-display)">${escapeH(f.curto[0])}</span><div class="main-c" style="min-width:0;flex:1;display:flex;flex-direction:column;gap:2px"><b style="font-size:15px">${escapeH(f.nome)}</b><span class="tiny muted">${f.modelo==='integral'?'Repasse de 100%':`Consignado · ${Math.round(f.pct*100)}% fornecedor`}${f.ativo === false ? ' · fora da lojinha' : ''}</span></div><button class="iconbtn" data-act="editarForn" data-v="${f.id}" aria-label="Editar ${escapeH(f.curto)}">${ic('pencil','sm')}</button></div>
     <div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="tiny muted">A pagar</div><div class="num" style="font-family:var(--f-display);font-size:26px;font-weight:750;color:${f.saldo>.01?'var(--ink)':'var(--muted)'}">${brl(Math.max(0,f.saldo))}</div></div><div class="tiny muted" style="text-align:right">vendido ${brl(f.devido + (f.pct<1? f.devido/f.pct*(1-f.pct):0))}<br>já pago ${brl(f.pago)}</div></div>
     <div class="row wrap" style="margin-top:12px">${f.pix?`<button class="btn ghost sm" data-act="copiar" data-v="${f.pix}">${ic('copy','sm')}Pix ${f.pix}</button>`:'<span class="tiny muted">Pix não cadastrado</span>'}<span class="sp"></span>${f.saldo > .01 ? `<button class="btn ok sm" data-act="pagarForn" data-v="${f.id}">Paguei</button>` : `<span class="pill ok">${ic('check')}Em dia</span>`}</div>
   </div>`).join('')}</div>
@@ -4190,7 +4227,7 @@ function vAtividadesAdmin(){
       ${a.vis !== 'escolhido' ? `<div class="eyebrow" style="margin:6px 0">Horários</div><div class="row wrap" style="gap:6px">${ts.map(t => `<span class="chip" style="height:34px">${DIAS[t.dia]} ${t.h} · ${escapeH(PESSOA[t.instr]?.nome || '—')}<button class="x-mini" data-act="tirarHorario" data-v="${t.id}" aria-label="Tirar o horário ${DIAS[t.dia]} ${t.h}">${ic('x','sm')}</button></span>`).join('') || '<span class="small muted">Nenhum horário ainda.</span>'}<button class="btn ghost sm" data-act="novoHorario" data-v="${k}">${ic('plus','sm')}Horário</button></div>` : '<p class="small muted">Aula particular: o horário é combinado com a professora.</p>'}
     </div>`; }).join('')}</div>
   <div class="card" style="border-top:4px solid var(--folha)"><div class="card-h"><div><h3>Terapias com hora marcada</h3><span class="sub">Aparecem na aba Terapias do aluno, com o botão do WhatsApp de quem atende. O valor é lançado à mão no balanço.</span></div><button class="btn sec sm" data-act="terapia">${ic('plus','sm')}Nova terapia</button></div>
-    <div class="list">${(S.terapias || []).map(t => `<div class="li tap" data-act="terapia" data-v="${t.id}" role="button" tabindex="0"><span class="ico-b">${ic(t.icon || 'heart')}</span><div class="main-c"><span class="t">${escapeH(t.nome)}</span><span class="s">${t.quem ? 'com ' + escapeH(t.quem) : 'terapeuta a definir'} · WhatsApp ${escapeH(mascCel(t.whats || ESPACO.whats))}</span></div>${ic('pencil','sm')}</div>`).join('') || '<p class="small muted">Nenhuma terapia cadastrada.</p>'}</div></div>`;
+    <div class="list">${(S.terapias || []).map(t => `<div class="li tap" data-act="terapia" data-v="${t.id}" role="button" tabindex="0"><span class="ico-b">${ic(t.icon || 'heart')}</span><div class="main-c"><span class="t">${escapeH(t.nome)}</span><span class="s">${t.quem ? 'com ' + escapeH(t.quem) : 'terapeuta a definir'} · WhatsApp ${escapeH(mascCel(soDig(t.whats || ESPACO.whats).replace(/^55(?=\d{10,11}$)/, '')))}</span></div>${ic('pencil','sm')}</div>`).join('') || '<p class="small muted">Nenhuma terapia cadastrada.</p>'}</div></div>`;
 }
 function folhaAjuste(matId){
   const a = S.alunos.find(x => x.mats.some(m => m.id === matId)), m = a.mats.find(x => x.id === matId), aj = m.ajuste || {}, base = valorBase(S, m);
@@ -4220,7 +4257,7 @@ function folhaCatRen(nome){
   abrirFolha(`${folhaCab('Renomear categoria', escapeH(nome))}
   <form class="stack" id="fCatRen" data-v="${escapeH(nome)}">
     <div class="field"><label for="crNome">Novo nome</label><input class="inp" id="crNome" maxlength="32" required value="${escapeH(nome)}"></div>
-    <p class="small muted">${S.lanc.filter(l => l.cat === nome).length} lançamentos passam para o nome novo.</p>
+    <p class="small muted">${(n => `${n} ${n === 1 ? 'lançamento passa' : 'lançamentos passam'}`)(S.lanc.filter(l => l.cat === nome).length)} para o nome novo.</p>
     <div class="sheet-foot"><button type="button" class="btn sec" data-act="editarCats">Voltar</button><button class="btn pri" type="submit">${ic('check')}Renomear</button></div>
   </form>`);
 }
@@ -4230,7 +4267,7 @@ function folhaTerapia(id){
   <form class="stack" id="fTerapia" data-id="${id || ''}">
     <div class="grid g2"><div class="field"><label for="tpNome">Terapia</label><input class="inp" id="tpNome" required maxlength="40" value="${escapeH(t.nome)}" placeholder="Ex.: Reiki"></div>
       <div class="field"><label for="tpQuem">Quem atende</label><input class="inp" id="tpQuem" maxlength="40" value="${escapeH(t.quem || '')}" placeholder="Nome da terapeuta"></div></div>
-    <div class="field"><label for="tpWhats">WhatsApp para agendar</label><input class="inp num" id="tpWhats" type="tel" inputmode="tel" value="${escapeH(mascCel(t.whats || ESPACO.whats))}"><span class="help">Pode ser o da terapeuta ou o do Espaço.</span></div>
+    <div class="field"><label for="tpWhats">WhatsApp para agendar</label><input class="inp num" id="tpWhats" type="tel" inputmode="tel" value="${escapeH(mascCel(soDig(t.whats || ESPACO.whats).replace(/^55(?=\d{10,11}$)/, '')))}"><span class="help">Pode ser o da terapeuta ou o do Espaço.</span></div>
     <div class="field"><label for="tpDesc">Como é</label><textarea class="inp" id="tpDesc" maxlength="200">${escapeH(t.desc || '')}</textarea></div>
     <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="terapiaDel" data-v="${id}">${ic('x','sm')}Tirar</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
   </form>`);
@@ -5032,7 +5069,7 @@ function conferirPinAdmin(id){
 }
 
 /* barras que rolam de lado (submenus, chips, cartões): guardar e devolver a rolagem ao redesenhar */
-const ROLA_LADO = '.chips, .seg, .cats, .week, .atv-cards, .rollgrid, .tblwrap, [data-hscroll]';
+const ROLA_LADO = '.chips, .seg, .cats, .week, .atv-cards, .rollgrid, .tbl-w, [data-hscroll]';
 const chaveTela = () => `${UI.role}|${UI.role ? UI.tab[UI.role] : ''}`;
 function guardarLados(){ return {k:chaveTela(), xs:[...document.querySelectorAll('#root ' + ROLA_LADO.split(', ').join(', #root '))].map(el => el.scrollLeft)}; }
 function devolverLados(g){
@@ -5247,7 +5284,7 @@ const ACT = {
   meuMes:(d) => { UI.meuMes = d.v; reRender(); },
   chamada:(d) => folhaChamada(d.v),
   marcar:(d, el) => { const s = CHAMADA.presentes; s.has(d.v) ? s.delete(d.v) : s.add(d.v); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
-  addExtra:(d) => { CHAMADA.extras.push(d.v); CHAMADA.presentes.add(d.v); desenharChamada(); },
+  addExtra:(d) => { const sh = $('#sheet'), y = sh.scrollTop; CHAMADA.extras.push(d.v); CHAMADA.presentes.add(d.v); CHAMADA.extrasAberto = true; desenharChamada(); sh.scrollTop = y; },
   visitAdd:() => { const nome = ($('#visNome')?.value || '').trim(), t = $('#visTipo')?.value || 'avulsa', tel = ($('#visTel')?.value || '').trim(), pago = t === 'avulsa' ? ($('#visPago')?.value || 'pix') : null; if (!nome){ $('#visNome')?.focus(); avisar('Escreva o nome de quem veio', 'circle-alert'); return; } CHAMADA.visitantes.push({nome, t, ...(tel ? {tel} : {}), ...(pago ? {pago} : {})}); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   visitDel:(d) => { CHAMADA.visitantes.splice(+d.v, 1); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   salvarChamada:(d) => {
@@ -5429,13 +5466,14 @@ const ACTS_TELA = ['tab','ir','role','mensVis','mensSt','mensAtv','escolaVis','b
 const fotoTela = () => JSON.stringify({role:UI.role, tab:UI.role ? UI.tab[UI.role] : null, mensVis:UI.mensVis, mensSt:UI.mensSt, mensAtv:UI.mensAtv, escolaVis:UI.escolaVis, balVis:UI.balVis, balMes:UI.balMes, lojaVis:UI.lojaVis, div:UI.div && UI.div.vis, alunoAtv:UI.alunoAtv, meuMes:UI.meuMes, instrFiltro:UI.instrFiltro, catFoco:UI.catFoco});
 function voltarTela(){
   const f = UI.pilha.pop(); if (!f) return false;
+  const yVolta = (UI.pilhaY || []).pop() || 0;
   const o = JSON.parse(f);
   if (!o.role){ UI.role = null; } else { UI.role = o.role; UI.tab[o.role] = o.tab; }
   Object.assign(UI, {mensVis:o.mensVis, mensSt:o.mensSt, mensAtv:o.mensAtv, escolaVis:o.escolaVis, balVis:o.balVis, balMes:o.balMes, lojaVis:o.lojaVis, alunoAtv:o.alunoAtv, meuMes:o.meuMes, instrFiltro:o.instrFiltro, catFoco:o.catFoco});
   if (UI.div) UI.div.vis = o.div;
   const h = UI.role ? `${UI.role}-${UI.tab[UI.role]}` : '';
   history.replaceState({anv:UI.pilha.length}, '', h ? '#' + h : location.pathname);
-  fecharFolha(); render(); scrollTo({top:0});
+  fecharFolha(); render(); scrollTo({top:yVolta});
   return true;
 }
 window.addEventListener('popstate', () => { if ($('#sheet').classList.contains('on')){ fecharFolha(); return; } if (!voltarTela() && UI.role){ UI.role = null; render(); } });
@@ -5443,9 +5481,9 @@ document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const fn = ACT[el.dataset.act]; if (!fn) return;
   e.preventDefault();
-  const tela = ACTS_TELA.includes(el.dataset.act) || (el.dataset.act === 'entrar') ? fotoTela() : null;
+  const tela = ACTS_TELA.includes(el.dataset.act) || (el.dataset.act === 'entrar') ? fotoTela() : null; UI._yAntes = scrollY;
   fn({...el.dataset}, el);
-  if (tela && tela !== fotoTela()){ UI.pilha.push(tela); if (UI.pilha.length > 40) UI.pilha.shift(); history.pushState({anv:UI.pilha.length}, '', location.href); render(); }
+  if (tela && tela !== fotoTela()){ UI.pilha.push(tela); (UI.pilhaY = UI.pilhaY || []).push(UI._yAntes || 0); if (UI.pilhaY.length > 40) UI.pilhaY.shift(); if (UI.pilha.length > 40) UI.pilha.shift(); history.pushState({anv:UI.pilha.length}, '', location.href); render(); }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('#sheet').classList.contains('on')) fecharFolha();
@@ -5574,7 +5612,7 @@ document.addEventListener('submit', e => {
   }
   if (f.id === 'fTerapia'){
     const nome = $('#tpNome').value.trim(); if (!nome){ $('#tpNome').focus(); return; }
-    const w = soDig($('#tpWhats').value), whats = w.length >= 12 ? w : w.length >= 10 ? '55' + w : ESPACO.whats;
+    const w = soDig($('#tpWhats').value), whats = /^55\d{10,11}$/.test(w) ? w : w.length >= 10 && w.length <= 11 ? '55' + w : ESPACO.whats;
     const dados = {nome, quem:$('#tpQuem').value.trim(), desc:$('#tpDesc').value.trim(), whats};
     S.terapias = S.terapias || [];
     const t = S.terapias.find(x => x.id === f.dataset.id); if (t) Object.assign(t, dados); else S.terapias.push({id:'tp' + novoId(), icon:'heart', ...dados});

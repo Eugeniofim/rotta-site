@@ -3,11 +3,11 @@ const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch(); const prob = [], er = []; let n = 0;
   for (const [w, h] of [[390, 844], [360, 740], [1280, 860]]){
     const p = await b.newPage({viewport:{width:w, height:h}}); p.on('pageerror', e => er.push(`${w}px: ${e.message}`));
-    await p.goto('file:///home/user/anirvana-app/dist/anirvana/index.html'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(400);
+    await p.goto('file:///home/user/anirvana-app/dist/anirvana-demo/index.html'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(400);
     const olha = async rot => { n++; await p.waitForTimeout(120); const r = await p.evaluate(() => ({sw:document.documentElement.scrollWidth, iw:innerWidth, sh:document.querySelector('#sheet.on') ? document.querySelector('#sheet').scrollWidth - document.querySelector('#sheet').clientWidth : 0})); if (r.sw > r.iw + 1) prob.push(`${w}px ${rot}: página vaza ${r.sw - r.iw}px para o lado`); if (r.sh > 1) prob.push(`${w}px ${rot}: janela vaza ${r.sh}px para o lado`); };
     await olha('porta');
     const telas = {
-      admin:{inicio:[null], balanco:[['balVis','mes'],['balVis','ano'],['balVis','cat']], mensalidades:[['mensVis','alunos'],['mensVis','fechamento'],['mensVis','regras']], lojinha:[['lojaVis','vender'],['lojaVis','produtos'],['lojaVis','vendas'],['lojaVis','fornecedores'],['lojaVis','areceber']], escola:[['escolaVis','alunos'],['escolaVis','horarios'],['escolaVis','equipe'],['escolaVis','subs']], atividades:[null], divulgar:[['divVis','escrever'],['divVis','eventos'],['divVis','avisos'],['divVis','pontos']], inscricoes:[null]},
+      admin:{inicio:[null], balanco:[['balVis','mes'],['balVis','ano'],['balVis','cat']], mensalidades:[['mensVis','alunos'],['mensVis','fechamento'],['mensVis','regras']], lojinha:[['lojaVis','vender'],['lojaVis','produtos'],['lojaVis','vendas'],['lojaVis','fornecedores'],['lojaVis','receber']], escola:[['escolaVis','alunos'],['escolaVis','horarios'],['escolaVis','equipe'],['escolaVis','subs']], atividades:[null], divulgar:[['divVis','escrever'],['divVis','eventos'],['divVis','avisos'],['divVis','pontos']], inscricoes:[null]},
       instrutor:{hoje:[null], agenda:[null], alunos:[null], mes:[null]},
       aluno:{inicio:[['alunoAtv','pratica'],['alunoAtv','eventos'],['alunoAtv','yoga'],['alunoAtv','terapias'],['alunoAtv','aquarela']], aulas:[null], plano:[null], historico:[null]}};
     for (const [role, tabs] of Object.entries(telas)) for (const [tab, subs] of Object.entries(tabs)) for (const sub of subs){

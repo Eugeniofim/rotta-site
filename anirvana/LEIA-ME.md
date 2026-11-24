@@ -87,3 +87,12 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - **Tudo editável pela administração:** lápis em cada horário da grade (dia, hora, casa, quem dá, nome) e "Novo horário"; editar cadastro do aluno (nome, WhatsApp, nascimento, e-mail, CPF, responsável, saiu do Espaço); editar matrícula (plano, horários, vencimento, forma, pausou/parou) e "Outra atividade"; corrigir ou apagar pagamento; contas do mês com lápis e "Nova conta".
 - **Casas:** yoga, movimento consciente, musicalização e meditação na Casamor; aquarela na Casa Nutrir; violão e yoga particular na Casa Luz; gestantes na Casa Luz e na Casamor.
 - Testes: `fonte/teste-nuvem-sincronia.js` (34: dois computadores, instrutora, aluna, inscrição, offline, apagar, reabrir) e `fonte/teste-tudo-editavel.js` (14). SQL da sala: `fonte/backend/sala-anirvana.sql`.
+
+## v12 (pente fino de tela, 24/11)
+- Topo no celular: com a setinha de voltar, o perfil e a logo não ficam mais cortados (cabe em 360 px, com o pontinho da nuvem).
+- Terapias: o WhatsApp aparecia "(55) 41998-4878" e, ao salvar, gravava o número errado. Corrigido.
+- Chamada: "Veio alguém de outra turma?" fica aberta enquanto marca, e a janela não pula.
+- Janelas sempre abrem do começo (título e X à vista). A setinha de voltar devolve a tela na mesma altura em que a pessoa estava.
+- Submenu da Escola não anda mais para o lado; fileiras não ficam centralizadas sem querer.
+- Gráfico do ano legível no celular; valores grandes sem quebrar o "R$"; tabelas largas com sombra na borda mostrando que dá para arrastar; painel da categoria não fica atrás da barra do topo.
+- Pequenos: fornecedores com nome e regra separados, campos do aviso com respiro, botões de editar ao lado do título, categoria "Utensílios/eletro/melhorias" quebra na barra, Pix copia e cola sem zoom no iPhone, alvos de toque maiores, "1 chamada", "1 lançamento".

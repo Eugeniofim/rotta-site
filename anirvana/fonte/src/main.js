@@ -225,7 +225,7 @@ function conferirPinAdmin(id){
 }
 
 /* barras que rolam de lado (submenus, chips, cartões): guardar e devolver a rolagem ao redesenhar */
-const ROLA_LADO = '.chips, .seg, .cats, .week, .atv-cards, .rollgrid, .tblwrap, [data-hscroll]';
+const ROLA_LADO = '.chips, .seg, .cats, .week, .atv-cards, .rollgrid, .tbl-w, [data-hscroll]';
 const chaveTela = () => `${UI.role}|${UI.role ? UI.tab[UI.role] : ''}`;
 function guardarLados(){ return {k:chaveTela(), xs:[...document.querySelectorAll('#root ' + ROLA_LADO.split(', ').join(', #root '))].map(el => el.scrollLeft)}; }
 function devolverLados(g){
@@ -440,7 +440,7 @@ const ACT = {
   meuMes:(d) => { UI.meuMes = d.v; reRender(); },
   chamada:(d) => folhaChamada(d.v),
   marcar:(d, el) => { const s = CHAMADA.presentes; s.has(d.v) ? s.delete(d.v) : s.add(d.v); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
-  addExtra:(d) => { CHAMADA.extras.push(d.v); CHAMADA.presentes.add(d.v); desenharChamada(); },
+  addExtra:(d) => { const sh = $('#sheet'), y = sh.scrollTop; CHAMADA.extras.push(d.v); CHAMADA.presentes.add(d.v); CHAMADA.extrasAberto = true; desenharChamada(); sh.scrollTop = y; },
   visitAdd:() => { const nome = ($('#visNome')?.value || '').trim(), t = $('#visTipo')?.value || 'avulsa', tel = ($('#visTel')?.value || '').trim(), pago = t === 'avulsa' ? ($('#visPago')?.value || 'pix') : null; if (!nome){ $('#visNome')?.focus(); avisar('Escreva o nome de quem veio', 'circle-alert'); return; } CHAMADA.visitantes.push({nome, t, ...(tel ? {tel} : {}), ...(pago ? {pago} : {})}); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   visitDel:(d) => { CHAMADA.visitantes.splice(+d.v, 1); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   salvarChamada:(d) => {
@@ -622,13 +622,14 @@ const ACTS_TELA = ['tab','ir','role','mensVis','mensSt','mensAtv','escolaVis','b
 const fotoTela = () => JSON.stringify({role:UI.role, tab:UI.role ? UI.tab[UI.role] : null, mensVis:UI.mensVis, mensSt:UI.mensSt, mensAtv:UI.mensAtv, escolaVis:UI.escolaVis, balVis:UI.balVis, balMes:UI.balMes, lojaVis:UI.lojaVis, div:UI.div && UI.div.vis, alunoAtv:UI.alunoAtv, meuMes:UI.meuMes, instrFiltro:UI.instrFiltro, catFoco:UI.catFoco});
 function voltarTela(){
   const f = UI.pilha.pop(); if (!f) return false;
+  const yVolta = (UI.pilhaY || []).pop() || 0;
   const o = JSON.parse(f);
   if (!o.role){ UI.role = null; } else { UI.role = o.role; UI.tab[o.role] = o.tab; }
   Object.assign(UI, {mensVis:o.mensVis, mensSt:o.mensSt, mensAtv:o.mensAtv, escolaVis:o.escolaVis, balVis:o.balVis, balMes:o.balMes, lojaVis:o.lojaVis, alunoAtv:o.alunoAtv, meuMes:o.meuMes, instrFiltro:o.instrFiltro, catFoco:o.catFoco});
   if (UI.div) UI.div.vis = o.div;
   const h = UI.role ? `${UI.role}-${UI.tab[UI.role]}` : '';
   history.replaceState({anv:UI.pilha.length}, '', h ? '#' + h : location.pathname);
-  fecharFolha(); render(); scrollTo({top:0});
+  fecharFolha(); render(); scrollTo({top:yVolta});
   return true;
 }
 window.addEventListener('popstate', () => { if ($('#sheet').classList.contains('on')){ fecharFolha(); return; } if (!voltarTela() && UI.role){ UI.role = null; render(); } });
@@ -636,9 +637,9 @@ document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const fn = ACT[el.dataset.act]; if (!fn) return;
   e.preventDefault();
-  const tela = ACTS_TELA.includes(el.dataset.act) || (el.dataset.act === 'entrar') ? fotoTela() : null;
+  const tela = ACTS_TELA.includes(el.dataset.act) || (el.dataset.act === 'entrar') ? fotoTela() : null; UI._yAntes = scrollY;
   fn({...el.dataset}, el);
-  if (tela && tela !== fotoTela()){ UI.pilha.push(tela); if (UI.pilha.length > 40) UI.pilha.shift(); history.pushState({anv:UI.pilha.length}, '', location.href); render(); }
+  if (tela && tela !== fotoTela()){ UI.pilha.push(tela); (UI.pilhaY = UI.pilhaY || []).push(UI._yAntes || 0); if (UI.pilhaY.length > 40) UI.pilhaY.shift(); if (UI.pilha.length > 40) UI.pilha.shift(); history.pushState({anv:UI.pilha.length}, '', location.href); render(); }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('#sheet').classList.contains('on')) fecharFolha();
@@ -767,7 +768,7 @@ document.addEventListener('submit', e => {
   }
   if (f.id === 'fTerapia'){
     const nome = $('#tpNome').value.trim(); if (!nome){ $('#tpNome').focus(); return; }
-    const w = soDig($('#tpWhats').value), whats = w.length >= 12 ? w : w.length >= 10 ? '55' + w : ESPACO.whats;
+    const w = soDig($('#tpWhats').value), whats = /^55\d{10,11}$/.test(w) ? w : w.length >= 10 && w.length <= 11 ? '55' + w : ESPACO.whats;
     const dados = {nome, quem:$('#tpQuem').value.trim(), desc:$('#tpDesc').value.trim(), whats};
     S.terapias = S.terapias || [];
     const t = S.terapias.find(x => x.id === f.dataset.id); if (t) Object.assign(t, dados); else S.terapias.push({id:'tp' + novoId(), icon:'heart', ...dados});

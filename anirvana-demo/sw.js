@@ -1,4 +1,4 @@
-const CACHE = 'anirvdemo-v11';   /* SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO */
+const CACHE = 'anirvdemo-v12';   /* SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO */
 const ESSENCIAL = ['./', './index.html', './manifest.webmanifest', './icone-192.png', './favicon.png'];
 
 self.addEventListener('install', e => {
