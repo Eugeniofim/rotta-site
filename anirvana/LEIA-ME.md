@@ -78,3 +78,12 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - **Setinha de voltar** no topo (e o voltar do celular). Submenus que rolam de lado não voltam mais para o começo.
 - Contatos do Espaço viram links: WhatsApp, e-mail, Google Maps e Instagram.
 - Pente fino: 153 telas em 3 tamanhos, sem erro e sem nada vazando para o lado (`fonte/teste-varredura-telas.js`).
+
+## v11 (app valendo, na nuvem, 24/11)
+- **rottaguide.com/anirvana agora é o app de verdade.** Começa sem nenhum dado de exemplo e com a data de hoje. A demonstração (para treinar) mudou para **rottaguide.com/anirvana-demo**.
+- **Na nuvem:** sala `anirvana` no Supabase do estúdio (o mesmo projeto das outras salas, com cópia diária). Cada registro do app é uma linha (`anirvana.itens`). Mexeu num aparelho, sobe em cerca de 1 segundo e os outros recebem sozinhos (cutucão em tempo real + conferida a cada 20 s). Sem internet, guarda numa fila e sobe quando voltar. Apagar é marcar, nunca sumir. Pontinho no topo mostra "Salvo".
+- **Entrar (uma vez por aparelho):** administração com código de acesso pessoal (Dessa e Vitor donos, Sara administração); instrutores com o PIN de 6 números; alunos com o celular e a data de nascimento da ficha. "Sair deste aparelho" no botão com o nome, no topo.
+- **Quem vê o quê** (o banco confere): administração vê tudo; instrutor vê aulas, chamada e os alunos sem CPF, e-mail e endereço, e não vê o PIN dos colegas nem o balanço; aluno vê só a ficha, os pagamentos e as presenças dele. Inscrição pelo link vai direto para o banco.
+- **Tudo editável pela administração:** lápis em cada horário da grade (dia, hora, casa, quem dá, nome) e "Novo horário"; editar cadastro do aluno (nome, WhatsApp, nascimento, e-mail, CPF, responsável, saiu do Espaço); editar matrícula (plano, horários, vencimento, forma, pausou/parou) e "Outra atividade"; corrigir ou apagar pagamento; contas do mês com lápis e "Nova conta".
+- **Casas:** yoga, movimento consciente, musicalização e meditação na Casamor; aquarela na Casa Nutrir; violão e yoga particular na Casa Luz; gestantes na Casa Luz e na Casamor.
+- Testes: `fonte/teste-nuvem-sincronia.js` (34: dois computadores, instrutora, aluna, inscrição, offline, apagar, reabrir) e `fonte/teste-tudo-editavel.js` (14). SQL da sala: `fonte/backend/sala-anirvana.sql`.

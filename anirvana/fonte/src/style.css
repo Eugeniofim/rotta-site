@@ -567,3 +567,18 @@ button.brand:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
 .li.contato{gap:6px}
 .contato-a{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:inherit;text-decoration:none;border-radius:12px}
 .contato-a:hover .t{text-decoration:underline}
+
+/* ---------- app valendo: nuvem, grade com lápis, tela de busca ---------- */
+.nuvem-st{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font:600 12px/1 var(--sans, inherit);cursor:pointer;white-space:nowrap}
+.nuvem-st.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 30%,var(--line))}
+.nuvem-st.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,var(--line));background:color-mix(in srgb,var(--warn) 8%,var(--surface))}
+@media (max-width:560px){.nuvem-st span{display:none}.nuvem-st{width:32px;padding:0;justify-content:center}}
+.slot-w{position:relative}
+.slot-w>.slot{width:100%;padding-right:34px}
+.slot-ed{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);display:grid;place-items:center;cursor:pointer}
+.slot-ed:hover,.slot-ed:focus-visible{color:var(--pri);border-color:var(--pri)}
+.iconbtn.sm{width:32px;height:32px}
+.door-in.buscando{min-height:80vh;display:grid;place-items:center}
+.girando{width:34px;height:34px;border-radius:50%;border:3px solid color-mix(in srgb,var(--pri) 25%,transparent);border-top-color:var(--pri);animation:girar .9s linear infinite}
+@keyframes girar{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.girando{animation-duration:3s}}

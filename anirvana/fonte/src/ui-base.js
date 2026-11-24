@@ -8,9 +8,9 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function carregar(){
   try{ const t = localStorage.getItem(CHAVE); if (t){ const s = JSON.parse(t); if (s && s.v === VERSAO) return s; } }catch(e){}
-  return semear();
+  return VALENDO ? semearVazio() : semear();
 }
-function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(S)); }catch(e){} }
+function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(S)); }catch(e){} if (VALENDO) try { nuvemMexeu(); } catch(e){} }
 /* cópia do que veio de fábrica, para "Recomeçar a demonstração" */
 const BASE = {equipe:EQUIPE.map(p => ({...p})), forn:FORNECEDORES.map(f => ({...f})), turmas:TURMAS.map(t => t.instr), turmasLista:TURMAS.map(t => ({...t})), ativ:JSON.parse(JSON.stringify(ATIV)), forms:Object.fromEntries(Object.entries(FORMULARIOS).map(([k, F]) => [k, F.atvs.slice()]))};
 /* categorias do balanço: as de fábrica + as criadas; as tiradas somem das listas (os lançamentos ficam) */
@@ -50,7 +50,8 @@ function ligarAtividades(){
   Object.entries(S.atividades).forEach(([k, a]) => { if (a === null) delete ATIV[k]; else ATIV[k] = {...(ATIV[k] || {}), ...a}; });
   Object.entries(BASE.forms).forEach(([k, a]) => { FORMULARIOS[k].atvs = a.filter(x => ATIV[x]); });
   Object.entries(ATIV).forEach(([k, a]) => { if (a.form && !FORMULARIOS[a.form].atvs.includes(k)){ Object.values(FORMULARIOS).forEach(F => { F.atvs = F.atvs.filter(x => x !== k); }); FORMULARIOS[a.form].atvs.push(k); } if (S.regras.pct[k] === undefined) S.regras.pct[k] = a.repasse ?? .7; });
-  const todas = [...BASE.turmasLista.map(t => ({...t})), ...S.turmasNovas.map(t => ({...t}))];
+  const aj = S.turmaAjuste || {};
+  const todas = [...BASE.turmasLista.map(t => ({...t})), ...S.turmasNovas.map(t => ({...t}))].map(t => aj[t.id] ? {...t, ...aj[t.id]} : t);
   Object.keys(TURMA).forEach(k => delete TURMA[k]); todas.forEach(t => { TURMA[t.id] = t; });
   TURMAS.splice(0, TURMAS.length, ...todas.filter(t => !S.turmasFora.includes(t.id) && ATIV[t.atv]));
 }
@@ -74,9 +75,9 @@ const NAV = {
 const CURTO = {mensalidades:'Mensal.', atividades:'Cursos'};   /* rótulo da barra de baixo, que tem pouco espaço */
 const ROLE_NOME = {admin:'Administração', instrutor:'Instrutores', aluno:'Alunos'};
 function quemNome(){
-  if (UI.role === 'admin') return ADMINS.find(a => a.id === UI.who.admin).nome;
-  if (UI.role === 'instrutor') return PESSOA[UI.who.instrutor].nome;
-  return alunoPor(S, UI.who.aluno).nome;
+  if (UI.role === 'admin') return (ADMINS.find(a => a.id === UI.who.admin) || {nome:(SESSAO && SESSAO.nome) || 'Administração'}).nome;
+  if (UI.role === 'instrutor') return (PESSOA[UI.who.instrutor] || {nome:'Instrutor'}).nome;
+  return (alunoPor(S, UI.who.aluno) || {nome:(SESSAO && SESSAO.nome) || 'Aluno'}).nome;
 }
 function saudacao(){ return 'Namaskar'; }   /* a saudação do site: "Saúdo o Deus que há em você" */
 const av = (nome, cls='') => `<span class="av ${cls}" style="--c:${corDe(nome)}">${escapeH(ini(nome))}</span>`;
@@ -107,16 +108,17 @@ function casca(conteudo){
     <aside class="rail" aria-label="Menu">
       <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
       ${nav.map(([id,lab,ico]) => `<button class="navi ${cur===id?'on':''}" data-act="tab" data-v="${id}">${ic(ico)}<span>${lab}</span>${badge(id)?`<span class="cnt">${badge(id)}</span>`:''}</button>`).join('')}
-      <div class="sec">Ver como</div>
-      ${['admin','instrutor','aluno'].map(r => `<button class="navi ${UI.role===r?'on':''}" data-act="role" data-v="${r}">${ic({admin:'layout-dashboard',instrutor:'hand-heart',aluno:'sprout'}[r])}<span>${ROLE_NOME[r]}</span></button>`).join('')}
+      ${!VALENDO || (SESSAO && papelPainel(SESSAO.papel) === 'admin') ? `<div class="sec">Ver como</div>
+      ${['admin','instrutor','aluno'].map(r => `<button class="navi ${UI.role===r?'on':''}" data-act="role" data-v="${r}">${ic({admin:'layout-dashboard',instrutor:'hand-heart',aluno:'sprout'}[r])}<span>${ROLE_NOME[r]}</span></button>`).join('')}` : ''}
       ${(UI.pilha || []).length ? `<button class="navi" data-act="voltar">${ic('arrow-left')}<span>Voltar</span></button>` : ''}
-      <div class="foot">${ESPACO.endereco}<br>${ESPACO.cidade}<br><br>Protótipo · ${VERSAO}<br>Hoje é ${dataLonga(HOJE_ISO)}</div>
+      <div class="foot">${ESPACO.endereco}<br>${ESPACO.cidade}<br><br>${VALENDO ? 'Versão' : 'Protótipo ·'} ${VERSAO}<br>Hoje é ${dataLonga(HOJE_ISO)}</div>
     </aside>
     <main class="main">
       <div class="topbar">
         ${(UI.pilha || []).length ? `<button class="iconbtn voltar" data-act="voltar" aria-label="Voltar para a tela anterior">${ic('arrow-left')}</button>` : ''}
         <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
         <div class="grow"></div>
+        ${VALENDO ? chipNuvem() : ''}
         ${UI.role === 'admin' ? (() => { const n = (S.inscricoes || []).filter(i => i.estado === 'nova').length; return `<button class="insc-btn ${cur === 'inscricoes' ? 'on' : ''}" data-act="tab" data-v="inscricoes" aria-label="Inscrições${n ? ': ' + n + ' novas' : ''}">${ic('user-plus')}<span>Inscrições</span>${n ? `<b>${n}</b>` : ''}</button>`; })() : ''}
         <button class="iconbtn sino" data-act="sino" aria-label="Avisos${nAvisos ? ': ' + nAvisos : ''}">${ic('bell')}${nAvisos ? `<span class="dot">${nAvisos}</span>` : ''}</button>
         <button class="rolebtn" data-act="trocar" aria-label="Trocar de painel">${av(quemNome())}<span>${escapeH(quemNome().split(' ')[0])}</span>${ic('chevron-right','sm')}</button>
@@ -145,6 +147,7 @@ function abrirFolha(html, {wide=false, onClose=null}={}){
 function fecharFolha(){
   $('#scrim').classList.remove('on'); $('#sheet').classList.remove('on');
   const cb = SHEET_ON_CLOSE; SHEET_ON_CLOSE = null; if (cb) cb();
+  if (VALENDO && NUVEM.redesenharAoFechar){ NUVEM.redesenharAoFechar = false; setTimeout(reRender, 30); }
 }
 const folhaCab = (titulo, sub='') => `<div class="sheet-h"><div style="flex:1;min-width:0"><h2>${titulo}</h2>${sub?`<p>${sub}</p>`:''}</div><button class="iconbtn" data-act="fechar" aria-label="Fechar">${ic('x')}</button></div>`;
 function pintarIcones(){ /* ícones já vêm como SVG inline */ }

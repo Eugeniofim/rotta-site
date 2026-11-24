@@ -9,8 +9,8 @@ from pathlib import Path
 RAIZ = Path(__file__).parent
 SRC = RAIZ / 'src'
 LUCIDE = Path(sys.argv[1]) if len(sys.argv) > 1 else None
-SCRIPTS = ['data.js', 'engine.js', 'formularios.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'pontos.js', 'backup.js', 'inscricao.js', 'ui-novo.js', 'main.js', 'pwa.js']
-CACHE = 'anirvana-v10'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
+SCRIPTS = ['data.js', 'engine.js', 'formularios.js', 'ui-base.js', 'ui-admin.js', 'ui-instr.js', 'ui-aluno.js', 'ui-loja.js', 'pontos.js', 'backup.js', 'inscricao.js', 'ui-novo.js', 'nuvem.js', 'main.js', 'pwa.js']
+CACHE = 'anirvana-v11'   # SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO NO ENDEREÇO PRÓPRIO
 
 js = '\n'.join((SRC / f).read_text() for f in SCRIPTS)
 css = (SRC / 'style.css').read_text()
@@ -39,6 +39,7 @@ corpo = f'''<div id="root"></div>
   <button class="iconbtn" id="btnNovaX" aria-label="Fechar aviso">×</button>
 </div>
 <script>
+const MODO = '__MODO__';   /* valendo = o app de verdade · demo = a demonstração */
 const ICONS = {json.dumps(icones, ensure_ascii=False)};
 const LOGO_MARK = "data:image/png;base64,{logo}";
 {js}
@@ -56,6 +57,7 @@ artifact = f'''<title>Espaço Anirvana</title>
 {css}
 </style>
 {corpo}'''
+artifact = artifact.replace("const MODO = '__MODO__';", "const MODO = 'demo';")
 (RAIZ / 'anirvana.html').write_text(artifact)
 
 # 2) App instalável: documento completo + manifest + service worker
@@ -90,6 +92,8 @@ body{{margin:0}}img{{max-width:100%}}[hidden]{{display:none!important}}
 {corpo}</body>
 </html>
 '''
+pagina_demo = pagina.replace("const MODO = '__MODO__';", "const MODO = 'demo';").replace('<title>Espaço Anirvana</title>', '<title>Anirvana · demonstração</title>')
+pagina = pagina.replace("const MODO = '__MODO__';", "const MODO = 'valendo';")
 (DIST / 'index.html').write_text(pagina)
 
 (DIST / 'manifest.webmanifest').write_text(json.dumps({
@@ -103,7 +107,8 @@ body{{margin:0}}img{{max-width:100%}}[hidden]{{display:none!important}}
     ],
 }, ensure_ascii=False, indent=2))
 
-(DIST / 'sw.js').write_text(f'''const CACHE = '{CACHE}';   /* SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO */
+def sw_texto(cache, prefixo):
+    return f'''const CACHE = '{cache}';   /* SUBIR ESTE NÚMERO A CADA PUBLICAÇÃO */
 const ESSENCIAL = ['./', './index.html', './manifest.webmanifest', './icone-192.png', './favicon.png'];
 
 self.addEventListener('install', e => {{
@@ -111,7 +116,7 @@ self.addEventListener('install', e => {{
 }});
 self.addEventListener('activate', e => {{
   e.waitUntil(caches.keys()
-    .then(ks => Promise.all(ks.filter(k => k.startsWith('anirvana-') && k !== CACHE).map(k => caches.delete(k))))
+    .then(ks => Promise.all(ks.filter(k => k.startsWith('{prefixo}') && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 }});
 /* a página pede a troca quando a pessoa aperta "Atualizar" — nunca sozinho */
@@ -131,13 +136,26 @@ self.addEventListener('fetch', e => {{
     }})
     .catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));
 }});
-''')
+'''
+(DIST / 'sw.js').write_text(sw_texto(CACHE, 'anirvana-'))
+
+# 2b) a demonstração, num endereço à parte (rottaguide.com/anirvana-demo): para treinar sem mexer nos dados de verdade
+import shutil
+DEMO = RAIZ / 'dist' / 'anirvana-demo'
+DEMO.mkdir(parents=True, exist_ok=True)
+for f in ['favicon.png', 'icone-180.png', 'icone-192.png', 'icone-512.png']:
+    if (DIST / f).exists(): shutil.copy(DIST / f, DEMO / f)
+(DEMO / 'index.html').write_text(pagina_demo)
+man = json.loads((DIST / 'manifest.webmanifest').read_text())
+man.update({'name': 'Anirvana · demonstração', 'short_name': 'Anirvana demo'})
+(DEMO / 'manifest.webmanifest').write_text(json.dumps(man, ensure_ascii=False, indent=2))
+(DEMO / 'sw.js').write_text(sw_texto(CACHE.replace('anirvana-', 'anirvdemo-'), 'anirvdemo-'))
 
 # 3) motor do servidor (função backup-mensal): mesmas regras do app, sem tela
 motor = '\n'.join((SRC / f).read_text() for f in ['data.js', 'engine.js', 'formularios.js', 'pontos.js', 'backup.js'])
 for antes, depois in [
-    ("const HOJE = new Date(2026, 9, 29, 10, 50);", "const HOJE = cfg.HOJE || new Date(2026, 9, 29, 10, 50);"),
-    ("const MES_ATUAL = '2026-10';", "const MES_ATUAL = cfg.MES_ATUAL || '2026-10';"),
+    ("const HOJE = VALENDO ? new Date() : new Date(2026, 9, 29, 10, 50);", "const HOJE = cfg.HOJE || new Date(2026, 9, 29, 10, 50);"),
+    ("const MES_ATUAL = `${HOJE.getFullYear()}-${String(HOJE.getMonth() + 1).padStart(2, '0')}`;", "const MES_ATUAL = cfg.MES_ATUAL || `${HOJE.getFullYear()}-${String(HOJE.getMonth() + 1).padStart(2, '0')}`;"),
     ("const EQUIPE = [", "const EQUIPE = cfg.EQUIPE || ["),
     ("const TURMAS = [", "const TURMAS = cfg.TURMAS || ["),
     ("const FORNECEDORES = [", "const FORNECEDORES = cfg.FORNECEDORES || ["),

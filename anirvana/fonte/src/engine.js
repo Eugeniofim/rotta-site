@@ -2,8 +2,10 @@
    MOTOR — gera a demonstração e faz todas as contas
    (as mesmas regras da planilha, agora automáticas)
    ============================================================ */
-const VERSAO = 'proto-1.3';
-const CHAVE = 'anirvana_proto_v1';
+const VERSAO = VALENDO ? 'app-1.0' : 'proto-1.3';
+const CHAVE = VALENDO ? 'anirvana_app_v1' : 'anirvana_proto_v1';   /* o app de verdade não mistura com a demonstração */
+/* ids novos: aleatórios, para dois aparelhos nunca criarem o mesmo */
+const novoId = () => Date.now().toString(36).slice(-7) + Math.random().toString(36).slice(2, 7);
 
 /* ---------- utilidades ---------- */
 const pad = n => String(n).padStart(2,'0');
@@ -55,9 +57,27 @@ const nomeTurma = t => t.nome || ATIV[t.atv].curto;
 /* ============================================================
    SEMENTE — monta a demonstração (sempre igual pra todo mundo)
    ============================================================ */
+const regrasIniciais = () => ({...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), planosPart:Object.fromEntries(Object.entries(PLANOS_PART).map(([k,p])=>[k,p.preco])), planosAtv:Object.fromEntries(Object.entries(PLANOS_ATV).map(([a,ps]) => [a, Object.fromEntries(Object.keys(ps).map(k => [k, null]))])), taxaCartao:TAXA_CARTAO, pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))});
+const TERAPIAS_INICIAIS = () => [
+  {id:'tp1', nome:'Terapias integrais', quem:'Kamala', desc:'Terapia sistêmica e integrativa, com hora marcada.', whats:ESPACO.whats, icon:'heart'},
+  {id:'tp2', nome:'Massagem terapêutica', quem:'', desc:'Sessões com hora marcada, no Espaço.', whats:ESPACO.whats, icon:'hand-heart'},
+];
+/* ============================================================
+   APP VALENDO — começa vazio: só as regras, a equipe, a grade e os fornecedores
+   ============================================================ */
+function semearVazio(){
+  const S = {v:VERSAO, regras:regrasIniciais(), config:{pontos:false, linkCartao:'', chavePix:'', drive:null}, feriados:{extra:[], comAula:[]},
+    pacotes:[], cats:{novas:[], fora:[]}, alunos:[], aulas:{}, presencas:[], pagamentos:[], sessoes:[], vendas:[], repLoja:[], fiado:[], lanc:[], repEquipe:[], subs:[], vou:{}, seq:1000,
+    formandos:[], consent:{}, pontosAcoes:{}, trocas:[], avisos:{}, caixa:{}, produtos:[], avisosPag:[], backups:[], enviados:[], inscricoes:[], eventos:[], descontos:[], avisosLivres:[],
+    terapias:TERAPIAS_INICIAIS()};
+  /* PIN de 6 números de cada instrutor: sorteado, um diferente do outro (a administração manda para cada um) */
+  const usados = new Set(), sorteia = () => { let c; do { c = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000)); } while (usados.has(c)); usados.add(c); return c; };
+  S.codigos = Object.fromEntries(EQUIPE.map(p => [p.id, {c:sorteia(), v:1, em:HOJE_ISO}]));
+  return S;
+}
 function semear(){
   const R = rng(20261029);
-  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), planosPart:Object.fromEntries(Object.entries(PLANOS_PART).map(([k,p])=>[k,p.preco])), planosAtv:Object.fromEntries(Object.entries(PLANOS_ATV).map(([a,ps]) => [a, Object.fromEntries(Object.keys(ps).map(k => [k, null]))])), taxaCartao:TAXA_CARTAO, pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
+  const S = {v:VERSAO, regras:regrasIniciais(),
     config:{pontos:false, linkCartao:'', chavePix:'', drive:null}, feriados:{extra:[], comAula:[]},
     pacotes:[], cats:{novas:[], fora:[]},
     alunos:[], aulas:{}, presencas:[], pagamentos:[], sessoes:[], vendas:[], repLoja:[], fiado:[], lanc:[], repEquipe:[], subs:[], vou:{}, seq:1000};
@@ -254,12 +274,9 @@ function semear(){
   S.avisosPag = [{id:'ap1', a:'a29', mat:'a29-0', mes:'2026-10', valor:130, d:'2026-10-28', h:'19:42', metodo:'pix', estado:'aguardando'}];
   S.backups = [{mes:'2026-08', d:'2026-09-15', h:'03:00', por:'automático'}, {mes:'2026-09', d:'2026-10-15', h:'03:00', por:'automático'}];
   /* terapias com hora marcada: aparecem na aba Terapias do aluno, com o contato de quem atende */
-  S.terapias = [
-    {id:'tp1', nome:'Terapias integrais', quem:'Kamala', desc:'Terapia sistêmica e integrativa, com hora marcada.', whats:ESPACO.whats, icon:'heart'},
-    {id:'tp2', nome:'Massagem terapêutica', quem:'', desc:'Sessões com hora marcada, no Espaço.', whats:ESPACO.whats, icon:'hand-heart'},
-  ];
+  S.terapias = TERAPIAS_INICIAIS();
   /* PIN do painel da administração (no app de verdade: Google + PIN, guardado embaralhado) */
-  S.pinAdmin = {dessa:'2580', saraadm:'1470'};
+  S.pinAdmin = {dessa:'2580', vitor:'3690', saraadm:'1470'};
   S.enviados = [
     {para:'Débora Martins', canal:'whatsapp', regra:'atraso', quando:'27/10 09:00'},
     {para:'Gabriel Lima', canal:'whatsapp', regra:'saudade', quando:'27/10 10:00'},
@@ -534,5 +551,5 @@ function formandoSituacao(f, st){
   return {pct, faltas, sobra, st:estado, ok: sobra >= 0, txt: sobra < 0 ? 'passou do limite de faltas: precisa repor' : sobra === 0 ? 'não pode mais faltar' : `pode faltar mais ${sobra} ${sobra===1?'dia':'dias'} no curso`};
 }
 function contasDoMes(S, mes){
-  return CONTAS_FIXAS.map(c => ({...c, pago: S.lanc.find(l => l.conta === c.id && mesDe(l.d) === mes)}));
+  return (S.contas || CONTAS_FIXAS).map(c => ({...c, pago: S.lanc.find(l => l.conta === c.id && mesDe(l.d) === mes)}));
 }

@@ -35,8 +35,10 @@ const FORMACAO = {
   ],
 };
 
-const HOJE = new Date(2026, 9, 29, 10, 50);   /* data da demonstração: qui 29/10/2026 */
-const MES_ATUAL = '2026-10';
+/* MODO vem da montagem: 'valendo' = o app de verdade (data de hoje, sem nada de exemplo); 'demo' = a demonstração */
+const VALENDO = typeof MODO !== 'undefined' && MODO === 'valendo';
+const HOJE = VALENDO ? new Date() : new Date(2026, 9, 29, 10, 50);   /* demonstração: qui 29/10/2026 */
+const MES_ATUAL = `${HOJE.getFullYear()}-${String(HOJE.getMonth() + 1).padStart(2, '0')}`;
 
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MESES_C = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -54,7 +56,9 @@ const EQUIPE = [
   {id:'brunos',   nome:'Bruno S.',  atvs:['musicalizacao','violao'], cor:'#6A55C9', pix:'(41) 9••••-0098'},
 ];
 /* dois logins na administração (a porta não mostra os nomes) */
-const ADMINS = [{id:'dessa', nome:'Andressa', curto:'Dessa'},{id:'saraadm', nome:'Sara', curto:'Sara'}];
+const ADMINS = [{id:'dessa', nome:'Andressa', curto:'Dessa'},{id:'vitor', nome:'Vitor', curto:'Vitor'},{id:'saraadm', nome:'Sara', curto:'Sara'}];
+/* as casas do Espaço (a administração muda no lápis de cada horário) */
+const SALAS = ['Casamor', 'Casa Luz', 'Casa Nutrir'];
 
 /* ---------- atividades ----------
    repasse = parte do instrutor. vis:'todos' -> aparece pra todo instrutor da atividade;
@@ -106,24 +110,24 @@ const PLANOS_MENSAIS = ['1x','2x','3x','4x'];
 const ehPlataforma = k => !!(PLANOS_YOGA[k] && PLANOS_YOGA[k].plataforma);
 const REGRAS_PADRAO = {aulaVazia:10, aulaVaziaFerias:25, piso:false};
 
-/* ---------- grade semanal (exemplo — ajustar com a grade real) ---------- */
+/* ---------- grade semanal (a administração ajusta no lápis de cada horário) ---------- */
 const TURMAS = [
-  {id:'seg0700', atv:'yoga', dia:1, h:'07:00', instr:'anajulia', sala:'Sala Sol'},
-  {id:'qua0700', atv:'yoga', dia:3, h:'07:00', instr:'anajulia', sala:'Sala Sol'},
-  {id:'seg1830', atv:'yoga', dia:1, h:'18:30', instr:'kamala',   sala:'Sala Sol'},
-  {id:'qua1830', atv:'yoga', dia:3, h:'18:30', instr:'kamala',   sala:'Sala Sol'},
-  {id:'qui0800', atv:'yoga', dia:4, h:'08:00', instr:'kamala',   sala:'Sala Sol'},
-  {id:'ter1900', atv:'yoga', dia:2, h:'19:00', instr:'sara',     sala:'Sala Sol'},
-  {id:'qui1900', atv:'yoga', dia:4, h:'19:00', instr:'sara',     sala:'Sala Sol'},
-  {id:'sab0900', atv:'yoga', dia:6, h:'09:00', instr:'kamala', sala:'Deck', nome:'AcroYoga'},
-  {id:'sab1030', atv:'gestantes', dia:6, h:'10:30', instr:'kamala', sala:'Sala Lua'},
-  {id:'seg2000', atv:'meditacao', dia:1, h:'20:00', instr:'kamala', sala:'Sala Lua'},
-  {id:'qua1500', atv:'aquarela', dia:3, h:'15:00', instr:'bruno', sala:'Ateliê'},
-  {id:'qui1700', atv:'violao', dia:4, h:'17:00', instr:'brunos', sala:'Sala Lua'},
-  {id:'sab1000', atv:'musicalizacao', dia:6, h:'10:00', instr:'brunos', sala:'Ateliê'},
-  {id:'ter1000p', atv:'particular', dia:2, h:'10:00', instr:'kamala', sala:'Sala Lua', aluno:'a02'},
-  {id:'sex1600p', atv:'particular', dia:5, h:'16:00', instr:'anajulia', sala:'Sala Sol', aluno:'a03'},
-  {id:'sex0900', atv:'yoga', dia:5, h:'09:00', instr:'sara', sala:'Sala Sol', nome:'Movimento consciente', desde:'2026-10-30'},
+  {id:'seg0700', atv:'yoga', dia:1, h:'07:00', instr:'anajulia', sala:'Casamor'},
+  {id:'qua0700', atv:'yoga', dia:3, h:'07:00', instr:'anajulia', sala:'Casamor'},
+  {id:'seg1830', atv:'yoga', dia:1, h:'18:30', instr:'kamala',   sala:'Casamor'},
+  {id:'qua1830', atv:'yoga', dia:3, h:'18:30', instr:'kamala',   sala:'Casamor'},
+  {id:'qui0800', atv:'yoga', dia:4, h:'08:00', instr:'kamala',   sala:'Casamor'},
+  {id:'ter1900', atv:'yoga', dia:2, h:'19:00', instr:'sara',     sala:'Casamor'},
+  {id:'qui1900', atv:'yoga', dia:4, h:'19:00', instr:'sara',     sala:'Casamor'},
+  {id:'sab0900', atv:'yoga', dia:6, h:'09:00', instr:'kamala', sala:'Casamor', nome:'AcroYoga'},
+  {id:'sab1030', atv:'gestantes', dia:6, h:'10:30', instr:'kamala', sala:'Casa Luz'},
+  {id:'seg2000', atv:'meditacao', dia:1, h:'20:00', instr:'kamala', sala:'Casamor'},
+  {id:'qua1500', atv:'aquarela', dia:3, h:'15:00', instr:'bruno', sala:'Casa Nutrir'},
+  {id:'qui1700', atv:'violao', dia:4, h:'17:00', instr:'brunos', sala:'Casa Luz'},
+  {id:'sab1000', atv:'musicalizacao', dia:6, h:'10:00', instr:'brunos', sala:'Casamor'},
+  {id:'ter1000p', atv:'particular', dia:2, h:'10:00', instr:'kamala', sala:'Casa Luz', aluno:'a02'},
+  {id:'sex1600p', atv:'particular', dia:5, h:'16:00', instr:'anajulia', sala:'Casa Luz', aluno:'a03'},
+  {id:'sex0900', atv:'yoga', dia:5, h:'09:00', instr:'sara', sala:'Casamor', nome:'Movimento consciente', desde:'2026-10-30'},
 ];
 
 /* ---------- alunos (nomes fictícios: a planilha veio sem nomes) ----------
@@ -355,3 +359,13 @@ const CONTAS_FIXAS = [
   {id:'cf-gg',   nome:'Google Ads',           cat:'Social Mídia e Publicidade', valor:100, dia:1},
   {id:'cf-tx',   nome:'Taxas bancárias',      cat:'Despesa Fixa', valor:32.50, dia:30},
 ];
+
+/* ---------- APP VALENDO: tira tudo o que era exemplo ---------- */
+if (VALENDO){
+  EQUIPE.forEach(p => { p.pix = ''; });                                       /* chaves Pix eram de mentira */
+  TURMAS.splice(0, TURMAS.length, ...TURMAS.filter(t => !t.aluno));            /* particulares de alunos de exemplo */
+  EVENTOS.splice(0, EVENTOS.length);
+  FORMACAO.formandos = [];
+  [FECH_PLANILHA, MENSAL_EXEMPLO].forEach(o => Object.keys(o).forEach(k => delete o[k]));
+  CONTAS_FIXAS.forEach(c => { c.valor = null; });                             /* o valor de verdade entra na primeira vez que pagar */
+}

@@ -1,0 +1,38 @@
+// Tudo editável pela administração (no app de demonstração, sem banco): aluno, matrícula, pagamento, horário da grade, contas fixas
+const { chromium } = require('playwright');
+const ok = [], falhas = [], erros = []; const conf = (c, t) => (c ? ok : falhas).push(t);
+(async () => { const b = await chromium.launch(); const p = await b.newPage({viewport:{width:390, height:844}}); p.on('pageerror', e => erros.push(e.message));
+  await p.goto('file:///home/user/anirvana-app/dist/anirvana-demo/index.html'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(300);
+  await p.evaluate(() => { UI.who.admin = 'dessa'; ir('admin', 'escola'); folhaAluno('a05', 'admin'); });
+  conf(await p.$('[data-act="editarAluno"]') !== null && await p.$('[data-act="editarMat"]') !== null && await p.$('[data-act="editarPag"]') !== null, 'ficha tem editar cadastro, editar matrícula e corrigir pagamento');
+  await p.click('[data-act="editarAluno"]'); await p.fill('#eaNome', 'Bianca Rocha Nova'); await p.fill('#eaTel', '(41) 99999-1234'); await p.fill('#eaNasc', '1992-03-04'); await p.click('#fEdAluno button[type=submit]');
+  conf(await p.evaluate(() => { const a = alunoPor(S, 'a05'); return a.nome === 'Bianca Rocha Nova' && a.tel === '(41) 99999-1234' && a.nasc === '1992-03-04'; }), 'cadastro editado');
+  await p.evaluate(() => folhaMat('a05', alunoPor(S, 'a05').mats[0].id)); await p.click('.opt[data-grp="mtPlano"][data-v="3x"]');
+  const t1 = await p.evaluate(() => TURMAS.find(t => t.atv === 'yoga' && !alunoPor(S, 'a05').mats[0].turmas.includes(t.id)).id);
+  await p.click(`.opt[data-grp="mtTur"][data-v="${t1}"]`); await p.fill('#mtVenc', '15'); await p.click('.opt[data-grp="mtMet"][data-v="cartao"]'); await p.click('#fMat button[type=submit]');
+  conf(await p.evaluate(t1 => { const m = alunoPor(S, 'a05').mats[0]; return m.plano === '3x' && m.turmas.includes(t1) && m.venc === 15 && m.metodo === 'cartao'; }, t1), 'matrícula editada: plano, horário, vencimento e forma');
+  await p.evaluate(() => folhaMat('a05', null)); await p.click('.opt[data-act="matNova"][data-x="gestantes"]'); await p.click('.opt[data-grp="mtPlano"][data-v="2x"]'); await p.click('#fMat button[type=submit]');
+  conf(await p.evaluate(() => alunoPor(S, 'a05').mats.some(m => m.atv === 'gestantes' && m.planoAtv === '2x')), 'outra atividade acrescentada (gestantes 2x)');
+  const pid = await p.evaluate(() => S.pagamentos.find(x => x.a === 'a05' && !(S.fechados || {})[x.mes]).id);
+  await p.evaluate(id => folhaPag(id), pid); await p.fill('#pgValor', '150,50'); await p.click('#fPag button[type=submit]');
+  conf(await p.evaluate(id => S.pagamentos.find(x => x.id === id).valor === 150.5, pid), 'pagamento corrigido');
+  await p.evaluate(id => folhaPag(id), pid); await p.click('[data-act="pagDel"]');
+  conf(await p.evaluate(id => !S.pagamentos.some(x => x.id === id), pid), 'pagamento apagado');
+  await p.evaluate(() => { fecharFolha(); UI.escolaVis = 'horarios'; ir('admin', 'escola'); });
+  await p.click('.slot-ed[data-v="seg0700"]'); await p.selectOption('#tuDia', '2'); await p.fill('#tuHora', '07:30'); await p.click('.opt[data-grp="tuSala"][data-v="Casa Nutrir"]'); await p.selectOption('#tuInstr', 'kamala'); await p.fill('#tuNome', 'Yoga cedo'); await p.click('#fTurma button[type=submit]');
+  conf(await p.evaluate(() => { const t = TURMA.seg0700; return t.dia === 2 && t.h === '07:30' && t.sala === 'Casa Nutrir' && t.instr === 'kamala' && t.nome === 'Yoga cedo'; }), 'lápis da grade: dia, hora, casa, instrutor e nome');
+  await p.reload(); await p.waitForTimeout(300);
+  conf(await p.evaluate(() => { const t = TURMA.seg0700; return t.dia === 2 && t.sala === 'Casa Nutrir' && t.instr === 'kamala'; }), 'horário editado continua depois de recarregar');
+  await p.evaluate(() => { UI.who.admin = 'dessa'; UI.escolaVis = 'horarios'; ir('admin', 'escola'); folhaTurma(null); });
+  await p.click('.opt[data-grp="tuAtv"][data-v="gestantes"]'); await p.selectOption('#tuDia', '4'); await p.fill('#tuHora', '10:00'); await p.click('.opt[data-grp="tuSala"][data-v="Casamor"]'); await p.click('#fTurma button[type=submit]');
+  conf(await p.evaluate(() => TURMAS.some(t => t.atv === 'gestantes' && t.dia === 4 && t.h === '10:00' && t.sala === 'Casamor')), 'novo horário de gestantes na Casamor');
+  await p.click('.slot-ed[data-v="qua1500"]'); await p.click('[data-act="turmaTirar"]'); await p.click('[data-act="turmaTirarSim"]');
+  conf(await p.evaluate(() => !TURMAS.some(t => t.id === 'qua1500')), 'tirar horário da grade');
+  await p.evaluate(() => { fecharFolha(); ir('admin', 'inicio'); });
+  const temContas = await p.$('[data-act="contaFixa"]'); conf(!!temContas, 'contas do mês com lápis e "Nova conta"');
+  if (temContas){ await p.evaluate(() => folhaContaFixa('cf-luz')); await p.fill('#cfValor', '312,40'); await p.fill('#cfDia', '12'); await p.click('#fConta button[type=submit]');
+    conf(await p.evaluate(() => { const c = S.contas.find(x => x.id === 'cf-luz'); return c.valor === 312.4 && c.dia === 12; }), 'conta fixa editada');
+    await p.evaluate(() => folhaContaFixa(null)); await p.fill('#cfNome', 'Água'); await p.fill('#cfValor', '95'); await p.click('#fConta button[type=submit]');
+    conf(await p.evaluate(() => S.contas.some(c => c.nome === 'Água' && c.valor === 95)), 'conta nova criada'); }
+  const larg = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth); conf(larg <= 1, 'nada vaza para o lado (390px)');
+  await b.close(); console.log('OK', ok.length, '\nFALHAS', JSON.stringify(falhas, null, 1), '\nERROS', JSON.stringify([...new Set(erros)])); })();

@@ -254,7 +254,7 @@ function importarLinhas(L, atv){
     if (!d.tel) avisos.push('sem celular');
     if (extra.length) d.formsExtra = extra;
     if (avisos.length){ d.conferir = avisos; rel.conferir.push({nome:d.nome, avisos}); }
-    (S.inscricoes = S.inscricoes || []).push({id:'in' + (S.seq++), d:HOJE_ISO, estado:'nova', origem:'forms', dados:d});
+    (S.inscricoes = S.inscricoes || []).push({id:'in' + novoId(), d:HOJE_ISO, estado:'nova', origem:'forms', dados:d});
     rel.novos.push(d.nome); rel.n++;
   });
   return rel;
@@ -277,7 +277,7 @@ function folhaRelatorioImport(rel, atv){
 }
 function confirmarInscricao(id){
   const i = S.inscricoes.find(x => x.id === id), d = i.dados, F = FORMULARIOS[formDe(d.atv)];
-  const aid = 'a' + (S.seq++), plano = d.atv === 'yoga' ? (PLANOS_MENSAIS.includes(d.plano) || ehPlataforma(d.plano) ? d.plano : '2x') : null, crianca = F.crianca || ehMenor(d);
+  const aid = 'a' + novoId(), plano = d.atv === 'yoga' ? (PLANOS_MENSAIS.includes(d.plano) || ehPlataforma(d.plano) ? d.plano : '2x') : null, crianca = F.crianca || ehMenor(d);
   const part = d.atv === 'particular' ? (PLANOS_PART[d.plano] ? d.plano : '1x') : null;
   const pAtv = PLANOS_ATV[d.atv] ? (PLANOS_ATV[d.atv][d.plano] ? d.plano : Object.keys(PLANOS_ATV[d.atv])[0]) : null, vAtv = pAtv ? ((S.regras.planosAtv || {})[d.atv] || {})[pAtv] : null;
   const resp = crianca ? d.respNome || '' : '';

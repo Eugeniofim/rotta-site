@@ -455,7 +455,7 @@ const LEMBRAR = CHAVE + '_aparelho';
 const lerLembrar = () => { try{ return JSON.parse(localStorage.getItem(LEMBRAR) || '{}'); }catch(e){ return {}; } };
 const gravarLembrar = o => { try{ localStorage.setItem(LEMBRAR, JSON.stringify(o)); }catch(e){} };
 UI.codigoOk = {}; UI.tentativas = {};
-function instrutorLiberado(pid){ if (PESSOA[pid]?.ativo === false) return false; const c = (S.codigos || {})[pid]; if (!c) return false; return UI.codigoOk[pid] === c.v || lerLembrar()[pid] === c.v; }
+function instrutorLiberado(pid){ if (VALENDO) return !!SESSAO && (papelPainel(SESSAO.papel) === 'admin' || (SESSAO.papel === 'instrutor' && SESSAO.quem === pid)); if (PESSOA[pid]?.ativo === false) return false; const c = (S.codigos || {})[pid]; if (!c) return false; return UI.codigoOk[pid] === c.v || lerLembrar()[pid] === c.v; }
 function folhaCodigo(pid){
   const p = PESSOA[pid], T = UI.tentativas[pid] || {n:0, ate:0}, bloq = T.ate > Date.now();
   abrirFolha(`${folhaCab(`Olá, ${escapeH(p.nome)}`, 'Digite o seu código de acesso pessoal')}
@@ -720,7 +720,7 @@ function enviarAvisoLivre(){
   const agendar = A.quando !== 'agora', quando = agendar ? ($('#avData')?.value || '') : '';
   if (agendar && (!quando || quando < `${HOJE_ISO}T${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`)){ avisar('Escolha um dia e hora daqui para frente', 'circle-alert'); return; }
   const para = alvosAviso().find(([k]) => k === A.alvo)?.[1] || 'Todos';
-  (S.avisosLivres = S.avisosLivres || []).unshift({id:'al' + (S.seq++), d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, titulo, texto, alvo:A.alvo, para, canais:A.canais.slice(), alcance:R.unicos.size, agendado:agendar, quando});
+  (S.avisosLivres = S.avisosLivres || []).unshift({id:'al' + novoId(), d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, titulo, texto, alvo:A.alvo, para, canais:A.canais.slice(), alcance:R.unicos.size, agendado:agendar, quando});
   if (!agendar){
     A.canais.forEach(c => (S.enviados = S.enviados || []).push({para:`${R.c[c].length} · ${para}`, canal:c, regra:'livre', quando:'hoje ' + `${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`}));
     S.caixa = S.caixa || {};
@@ -746,4 +746,138 @@ async function backupNoDrive(){
   <div class="stack"><ol class="small" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Abra o Google Drive do Espaço (botão abaixo).</li><li>Entre na pasta <b>Backups Anirvana</b>.</li><li>Arraste o arquivo <b>${nome}</b> para dentro dela (ou toque em <b>Novo → Upload de arquivo</b>).</li></ol>
     <p class="tiny muted">Com o Google Drive conectado (Mensalidades → Regras), isso acontece sozinho todo dia ${DIA_BACKUP}: o servidor põe o arquivo direto na pasta.</p>
     <a class="btn sol" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">${ic('share-2')}Abrir o Google Drive</a></div>`);
+}
+
+/* ---------- editar um horário da grade (lápis) ou criar um novo ---------- */
+function folhaTurma(id){
+  const t = id ? TURMA[id] : null, atv0 = t ? t.atv : Object.keys(ATIV)[0];
+  const salas = [...new Set([...SALAS, ...Object.values(TURMA).map(x => x.sala).filter(Boolean)])];
+  const quem = EQUIPE.filter(p => p.ativo !== false);
+  abrirFolha(`${folhaCab(t ? `${escapeH(nomeTurma(t))} · ${DIAS[t.dia]} ${t.h}` : 'Novo horário', t ? 'Mude o que precisar. As aulas que já aconteceram ficam como estão.' : 'Escolha a atividade, o dia, a hora, a casa e quem dá.')}
+  <form class="stack" id="fTurma" data-id="${t ? t.id : ''}">
+    ${t ? '' : `<div class="field"><label>Atividade</label><div class="optgrid">${Object.entries(ATIV).map(([k, a]) => `<button type="button" class="opt ${k === atv0 ? 'on' : ''}" data-act="opt" data-grp="tuAtv" data-v="${k}">${ic(a.icon)}<span>${escapeH(a.curto)}</span></button>`).join('')}</div><input type="hidden" id="tuAtv" value="${atv0}"></div>`}
+    <div class="field"><label for="tuNome">Nome na grade <span class="muted">(se for diferente da atividade)</span></label><input class="inp" id="tuNome" maxlength="40" value="${t && t.nome ? escapeH(t.nome) : ''}" placeholder="${escapeH(ATIV[atv0].curto)}"></div>
+    <div class="grid g2">
+      <div class="field"><label for="tuDia">Dia</label><select class="inp" id="tuDia">${[1,2,3,4,5,6,0].map(d => `<option value="${d}" ${t && t.dia === d ? 'selected' : ''}>${DIAS_L[d]}</option>`).join('')}</select></div>
+      <div class="field"><label for="tuHora">Hora</label><input class="inp" type="time" id="tuHora" value="${t ? t.h : '18:30'}" required></div>
+    </div>
+    <div class="field"><label>Casa</label><div class="optgrid">${salas.map(s => `<button type="button" class="opt ${(t ? t.sala : SALAS[0]) === s ? 'on' : ''}" data-act="opt" data-grp="tuSala" data-v="${escapeH(s)}"><span>${escapeH(s)}</span></button>`).join('')}</div>
+      <input class="inp" id="tuSala" value="${escapeH(t ? t.sala : SALAS[0])}" maxlength="30" style="margin-top:8px" aria-label="Casa (ou digite outra)"><span class="help">Toque numa casa ou digite outra.</span></div>
+    <div class="field"><label for="tuInstr">Quem dá</label><select class="inp" id="tuInstr">${quem.map(p => `<option value="${p.id}" ${t && t.instr === p.id ? 'selected' : ''}>${escapeH(p.nome)}</option>`).join('')}</select></div>
+    <div class="sheet-foot">${t ? `<button type="button" class="btn ghost" data-act="turmaTirar" data-v="${t.id}">${ic('trash-2','sm')}Tirar da grade</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+
+/* ---------- contas fixas: a administração muda nome, valor, dia e categoria ---------- */
+function contasLista(){ return S.contas || CONTAS_FIXAS; }
+function folhaContaFixa(id){
+  const c = id ? contasLista().find(x => x.id === id) : null, catSel = c ? c.cat : Object.keys(CAT_SAIDA)[0];
+  abrirFolha(`${folhaCab(c ? escapeH(c.nome) : 'Nova conta do mês', 'Contas que se repetem todo mês. O "Paguei" lança no balanço.')}
+  <form class="stack" id="fConta" data-id="${c ? c.id : ''}">
+    <div class="field"><label for="cfNome">Nome</label><input class="inp" id="cfNome" maxlength="40" required value="${c ? escapeH(c.nome) : ''}" placeholder="Ex.: Luz, Internet, Diarista"></div>
+    <div class="grid g2">
+      <div class="field"><label for="cfValor">Valor <span class="muted">(se muda todo mês, deixe vazio)</span></label><input class="inp money num" id="cfValor" inputmode="decimal" placeholder="0,00" value="${c && c.valor > 0 ? c.valor.toFixed(2).replace('.', ',') : ''}"></div>
+      <div class="field"><label for="cfDia">Vence no dia</label><input class="inp num" id="cfDia" inputmode="numeric" maxlength="2" value="${c ? c.dia : 10}"></div>
+    </div>
+    <div class="field"><label>Categoria</label><div class="optgrid">${Object.entries(CAT_SAIDA).map(([k, o]) => `<button type="button" class="opt ${k === catSel ? 'on' : ''}" data-act="opt" data-grp="cfCat" data-v="${escapeH(k)}">${ic(o.icon || 'tag')}<span>${escapeH(k)}</span></button>`).join('')}</div><input type="hidden" id="cfCat" value="${escapeH(catSel)}"></div>
+    <div class="sheet-foot">${c ? `<button type="button" class="btn ghost" data-act="contaDel" data-v="${c.id}">${ic('trash-2','sm')}Tirar</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+function gravarContaFixa(f){
+  const nome = $('#cfNome').value.trim(), valor = num($('#cfValor').value), dia = Math.max(1, Math.min(31, +$('#cfDia').value || 10)), cat = $('#cfCat').value;
+  if (!nome){ $('#cfNome').focus(); avisar('Dê um nome para a conta', 'circle-alert'); return; }
+  if (!S.contas) S.contas = CONTAS_FIXAS.map(c => ({id:c.id, nome:c.nome, cat:c.cat, valor:c.valor, dia:c.dia, ...(c.varia ? {varia:true} : {})}));
+  const c = f.dataset.id && S.contas.find(x => x.id === f.dataset.id), dados = {nome, cat, dia, valor: valor > 0 ? valor : null};
+  if (c) Object.assign(c, dados); else S.contas.push({id:'cf-' + novoId(), ...dados});
+  salvar(); fecharFolha(); reRender(); avisar(`${nome} ${c ? 'atualizada' : 'nas contas do mês'}`, 'receipt');
+}
+
+/* ---------- editar o cadastro do aluno, as matrículas e os pagamentos ---------- */
+function folhaEditarAluno(aid){
+  const a = alunoPor(S, aid); if (!a) return;
+  const st = a.status === 'inativo' ? 'inativo' : 'ativo';
+  abrirFolha(`${folhaCab('Editar cadastro', escapeH(a.nome))}
+  <form class="stack" id="fEdAluno" data-id="${a.id}">
+    <div class="field"><label for="eaNome">Nome</label><input class="inp" id="eaNome" required maxlength="80" value="${escapeH(a.nome)}"></div>
+    <div class="grid g2">
+      <div class="field"><label for="eaTel">WhatsApp</label><input class="inp num" id="eaTel" type="tel" inputmode="tel" value="${escapeH(a.tel || '')}" placeholder="(41) 9 0000-0000"></div>
+      <div class="field"><label for="eaNasc">Nascimento</label><input class="inp" id="eaNasc" type="date" max="${HOJE_ISO}" value="${escapeH(a.nasc || '')}"></div>
+    </div>
+    <div class="grid g2">
+      <div class="field"><label for="eaEmail">E-mail</label><input class="inp" id="eaEmail" type="email" value="${escapeH(a.email || '')}"></div>
+      <div class="field"><label for="eaCpf">CPF</label><input class="inp num" id="eaCpf" inputmode="numeric" value="${escapeH(a.cpf || '')}"></div>
+    </div>
+    <div class="grid g2">
+      <div class="field"><label for="eaResp">Responsável <span class="muted">(criança)</span></label><input class="inp" id="eaResp" value="${escapeH(a.resp || '')}"></div>
+      <div class="field"><label for="eaRespTel">WhatsApp do responsável</label><input class="inp num" id="eaRespTel" type="tel" inputmode="tel" value="${escapeH(a.respTel || '')}"></div>
+    </div>
+    <div class="field"><label for="eaObs">Observação</label><input class="inp" id="eaObs" maxlength="160" value="${escapeH(a.obs || '')}"></div>
+    <div class="field"><label>Situação</label><div class="optgrid">${[['ativo','Aluno do Espaço'],['inativo','Saiu do Espaço']].map(([k, l]) => `<button type="button" class="opt ${st === k ? 'on' : ''}" data-act="opt" data-grp="eaSt" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="eaSt" value="${st}"><span class="help">Quem saiu some das listas e da chamada. O histórico fica.</span></div>
+    <span class="help">A data de nascimento e o WhatsApp são o login do aluno no app.</span>
+    <div class="sheet-foot"><button type="button" class="btn sec" data-act="verAluno" data-v="${a.id}">Voltar</button><button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+function gravarEdAluno(f){
+  const a = alunoPor(S, f.dataset.id); if (!a) return;
+  const nome = $('#eaNome').value.trim(); if (!nome){ $('#eaNome').focus(); avisar('Digite o nome', 'circle-alert'); return; }
+  Object.assign(a, {nome, tel:$('#eaTel').value.trim(), nasc:$('#eaNasc').value || '', email:$('#eaEmail').value.trim(), cpf:$('#eaCpf').value.trim(), resp:$('#eaResp').value.trim() || undefined, respTel:$('#eaRespTel').value.trim() || undefined, obs:$('#eaObs').value.trim(), status:$('#eaSt').value});
+  salvar(); reRender(); folhaAluno(a.id); avisar(`Cadastro de ${nome.split(' ')[0]} salvo`, 'check');
+}
+/* opções de plano de cada atividade */
+function planosDe(atv){
+  if (atv === 'yoga') return Object.entries(PLANOS_YOGA).map(([k, p]) => ({k, campo:'plano', nome:p.nome, v:S.regras.planos[k]}));
+  if (atv === 'particular') return Object.entries(PLANOS_PART).map(([k, p]) => ({k, campo:'planoPart', nome:p.nome, v:(S.regras.planosPart || {})[k] ?? p.preco}));
+  if (PLANOS_ATV[atv]) return Object.entries(PLANOS_ATV[atv]).map(([k, p]) => ({k, campo:'planoAtv', nome:p.nome || k, v:((S.regras.planosAtv || {})[atv] || {})[k]}));
+  return [];
+}
+function folhaMat(aid, mid, atvNova){
+  const a = alunoPor(S, aid); if (!a) return;
+  const m = mid ? a.mats.find(x => x.id === mid) : null, atv = m ? m.atv : atvNova;
+  if (!atv){
+    abrirFolha(`${folhaCab('Outra atividade', escapeH(a.nome))}<div class="optgrid">${Object.entries(ATIV).map(([k, x]) => `<button type="button" class="opt" data-act="matNova" data-v="${a.id}" data-x="${k}">${ic(x.icon)}<span>${escapeH(x.curto)}</span></button>`).join('')}</div>`); return;
+  }
+  const ps = planosDe(atv), atual = m ? (m.plano || m.planoPart || m.planoAtv || '') : (ps[0] || {}).k || '';
+  const turmas = TURMAS.filter(t => t.atv === atv && !t.aluno), sel = new Set(m ? m.turmas : []);
+  const quem = EQUIPE.filter(p => p.ativo !== false && p.atvs.includes(atv)), escolhe = atv === 'particular' || ATIV[atv].vis === 'escolhido';
+  const stM = m ? m.status || 'ativo' : 'ativo';
+  abrirFolha(`${folhaCab(m ? `${escapeH(ATIV[atv].curto)} · ${escapeH(a.nome.split(' ')[0])}` : `Nova: ${escapeH(ATIV[atv].curto)}`, 'Plano, horários, vencimento e forma de pagar')}
+  <form class="stack" id="fMat" data-a="${a.id}" data-id="${m ? m.id : ''}" data-atv="${atv}">
+    ${ps.length ? `<div class="field"><label>Plano</label><div class="optgrid">${ps.map(p => `<button type="button" class="opt ${p.k === atual ? 'on' : ''}" data-act="opt" data-grp="mtPlano" data-v="${p.k}"><span>${escapeH(p.nome)}${p.v ? `<br><b class="num">${brl(p.v)}</b>` : ''}</span></button>`).join('')}</div><input type="hidden" id="mtPlano" value="${escapeH(atual)}"></div>`
+      : `<div class="field"><label for="mtValor">Mensalidade</label><input class="inp money num" id="mtValor" inputmode="decimal" placeholder="0,00" value="${m && m.valor > 0 ? m.valor.toFixed(2).replace('.', ',') : ATIV[atv].valor ? String(ATIV[atv].valor).replace('.', ',') : ''}"></div>`}
+    ${turmas.length ? `<div class="field"><label>Horários</label><div class="optgrid">${turmas.map(t => `<button type="button" class="opt ${sel.has(t.id) ? 'on' : ''}" data-act="optMulti" data-grp="mtTur" data-v="${t.id}"><span>${DIAS[t.dia]} ${t.h}<br><span class="tiny muted">${escapeH((PESSOA[t.instr] || {nome:''}).nome)} · ${escapeH(t.sala)}</span></span></button>`).join('')}</div><input type="hidden" id="mtTur" value="${[...sel].join(',')}"></div>` : ''}
+    ${escolhe && quem.length ? `<div class="field"><label>Com quem</label><div class="optgrid">${quem.map(p => `<button type="button" class="opt ${m && m.instr === p.id ? 'on' : ''}" data-act="opt" data-grp="mtInstr" data-v="${p.id}"><span>${escapeH(p.nome)}</span></button>`).join('')}</div><input type="hidden" id="mtInstr" value="${m && m.instr ? m.instr : ''}"></div>` : ''}
+    <div class="grid g2">
+      <div class="field"><label for="mtVenc">Vence no dia</label><input class="inp num" id="mtVenc" inputmode="numeric" maxlength="2" value="${m ? m.venc : Math.min(28, HOJE.getDate())}"></div>
+      <div class="field"><label>Paga com</label><div class="optgrid">${[['pix','Pix'],['cartao','Cartão'],['dinheiro','Dinheiro']].map(([k, l]) => `<button type="button" class="opt ${(m ? m.metodo : 'pix') === k ? 'on' : ''}" data-act="opt" data-grp="mtMet" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="mtMet" value="${m ? m.metodo : 'pix'}"></div>
+    </div>
+    ${m ? `<div class="field"><label>Situação</label><div class="optgrid">${[['ativo','Fazendo'],['pausado','Pausou'],['cancelado','Parou']].map(([k, l]) => `<button type="button" class="opt ${stM === k ? 'on' : ''}" data-act="opt" data-grp="mtSt" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="mtSt" value="${stM}"><span class="help">Pausou ou parou: não cobra e sai da chamada. O histórico fica.</span></div>` : ''}
+    <div class="sheet-foot"><button type="button" class="btn sec" data-act="verAluno" data-v="${a.id}">Voltar</button><button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+function gravarMat(f){
+  const a = alunoPor(S, f.dataset.a); if (!a) return;
+  const atv = f.dataset.atv, ps = planosDe(atv), k = $('#mtPlano') ? $('#mtPlano').value : '', p = ps.find(x => x.k === k);
+  const turmas = ($('#mtTur')?.value || '').split(',').filter(Boolean), venc = Math.max(1, Math.min(28, +$('#mtVenc').value || 10));
+  const instr = $('#mtInstr') ? $('#mtInstr').value || null : null;
+  if ((atv === 'particular' || ATIV[atv].vis === 'escolhido') && $('#mtInstr') && !instr){ avisar('Escolha com quem', 'circle-alert'); return; }
+  const dados = {plano:null, planoPart:null, planoAtv:null, valor:null, turmas, venc, metodo:$('#mtMet').value, instr, ...(p ? {[p.campo]:k} : {valor: num($('#mtValor')?.value) || null}), ...($('#mtSt') ? {status:$('#mtSt').value} : {})};
+  let m = f.dataset.id && a.mats.find(x => x.id === f.dataset.id);
+  if (m) Object.assign(m, dados); else { m = {id:`${a.id}-${novoId().slice(-5)}`, atv, status:'ativo', cartaoFim:null, ...dados}; a.mats.push(m); }
+  salvar(); reRender(); folhaAluno(a.id); avisar(`${ATIV[atv].curto} de ${a.nome.split(' ')[0]} salvo`, 'check');
+}
+function folhaPag(id){
+  const p = S.pagamentos.find(x => x.id === id); if (!p) return;
+  const a = p.a ? alunoPor(S, p.a) : null;
+  abrirFolha(`${folhaCab('Corrigir pagamento', a ? escapeH(a.nome) : escapeH(p.nome || 'Aula avulsa'))}
+  <form class="stack" id="fPag" data-id="${p.id}">
+    <div class="grid g2">
+      <div class="field"><label for="pgValor">Valor</label><input class="inp money num" id="pgValor" inputmode="decimal" value="${p.valor.toFixed(2).replace('.', ',')}" required></div>
+      <div class="field"><label for="pgData">Dia que pagou</label><input class="inp" type="date" id="pgData" value="${p.d}"></div>
+    </div>
+    <div class="grid g2">
+      <div class="field"><label for="pgMes">Mês que paga</label><input class="inp" type="month" id="pgMes" value="${p.mes}"></div>
+      <div class="field"><label>Forma</label><div class="optgrid">${[['pix','Pix'],['cartao','Cartão'],['dinheiro','Dinheiro']].map(([k, l]) => `<button type="button" class="opt ${p.metodo === k ? 'on' : ''}" data-act="opt" data-grp="pgMet" data-v="${k}"><span>${l}</span></button>`).join('')}</div><input type="hidden" id="pgMet" value="${escapeH(p.metodo || 'pix')}"></div>
+    </div>
+    <div class="sheet-foot"><button type="button" class="btn ghost" data-act="pagDel" data-v="${p.id}">${ic('trash-2','sm')}Apagar</button><button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
 }

@@ -4,6 +4,7 @@
 UI.livres = {};
 
 function vPorta(){
+  if (VALENDO) return vPortaValendo();
   return `<div class="door">
     <div class="raios" aria-hidden="true"></div>
     <div class="door-in">
@@ -39,11 +40,120 @@ function vPorta(){
     </div>
   </div>`;
 }
+/* ---------- a porta do app de verdade: cada um entra uma vez por aparelho ---------- */
+function vPortaValendo(){
+  return `<div class="door">
+    <div class="raios" aria-hidden="true"></div>
+    <div class="door-in">
+      <div class="door-head anim-in"><img src="${LOGO_MARK}" alt="Espaço Anirvana"><div class="namaskar">Namaskar!<small>Saúdo o Deus que há em você, com toda a força da minha mente e o amor do meu coração.</small></div>
+        <span class="eyebrow">Espaço holístico · ${ESPACO.cidade}</span>
+        <h1>A escola inteira<br><em>num lugar só</em></h1>
+        <p>Inscrição, aulas, chamada, mensalidades e avisos. Cada pessoa entra uma vez neste aparelho e vê só o que é dela.</p></div>
+      <div class="doors">
+        <div class="dcard dcard-aluno anim-in" style="animation-delay:60ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,var(--folha),#3E8E6E)">${ic('sprout','lg')}</span><div><h3>Alunos</h3><p>Quem pratica ou quer começar</p></div></div>
+          <p>Inscrição em poucos minutos, próximas aulas, frequência, eventos e o pagamento por Pix ou cartão.</p>
+          <button class="btn sol block" data-act="inscricao">${ic('user-plus')}Quero me inscrever</button>
+          <form class="login" data-login="aluno"><label class="eyebrow" for="loginCel">Já sou aluno · entrar com o celular</label>
+            <div class="row"><input class="inp num" id="loginCel" type="tel" inputmode="tel" autocomplete="tel" placeholder="(41) 9 0000-0000" data-act-in="celMask"><button class="btn pri" type="submit">Entrar</button></div>
+            <span class="tiny muted">Depois do celular, a data de nascimento da ficha. Este aparelho fica conectado.</span></form></div>
+        <div class="dcard anim-in" style="animation-delay:120ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,#B9488E,var(--sol))">${ic('hand-heart','lg')}</span><div><h3>Instrutores</h3><p>Professores e terapeutas</p></div></div>
+          <p>Chamada com um toque, ficha de cada aluno, quem anda sumido, troca de aula e quanto vai receber no mês.</p>
+          <form class="login" data-login="instrutor"><label class="eyebrow" for="loginPin">Seu PIN de 6 números</label>
+            <div class="row"><input class="inp num pin" id="loginPin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="PIN de 6 números"><button class="btn pri" type="submit">Entrar</button></div>
+            <span class="tiny muted" id="pinMsg">O PIN é só seu. Esqueceu? A administração gera outro na hora.</span></form></div>
+        <div class="dcard anim-in" style="animation-delay:180ms"><div class="top"><span class="ib" style="background:linear-gradient(135deg,var(--sol),var(--acafrao))">${ic('layout-dashboard','lg')}</span><div><h3>Administração</h3><p>Quem cuida do Espaço</p></div></div>
+          <p>Balanço, mensalidades, repasses, lojinha, inscrições novas, eventos e avisos automáticos.</p>
+          <form class="login" data-login="adminCodigo"><label class="eyebrow" for="loginAdm">Seu código de acesso</label>
+            <div class="row"><input class="inp num" id="loginAdm" autocapitalize="characters" autocomplete="one-time-code" spellcheck="false" maxlength="14" placeholder="XXXXX-XXXXX" aria-label="Código de acesso da administração"><button class="btn pri" type="submit">Entrar</button></div>
+            <span class="tiny muted" id="admMsg">Cada pessoa da administração tem o seu. Só precisa digitar uma vez neste aparelho.</span></form></div>
+      </div>
+      <p class="citacao">“Que o sol faça chover felicidade! Que nossos animais domésticos sejam abençoados!”<b>Caryacarya I · Shrii Shrii Anandamurti</b></p>
+    </div>
+  </div>`;
+}
+const msgPorta = (id, txt, ruim) => { const m = $('#' + id); if (m){ m.textContent = txt; m.style.color = ruim ? 'var(--bad)' : ''; m.style.fontWeight = ruim ? '600' : ''; } };
+function entrarPainelNuvem(role, who){ fecharFolha(); UI.pilha = []; UI.who[role] = who; UI.tab[role] = NAV[role][0][0]; ir(role, NAV[role][0][0]); sincronizarAoAbrir(); }
+async function loginAdmCodigo(){
+  const cod = ($('#loginAdm')?.value || '').trim();
+  if (cod.replace(/[^A-Za-z0-9]/g, '').length < 10){ $('#loginAdm')?.focus(); msgPorta('admMsg', 'O código tem 10 letras e números.', true); return; }
+  msgPorta('admMsg', 'Conferindo…');
+  const r = await entrarNaNuvem('adm', cod);
+  if (r.erro){ msgPorta('admMsg', r.erro, true); return; }
+  entrarPainelNuvem('admin', r.quem); avisar(`Namaskar, ${String(r.nome || '').split(' ')[0]}!`, 'check');
+}
+async function loginInstrutorNuvem(){
+  const dig = soDig($('#loginPin')?.value);
+  if (dig.length !== 6){ $('#loginPin')?.focus(); msgPorta('pinMsg', 'O PIN tem 6 números.', true); return; }
+  msgPorta('pinMsg', 'Conferindo…');
+  const r = await entrarNaNuvem('instrutor', dig);
+  if (r.erro){ msgPorta('pinMsg', r.erro, true); const i = $('#loginPin'); if (i){ i.value = ''; i.focus(); } return; }
+  UI.codigoOk[r.quem] = r.v; entrarPainelNuvem('instrutor', r.quem); avisar(`Namaskar, ${r.nome}!`, 'check');
+}
+function loginAlunoNuvem(){
+  const dig = soDig($('#loginCel')?.value);
+  if (dig.length < 10){ $('#loginCel')?.focus(); avisar('Digite o celular com DDD', 'circle-alert'); return; }
+  UI.otp = {dig}; folhaNasc();
+}
+function folhaNasc(msg){
+  const o = UI.otp;
+  abrirFolha(`${folhaCab('Confirme quem é você', `Celular ${mascCel(o.dig)}`)}
+  <form class="stack login" data-login="nasc" style="justify-items:center;text-align:center">
+    <span class="ico-b" style="width:64px;height:64px;border-radius:20px;background:var(--ok-bg);color:var(--ok)">${ic('cake','xl')}</span>
+    <label class="small strong" for="nascIn">Data de nascimento de quem pratica</label>
+    <input class="inp" id="nascIn" type="date" max="${HOJE_ISO}" required style="max-width:240px">
+    <p class="small ${msg ? '' : 'muted'}" style="${msg ? 'color:var(--bad);font-weight:600' : ''}">${msg ? escapeH(msg) : 'A mesma da ficha de inscrição. Para criança, a data da criança.'}</p>
+    <button class="btn pri block" type="submit">${ic('check')}Entrar</button>
+    <a class="btn ghost sm" href="https://wa.me/${ESPACO.whats}?text=${encodeURIComponent('Oi! Sou aluno e não consegui entrar no app com o celular ' + mascCel(o.dig) + '.')}" target="_blank" rel="noopener">${ic('phone','sm')}Não consigo entrar</a>
+  </form>`);
+  setTimeout(() => $('#nascIn')?.focus(), 350);
+}
+async function conferirNasc(){
+  const n = $('#nascIn')?.value; if (!n){ avisar('Escolha a data de nascimento', 'circle-alert'); return; }
+  const r = await entrarNaNuvem('aluno', UI.otp.dig, n);
+  if (r.erro) return folhaNasc(r.erro);
+  UI.otp = null;
+  const lista = r.alunos || [];
+  if (lista.length > 1){ abrirFolha(`${folhaCab('Quem vai entrar?', 'Este celular está na ficha de mais de uma pessoa')}<div class="list">${lista.map(a => `<button class="li tap" style="width:100%;text-align:left" data-act="entrarAluno" data-who="${escapeH(a.id)}">${av(a.nome || '?')}<div class="main-c"><span class="t">${escapeH(a.nome || '')}</span></div>${ic('chevron-right','sm')}</button>`).join('')}</div>`); return; }
+  entrarPainelNuvem('aluno', r.quem); avisar(`Namaskar, ${String((lista[0] || {}).nome || '').split(' ')[0]}!`, 'check');
+}
+/* no app valendo, cada aparelho só abre o painel de quem entrou nele (a administração pode "ver como") */
+function travaPapel(){
+  if (!nuvemLigada()){ UI.role = null; return; }
+  const meu = papelPainel(SESSAO.papel);
+  if (!UI.role){ UI.role = meu; UI.who[meu] = SESSAO.quem; if (!NAV[meu].some(n => n[0] === UI.tab[meu])) UI.tab[meu] = NAV[meu][0][0]; }
+  if (meu === 'admin') return;
+  UI.role = meu;
+  if (meu === 'instrutor') UI.who.instrutor = SESSAO.quem;
+  if (meu === 'aluno' && !(SESSAO.alunos || []).some(a => a.id === UI.who.aluno)) UI.who.aluno = SESSAO.quem;
+}
+function vBuscando(){
+  const fora = NUVEM.estado === 'fora', semFicha = EM_DIA;
+  return `<div class="door"><div class="raios" aria-hidden="true"></div><div class="door-in buscando"><div class="stack" style="justify-items:center;text-align:center;max-width:440px;margin:0 auto">
+    <img src="${LOGO_MARK}" alt="" style="width:76px;height:auto">
+    <h2 style="font-size:26px">${semFicha ? 'Não achamos seu cadastro' : fora ? 'Sem conexão' : 'Buscando seus dados…'}</h2>
+    <p class="muted">${semFicha ? 'Fale com o Espaço para conferir sua ficha.' : fora ? 'Na primeira vez neste aparelho o app precisa de internet para trazer tudo. Depois funciona até sem.' : 'Só na primeira vez neste aparelho. Leva alguns segundos.'}</p>
+    ${fora || semFicha ? `<div class="row wrap" style="justify-content:center"><button class="btn pri" data-act="tentarDeNovo">${ic('refresh-cw','sm')}Tentar de novo</button><button class="btn ghost" data-act="sairAparelho">${ic('log-out','sm')}Sair</button></div>` : '<span class="girando" aria-hidden="true"></span>'}
+  </div></div></div>`;
+}
+function folhaConta(){
+  const adm = papelPainel(SESSAO.papel) === 'admin', papel = {dono:'Dono', adm:'Administração', instrutor:'Instrutor', aluno:'Aluno'}[SESSAO.papel] || '';
+  const meus = SESSAO.alunos || [];
+  abrirFolha(`${folhaCab(escapeH(SESSAO.nome || quemNome()), papel + ' · conectado neste aparelho')}
+  <div class="stack">
+    ${adm ? `<div><div class="eyebrow" style="margin-bottom:8px">Ver o app como instrutor</div><div class="chips" style="flex-wrap:wrap">${EQUIPE.filter(p => p.ativo !== false).map(p => `<button class="chip ${UI.role === 'instrutor' && UI.who.instrutor === p.id ? 'on' : ''}" data-act="entrar" data-v="instrutor" data-who="${p.id}">${escapeH(p.nome)}</button>`).join('')}</div></div>
+    ${S.alunos.length ? `<div><div class="eyebrow" style="margin-bottom:8px">Ver o app como aluno</div><div class="chips" style="flex-wrap:wrap">${S.alunos.filter(a => a.status !== 'inativo').slice(0, 40).map(a => `<button class="chip ${UI.role === 'aluno' && UI.who.aluno === a.id ? 'on' : ''}" data-act="entrar" data-v="aluno" data-who="${a.id}">${escapeH(a.nome.split(' ')[0])}</button>`).join('')}</div></div>` : ''}
+    ${UI.role !== 'admin' ? `<button class="btn sec" data-act="sair">${ic('layout-dashboard','sm')}Voltar para a administração</button>` : ''}` : ''}
+    ${SESSAO.papel === 'aluno' && meus.length > 1 ? `<div><div class="eyebrow" style="margin-bottom:8px">Trocar de ficha</div><div class="chips" style="flex-wrap:wrap">${meus.map(a => `<button class="chip ${UI.who.aluno === a.id ? 'on' : ''}" data-act="entrarAluno" data-who="${escapeH(a.id)}">${escapeH(String(a.nome || '').split(' ')[0])}</button>`).join('')}</div></div>` : ''}
+    <button class="btn sec" data-act="nuvemInfo">${ic('cloud','sm')}Seus dados na nuvem</button>
+    <button class="btn ghost" data-act="sairAparelho">${ic('log-out','sm')}Sair deste aparelho</button>
+  </div>`);
+}
 /* ---------- entrar: aluno pelo celular, instrutor pelo PIN, administração pelo Google + PIN ---------- */
 const soDig = s => String(s || '').replace(/\D/g, '');
 const mascCel = s => { const d = soDig(s).slice(0, 11); return d.length <= 2 ? d : d.length <= 7 ? `(${d.slice(0,2)}) ${d.slice(2)}` : `(${d.slice(0,2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}`; };
 function alunosDoCel(dig){ return S.alunos.filter(a => a.status !== 'inativo' && [a.tel, a.respTel].some(t => t && soDig(t).slice(-11) === dig.slice(-11))); }
 function loginAluno(){
+  if (VALENDO) return loginAlunoNuvem();
   const dig = soDig($('#loginCel')?.value);
   if (dig.length < 10){ $('#loginCel')?.focus(); avisar('Digite o celular com DDD', 'circle-alert'); return; }
   const quem = alunosDoCel(dig);
@@ -79,6 +189,7 @@ function escolherAluno(quem){
 }
 UI.tentPin = {n:0, ate:0};
 function loginInstrutor(){
+  if (VALENDO) return loginInstrutorNuvem();
   const T = UI.tentPin, msg = $('#pinMsg'), dig = soDig($('#loginPin')?.value);
   if (T.ate > Date.now()){ if (msg){ msg.textContent = 'Muitas tentativas. Espere 15 minutos ou peça um PIN novo para a administração.'; msg.style.color = 'var(--bad)'; } return; }
   if (dig.length !== 6){ $('#loginPin')?.focus(); avisar('O PIN tem 6 números', 'circle-alert'); return; }
@@ -137,6 +248,10 @@ function render(){
   return _r;
 }
 function render2(root, y){
+  if (VALENDO){
+    travaPapel();
+    if (UI.role && (!EM_DIA || (UI.role === 'aluno' && !alunoPor(S, UI.who.aluno)) || (UI.role === 'instrutor' && !PESSOA[UI.who.instrutor]))){ root.innerHTML = vBuscando(); depois(); return y; }
+  }
   /* painel do instrutor só com o código pessoal (vale também para link direto e "Ver como") */
   if (UI.role === 'instrutor' && PESSOA[UI.who.instrutor]?.ativo === false){ UI.role = null; history.replaceState(null, '', location.pathname); }
   if (UI.role === 'instrutor' && !instrutorLiberado(UI.who.instrutor)){ const pid = UI.who.instrutor; UI.role = null; history.replaceState(null, '', location.pathname); root.innerHTML = vPorta(); depois(); setTimeout(() => folhaCodigo(pid), 60); return; }
@@ -202,17 +317,36 @@ const ACT = {
   pacoteDel:(d) => { S.pacotes = (S.pacotes || []).filter(p => p.id !== d.v); salvar(); fecharFolha(); reRender(); avisar('Pacote tirado. Quem já pagou continua coberto.'); },
   ajusteMat:(d) => folhaAjuste(d.v),
   ajusteTirar:(d) => { const m = S.alunos.flatMap(a => a.mats).find(x => x.id === d.v); delete m.ajuste; salvar(); fecharFolha(); reRender(); avisar(`Voltou ao valor do plano: ${brl(valorMat(S, m))}`); },
-  avulsaReceber:(d) => { const [sid, ...nm] = d.v.split('|'), nome = nm.join('|'), pr = S.presencas.find(p => p.s === sid && !p.a && p.nome === nome); if (!pr) return; pr.pago = d.x || 'pix'; S.pagamentos.push({id:'pg' + (S.seq++), avulsa:true, nome, s:sid, mes:mesDe(sid.slice(0, 10)), valor:S.regras.planos.avulsa, d:HOJE_ISO, metodo:pr.pago}); salvar(); reRender(); avisar(`Aula avulsa de ${nome.split(' ')[0]} recebida: ${brl(S.regras.planos.avulsa)}`); },
+  avulsaReceber:(d) => { const [sid, ...nm] = d.v.split('|'), nome = nm.join('|'), pr = S.presencas.find(p => p.s === sid && !p.a && p.nome === nome); if (!pr) return; pr.pago = d.x || 'pix'; S.pagamentos.push({id:'pg' + novoId(), avulsa:true, nome, s:sid, mes:mesDe(sid.slice(0, 10)), valor:S.regras.planos.avulsa, d:HOJE_ISO, metodo:pr.pago}); salvar(); reRender(); avisar(`Aula avulsa de ${nome.split(' ')[0]} recebida: ${brl(S.regras.planos.avulsa)}`); },
   celDemo:(d) => { const el = $('#loginCel'); if (el){ el.value = d.v; el.focus(); } },
   adminGoogle:() => { const g = lerLembrar().google; if (g && ADMINS.some(a => a.id === g)) folhaPinAdmin(g); else folhaGoogle(); },
   adminConta:(d) => folhaPinAdmin(d.v),
   trocarConta:() => { const L = lerLembrar(); delete L.google; gravarLembrar(L); folhaGoogle(); },
-  role:(d) => ir(d.v),
-  trocar:() => abrirFolha(`${folhaCab('Ver o app como…', 'No app de verdade cada pessoa entra com o próprio login e vê só o painel dela.')}
+  role:(d) => {
+    if (VALENDO && d.v === 'aluno' && !alunoPor(S, UI.who.aluno)){ if (!S.alunos.length){ avisar('Ainda não tem alunos cadastrados', 'info'); return; } UI.who.aluno = S.alunos[0].id; }
+    if (VALENDO && d.v === 'instrutor' && !PESSOA[UI.who.instrutor]) UI.who.instrutor = (EQUIPE[0] || {}).id;
+    if (VALENDO && d.v === 'admin' && nuvemLigada()) UI.who.admin = SESSAO.quem;
+    ir(d.v); },
+  nuvemInfo:() => folhaNuvem(),
+  nuvemAgora:async () => { fecharFolha(); try { await enviarFila(); await puxar(); avisar(Object.keys(FILA).length ? 'Ainda subindo…' : 'Tudo em dia com a nuvem', 'cloud'); } catch(e){ avisar('Sem conexão agora. Os dados sobem quando a internet voltar.', 'cloud-off'); } },
+  sairAparelho:async () => { fecharFolha(); await sairDaNuvem(); UI.pilha = []; UI.role = null; history.replaceState(null, '', location.pathname); render(); scrollTo({top:0}); avisar('Você saiu deste aparelho', 'log-out'); },
+  tentarDeNovo:() => { estadoNuvem('buscando'); render(); if (EM_DIA) puxar().then(reRender).catch(reRender); else sincronizarAoAbrir().then(reRender); },
+  entrarAluno:(d) => { if (VALENDO && nuvemLigada()) entrarPainelNuvem('aluno', d.who); else ACT.entrar({v:'aluno', who:d.who}); },
+  editarTurma:(d) => folhaTurma(d.v || null),
+  contaFixa:(d) => folhaContaFixa(d.v || null),
+  editarAluno:(d) => folhaEditarAluno(d.v),
+  editarMat:(d) => folhaMat(d.v, d.x || null),
+  matNova:(d) => folhaMat(d.v, null, d.x),
+  editarPag:(d) => folhaPag(d.v),
+  pagDel:(d) => { const p = S.pagamentos.find(x => x.id === d.v); if (!p) return; if ((S.fechados || {})[p.mes]){ avisar('Mês fechado: peça para reabrir antes de apagar', 'circle-alert'); return; } S.pagamentos = S.pagamentos.filter(x => x.id !== d.v); salvar(); reRender(); if (p.a) folhaAluno(p.a); else fecharFolha(); avisar(`Pagamento de ${brl(p.valor)} apagado`, 'trash-2'); },
+  contaDel:(d) => { if (!S.contas) S.contas = CONTAS_FIXAS.map(c => ({id:c.id, nome:c.nome, cat:c.cat, valor:c.valor, dia:c.dia})); S.contas = S.contas.filter(c => c.id !== d.v); salvar(); fecharFolha(); reRender(); avisar('Conta tirada da lista (os pagamentos antigos ficam no balanço)', 'receipt'); },
+  turmaTirar:(d) => { const t = TURMA[d.v]; if (!t) return; abrirFolha(`${folhaCab('Tirar da grade?', `${escapeH(nomeTurma(t))} · ${DIAS_L[t.dia]} ${t.h}`)}<div class="stack"><p>As aulas que já aconteceram e a chamada continuam no histórico. Os alunos dessa turma ficam sem esse horário: confira as matrículas depois.</p><div class="sheet-foot"><button class="btn sec" data-act="editarTurma" data-v="${t.id}">Voltar</button><button class="btn bad" data-act="turmaTirarSim" data-v="${t.id}">${ic('trash-2','sm')}Tirar da grade</button></div></div>`); },
+  turmaTirarSim:(d) => { S.turmasFora = [...new Set([...(S.turmasFora || []), d.v])]; ligarAtividades(); ligarEquipe(); salvar(); fecharFolha(); reRender(); avisar('Horário fora da grade', 'calendar-x'); },
+  trocar:() => VALENDO && nuvemLigada() ? folhaConta() : abrirFolha(`${folhaCab('Ver o app como…', 'No app de verdade cada pessoa entra com o próprio login e vê só o painel dela.')}
     <div class="stack"><p class="tiny muted" style="margin-top:-4px">Atalho da demonstração: pula o login.</p>${[['admin','Administração',ADMINS.map(a=>[a.id,a.nome])],['instrutor','Instrutores',EQUIPE.filter(p=>p.id!=='stefy').map(p=>[p.id,p.nome])],['aluno','Alunos',[['a01','Luana'],['a04','Camila'],['a12','Débora'],['a30','Alice'],['a09','Gabriel']]]].map(([r,l,ps]) => `<div><div class="eyebrow" style="margin-bottom:8px">${l}</div><div class="chips" style="flex-wrap:wrap">${ps.map(([id,n]) => `<button class="chip ${UI.role===r&&UI.who[r]===id?'on':''}" data-act="entrar" data-v="${r}" data-who="${id}">${n}</button>`).join('')}</div></div>`).join('')}
     <button class="btn sec" data-act="sair">${ic('log-out')}Voltar para a entrada</button>
     <button class="btn ghost" data-act="reset">${ic('rotate-ccw')}Recomeçar a demonstração</button></div>`),
-  sair:() => { fecharFolha(); UI.pilha = []; UI.role = null; history.replaceState(null,'',location.pathname); render(); scrollTo({top:0}); },
+  sair:() => { fecharFolha(); UI.pilha = []; if (VALENDO && nuvemLigada()){ const r = papelPainel(SESSAO.papel); UI.who[r] = SESSAO.quem; ir(r, NAV[r][0][0]); return; } UI.role = null; history.replaceState(null,'',location.pathname); render(); scrollTo({top:0}); },
   reset:() => { restaurarBases(); S = semear(); ligarFornecedores(); ligarAtividades(); ligarEquipe(); salvar(); UI.cart = {}; fecharFolha(); render(); avisar('Demonstração recomeçada'); },
   fechar:() => fecharFolha(),
   ir:(d) => { const [r,t] = d.v.split('-'); if (t === 'confirmar'){ UI.mensVis = 'alunos'; UI.mensSt = 'analise'; UI.mensAtv = 'todas'; ir(null,'mensalidades'); return; } if (t === 'alunos'){ UI.escolaVis = 'alunos'; ir(null,'escola'); return; } if (t === 'mais'){ UI.escolaVis = 'subs'; ir(null,'escola'); return; } if (d.sub) UI.lojaVis = d.sub; if (t === 'mensalidades'){ UI.mensVis = 'alunos'; UI.mensSt = 'atrasado'; } ir(null, t); },
@@ -232,7 +366,7 @@ const ACT = {
   /* admin */
   lancar:() => folhaLancar('saida'),
   lancTipo:(d) => folhaLancar(d.v),
-  pagarConta:(d) => { const c = CONTAS_FIXAS.find(x => x.id === d.v); S.lanc.push({id:'l'+(S.seq++), tipo:'saida', d:HOJE_ISO, valor:c.valor, desc:c.nome, cat:c.cat, conta:c.id}); salvar(); reRender(); avisar(`${c.nome} paga · ${brl(c.valor)} lançado em ${c.cat}`); },
+  pagarConta:(d) => { const c = contasLista().find(x => x.id === d.v); if (!c) return; if (VALENDO || !(c.valor > 0)){ const ult = S.lanc.filter(l => l.conta === c.id).sort((a, b) => a.d < b.d ? 1 : -1)[0]; folhaLancar('saida'); const f = $('#fLanc'); if (f) f.dataset.conta = c.id; $('#lDesc').value = c.nome; const v = ult ? ult.valor : c.valor; if (v > 0) $('#lValor').value = v.toFixed(2).replace('.', ','); const o = [...$$('.opt[data-grp="lCat"]')].find(x => x.dataset.v === c.cat); if (o) o.click(); setTimeout(() => $('#lValor')?.focus(), 300); return; } S.lanc.push({id:'l'+novoId(), tipo:'saida', d:HOJE_ISO, valor:c.valor, desc:c.nome, cat:c.cat, conta:c.id}); salvar(); reRender(); avisar(`${c.nome} paga · ${brl(c.valor)} lançado em ${c.cat}`); },
   balVis:(d) => { UI.balVis = d.v; reRender(); },
   balMes:(d) => { UI.balMes = d.v; reRender(); },
   catFoco:(d) => { UI.catFoco = d.v; const y = scrollY; render(); const c = $('.card.pad-lg'); if (c && matchMedia('(max-width:759px)').matches) c.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block:'start'}); else scrollTo({top:y}); },
@@ -245,13 +379,13 @@ const ACT = {
   fecharMes:(d) => { (S.fechados = S.fechados || {})[d.v] = HOJE_ISO; (S.backups = S.backups || []).push({mes:d.v, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, por:'automático'}); salvar(); reRender(); avisar(`${nomeMes(d.v)} fechado. O backup em Excel saiu para ${ESPACO.email}.`, 'check'); },
   backupDrive:() => { backupNoDrive().then(() => reRender()); },
   baixarBackup:() => { try{ const bytes = montarBackup(S, {quem:quemNome()}); baixarArquivo(bytes, nomeBackup(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); (S.backups = S.backups || []).push({mes:MES_ATUAL, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, por:quemNome()}); salvar(); reRender(); avisar(`Backup baixado: ${nomeBackup()} (${Math.round(bytes.length / 1024)} KB)`, 'download'); }catch(e){ avisar('Não deu para gerar o backup agora: ' + e.message, 'circle-alert'); } },
-  darBaixa:(d) => { const x = S.avisosPag.find(v => v.id === d.v), a = alunoPor(S, x.a); if (!S.pagamentos.some(p => p.mat === x.mat && p.mes === x.mes)) S.pagamentos.push({id:'pg'+(S.seq++), a:x.a, mat:x.mat, mes:x.mes, valor:x.valor, d:x.d, metodo:x.metodo, baixaPor:quemNome(), baixaEm:HOJE_ISO}); x.estado = 'confirmado'; x.por = quemNome(); x.em = HOJE_ISO;
+  darBaixa:(d) => { const x = S.avisosPag.find(v => v.id === d.v), a = alunoPor(S, x.a); if (!S.pagamentos.some(p => p.mat === x.mat && p.mes === x.mes)) S.pagamentos.push({id:'pg'+novoId(), a:x.a, mat:x.mat, mes:x.mes, valor:x.valor, d:x.d, metodo:x.metodo, baixaPor:quemNome(), baixaEm:HOJE_ISO}); x.estado = 'confirmado'; x.por = quemNome(); x.em = HOJE_ISO;
     S.caixa = S.caixa || {}; (S.caixa['a:' + x.a] = S.caixa['a:' + x.a] || []).unshift({t:`Pagamento de ${nomeMes(x.mes).toLowerCase()} confirmado`, s:`${brl(x.valor)} · obrigado!`, icon:'check'});
     salvar(); reRender(); avisar(`Baixa dada: ${a.nome.split(' ')[0]} · ${brl(x.valor)} em ${nomeMes(x.mes).toLowerCase()}`, 'check'); },
   recusarAviso:(d) => { const x = S.avisosPag.find(v => v.id === d.v), a = alunoPor(S, x.a); x.estado = 'recusado'; x.por = quemNome(); x.em = HOJE_ISO;
     S.caixa = S.caixa || {}; (S.caixa['a:' + x.a] = S.caixa['a:' + x.a] || []).unshift({t:'Não achamos seu pagamento', s:`O ${x.metodo === 'cartao' ? 'cartão' : 'Pix'} de ${dataBR(x.d)} não apareceu na conta. Fale com o Espaço pelo WhatsApp.`, icon:'circle-alert'});
     salvar(); reRender(); avisar(`${a.nome.split(' ')[0]} vai receber o aviso de que o pagamento não apareceu`, 'bell'); },
-  pagarEquipe:(d) => { S.repEquipe.push({id:'re'+(S.seq++), p:d.v, mes:d.mes, d:HOJE_ISO}); salvar(); reRender(); avisar(`Repasse de ${PESSOA[d.v].nome} marcado como pago`); },
+  pagarEquipe:(d) => { S.repEquipe.push({id:'re'+novoId(), p:d.v, mes:d.mes, d:HOJE_ISO}); salvar(); reRender(); avisar(`Repasse de ${PESSOA[d.v].nome} marcado como pago`); },
   escolaVis:(d) => { UI.escolaVis = d.v; reRender(); },
   escAtv:(d) => { UI.escAtv = d.v; reRender(); },
   verAluno:(d) => folhaAluno(d.v, 'admin'),
@@ -280,11 +414,11 @@ const ACT = {
     const forma = $('#vForma').value, cliente = ($('#vCliente')?.value || '').trim();
     if (['fiado','descontado'].includes(forma) && !cliente){ $('#vCliente').focus(); avisar('Diga quem levou, para cobrar depois','circle-alert'); return; }
     const it = itensCarrinho(), total = r2(it.reduce((s,i) => s + i.total, 0));
-    it.forEach(i => S.vendas.push({id:'v'+(S.seq++), d:HOJE_ISO, desc:`${i.q} ${i.nome.toLowerCase()}`, valor:i.total, forma, forn:i.forn, pct:FORN[i.forn].pct, evento:'', fonte:'app', itens:[{p:i.id, q:i.q}]}));
+    it.forEach(i => S.vendas.push({id:'v'+novoId(), d:HOJE_ISO, desc:`${i.q} ${i.nome.toLowerCase()}`, valor:i.total, forma, forn:i.forn, pct:FORN[i.forn].pct, evento:'', fonte:'app', itens:[{p:i.id, q:i.q}]}));
     const descItens = it.map(i => `${i.q} ${i.nome.toLowerCase()}`).join(', ');
     const daEquipe = forma === 'descontado' && EQUIPE.find(p => p.nome.toLowerCase() === cliente.toLowerCase() || p.nome.split(' ')[0].toLowerCase() === cliente.split(' ')[0].toLowerCase());
-    if (daEquipe) (S.descontos = S.descontos || []).push({id:'de'+(S.seq++), p:daEquipe.id, mes:MES_ATUAL, valor:total, desc:descItens, d:HOJE_ISO});
-    else if (forma === 'fiado' || forma === 'descontado') S.fiado.push({id:'fi'+(S.seq++), cliente, desc:descItens + (forma === 'descontado' ? ' (descontar)' : ''), valor:total, d:HOJE_ISO, pago:false});
+    if (daEquipe) (S.descontos = S.descontos || []).push({id:'de'+novoId(), p:daEquipe.id, mes:MES_ATUAL, valor:total, desc:descItens, d:HOJE_ISO});
+    else if (forma === 'fiado' || forma === 'descontado') S.fiado.push({id:'fi'+novoId(), cliente, desc:descItens + (forma === 'descontado' ? ' (descontar)' : ''), valor:total, d:HOJE_ISO, pago:false});
     salvar();
     const venda = {d:HOJE_ISO, total, forma, cliente, itens:it.map(i => ({nome:i.nome, q:i.q, total:i.total, forn:i.forn}))};
     UI.cart = {};
@@ -298,7 +432,7 @@ const ACT = {
   editarForn:(d) => folhaFornecedor(d.v),
   desativarForn:(d) => { const f = FORN[d.v], temVenda = S.vendas.some(v => v.forn === f.id); if (temVenda) f.ativo = false; else { S.fornecedores = S.fornecedores.filter(x => x.id !== f.id); S.produtos = (S.produtos || []).filter(p => p.forn !== f.id); } ligarFornecedores(); salvar(); fecharFolha(); reRender(); avisar(temVenda ? `${f.curto} saiu da lojinha. As vendas e o saldo dele continuam no histórico.` : `${f.curto} apagado`, 'check'); },
   reativarForn:(d) => { FORN[d.v].ativo = true; salvar(); reRender(); avisar(`${FORN[d.v].curto} de volta na lojinha`); },
-  pagarForn:(d) => { const f = saldoFornecedores(S).find(x => x.id === d.v); S.repLoja.push({id:'rl'+(S.seq++), forn:f.id, valor:f.saldo, d:HOJE_ISO}); salvar(); reRender(); avisar(`${brl(f.saldo)} pagos a ${f.curto} · lançado no balanço como repasse`); },
+  pagarForn:(d) => { const f = saldoFornecedores(S).find(x => x.id === d.v); S.repLoja.push({id:'rl'+novoId(), forn:f.id, valor:f.saldo, d:HOJE_ISO}); salvar(); reRender(); avisar(`${brl(f.saldo)} pagos a ${f.curto} · lançado no balanço como repasse`); },
   recebiFiado:(d) => { const f = S.fiado.find(x => x.id === d.v); f.pago = true; f.pagoEm = HOJE_ISO; salvar(); reRender(); avisar(`Recebido de ${f.cliente.split(' ')[0]}: ${brl(f.valor)}`); },
 
   /* instrutor */
@@ -318,7 +452,7 @@ const ACT = {
     CHAMADA.visitantes.forEach(v => S.presencas.push({s:sid, a:null, nome:v.nome || 'Visitante', t:v.t || 'avulsa', ...(v.tel ? {tel:v.tel} : {}), ...(v.pago ? {pago:v.pago} : {})}));
     /* aula avulsa paga na hora vira pagamento (entra no caixa e no fechamento da yoga) */
     S.pagamentos = S.pagamentos.filter(p => !(p.avulsa && p.s === sid));
-    CHAMADA.visitantes.filter(v => v.t === 'avulsa' && v.pago && v.pago !== 'depois').forEach(v => S.pagamentos.push({id:'pg' + (S.seq++), avulsa:true, nome:v.nome, s:sid, mes:mesDe(dia), valor:S.regras.planos.avulsa, d:dia, metodo:v.pago}));
+    CHAMADA.visitantes.filter(v => v.t === 'avulsa' && v.pago && v.pago !== 'depois').forEach(v => S.pagamentos.push({id:'pg' + novoId(), avulsa:true, nome:v.nome, s:sid, mes:mesDe(dia), valor:S.regras.planos.avulsa, d:dia, metodo:v.pago}));
     const au = S.aulas[sid] || (S.aulas[sid] = {id:sid, d:dia, turma:tid, instr:UI.who.instrutor, sub:false});
     const n = CHAMADA.presentes.size + CHAMADA.visitantes.length;
     au.feita = true; au.vazia = d.v === 'vazia' || n === 0;
@@ -332,7 +466,7 @@ const ACT = {
 
 
   /* logo e avisos */
-  logo:() => ACT.sair(),
+  logo:() => { if (VALENDO && nuvemLigada()){ const r = papelPainel(SESSAO.papel); UI.who[r] = r === 'aluno' && UI.role === 'aluno' ? UI.who.aluno : SESSAO.quem; ir(r, NAV[r][0][0]); return; } ACT.sair(); },
   voltar:() => { if (history.state && history.state.anv) history.back(); else voltarTela(); },
   conferirCodigo:(d) => { if (conferirCodigo(d.v)){ fecharFolha(); avisar(`Bem-vinda, ${PESSOA[d.v].nome}`, 'check'); ACT.entrar({v:'instrutor', who:d.v}); } },
   novaAtividade:() => folhaAtividade(null),
@@ -371,13 +505,22 @@ const ACT = {
   fecharTermos:() => folhaInscricao(),
   inscEnviar:() => {
     inscSalvar(); const falta = inscValida(3); if (falta.length){ avisar('Falta ' + falta.join(', '), 'circle-alert'); return; }
-    const d = UI.insc.d, F = FORMULARIOS[formDe(d.atv)]; (S.inscricoes = S.inscricoes || []).push({id:'in' + (S.seq++), d:HOJE_ISO, estado:'nova', origem:UI.insc.balcao ? 'balcao' : 'app', dados:{...d}}); salvar();
+    const d = UI.insc.d, F = FORMULARIOS[formDe(d.atv)];
+    const daAdm = VALENDO && nuvemLigada() && papelPainel(SESSAO.papel) === 'admin';
+    if (VALENDO && !daAdm && !UI.inscOk){
+      if (UI.enviandoInsc) return; UI.enviandoInsc = true; avisar('Enviando…', 'send');
+      rpc('inscrever', {p_dados:{...d}}).then(r => { UI.enviandoInsc = false; if (r && r.erro){ avisar(r.erro, 'circle-alert'); return; } UI.inscOk = true; ACT.inscEnviar(); })
+        .catch(() => { UI.enviandoInsc = false; avisar('Sem conexão. Confira a internet e toque em Enviar de novo.', 'circle-alert'); });
+      return;
+    }
+    if (!VALENDO || daAdm){ (S.inscricoes = S.inscricoes || []).push({id:'in' + novoId(), d:HOJE_ISO, estado:'nova', origem:UI.insc.balcao ? 'balcao' : 'app', dados:{...d}}); salvar(); }
+    UI.inscOk = false;
     const quem = F.crianca ? d.respNome : d.nome, prof = PROF_FORM[d.atv];
     const zap = `https://wa.me/5541998487892?text=${encodeURIComponent(`Oi! Acabei de fazer a inscrição de ${d.nome} em ${ATIV[d.atv].nome} pelo app.`)}`;
     abrirFolha(`${folhaCab('Inscrição enviada', '')}<div class="stack" style="text-align:center;justify-items:center"><span class="ico-b" style="width:72px;height:72px;border-radius:24px;background:var(--ok-bg);color:var(--ok)">${ic('check','xl')}</span><h2 style="font-size:26px">Namaskar, ${escapeH(String(quem || '').split(' ')[0])}!</h2>
       <p class="muted" style="max-width:42ch">${F.final ? escapeH(F.final.replace('{prof}', prof || '')) : `A administração do Espaço já recebeu sua inscrição e a sua ficha. A confirmação do horário chega pelo WhatsApp${d.experimental ? ', junto com a data da aula experimental' : ''}.`}</p>
       <div class="row wrap" style="justify-content:center"><a class="btn sec" href="${zap}" target="_blank" rel="noopener">${ic('phone','sm')}Falar no WhatsApp</a><button class="btn pri" data-act="fechar">Pronto</button></div></div>`);
-    setTimeout(() => mostrarPush('Nova inscrição', `${d.nome} quer ${ATIV[d.atv].curto.toLowerCase()}. A ficha já está no painel.`), 900);
+    if (!VALENDO) setTimeout(() => mostrarPush('Nova inscrição', `${d.nome} quer ${ATIV[d.atv].curto.toLowerCase()}. A ficha já está no painel.`), 900);
     if (UI.role) setTimeout(reRender, 400);
   },
   verInscricao:(d) => { const i = S.inscricoes.find(x => x.id === d.v), x = i.dados, F = FORMULARIOS[formDe(x.atv)];
@@ -415,7 +558,7 @@ const ACT = {
   ativarAvisos:() => { ganhar('notif'); reRender(); mostrarPush('Avisos ligados', 'Pronto! Você recebe o lembrete 2 horas antes de cada aula. +20 pontos.'); },
   indicar:() => { const a = alunoPor(S, UI.who.aluno); ACT.copiar({v:`Vem praticar comigo no Espaço Anirvana! Inscrição aqui: https://rottaguide.com/anirvana#inscricao (indicação de ${a.nome})`}); setTimeout(() => avisar('Convite copiado. Quando a pessoa se matricular, você ganha 100 pontos.', 'user-plus'), 900); },
   trocarPontos:() => folhaTrocar(alunoPor(S, UI.who.aluno)),
-  pedirPremio:(d) => { const a = alunoPor(S, UI.who.aluno), pr = PREMIOS.find(p => p.id === d.v); if (pontosAluno(S, a.id).saldo < pr.custo) return; (S.trocas = S.trocas || []).push({id:'tr' + (S.seq++), a:a.id, premio:pr.id, custo:pr.custo, d:HOJE_ISO, estado:'pendente'}); salvar(); folhaTrocar(a); reRender(); avisar(`Troca feita: ${pr.nome}. Retire no Espaço.`, 'gift'); },
+  pedirPremio:(d) => { const a = alunoPor(S, UI.who.aluno), pr = PREMIOS.find(p => p.id === d.v); if (pontosAluno(S, a.id).saldo < pr.custo) return; (S.trocas = S.trocas || []).push({id:'tr' + novoId(), a:a.id, premio:pr.id, custo:pr.custo, d:HOJE_ISO, estado:'pendente'}); salvar(); folhaTrocar(a); reRender(); avisar(`Troca feita: ${pr.nome}. Retire no Espaço.`, 'gift'); },
   extratoPontos:() => { const a = alunoPor(S, UI.who.aluno), P = pontosAluno(S, a.id); abrirFolha(`${folhaCab('Seus pontos', `${P.total} ganhos · ${P.saldo} para trocar · nível ${P.nivel}`)}<div class="list">${P.itens.map(i => `<div class="li"><span class="ico-b">${ic('check')}</span><div class="main-c"><span class="t">${escapeH(i.lab)}</span>${i.d ? `<span class="s">${dataBR(i.d)}</span>` : ''}</div><b class="num">+${i.pts}</b></div>`).join('')}${(S.trocas || []).filter(t => t.a === a.id).map(t => `<div class="li"><span class="ico-b">${ic('gift')}</span><div class="main-c"><span class="t">${PREMIOS.find(p => p.id === t.premio).nome}</span><span class="s">${dataBR(t.d)}</span></div><b class="num" style="color:var(--sol-ink)">−${t.custo}</b></div>`).join('')}</div>`); },
   entregarTroca:(d) => { const t = S.trocas.find(x => x.id === d.v); t.estado = 'entregue'; t.entregue = HOJE_ISO; salvar(); reRender(); avisar(`Entregue para ${alunoPor(S, t.a).nome.split(' ')[0]}`, 'gift'); },
 
@@ -457,7 +600,7 @@ const ACT = {
     const mes = st.st === 'pago' ? (() => { const x = pd(proximaCobranca(S,m)); return `${x.getFullYear()}-${pad(x.getMonth()+1)}`; })() : MES_ATUAL;
     /* o aluno só AVISA que pagou; quem dá baixa é a administração */
     if (!(S.avisosPag || []).some(x => x.mat === m.id && x.mes === mes && x.estado === 'aguardando'))
-      (S.avisosPag = S.avisosPag || []).push({id:'ap'+(S.seq++), a:a.id, mat:m.id, mes, valor: d.x === 'cartao' ? comCartao(S, valorMat(S,m)) : valorMat(S,m), taxa: d.x === 'cartao' ? (S.regras.taxaCartao ?? TAXA_CARTAO) : 0, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, metodo:d.x, estado:'aguardando'});
+      (S.avisosPag = S.avisosPag || []).push({id:'ap'+novoId(), a:a.id, mat:m.id, mes, valor: d.x === 'cartao' ? comCartao(S, valorMat(S,m)) : valorMat(S,m), taxa: d.x === 'cartao' ? (S.regras.taxaCartao ?? TAXA_CARTAO) : 0, d:HOJE_ISO, h:`${pad(HOJE.getHours())}:${pad(HOJE.getMinutes())}`, metodo:d.x, estado:'aguardando'});
     salvar(); reRender(); folhaComprovante(m.id, mes, d.x);
   },
   maisFin:(d) => folhaMaisFin(d.v, d.x || 'menu'),
@@ -539,7 +682,7 @@ document.addEventListener('change', e => {
 /* formulários */
 document.addEventListener('submit', e => {
   const lg = e.target.dataset && e.target.dataset.login;
-  if (lg){ e.preventDefault(); if (lg === 'aluno') loginAluno(); else if (lg === 'instrutor') loginInstrutor(); else if (lg === 'otp') conferirOtp(); else if (lg === 'admin') conferirPinAdmin(e.target.dataset.id); return; }
+  if (lg){ e.preventDefault(); if (lg === 'aluno') loginAluno(); else if (lg === 'instrutor') loginInstrutor(); else if (lg === 'otp') conferirOtp(); else if (lg === 'admin') conferirPinAdmin(e.target.dataset.id); else if (lg === 'adminCodigo') loginAdmCodigo(); else if (lg === 'nasc') conferirNasc(); return; }
   e.preventDefault();
   const f = e.target;
   if (f.id === 'fLanc'){
@@ -548,30 +691,30 @@ document.addEventListener('submit', e => {
     if (!desc){ $('#lDesc').focus(); avisar('Diga o que foi','circle-alert'); return; }
     const L = f.dataset.id && S.lanc.find(l => l.id === f.dataset.id);
     if (L){ if ((S.fechados || {})[mesDe(L.d)] || (S.fechados || {})[mesDe(d)]){ avisar('Mês fechado: peça para reabrir antes de corrigir', 'circle-alert'); return; } Object.assign(L, {d, valor, desc, cat}); salvar(); fecharFolha(); UI.balMes = mesDe(d); reRender(); avisar(`Lançamento corrigido: ${brl(valor)} · ${cat}`); return; }
-    S.lanc.push({id:'l'+(S.seq++), tipo, d, valor, desc, cat}); salvar(); fecharFolha(); UI.balMes = mesDe(d); reRender();
+    S.lanc.push({id:'l'+novoId(), tipo, d, valor, desc, cat, ...(f.dataset.conta ? {conta:f.dataset.conta} : {})}); salvar(); fecharFolha(); UI.balMes = mesDe(d); reRender();
     avisar(`${tipo==='saida'?'Saída':'Entrada'} lançada: ${brl(valor)} · ${cat}`);
   }
   if (f.id === 'fReceber'){
     const m = S.alunos.flatMap(a => a.mats.map(x => ({a,x}))).find(o => o.x.id === f.dataset.mat);
     const valor = num($('#rValor').value) || valorMat(S, m.x);
     const meses = +($('#rMeses')?.value || 1), st = statusPagamento(S, m.a, m.x), mes = st.st === 'pago' ? mesDe(proximaCobranca(S, m.x)) : MES_ATUAL;
-    S.pagamentos.push({id:'pg'+(S.seq++), a:m.a.id, mat:m.x.id, mes, valor, d:$('#rData').value || HOJE_ISO, metodo:$('#rMet').value, ...(meses > 1 ? {meses} : {})});
+    S.pagamentos.push({id:'pg'+novoId(), a:m.a.id, mat:m.x.id, mes, valor, d:$('#rData').value || HOJE_ISO, metodo:$('#rMet').value, ...(meses > 1 ? {meses} : {})});
     salvar(); fecharFolha(); reRender(); avisar(`Pagamento registrado: ${m.a.nome.split(' ')[0]} · ${brl(valor)}${meses > 1 ? ` · pacote de ${meses} meses (até ${nomeMes(somaMes(mes, meses - 1)).toLowerCase()})` : ''}`);
   }
   if (f.id === 'fNovo'){
     const nome = $('#nNome').value.trim(); if (!nome) return;
     const atv = $('#nAtv').value, plano = atv === 'yoga' ? $('#nPlano').value : null, turmas = $('#nTur').value.split(',').filter(Boolean);
-    const id = 'a' + (S.seq++);
+    const id = 'a' + novoId();
     const instrEsc = $('#nInstr')?.value || null;
     if (ATIV[atv].vis === 'escolhido' && !instrEsc){ avisar('Escolha com quem a pessoa vai fazer', 'circle-alert'); return; }
-    S.alunos.push({id, nome, desde:HOJE_ISO, obs:'', status:'ativo', tel:$('#nTel').value || '(41) 9 0000-0000', mats:[{id:id+'-0', atv, plano, valor: plano ? null : 150, turmas, venc: Math.min(28, +$('#nVenc').value || HOJE.getDate()), metodo:$('#nMet').value, cartaoFim: $('#nMet').value==='cartao' ? '4242' : null, instr:instrEsc, status:'ativo'}]});
+    S.alunos.push({id, nome, desde:HOJE_ISO, obs:'', status:'ativo', tel:$('#nTel').value || '', mats:[{id:id+'-0', atv, plano, valor: plano ? null : (ATIV[atv].valor ?? null), turmas, venc: Math.min(28, +$('#nVenc').value || HOJE.getDate()), metodo:$('#nMet').value, cartaoFim: null, instr:instrEsc, status:'ativo'}]});
     salvar(); fecharFolha(); reRender();
     const quem = EQUIPE.filter(p => p.atvs.includes(atv)).map(p => p.nome);
     avisar(`${nome.split(' ')[0]} cadastrado. Já aparece para ${quem.join(', ')}.`, 'user-plus');
   }
   if (f.id === 'fSub'){
     const para = $('#sPara').value || null;
-    S.subs.push({id:'sb'+(S.seq++), turma:f.dataset.t, d:f.dataset.d, de:UI.who.instrutor, para:null, pedidoPara:para, motivo:$('#sMot').value.trim() || 'Sem motivo informado', status:'aberto', criado:HOJE_ISO});
+    S.subs.push({id:'sb'+novoId(), turma:f.dataset.t, d:f.dataset.d, de:UI.who.instrutor, para:null, pedidoPara:para, motivo:$('#sMot').value.trim() || 'Sem motivo informado', status:'aberto', criado:HOJE_ISO});
     salvar(); fecharFolha(); reRender();
     const t = TURMA[f.dataset.t];
     avisar(para ? `Pedido enviado para ${PESSOA[para].nome}` : `Pedido enviado para todas de ${ATIV[t.atv].curto}`, 'repeat');
@@ -583,7 +726,7 @@ document.addEventListener('submit', e => {
     if (!(valor >= 0) || !(vagas > 0)){ avisar('Confira valor e vagas', 'circle-alert'); return; }
     const ed = f.dataset.id && S.eventos.find(x => x.id === f.dataset.id);
     if (ed){ if (vagas < ed.inscritos.length + (ed.externos || 0)){ avisar(`Já tem ${ed.inscritos.length + (ed.externos || 0)} inscritos: as vagas não podem ser menos que isso`, 'circle-alert'); return; } Object.assign(ed, {nome, data, h, valor, vagas, desc:$('#eDesc').value.trim(), icon:$('#eIcon').value}); salvar(); fecharFolha(); reRender(); avisar(`${nome} atualizado`, 'check'); return; }
-    const id = 'ev' + (S.seq++);
+    const id = 'ev' + novoId();
     S.eventos.push({id, nome, data, h, valor, vagas, desc:$('#eDesc').value.trim(), icon:$('#eIcon').value, alvo:'todos', canais:['push','whatsapp'], criado:HOJE_ISO, divulgado:null, inscritos:[], externos:0});
     salvar(); reRender(); UI.div.alvo = 'todos'; UI.div.canais = ['push','whatsapp']; UI.div.msg = null; folhaDivulgar(id);
     return;
@@ -607,7 +750,7 @@ document.addEventListener('submit', e => {
     if (!nome || !(valor > 0)){ avisar('Dê um nome e o valor total', 'circle-alert'); return; }
     const dados = {nome, atv:$('#pkAtv').value, plano:$('#pkPlano').value, meses, valor};
     S.pacotes = S.pacotes || []; const p = S.pacotes.find(x => x.id === f.dataset.id);
-    if (p) Object.assign(p, dados); else S.pacotes.push({id:'pk' + (S.seq++), ...dados});
+    if (p) Object.assign(p, dados); else S.pacotes.push({id:'pk' + novoId(), ...dados});
     salvar(); fecharFolha(); reRender(); avisar(`Pacote ${nome}: ${meses} meses por ${brl(valor)}`, 'package'); return;
   }
   if (f.id === 'fAjuste'){
@@ -627,7 +770,7 @@ document.addEventListener('submit', e => {
     const w = soDig($('#tpWhats').value), whats = w.length >= 12 ? w : w.length >= 10 ? '55' + w : ESPACO.whats;
     const dados = {nome, quem:$('#tpQuem').value.trim(), desc:$('#tpDesc').value.trim(), whats};
     S.terapias = S.terapias || [];
-    const t = S.terapias.find(x => x.id === f.dataset.id); if (t) Object.assign(t, dados); else S.terapias.push({id:'tp' + (S.seq++), icon:'heart', ...dados});
+    const t = S.terapias.find(x => x.id === f.dataset.id); if (t) Object.assign(t, dados); else S.terapias.push({id:'tp' + novoId(), icon:'heart', ...dados});
     salvar(); fecharFolha(); reRender(); avisar(`${nome} salva. Já aparece na aba Terapias do aluno.`, 'check'); return;
   }
   if (f.id === 'fFeriado'){
@@ -644,7 +787,7 @@ document.addEventListener('submit', e => {
     if (!nome){ $('#atNome').focus(); avisar('Dê um nome para a atividade', 'circle-alert'); return; }
     if (!(pct >= 0 && pct <= 1)){ $('#atPct').focus(); avisar('O % vai de 0 a 100', 'circle-alert'); return; }
     const valor = $('#atValor') ? num($('#atValor').value) : undefined;
-    const id = f.dataset.id || ('at' + (S.seq++));
+    const id = f.dataset.id || ('at' + novoId());
     const dados = {nome, curto, desc:$('#atDesc').value.trim(), icon:$('#atIcon').value, hex:$('#atCor').value, cor:$('#atCor').value, vis:$('#atVis').value, form:$('#atForm').value, repasse:pct, turma:$('#atVis').value !== 'escolhido', combinar: !!$('#atComb')?.checked, ...(valor > 0 ? {valor} : {})};
     if (!f.dataset.id && Object.values(ATIV).some(a => a.nome.toLowerCase() === nome.toLowerCase())){ avisar('Já existe uma atividade com esse nome', 'circle-alert'); return; }
     S.atividades[id] = {...(S.atividades[id] || {}), ...dados}; S.regras.pct[id] = pct;
@@ -652,8 +795,37 @@ document.addEventListener('submit', e => {
     avisar(f.dataset.id ? `${nome} atualizada` : `${nome} criada. Agora ponha os horários e quem dá.`, 'check');
     return;
   }
+  if (f.id === 'fConta'){ gravarContaFixa(f); return; }
+  if (f.id === 'fEdAluno'){ gravarEdAluno(f); return; }
+  if (f.id === 'fMat'){ gravarMat(f); return; }
+  if (f.id === 'fPag'){
+    const p = S.pagamentos.find(x => x.id === f.dataset.id); if (!p) return;
+    const valor = num($('#pgValor').value), mes = $('#pgMes').value || p.mes;
+    if (!(valor > 0)){ $('#pgValor').focus(); avisar('Digite o valor', 'circle-alert'); return; }
+    if ((S.fechados || {})[p.mes] || (S.fechados || {})[mes]){ avisar('Mês fechado: peça para reabrir antes de corrigir', 'circle-alert'); return; }
+    Object.assign(p, {valor, d:$('#pgData').value || p.d, mes, metodo:$('#pgMet').value}); salvar(); reRender(); if (p.a) folhaAluno(p.a); else fecharFolha(); avisar(`Pagamento corrigido: ${brl(valor)}`, 'check'); return;
+  }
+  if (f.id === 'fTurma'){
+    const id = f.dataset.id, dia = +$('#tuDia').value, h = $('#tuHora').value, sala = ($('#tuSala').value || '').trim() || SALAS[0], instr = $('#tuInstr').value, nome = ($('#tuNome').value || '').trim();
+    if (!/^\d{2}:\d{2}$/.test(h)){ $('#tuHora').focus(); avisar('Escolha a hora', 'circle-alert'); return; }
+    if (!instr){ avisar('Escolha quem dá a aula', 'circle-alert'); return; }
+    const choque = TURMAS.find(t => t.id !== id && t.dia === dia && t.h === h && t.instr === instr);
+    if (choque){ avisar(`${PESSOA[instr].nome} já tem ${nomeTurma(choque)} ${DIAS[dia]} ${h}`, 'circle-alert'); return; }
+    if (id){
+      const nova = (S.turmasNovas || []).find(t => t.id === id);
+      if (nova) Object.assign(nova, {dia, h, sala, nome: nome || undefined, instr});
+      else { S.turmaAjuste = S.turmaAjuste || {}; S.turmaAjuste[id] = {dia, h, sala, ...(nome ? {nome} : {nome:undefined})}; S.turmaInstr = S.turmaInstr || {}; S.turmaInstr[id] = instr; }
+    } else {
+      const atv = $('#tuAtv').value, nid = `${atv}-${['dom','seg','ter','qua','qui','sex','sab'][dia]}${h.replace(':', '')}-${novoId().slice(-4)}`;
+      (S.turmasNovas = S.turmasNovas || []).push({id:nid, atv, dia, h, instr, sala, ...(nome ? {nome} : {})});
+      const p = PESSOA[instr]; if (p && !p.atvs.includes(atv)) p.atvs = [...p.atvs, atv];
+    }
+    ligarAtividades(); ligarEquipe(); salvar(); fecharFolha(); reRender();
+    avisar(`${nome || ATIV[(TURMA[id] || {}).atv || $('#tuAtv')?.value]?.curto || 'Horário'} · ${DIAS_L[dia].toLowerCase()} ${h} · ${sala}`, 'calendar-days');
+    return;
+  }
   if (f.id === 'fHorario'){
-    const atv = f.dataset.atv, dia = +$('#hrDia').value, h = $('#hrHora').value, instr = $('#hrInstr').value, sala = $('#hrSala').value.trim() || 'Sala';
+    const atv = f.dataset.atv, dia = +$('#hrDia').value, h = $('#hrHora').value, instr = $('#hrInstr').value, sala = $('#hrSala').value.trim() || SALAS[0];
     if (!h || !instr){ avisar('Escolha a hora e quem dá', 'circle-alert'); return; }
     if (TURMAS.some(t => t.dia === dia && t.h === h && t.instr === instr)){ avisar(`${PESSOA[instr].nome} já tem aula ${DIAS[dia]} ${h}`, 'circle-alert'); return; }
     const id = `${atv}-${['dom','seg','ter','qua','qui','sex','sab'][dia]}${h.replace(':', '')}`;
@@ -671,7 +843,7 @@ document.addEventListener('submit', e => {
     if (ed){ Object.assign(ed, dados); ligarEquipe(); salvar(); fecharFolha(); reRender(); avisar(`${nome} atualizada`, 'check'); return; }
     if (S.equipe.some(p => p.ativo !== false && p.nome.toLowerCase() === nome.toLowerCase())){ avisar('Já tem alguém com esse nome na equipe', 'circle-alert'); return; }
     const CORES = ['#0E7266','#B9488E','#2F7FB8','#C08A12','#3E8E6E','#6A55C9','#E5672A','#1F8A9E','#A2563A','#5B8C2A'];
-    const id = 'e' + (S.seq++);
+    const id = 'e' + novoId();
     S.equipe.push({id, ...dados, cor:CORES[S.equipe.length % CORES.length], ativo:true, entrou:HOJE_ISO});
     (S.codigos = S.codigos || {}); novoCodigo(id); ligarEquipe(); salvar(); reRender();
     folhaCodigoNovo(id); avisar(`${nome} entrou na equipe. Mande o código pessoal para ela.`, 'user-plus');
@@ -690,7 +862,7 @@ document.addEventListener('submit', e => {
     } else {
       if (S.fornecedores.some(x => x.nome.toLowerCase() === nome.toLowerCase())){ avisar('Esse fornecedor já está cadastrado', 'circle-alert'); return; }
       const CORES = ['#0E7266','#C08A12','#B9488E','#2F7FB8','#5B8C2A','#A2563A','#6A55C9','#D46A8C','#1F8A9E','#7A5C2E'];
-      S.fornecedores.push({id:'f' + (S.seq++), ...dados, hue:CORES[S.fornecedores.length % CORES.length], ativo:true});
+      S.fornecedores.push({id:'f' + novoId(), ...dados, hue:CORES[S.fornecedores.length % CORES.length], ativo:true});
     }
     ligarFornecedores(); salvar(); fecharFolha(); reRender();
     avisar(`${curto}: ${modelo === 'proprio' ? 'estoque do Espaço' : modelo === 'integral' ? 'repasse de 100%' : `${Math.round(pct*100)}% fornecedor · ${Math.round((1-pct)*100)}% Espaço`}${ed ? ' · vendas antigas ficam como estavam' : ''}`, 'store');
@@ -704,14 +876,14 @@ document.addEventListener('submit', e => {
     const ed = f.dataset.id && prodPor(f.dataset.id);
     if (ed) Object.assign(ed, {nome, preco, forn, cat, icon:CATS_LOJA[cat]?.icon || 'tag'});
     else if (S.produtos.some(p => p.nome.toLowerCase() === nome.toLowerCase() && p.forn === forn)){ avisar('Esse produto já está cadastrado para esse fornecedor', 'circle-alert'); return; }
-    else S.produtos.push({id:'p' + (S.seq++), nome, preco, forn, cat, icon:CATS_LOJA[cat]?.icon || 'tag'});
+    else S.produtos.push({id:'p' + novoId(), nome, preco, forn, cat, icon:CATS_LOJA[cat]?.icon || 'tag'});
     salvar(); fecharFolha(); reRender(); avisar(`${nome} · ${brl(preco)} ${ed ? 'atualizado' : 'na lojinha'} (${FORN[forn].curto})`, 'store');
     return;
   }
   if (f.id === 'fLivre'){
     const nome = $('#ilNome').value.trim(), valor = num($('#ilValor').value), forn = $('#ilForn').value;
     if (!nome || !valor) return;
-    const id = 'x' + (S.seq++);
+    const id = 'x' + novoId();
     if ($('#ilGuardar')?.checked){ (S.produtos = S.produtos || []).push({id, nome:nome.replace(/^\d+\s+/, ''), preco:valor, forn, cat:'casa', icon:'tag'}); salvar(); }
     else UI.livres[id] = {id, nome, preco:valor, forn, cat:'casa', icon:'tag'};
     UI.cart[id] = 1; fecharFolha(); reRender(); avisar(`${nome} na venda`);
@@ -721,4 +893,5 @@ document.addEventListener('submit', e => {
 window.addEventListener('hashchange', () => { lerHash(); render(); });
 lerHash();
 render();
+if (VALENDO && nuvemLigada()) sincronizarAoAbrir();
 if (UI.abrirInscricao){ UI.abrirInscricao = false; history.replaceState(null, '', location.pathname); ACT.inscricao(); }
