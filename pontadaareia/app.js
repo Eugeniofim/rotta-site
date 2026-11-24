@@ -15,7 +15,9 @@
      #/imoveis    os imóveis da API do site deles (dados/imoveis.json)
      #/gestao     só quem gere: relatórios com gráficos mensais (relatorios.js)
      #/equipe     só quem gere: quem recebe o aviso e quem entra no app (aba da Gestão)
+     #/creditos   só o dono e o estúdio: os créditos da Milla (1 crédito = 1 pessoa atendida no mês), o saldo e as pessoas atendidas, sem custo nem margem (creditos.js, 24/11)
      #/assinatura só quem gere: a mensalidade da imobiliária com o estúdio, o Pix e o "Já paguei" (assinatura.js)
+     #/ia         só o dono e o estúdio: a IA na conta da imobiliária, a chave, o uso do mês e a reserva (ia.js)
 
    Sem banco (config.js do fonte) abre a demonstração com conversas de exemplo.
    Com banco, só a conta dona da sala entra (a RLS confere de novo no banco).
@@ -43,7 +45,8 @@ const MENU = [['inicio', 'Início'], ['whats', 'WhatsApp'], ['leads', 'Leads'], 
 const SO_GESTOR = ['equipe', 'gestao'];
 /* 16/11/2026: a Sua assinatura (assinatura.js) é uma tela sem item no menu: abre pela linha embaixo do nome da
    imobiliária (computador) ou pelo topo da Gestão (celular). O ADM do estúdio NÃO mora aqui: tem endereço próprio (adm.html). */
-const TELAS = [...MENU.map(([id]) => id), 'assinatura'];
+/* 23/11/2026: a IA da Milla (ia.js) também é tela sem item no menu: abre pela linha embaixo da assinatura */
+const TELAS = [...MENU.map(([id]) => id), 'assinatura', 'creditos', 'ia'];
 const menuVisivel = () => MENU.filter(([id]) => !SO_GESTOR.includes(id) || GESTOR());
 const menuOn = (id, tela) => tela === id;
 const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
@@ -52,7 +55,8 @@ const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
 const S = { neg: '', q: '', bairro: '', leadFiltro: 'abertos', rotaAnterior: '', senhaNova: false, entrarMsg: '', primeiro: false };
 /* quem entra no app (11/11/2026): cada pessoa com o próprio e-mail; a sala diz o papel (meu_acesso) */
 const AC = { lista: [], carregou: false, erro: '', salvando: false, semTabela: false };
-const PAPEIS = [['corretor', 'Equipe', 'vê e responde conversas e leads; não mexe na Equipe'], ['dono', 'Dono', 'tudo, inclusive a Equipe e quem entra no app']];
+/* 'gerente' não é papel no banco: é a Equipe (papel corretor) com acessos.gerente = true (21/11/2026) */
+const PAPEIS = [['corretor', 'Equipe', 'vê e responde conversas e leads; não mexe na Equipe'], ['gerente', 'Gerente', 'como a Equipe, e também vê e mexe na Equipe e vê a Gestão; não mexe em quem entra no app nem na assinatura'], ['dono', 'Dono', 'tudo, inclusive a Equipe e quem entra no app']];
 const LD = { lista: [], carregou: false, buscando: false, erro: '' };
 const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: false, cfg: { modo: 'todos', prazoMin: 10, fds: 'segura' } };
 /* rodízio por produto (10/11/2026): a vez gira em venda, locação e temporada; cada pessoa pode ter os seus */
@@ -99,8 +103,11 @@ const ir = h => { location.hash = h; };
 /* ---------- a porta: entra quem está na lista da sala (a RLS confere de novo no banco) ---------- */
 const REAL = () => typeof WZ_REAL === 'function' && WZ_REAL();
 const LOGADO = () => typeof isLoggedIn === 'function' && isLoggedIn();
-/* quem gere: a conta do estúdio (admin) e o dono da imobiliária. Na demonstração, a pessoa escolhida na entrada. */
-const GESTOR = () => REAL() ? (WZ.papel === 'admin' || WZ.papel === 'dono') : demoPessoa().papel === 'dono';
+/* quem gere: a conta do estúdio (admin), o dono da imobiliária e quem tem a GERÊNCIA (21/11/2026, pedido do Eugênio
+   para a Poliana: acessos.gerente). GESTOR = vê e mexe na Equipe e vê a Gestão. A assinatura e quem entra no app ficam
+   só com o dono e o estúdio (DONO). Na demonstração, a pessoa escolhida na entrada. */
+const GESTOR = () => REAL() ? (WZ.papel === 'admin' || WZ.papel === 'dono' || WZ.gere === true) : demoPessoa().papel === 'dono';
+const DONO = () => REAL() ? (WZ.papel === 'admin' || WZ.papel === 'dono') : demoPessoa().papel === 'dono';
 function vEntrar() {
   return `<div class="entrar-fundo"><form class="entrar-caixa" id="entrar-form" aria-label="Entrar no app da Milla">
     <div class="entrar-marca">${SIMBOLO('grande')}<span class="olho">Atendimento da ${esc(MARCA)}</span><h1>Entrar no app da Milla</h1><div class="sm">Cada pessoa da equipe entra com o próprio e-mail e a própria senha.</div></div>
@@ -158,7 +165,7 @@ function vNaoDona() {
   return `${faixaCel()}<div class="topo"><h1>App da Milla</h1></div><div class="box"><b>Esta conta ainda não tem acesso ao app da ${esc(MARCA)}.</b><div class="sm">${authEmail() ? 'Você entrou como ' + esc(authEmail()) + '. ' : ''}Peça ao responsável da ${esc(MARCA)} para pôr este e-mail em Equipe → Quem entra no app. Depois, é só entrar de novo.</div><button type="button" class="btn btn-line btn-p" data-act="sair">Sair desta conta</button></div>`;
 }
 function vSoGestor(titulo) {
-  return `${faixaCel()}<div class="topo"><h1>${esc(titulo)}</h1></div><div class="box"><b>Só quem gere a ${esc(MARCA)} vê a ${esc(titulo)}.</b><div class="sm">Os relatórios, a equipe e quem entra no app ficam com o dono. As conversas, os leads e os imóveis estão no menu.</div></div>`;
+  return `${faixaCel()}<div class="topo"><h1>${esc(titulo)}</h1></div><div class="box"><b>Só quem gere a ${esc(MARCA)} vê a ${esc(titulo)}.</b><div class="sm">Os relatórios e a equipe ficam com o dono e com quem ele põe como gerente. As conversas, os leads e os imóveis estão no menu.</div></div>`;
 }
 /* quem é esta conta nesta sala: 'admin' (o estúdio), 'dono', 'corretor' ou nada */
 async function confereDona() {
@@ -177,6 +184,13 @@ async function confereDona() {
     if (r.ok) {
       const papel = await r.json().catch(() => null);
       WZ.papel = typeof papel === 'string' ? papel : '';
+      /* a gerência (21/11/2026): o corretor com acessos.gerente vê e mexe na Equipe e vê a Gestão. Ele continua
+         'corretor' (o cofre segue deixando responder pelo app). Sala sem a função pode_equipe = só o dono, como antes. */
+      WZ.gere = false;
+      if (WZ.papel === 'corretor') {
+        const g = await supaFetch('rpc/pode_equipe', { method: 'POST', body: '{}' }).catch(() => null);
+        WZ.gere = !!(g && g.ok && (await g.json().catch(() => false)) === true);
+      }
     } else {
       /* sala sem a lista de acesso (SQL antigo): vale só a dona, como antes */
       const c0 = await supaFetch('app_config?id=eq.1&select=owner_uid');
@@ -200,11 +214,13 @@ function contagens() {
 }
 function renderLado() {
   const r = rota(), n = contagens();
-  const quem = REAL() && LOGADO() ? (authEmail() || '') + ({ dono: ' · dono', corretor: ' · equipe' }[WZ.papel] || '') : (REAL() ? '' : demoPessoa().nome + ' · ' + demoPessoa().faz + ' · demonstração');
+  const quem = REAL() && LOGADO() ? (authEmail() || '') + (WZ.gere && WZ.papel === 'corretor' ? ' · gerente' : ({ dono: ' · dono', corretor: ' · equipe' }[WZ.papel] || '')) : (REAL() ? '' : demoPessoa().nome + ' · ' + demoPessoa().faz + ' · demonstração');
   $('lado').innerHTML = `
     <a class="marca" href="#/inicio" aria-label="Milla, início">${LOGO}</a>
     <div class="conta"><span class="conta-rot">Imobiliária</span><b>${esc(MARCA)}</b><span class="online"><i aria-hidden="true"></i>Milla atendendo · 24 h</span></div>
     ${typeof asLinhaLado === 'function' ? asLinhaLado() : ''}
+    ${typeof crLinhaLado === 'function' ? crLinhaLado() : ''}
+    ${typeof iaLinhaLado === 'function' ? iaLinhaLado() : ''}
     <nav class="menu" aria-label="Menu">${menuVisivel().map(([id, l]) => `<a class="mi ${menuOn(id, r.tela) ? 'on' : ''} ${id === SO_GESTOR[0] ? 'mi-gestao' : ''}" href="#/${id}" ${menuOn(id, r.tela) ? 'aria-current="page"' : ''}>${svg(ICO[id])}<span>${l}</span>${n[id] ? `<span class="n">${n[id]}</span>` : ''}</a>`).join('')}</nav>
     <div class="rodape">A Milla responde 24 h pelo número da ${esc(MARCA)}. Quem responde aqui assume a conversa; a Milla volta quando você devolver.</div>
     ${SITE ? `<a class="mi site" href="${esc(SITE)}" target="_blank" rel="noopener">${svg(ICO.site)}<span>Ver o site</span></a>` : ''}
@@ -354,7 +370,9 @@ async function eqCarregar() {
     try {
       const c = await supaFetch('itens?colecao=eq.equipe_cfg&id=eq.cfg&apagado=eq.false&select=dados');
       const l = c.ok ? await c.json() : [];
-      if (l[0] && l[0].dados) EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10, fds: l[0].dados.fds === 'igual' ? 'igual' : 'segura' };
+      /* EQ.cfgResto (19/11/2026): o que a tela não mostra (repasse: false = fila estrita; acompanhar = nenhum lead parado)
+         precisa voltar intacto quando o dono muda o modo ou o prazo; antes, gravar aqui apagava os dois */
+      if (l[0] && l[0].dados) { EQ.cfgResto = Object.assign({}, l[0].dados); EQ.cfg = { modo: l[0].dados.modo === 'rodizio' ? 'rodizio' : 'todos', prazoMin: +l[0].dados.prazoMin || 10, fds: l[0].dados.fds === 'igual' ? 'igual' : 'segura' }; }
     } catch (x) { /* sem a configuração: avisa todos, como antes */ }
     EQ.erro = ''; EQ.carregou = true;
   } catch (e) { EQ.erro = 'Não consegui ler a equipe agora. Tente de novo em alguns segundos.'; }
@@ -370,7 +388,10 @@ async function acCarregar() {
   if (!LOGADO()) return;
   try {
     await authEnsure();
-    const r = await supaFetch('acessos?select=email,nome,papel&order=criado_em.asc&limit=50');
+    let r = await supaFetch('acessos?select=email,nome,papel,gerente&order=criado_em.asc&limit=50');
+    AC.temGerente = r.status !== 400;
+    /* sala sem a coluna da gerência (antes do SQL de 21/11/2026): a lista de sempre */
+    if (r.status === 400) r = await supaFetch('acessos?select=email,nome,papel&order=criado_em.asc&limit=50');
     if (r.status === 404) { AC.semTabela = true; AC.carregou = true; return; }
     if (!r.ok) throw new Error('banco ' + r.status);
     AC.lista = await r.json(); AC.erro = ''; AC.semTabela = false; AC.carregou = true;
@@ -387,11 +408,13 @@ function acWhats(x) {
 }
 function vAcessos() {
   if (AC.semTabela) return `<div class="box ac-box"><div class="sm">A lista de acesso ainda não foi ligada nesta conta. Fale com o studio Ti Artes.</div></div>`;
-  const papel = v => (PAPEIS.find(p => p[0] === v) || PAPEIS[0])[1];
+  const papel = x => (PAPEIS.find(p => p[0] === (x.papel === 'corretor' && x.gerente ? 'gerente' : x.papel)) || PAPEIS[0])[1];
+  const gere = x => AC.temGerente && REAL() && x.papel === 'corretor'
+    ? `<button type="button" class="btn btn-line btn-p" data-act="ac-gerente" data-e="${esc(x.email)}" aria-pressed="${x.gerente ? 'true' : 'false'}">${x.gerente ? 'Tirar a gerência' : 'Dar a gerência'}</button>` : '';
   const linha = x => {
     const wa = acWhats(x);
-    return `<div class="lead eq-linha">${av(x.nome || x.email)}<span class="lt"><b>${esc(x.nome || x.email)}</b><span class="sm">${esc(x.email)} · ${esc(papel(x.papel))}</span></span>
-    <span class="lr ac-acoes">${wa ? `<a class="btn btn-line btn-p" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(acConvite(x))}" target="_blank" rel="noopener">Mandar o convite</a>` : ''}<button type="button" class="btn btn-line btn-p" data-act="ac-copiar" data-e="${esc(x.email)}">Copiar o convite</button><button type="button" class="btn btn-line btn-p" data-act="ac-tirar" data-e="${esc(x.email)}" aria-label="Tirar o acesso de ${esc(x.nome || x.email)}">Tirar</button></span></div>`;
+    return `<div class="lead eq-linha">${av(x.nome || x.email)}<span class="lt"><b>${esc(x.nome || x.email)}</b><span class="sm">${esc(x.email)} · ${esc(papel(x))}</span></span>
+    <span class="lr ac-acoes">${gere(x)}${wa ? `<a class="btn btn-line btn-p" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(acConvite(x))}" target="_blank" rel="noopener">Mandar o convite</a>` : ''}<button type="button" class="btn btn-line btn-p" data-act="ac-copiar" data-e="${esc(x.email)}">Copiar o convite</button><button type="button" class="btn btn-line btn-p" data-act="ac-tirar" data-e="${esc(x.email)}" aria-label="Tirar o acesso de ${esc(x.nome || x.email)}">Tirar</button></span></div>`;
   };
   return `<div class="box ac-box">
       <div class="sm">Cada pessoa entra com o próprio e-mail e cria a própria senha em "Primeiro acesso", na tela de entrar. Ninguém passa senha para ninguém. ${REAL() ? '' : 'Demonstração: a lista não é gravada.'}</div>
@@ -438,14 +461,14 @@ function vEquipe() {
       <button type="submit" class="btn btn-navy" ${EQ.salvando ? 'disabled' : ''}>Pôr na equipe</button>
     </form>`}
     <h2 class="ac-tit">Quem entra no app</h2>
-    ${vAcessos()}
+    ${DONO() ? vAcessos() : '<div class="box ac-box"><div class="sm">Quem entra no app e a assinatura ficam com o dono. Para dar ou tirar o acesso de alguém ao app, fale com ele.</div></div>'}
     <div class="sm eq-nota">A Meta aprova a mensagem de aviso uma vez só, em minutos até 1 dia. Enquanto isso, o aviso só chega para quem mandou qualquer mensagem ao número da Milla nas últimas 24 h. Quem escreve ao número da Milla é atendido como cliente: é assim que dá para testar sozinho, pedindo uma visita.</div>`;
 }
 async function eqGravaCfg() {
   if (!REAL()) return true;
   try {
     await authEnsure();
-    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin, fds: EQ.cfg.fds }, apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
+    const r = await supaFetch('itens?on_conflict=colecao,id', { method: 'POST', body: JSON.stringify({ colecao: 'equipe_cfg', id: 'cfg', dados: Object.assign({}, EQ.cfgResto || {}, { modo: EQ.cfg.modo, prazoMin: EQ.cfg.prazoMin, fds: EQ.cfg.fds }), apagado: false }), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
     return r.ok;
   } catch (e) { return false; }
 }
@@ -526,6 +549,16 @@ document.addEventListener('click', async e => {
     catch (e) { window.prompt('Copie o convite:', t); }
     return;
   }
+  if (a === 'ac-gerente') {
+    const x = AC.lista.find(y => y.email === el.dataset.e); if (!x || !DONO()) return;
+    const vira = !x.gerente;
+    if (!confirm(vira ? (x.nome || x.email) + ' passa a ver e mexer na Equipe e a ver a Gestão. Quem entra no app e a assinatura continuam só com o dono. Dar a gerência?' : 'Tirar a gerência de ' + (x.nome || x.email) + '? Ela continua entrando no app, sem a Equipe e a Gestão.')) return;
+    el.disabled = true;
+    let ok = false;
+    try { await authEnsure(); const r = await supaFetch('acessos?email=eq.' + encodeURIComponent(x.email), { method: 'PATCH', body: JSON.stringify({ gerente: vira }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (e) { ok = false; }
+    if (ok) x.gerente = vira;
+    toast(ok ? (vira ? (x.nome || x.email) + ' agora é gerente: na próxima vez que abrir o app, vê a Equipe e a Gestão.' : (x.nome || x.email) + ' não é mais gerente.') : 'Não gravou. Tente de novo.'); render(); return;
+  }
   if (a === 'ac-tirar') {
     const x = AC.lista.find(y => y.email === el.dataset.e); if (!x) return;
     if (!confirm('Tirar o acesso de ' + (x.nome || x.email) + '? Essa pessoa deixa de entrar no app na hora.')) return;
@@ -537,7 +570,7 @@ document.addEventListener('click', async e => {
   }
   if (a === 'demo-entrar') { const id = DEMO_PESSOAS.some(x => x.id === v) ? v : 'carla'; demoPessoa.mem = id; try { localStorage.setItem(DEMO_QUEM, id); localStorage.setItem(DEMO_CHAVE, '1'); } catch (x) {} S.rotaAnterior = ''; location.hash = '#/inicio'; render(); return; }
   if (a === 'demo-sair') { demoPessoa.mem = ''; try { localStorage.removeItem(DEMO_QUEM); localStorage.removeItem(DEMO_CHAVE); } catch (x) {} render(); return; }
-  if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.papel = ''; if (typeof AS !== 'undefined') Object.assign(AS, { dados: null, carregou: false, semFuncao: false, erro: '' }); AC.carregou = false; AC.lista = []; EQ.carregou = false; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
+  if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.papel = ''; WZ.gere = false; if (typeof AS !== 'undefined') Object.assign(AS, { dados: null, carregou: false, semFuncao: false, erro: '' }); if (typeof CR !== 'undefined') Object.assign(CR, { dados: null, carregou: false, semFuncao: false, erro: '' }); if (typeof IA !== 'undefined') Object.assign(IA, { dados: null, carregou: false, erro: '', colando: false, msg: '', msgCor: '' }); AC.carregou = false; AC.lista = []; EQ.carregou = false; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
   if (a === 'esqueci') {
     const email = ($('e-mail') && $('e-mail').value.trim()) || '';
     if (!email) { $('entrar-msg').textContent = 'Escreva o seu e-mail acima e toque de novo em "Esqueci a senha".'; return; }
@@ -595,14 +628,15 @@ document.addEventListener('submit', async e => {
   if (e.target.id === 'ac-form') {
     e.preventDefault();
     const nome = $('ac-nome').value.trim().slice(0, 40), email = acMail($('ac-mail').value), papel = $('ac-papel').value === 'dono' ? 'dono' : 'corretor';
+    const gerente = $('ac-papel').value === 'gerente' && !!AC.temGerente;
     if (!nome) { toast('Escreva o nome.'); return; }
     if (!acOk(email)) { toast('Confira o e-mail: nome@email.com'); $('ac-mail').focus(); return; }
     if (AC.lista.some(x => x.email === email)) { toast('Esse e-mail já entra no app.'); return; }
     AC.salvando = true;
     let ok = true;
-    if (REAL()) { try { await authEnsure(); const r = await supaFetch('acessos', { method: 'POST', body: JSON.stringify({ email, nome, papel }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (x) { ok = false; } }
+    if (REAL()) { try { await authEnsure(); const r = await supaFetch('acessos', { method: 'POST', body: JSON.stringify(gerente ? { email, nome, papel, gerente } : { email, nome, papel }), headers: { Prefer: 'return=minimal' } }); ok = r.ok; } catch (x) { ok = false; } }
     AC.salvando = false;
-    if (ok) AC.lista.push({ email, nome, papel });
+    if (ok) AC.lista.push({ email, nome, papel, gerente });
     toast(ok ? nome + ' pode entrar. Mande o convite: a pessoa cria a própria senha em "Primeiro acesso".' : 'Não gravou. Tente de novo.'); render(); return;
   }
   if (e.target.id === 'primeiro-form') {
@@ -647,12 +681,18 @@ function render() {
     S.rotaAnterior = chave; window.scrollTo(0, 0);
     if (r.tela === 'leads') ldCarregar().then(() => { if (rota().tela === 'leads') render(); });
     if (r.tela === 'inicio') inCarregar().then(() => { if (rota().tela === 'inicio') render(); });
-    if (r.tela === 'equipe' && GESTOR()) Promise.all([eqCarregar(), acCarregar()]).then(() => { if (rota().tela === 'equipe') render(); });
+    if (r.tela === 'equipe' && GESTOR()) Promise.all([eqCarregar(), DONO() ? acCarregar() : null]).then(() => { if (rota().tela === 'equipe') render(); });
     if (r.tela === 'gestao' && GESTOR()) ldCarregar().then(() => { if (rota().tela === 'gestao') render(); });
-    if (r.tela === 'assinatura' && GESTOR()) asCarregar(true).then(() => { if (rota().tela === 'assinatura') render(); });
+    if (r.tela === 'assinatura' && DONO()) asCarregar(true).then(() => { if (rota().tela === 'assinatura') render(); });
+    if (r.tela === 'creditos' && DONO()) crCarregar(true).then(() => { if (rota().tela === 'creditos') render(); });
+    if (r.tela === 'ia' && DONO() && typeof iaCarregar === 'function') iaCarregar(true).then(() => { if (rota().tela === 'ia') render(); });
   }
-  /* a linha da assinatura no menu: carrega uma vez para quem gere */
-  if (GESTOR() && !AS.carregou && !AS.buscando && !(real && WZ.dona !== true)) asCarregar().then(render);
+  /* a linha da assinatura no menu: carrega uma vez para o dono (a gerência não vê a assinatura) */
+  if (DONO() && !AS.carregou && !AS.buscando && !(real && WZ.dona !== true)) asCarregar().then(render);
+  /* 20/11: os créditos do mês (creditos.js), para o botão no menu e o cartão do Início: só o dono (21/11: a gerência não vê) */
+  if (DONO() && !CR.carregou && !CR.buscando && !(real && WZ.dona !== true)) crCarregar().then(render);
+  /* 23/11: a IA da Milla (ia.js), para a linha no menu e o aviso do Início: só o dono e o estúdio, e só com `ia: true` no config */
+  if (typeof IA !== 'undefined' && DONO() && IA_LIGADO() && !IA.carregou && !IA.buscando && !(real && WZ.dona !== true)) iaCarregar().then(render);
   let html;
   if (real && WZ.dona === false) html = vNaoDona();
   else if (r.tela === 'inicio') html = vInicio();
@@ -661,9 +701,11 @@ function render() {
   else if (r.tela === 'equipe') html = GESTOR() ? vEquipe() : vSoGestor('Equipe');
   else if (r.tela === 'gestao') html = GESTOR() ? vRelatorios() : vSoGestor('Gestão');
   else if (r.tela === 'assinatura') html = vAssinatura();
+  else if (r.tela === 'creditos') html = vCreditos();
+  else if (r.tela === 'ia') html = typeof vIa === 'function' ? vIa() : vSoGestor('IA da Milla');
   else html = vWhats(r.param);
   /* o que entra logo abaixo da faixa do celular: o aviso da mensalidade no Início e a linha da assinatura na Gestão */
-  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() : r.tela === 'gestao' && GESTOR() && asLinhaCel() ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + '</div>' : '') : '';
+  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() + (typeof iaFaixa === 'function' ? iaFaixa() : '') + crCartao() : r.tela === 'gestao' && DONO() && (asLinhaCel() || (typeof iaLinhaCel === 'function' && iaLinhaCel())) ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + (typeof iaLinhaCel === 'function' ? iaLinhaCel() : '') + '</div>' : '') : '';
   if (extra) { const fx = faixaCel(); html = html.includes(fx) ? html.replace(fx, fx + extra) : extra + html; }
   $('meio').innerHTML = html;
   if (r.tela === 'assinatura') asPinta();
@@ -673,7 +715,7 @@ function render() {
   document.body.classList.toggle('tela-whats', r.tela === 'whats');
   document.body.classList.toggle('tela-inicio', r.tela === 'inicio');
   if (r.tela === 'whats' && !(real && WZ.dona === false)) wzLiga();
-  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe', assinatura: 'Sua assinatura' }[r.tela]);
+  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe', assinatura: 'Sua assinatura', creditos: 'Créditos', ia: 'IA da Milla' }[r.tela]);
 }
 window.addEventListener('hashchange', render);
 

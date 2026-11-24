@@ -135,7 +135,7 @@ function asDemo() {
   return a;
 }
 async function asCarregar(forcar) {
-  if (!GESTOR()) { AS.dados = null; AS.carregou = true; return; }
+  if (!DONO()) { AS.dados = null; AS.carregou = true; return; }
   if (!REAL()) { if (!AS.dados || forcar) AS.dados = asDemo(); AS.carregou = true; return; }
   if (AS.buscando || (AS.carregou && !forcar)) return;
   AS.buscando = true;
@@ -157,7 +157,7 @@ function asAtencao(a) {
 }
 /* a linha embaixo do nome da imobiliária, no menu do computador */
 function asLinhaLado() {
-  const a = GESTOR() && AS.dados; if (!a) return '';
+  const a = DONO() && AS.dados; if (!a) return '';
   const s = asSituacao(a), x = asTexto(a, s, 'dono'), av = asAvisou(a, s.v);
   const on = rota().tela === 'assinatura';
   return `<a class="as-lado as-${av ? 'azul' : x.cor} ${on ? 'on' : ''}" href="#/assinatura" ${on ? 'aria-current="page"' : ''}>
@@ -165,20 +165,20 @@ function asLinhaLado() {
 }
 /* no celular o menu lateral some: a linha vai para o topo da Gestão */
 function asLinhaCel() {
-  const a = GESTOR() && AS.dados; if (!a) return '';
+  const a = DONO() && AS.dados; if (!a) return '';
   const s = asSituacao(a), x = asTexto(a, s, 'dono'), av = asAvisou(a, s.v);
   return `<a class="as-cel as-${av ? 'azul' : x.cor}" href="#/assinatura"><span><span class="as-rot">Sua assinatura</span><b>${esc(av ? 'Você avisou que pagou' : x.txt)}</b></span><span class="sm">${esc(asReal(a.valor))}/mês ›</span></a>`;
 }
 /* no Início, só quando falta pouco ou passou: uma faixa */
 function asFaixa() {
-  const a = GESTOR() && AS.dados, s = asAtencao(a); if (!s) return '';
+  const a = DONO() && AS.dados, s = asAtencao(a); if (!s) return '';
   const msg = s.t === 'atrasado' ? 'A mensalidade da Milla de ' + asFmt(s.v) + ' está em aberto.' : s.t === 'hoje' ? 'A mensalidade da Milla vence hoje.' : 'A mensalidade da Milla vence em ' + s.n + ' dia' + (s.n === 1 ? '' : 's') + ' (' + asFmt(s.v) + ').';
   return `<a class="as-faixa as-${s.t === 'atrasado' ? 'verm' : 'ambar'}" href="#/assinatura"><b>${esc(msg)}</b><span class="sm">${esc(asReal(a.valor))} · pague pelo Pix aqui no app</span><span class="btn btn-navy btn-p">Ver e pagar</span></a>`;
 }
 
 function vAssinatura() {
   const topo = `${faixaCel()}<div class="topo"><div><span class="olho">${esc(MARCA)}</span><h1>Sua assinatura</h1></div></div>`;
-  if (!GESTOR()) return `${faixaCel()}<div class="topo"><h1>Sua assinatura</h1></div><div class="box"><b>Só quem gere a ${esc(MARCA)} vê a assinatura.</b><div class="sm">O valor e o pagamento ficam com o dono. As conversas, os leads e os imóveis estão no menu.</div></div>`;
+  if (!DONO()) return `${faixaCel()}<div class="topo"><h1>Sua assinatura</h1></div><div class="box"><b>Só o dono da ${esc(MARCA)} vê a assinatura.</b><div class="sm">O valor e o pagamento ficam com o dono. As conversas, os leads e os imóveis estão no menu.</div></div>`;
   if (!AS.carregou || AS.buscando) return topo + '<div class="sm vazio">Carregando…</div>';
   if (AS.erro) return topo + `<div class="box"><b>${esc(AS.erro)}</b><button type="button" class="btn btn-line btn-p" data-act="as-recarregar">Tentar de novo</button></div>`;
   const a = AS.dados;

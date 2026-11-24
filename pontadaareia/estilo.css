@@ -928,3 +928,117 @@ button.as-mes { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .teste-vivo i { animation: none; }
 }
+
+/* ---------- CRÉDITOS DO MÊS (creditos.js) e o lucro por cliente no ADM (custos.js) · 20/11/2026 ---------- */
+.cr-trilho { display: block; height: 8px; border-radius: 4px; background: var(--sup3); overflow: hidden; }
+.cr-trilho i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--sc, var(--ambar)); }
+.cr-trilho.grande { height: 14px; border-radius: 6px; }
+.cr-lado { margin: -6px 2px 14px; padding: 11px 14px; border-radius: var(--canto-p); background: var(--sup); box-shadow: inset 0 0 0 1px var(--linha2); display: flex; flex-direction: column; gap: 5px; color: var(--texto); }
+.cr-lado:hover, .cr-lado.on { color: var(--texto); box-shadow: inset 0 0 0 1.5px var(--sc); }
+.cr-lado b { font: 700 16px/1.2 var(--f-titulo); }
+.cr-lado b small, .cr-cartao b small { font: 500 12.5px var(--f-texto); color: var(--dim); }
+.cr-lado > small { font-size: 12px; color: var(--dim); }
+.cr-cartao { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 16px 18px; border-radius: var(--canto); background: var(--sup); box-shadow: inset 0 0 0 1px var(--linha2); color: var(--texto); }
+.cr-cartao:hover { color: var(--texto); box-shadow: inset 0 0 0 1.5px var(--sc); }
+.cr-cartao .cr-c1 { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cr-cartao b { font: 700 22px/1.15 var(--f-titulo); }
+.cr-cartao .cr-trilho { grid-column: 1 / -1; }
+.cr-cartao > .btn { grid-row: 1; grid-column: 2; }
+.cr-cartao > .sm { grid-column: 1 / -1; }
+.cr-tela { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 18px; align-items: start; }
+.cr-prev { margin: 0; font-size: 16px; line-height: 1.5; color: var(--texto); }
+.cr-h2 { margin-top: 6px !important; }
+.cr-amais { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--vermelho-suave); }
+.cr-amais b { font: 700 17px/1.3 var(--f-titulo); }
+.cr-hist { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; align-items: end; height: 170px; }
+.cr-hm { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
+.cr-hm-n { font-size: 11.5px; color: var(--dim); }
+.cr-hm-col { position: relative; flex: 1; width: 100%; max-width: 44px; display: flex; align-items: flex-end; }
+.cr-hm-col i { display: block; width: 100%; border-radius: 4px 4px 0 0; background: var(--azul); }
+.cr-hm-col i.passou { background: var(--vermelho); }
+.cr-hm-col em { position: absolute; left: -4px; right: -4px; height: 2px; background: var(--ambar); border-radius: 1px; }
+.cr-hm-m { font: 500 11px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fraco); }
+/* ADM: créditos e lucro por imobiliária */
+.lu-lista { display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 20px; }
+.lu-card { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); gap: 16px 22px; padding: 16px 18px; border-radius: 16px; background: var(--sup2); border: 1px solid var(--linha); }
+.lu-quem b { font: 700 17px/1.25 var(--f-titulo); display: block; }
+.lu-lucro { font: 700 30px/1.1 var(--f-titulo); letter-spacing: -.02em; margin-top: 8px; }
+.lu-lucro.neg { color: var(--vermelho); }
+.lu-lucro.pos { color: var(--verde); }
+.lu-contas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 22px; margin: 0; align-content: start; }
+.lu-contas div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--linha); padding: 6px 0; font-size: 13.5px; }
+.lu-contas dt { color: var(--dim); }
+.lu-contas dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.lu-barra { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
+.lu-barra .cr-trilho { height: 12px; }
+.lu-nota { grid-column: 1 / -1; font-size: 13px; color: var(--dim); }
+.lu-nota b { color: var(--texto); }
+/* 24/11: os créditos da Milla (pessoas atendidas) */
+.cr-tela .as-valor small { display: block; margin: 6px 0 0; font: 500 13.5px/1.4 var(--f-texto); color: var(--dim); }
+.cr-dias { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding-top: 6px; }
+.cr-dia { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
+.cr-dia i { display: block; width: 100%; border-radius: 4px 4px 0 0; background: var(--azul); }
+.cr-dia.hoje i { background: var(--ambar); }
+.cr-dias-eixo { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; color: var(--fraco); }
+.cr-meses { width: 100%; border-collapse: collapse; font-size: 14px; }
+.cr-meses th { text-align: left; font: 500 11px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fraco); padding: 0 0 8px; }
+.cr-meses td { padding: 8px 0; border-top: 1px solid var(--linha); color: var(--texto); }
+.cr-meses th:not(:first-child), .cr-meses td:not(:first-child) { text-align: right; }
+.cr-regras { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.5; }
+.cr-movs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cr-movs li { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--linha); font-size: 14px; color: var(--texto); }
+.cr-movs li small { color: var(--dim); }
+.cr-movs li b { font: 700 15px var(--f-titulo); }
+.cr-recarga { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--sup2); border: 1px solid var(--linha); }
+.cr-estudio { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; border-top: 1px dashed var(--linha2); }
+.cr-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 10px; }
+.cr-campos label { display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 760px) { .cr-movs li { grid-template-columns: 46px minmax(0, 1fr) auto; } .cr-movs li > span:last-child { grid-column: 2 / -1; } .cr-dias { gap: 2px; } }
+@media (max-width: 1100px) { .cr-tela { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) {
+  .cr-cartao { padding: 14px 15px; }
+  .cr-cartao b { font-size: 19px; }
+  .cr-hist { height: 140px; gap: 6px; }
+  .lu-lista { padding: 16px; }
+  .lu-card { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+}
+
+/* ---------- COMO ESTÁ SENDO GASTO (custos.js, 20/11/2026) ---------- */
+.ga-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 18px 20px 6px; }
+.ga-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 14px; background: var(--sup2); border: 1px solid var(--linha); min-width: 0; }
+.ga-card b { font: 700 24px/1.15 var(--f-titulo); letter-spacing: -.02em; }
+.ga-mod { display: flex; flex-direction: column; gap: 8px; padding: 14px 20px 6px; }
+.ga-mod-barra { display: flex; gap: 2px; height: 14px; border-radius: 6px; overflow: hidden; background: var(--sup3); }
+.ga-mod-barra i { display: block; height: 100%; }
+.ga-mod-leg { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--dim); }
+.ga-mod-leg span { display: inline-flex; align-items: center; gap: 6px; }
+.ga-mod-leg b { color: var(--texto); }
+.ga-mod-leg i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.ga-m0 { background: var(--ambar); } .ga-m1 { background: var(--azul); } .ga-m2 { background: var(--verde); } .ga-m3 { background: var(--vermelho); }
+.ga-tab td:nth-child(6) { text-align: left; white-space: normal; min-width: 150px; font-size: 13px; color: var(--dim); }
+.cu-tab th small { display: block; font-weight: 500; font-size: 11.5px; color: var(--fraco); }
+.cu-fora th, .cu-fora td { opacity: .6; }
+.ga-nota { padding: 4px 20px 18px; max-width: 90ch; }
+@media (max-width: 1100px) { .ga-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .ga-cards { padding: 16px 16px 4px; gap: 10px; } .ga-card b { font-size: 20px; } .ga-mod, .ga-nota { padding-left: 16px; padding-right: 16px; } }
+
+/* ---------- IA DA MILLA (ia.js, 23/11/2026): a IA na conta da imobiliária ---------- */
+.ia-tela .as-valor.ia-mono { font: 600 26px/1.2 var(--f-mono); letter-spacing: 0; overflow-wrap: anywhere; }
+.ia-tela .as-valor.ia-mono small, .ia-tela .as-valor small { display: block; margin: 6px 0 0; font: 500 13.5px/1.4 var(--f-texto); color: var(--dim); }
+.ia-alerta { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 14px; background: var(--vermelho-suave); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--vermelho) 45%, transparent); }
+.ia-alerta b { font-size: 15px; line-height: 1.4; color: var(--texto); }
+.ia-alerta span { font-size: 13.5px; line-height: 1.5; color: var(--dim); }
+.ia-acoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ia-tela .as-valor.ia-sem { font-size: 30px; letter-spacing: -.02em; line-height: 1.15; }
+.ia-tela .as-pagar > .btn { align-self: flex-start; }
+.ia-tirar { color: var(--vermelho); }
+.ia-tirar:hover { color: var(--vermelho); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--vermelho) 55%, transparent); background: var(--vermelho-suave); }
+.ia-form { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 14px; background: var(--sup2); border: 1px solid var(--linha); }
+.ia-mono { font-family: var(--f-mono); }
+.ia-passos { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.5; color: var(--texto); }
+.ia-passos a { color: var(--ambar); }
+#ia-msg:empty { display: none; }
+#ia-msg[data-cor="verde"] { color: var(--verde); }
+#ia-msg[data-cor="verm"] { color: var(--vermelho); }
+#ia-msg[data-cor="ambar"] { color: var(--ambar); }
+@media (max-width: 760px) { .ia-tela .as-valor.ia-mono { font-size: 21px; } }
