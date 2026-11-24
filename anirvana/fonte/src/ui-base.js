@@ -13,6 +13,19 @@ function carregar(){
 function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(S)); }catch(e){} }
 /* cópia do que veio de fábrica, para "Recomeçar a demonstração" */
 const BASE = {equipe:EQUIPE.map(p => ({...p})), forn:FORNECEDORES.map(f => ({...f})), turmas:TURMAS.map(t => t.instr), turmasLista:TURMAS.map(t => ({...t})), ativ:JSON.parse(JSON.stringify(ATIV)), forms:Object.fromEntries(Object.entries(FORMULARIOS).map(([k, F]) => [k, F.atvs.slice()]))};
+/* categorias do balanço: as de fábrica + as criadas; as tiradas somem das listas (os lançamentos ficam) */
+BASE.catS = JSON.parse(JSON.stringify(CAT_SAIDA)); BASE.catE = JSON.parse(JSON.stringify(CAT_ENTRADA));
+function ligarCats(){
+  const C = S.cats = S.cats || {novas:[], fora:[]}; C.novas = C.novas || []; C.fora = C.fora || [];
+  [[CAT_SAIDA, BASE.catS, 'saida'], [CAT_ENTRADA, BASE.catE, 'entrada']].forEach(([alvo, base, tipo]) => {
+    Object.keys(alvo).forEach(k => delete alvo[k]);
+    Object.entries(base).forEach(([k, o]) => { if (!C.fora.includes(k)) alvo[k] = {...o}; });
+    C.novas.filter(n => n.tipo === tipo || n.tipo === 'ambos').forEach(n => { if (!C.fora.includes(n.nome)) alvo[n.nome] = {icon:n.icon || 'tag', dica:n.dica || ''}; });
+  });
+  /* contas fixas acompanham a categoria renomeada */
+  const ren = C.renomes || {};
+  CONTAS_FIXAS.forEach(c => { let k = c.cat0 || c.cat, n = 0; c.cat0 = k; while (ren[k] && n++ < 20) k = ren[k]; c.cat = k; });
+}
 function restaurarBases(){ Object.keys(ATIV).forEach(k => delete ATIV[k]); Object.assign(ATIV, JSON.parse(JSON.stringify(BASE.ativ))); TURMAS.splice(0, TURMAS.length, ...BASE.turmasLista.map(t => ({...t}))); Object.keys(TURMA).forEach(k => delete TURMA[k]); TURMAS.forEach(t => { TURMA[t.id] = t; }); Object.entries(BASE.forms).forEach(([k, a]) => { FORMULARIOS[k].atvs = a.slice(); }); EQUIPE.splice(0, EQUIPE.length, ...BASE.equipe.map(p => ({...p}))); FORNECEDORES.splice(0, FORNECEDORES.length, ...BASE.forn.map(f => ({...f}))); TURMAS.forEach((t, i) => { t.instr = BASE.turmas[i]; }); }
 let S = carregar();
 /* fornecedores moram no estado (a Dessa cadastra e edita); as regras leem FORNECEDORES e FORN */
@@ -41,6 +54,7 @@ function ligarAtividades(){
   Object.keys(TURMA).forEach(k => delete TURMA[k]); todas.forEach(t => { TURMA[t.id] = t; });
   TURMAS.splice(0, TURMAS.length, ...todas.filter(t => !S.turmasFora.includes(t.id) && ATIV[t.atv]));
 }
+ligarCats();
 ligarAtividades();
 ligarEquipe();
 
@@ -95,10 +109,12 @@ function casca(conteudo){
       ${nav.map(([id,lab,ico]) => `<button class="navi ${cur===id?'on':''}" data-act="tab" data-v="${id}">${ic(ico)}<span>${lab}</span>${badge(id)?`<span class="cnt">${badge(id)}</span>`:''}</button>`).join('')}
       <div class="sec">Ver como</div>
       ${['admin','instrutor','aluno'].map(r => `<button class="navi ${UI.role===r?'on':''}" data-act="role" data-v="${r}">${ic({admin:'layout-dashboard',instrutor:'hand-heart',aluno:'sprout'}[r])}<span>${ROLE_NOME[r]}</span></button>`).join('')}
+      ${(UI.pilha || []).length ? `<button class="navi" data-act="voltar">${ic('arrow-left')}<span>Voltar</span></button>` : ''}
       <div class="foot">${ESPACO.endereco}<br>${ESPACO.cidade}<br><br>Protótipo · ${VERSAO}<br>Hoje é ${dataLonga(HOJE_ISO)}</div>
     </aside>
     <main class="main">
       <div class="topbar">
+        ${(UI.pilha || []).length ? `<button class="iconbtn voltar" data-act="voltar" aria-label="Voltar para a tela anterior">${ic('arrow-left')}</button>` : ''}
         <button class="brand" data-act="logo" aria-label="Voltar para a tela inicial">${marca}</button>
         <div class="grow"></div>
         ${UI.role === 'admin' ? (() => { const n = (S.inscricoes || []).filter(i => i.estado === 'nova').length; return `<button class="insc-btn ${cur === 'inscricoes' ? 'on' : ''}" data-act="tab" data-v="inscricoes" aria-label="Inscrições${n ? ': ' + n + ' novas' : ''}">${ic('user-plus')}<span>Inscrições</span>${n ? `<b>${n}</b>` : ''}</button>`; })() : ''}
@@ -244,7 +260,7 @@ const pillPag = st => ({
 /* pontos: desligados por enquanto (a administração liga em Divulgar → Pontos) */
 function pontosLigados(){ return !!(S.config && S.config.pontos); }
 const pillFreq = f => `<span class="row" style="gap:6px"><i class="fdot ${f.st}"></i><span class="small ${f.st==='ok'?'muted':''}" style="${f.st==='bad'?'color:var(--bad)':f.st==='warn'?'color:var(--warn)':''};font-weight:${f.st==='ok'?500:700}">${f.txt}</span></span>`;
-const nomePlano = m => m.plano ? (ehPlataforma(m.plano) ? `${ATIV[m.atv].curto} · ${PLANOS_YOGA[m.plano].plataforma}` : `${ATIV[m.atv].curto} ${m.plano}`) : m.planoPart ? `${ATIV[m.atv].curto} ${m.planoPart === 'avulsa' ? 'avulsa' : m.planoPart}${m.online ? ' online' : ''}` : ATIV[m.atv].curto;
+const nomePlano = m => m.planoAtv ? `${ATIV[m.atv].curto} ${m.planoAtv}` : m.plano ? (ehPlataforma(m.plano) ? `${ATIV[m.atv].curto} · ${PLANOS_YOGA[m.plano].plataforma}` : `${ATIV[m.atv].curto} ${m.plano}`) : m.planoPart ? `${ATIV[m.atv].curto} ${m.planoPart === 'avulsa' ? 'avulsa' : m.planoPart}${m.online ? ' online' : ''}` : ATIV[m.atv].curto;
 const qrSVG = (seed) => {
   const R = rng(seed), n = 25; let r = '';
   const finder = (x,y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#1F1B45"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#1F1B45"/>`;

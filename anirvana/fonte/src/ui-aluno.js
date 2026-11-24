@@ -69,13 +69,16 @@ function vAlunoInicio(){
   ${cardContato()}`;
 }
 function cardContato(){
+  /* cada contato abre o lugar certo: WhatsApp, e-mail, Google Maps, Instagram */
+  const mapa = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(`Espaço Anirvana, ${ESPACO.endereco}, Pontal do Sul, Pontal do Paraná - PR`);
+  const item = (href, icon, t, s, copia) => `<div class="li contato"><a class="contato-a" href="${href}" target="_blank" rel="noopener"><span class="ico-b">${ic(icon)}</span><div class="main-c"><span class="t">${t}</span><span class="s">${s}</span></div>${ic('arrow-up-right','sm')}</a>${copia ? `<button class="iconbtn" data-act="copiar" data-v="${escapeH(copia)}" aria-label="Copiar">${ic('copy','sm')}</button>` : ''}</div>`;
   return `<div class="card"><div class="card-h"><h3>Espaço Anirvana</h3><span class="sub">${ESPACO.cidade}</span></div>
     <div class="grid g3">
-      <div class="li"><span class="ico-b">${ic('phone')}</span><div class="main-c"><span class="t num">${ESPACO.tel}</span><span class="s">WhatsApp</span></div><button class="btn ghost sm" data-act="copiar" data-v="${ESPACO.tel}" aria-label="Copiar telefone">${ic('copy','sm')}</button></div>
-      <div class="li"><span class="ico-b">${ic('mail')}</span><div class="main-c"><span class="t" style="overflow-wrap:anywhere">${ESPACO.email}</span><span class="s">E-mail</span></div><button class="btn ghost sm" data-act="copiar" data-v="${ESPACO.email}" aria-label="Copiar e-mail">${ic('copy','sm')}</button></div>
-      <div class="li"><span class="ico-b">${ic('house')}</span><div class="main-c"><span class="t">${ESPACO.endereco}</span><span class="s">${ESPACO.cidade}</span></div><button class="btn ghost sm" data-act="copiar" data-v="${ESPACO.endereco}, ${ESPACO.cidade}">${ic('copy','sm')}</button></div>
-      <a class="li tap" style="color:inherit;text-decoration:none" href="https://www.instagram.com/${ESPACO.instagram}/" target="_blank" rel="noopener"><span class="ico-b">${ic('sparkles')}</span><div class="main-c"><span class="t">@${ESPACO.instagram}</span><span class="s">Instagram</span></div>${ic('arrow-up-right','sm')}</a>
-      <a class="li tap" style="color:inherit;text-decoration:none" href="https://${ESPACO.link}" target="_blank" rel="noopener"><span class="ico-b">${ic('layers')}</span><div class="main-c"><span class="t">${ESPACO.link}</span><span class="s">Todos os links</span></div>${ic('arrow-up-right','sm')}</a>
+      ${item(`https://wa.me/${ESPACO.whats}?text=${encodeURIComponent('Oi! Vim pelo app do Espaço Anirvana.')}`, 'message-circle', `<span class="num">${ESPACO.tel}</span>`, 'WhatsApp · toque para conversar', ESPACO.tel)}
+      ${item(`mailto:${ESPACO.email}`, 'mail', `<span style="overflow-wrap:anywhere">${ESPACO.email}</span>`, 'E-mail · toque para escrever', ESPACO.email)}
+      ${item(mapa, 'map-pin', ESPACO.endereco, `${ESPACO.cidade} · abrir no Google Maps`, `${ESPACO.endereco}, ${ESPACO.cidade}`)}
+      ${item(`https://www.instagram.com/${ESPACO.instagram}/`, 'instagram', `@${ESPACO.instagram}`, 'Instagram', '')}
+      ${item(`https://${ESPACO.link}`, 'layers', ESPACO.link, 'Todos os links', '')}
     </div></div>`;
 }
 function vFormacaoAluno(a){

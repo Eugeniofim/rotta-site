@@ -1,0 +1,12 @@
+const { chromium } = require('playwright');
+(async () => { const b = await chromium.launch(), p = await b.newPage({viewport:{width:390,height:844}}); const er = [], ok = [], f = []; const conf = (c, m) => (c ? ok : f).push(m);
+  p.on('pageerror', e => er.push(e.message));
+  await p.goto('file:///home/user/anirvana-app/dist/anirvana/index.html'); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(300);
+  await p.evaluate(() => ACT.entrar({v:'aluno', who:'a01'})); await p.waitForTimeout(300);
+  const hrefs = await p.$$eval('.li.contato a', as => as.map(a => a.getAttribute('href')));
+  conf(hrefs.some(h => h.startsWith('https://wa.me/5541998487892')), 'WhatsApp abre a conversa');
+  conf(hrefs.includes('mailto:espacoanirvana@gmail.com'), 'e-mail abre o e-mail');
+  conf(hrefs.some(h => h.startsWith('https://www.google.com/maps/search/?api=1&query=') && decodeURIComponent(h).includes('Rua Erva Cidreira, 48')), 'endereço abre no Google Maps');
+  conf(hrefs.includes('https://www.instagram.com/espaco_anirvana/') && hrefs.includes('https://linktr.ee/espacoanirvana'), 'Instagram e links');
+  const w = await p.evaluate(() => document.documentElement.scrollWidth); conf(w <= 390, 'sem vazar para o lado: ' + w);
+  console.log('OK', ok.length, 'FALHAS', JSON.stringify(f), 'ERROS', JSON.stringify(er)); await b.close(); })();

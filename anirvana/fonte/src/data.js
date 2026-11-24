@@ -97,6 +97,10 @@ const PLANOS_PART = {
   '4x':     {nome:'4x por semana', preco:650, sem:4},
   'avulsa': {nome:'Aula avulsa ou experimental', preco:80, sem:0},
 };
+/* outras atividades com planos por frequência (a administração põe os valores em Mensalidades → Regras) */
+const PLANOS_ATV = {
+  gestantes: {'1x':{nome:'1x por semana', sem:1}, '2x':{nome:'2x por semana', sem:2}, '3x':{nome:'3x por semana', sem:3}},
+};
 const TAXA_CARTAO = 12;   /* cartão de crédito ou débito: acréscimo de R$ 12,00 */
 const PLANOS_MENSAIS = ['1x','2x','3x','4x'];
 const ehPlataforma = k => !!(PLANOS_YOGA[k] && PLANOS_YOGA[k].plataforma);

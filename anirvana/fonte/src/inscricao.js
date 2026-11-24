@@ -12,11 +12,12 @@ function gruposAtv(){
 function precoAtv(k){
   if (k === 'yoga') return Math.min(...PLANOS_MENSAIS.map(p => S.regras.planos[p]));
   if (k === 'particular') return Math.min(...PLANOS_MENSAIS.map(p => (S.regras.planosPart || {})[p] ?? PLANOS_PART[p].preco));
+  if (PLANOS_ATV[k]){ const vs = Object.values(((S.regras.planosAtv || {})[k]) || {}).filter(v => v > 0); return vs.length ? Math.min(...vs) : null; }
   return ATIV[k] && ATIV[k].valor ? +ATIV[k].valor : null;
 }
 function resumoAtv(k){
   const a = ATIV[k], v = precoAtv(k), ts = TURMAS.filter(t => t.atv === k && !t.aluno);
-  const preco = v ? `${['yoga','particular'].includes(k) ? 'a partir de ' : ''}${brl(v)}/mês` : 'valor pelo WhatsApp';
+  const preco = v ? `${['yoga','particular'].includes(k) || PLANOS_ATV[k] ? 'a partir de ' : ''}${brl(v)}/mês` : 'valor pelo WhatsApp';
   const hor = a.combinar ? 'horário combinado' : a.vis === 'escolhido' ? 'presencial ou online' : ts.length ? `${ts.length} ${ts.length === 1 ? 'horário' : 'horários'} na semana` : 'horário a combinar';
   return `${preco} · ${hor}`;
 }
@@ -76,7 +77,8 @@ function passoAtividade(d){
       ${d.atv === 'particular' ? `<div class="field"><label>Plano do particular</label>${opts('iPlano', Object.keys(PLANOS_PART).map(k => [k, `${PLANOS_PART[k].nome}<br><b class="num">${brl((S.regras.planosPart || {})[k] ?? PLANOS_PART[k].preco)}</b>${k === 'avulsa' ? '' : '<span class="tiny muted"> /mês</span>'}`]), PLANOS_PART[d.plano] ? d.plano : '1x')}${cartao}</div>
         <div class="field"><label>Como você prefere</label>${opts('iModo', [['presencial', `${ic('house','sm')} Presencial, no Espaço`], ['online', `${ic('monitor','sm')} Online`]], d.modo || 'presencial')}</div>
         <p class="small muted">O dia e o horário a equipe combina com você pelo WhatsApp.</p>` : ''}
-      ${!['yoga','particular'].includes(d.atv) ? `<div class="li" style="padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><span class="ico-b">${ic('wallet')}</span><div class="main-c"><span class="t">${v ? `${brl(v)} por mês` : 'Valor: a equipe passa pelo WhatsApp'}</span><span class="s">${v ? `no cartão, + ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)}` : 'junto com a confirmação da matrícula'}</span></div></div>` : ''}
+      ${PLANOS_ATV[d.atv] ? `<div class="field"><label>Plano</label>${opts('iPlano', Object.entries(PLANOS_ATV[d.atv]).map(([k, p]) => { const pv = ((S.regras.planosAtv || {})[d.atv] || {})[k]; return [k, `${p.nome}<br>${pv ? `<b class="num">${brl(pv)}</b>` : '<span class="tiny muted">valor pelo WhatsApp</span>'}`]; }), PLANOS_ATV[d.atv][d.plano] ? d.plano : Object.keys(PLANOS_ATV[d.atv])[0])}${cartao}</div>` : ''}
+      ${!['yoga','particular'].includes(d.atv) && !PLANOS_ATV[d.atv] ? `<div class="li" style="padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)"><span class="ico-b">${ic('wallet')}</span><div class="main-c"><span class="t">${v ? `${brl(v)} por mês` : 'Valor: a equipe passa pelo WhatsApp'}</span><span class="s">${v ? `no cartão, + ${brl(S.regras.taxaCartao ?? TAXA_CARTAO)}` : 'junto com a confirmação da matrícula'}</span></div></div>` : ''}
       ${turmas.length ? `<div class="field"><label>Horários que você prefere</label>${opts('iTur', turmas.map(t => [t.id, `${DIAS_L[t.dia]} ${t.h}${t.nome ? `<br><span class="tiny muted">${escapeH(t.nome)}</span>` : ''}`]), d.turmas, true)}</div>`
         : a.combinar ? `<p class="small muted">${ic('calendar','sm')} O horário você combina com o professor depois da inscrição.</p>` : a.vis !== 'escolhido' ? '<p class="small muted">Os horários desta atividade a equipe combina com você pelo WhatsApp.</p>' : ''}
       ${d.atv === 'particular' ? '' : `<label class="insc-check"><input type="checkbox" id="iExpm" ${d.experimental ? 'checked' : ''}><span>Quero fazer uma aula experimental antes</span></label>`}
@@ -277,11 +279,12 @@ function confirmarInscricao(id){
   const i = S.inscricoes.find(x => x.id === id), d = i.dados, F = FORMULARIOS[formDe(d.atv)];
   const aid = 'a' + (S.seq++), plano = d.atv === 'yoga' ? (PLANOS_MENSAIS.includes(d.plano) || ehPlataforma(d.plano) ? d.plano : '2x') : null, crianca = F.crianca || ehMenor(d);
   const part = d.atv === 'particular' ? (PLANOS_PART[d.plano] ? d.plano : '1x') : null;
+  const pAtv = PLANOS_ATV[d.atv] ? (PLANOS_ATV[d.atv][d.plano] ? d.plano : Object.keys(PLANOS_ATV[d.atv])[0]) : null, vAtv = pAtv ? ((S.regras.planosAtv || {})[d.atv] || {})[pAtv] : null;
   const resp = crianca ? d.respNome || '' : '';
   const respostas = Object.fromEntries(Object.entries(d).filter(([k]) => !['atv','plano','modo','turmas','instr','experimental','conferir'].includes(k)));
   S.alunos.push({id:aid, nome:d.nome, desde:HOJE_ISO, obs: resp ? `Responsável: ${resp}${d.nasc ? ` · ${idade(d.nasc)} anos` : ''}` : '', status:'ativo', tel:d.tel || d.respTel || '', email:d.email || '', nasc:d.nasc || '', cpf:d.cpf || '', resp, respTel: F.crianca ? d.tel : crianca ? d.respTel || '' : '',
     ficha:{form:F.id, respostas, saudeOk: d.saudeOk !== false, completa: camposForm(F).every(c => !c.obr || c.menor && !crianca || d[c.k])},
-    mats:[{id:aid + '-0', atv:d.atv, plano, planoPart:part, online: part ? d.modo === 'online' : undefined, valor: plano ? null : part ? ((S.regras.planosPart || {})[part] ?? PLANOS_PART[part].preco) : (+ATIV[d.atv].valor || S.alunos.flatMap(a => a.mats).find(m => m.atv === d.atv)?.valor || 150), turmas:(d.turmas || '').split(',').filter(Boolean), venc:Math.min(28, HOJE.getDate()), metodo:'pix', cartaoFim:null, instr:d.instr || null, status:'ativo', inicio:HOJE_ISO}]});
+    mats:[{id:aid + '-0', atv:d.atv, plano, planoPart:part, planoAtv:pAtv || undefined, online: part ? d.modo === 'online' : undefined, valor: plano ? null : part ? ((S.regras.planosPart || {})[part] ?? PLANOS_PART[part].preco) : vAtv ? vAtv : (+ATIV[d.atv].valor || S.alunos.flatMap(a => a.mats).find(m => m.atv === d.atv)?.valor || 150), turmas:(d.turmas || '').split(',').filter(Boolean), venc:Math.min(28, HOJE.getDate()), metodo:'pix', cartaoFim:null, instr:d.instr || null, status:'ativo', inicio:HOJE_ISO}]});
   (S.consent = S.consent || {})[aid] = {whatsapp: d.whats !== false, imagem: d.imagem === 'sim', whatsappEm: HOJE_ISO, imagemEm: HOJE_ISO};
   i.estado = 'confirmada'; i.aluno = aid;
   /* quem indicou ganha os pontos */

@@ -113,9 +113,30 @@ function conferirPinAdmin(id){
   folhaPinAdmin(id, `PIN não confere. Restam ${5 - T.n} tentativas.`);
 }
 
+/* barras que rolam de lado (submenus, chips, cartões): guardar e devolver a rolagem ao redesenhar */
+const ROLA_LADO = '.chips, .seg, .cats, .week, .atv-cards, .rollgrid, .tblwrap, [data-hscroll]';
+const chaveTela = () => `${UI.role}|${UI.role ? UI.tab[UI.role] : ''}`;
+function guardarLados(){ return {k:chaveTela(), xs:[...document.querySelectorAll('#root ' + ROLA_LADO.split(', ').join(', #root '))].map(el => el.scrollLeft)}; }
+function devolverLados(g){
+  const els = [...document.querySelectorAll('#root ' + ROLA_LADO.split(', ').join(', #root '))];
+  if (g && g.k === chaveTela()) els.forEach((el, i) => { if (g.xs[i]) el.scrollLeft = g.xs[i]; });
+  /* o item escolhido sempre à vista */
+  els.forEach(el => { const on = el.querySelector(':scope > .on, :scope > [aria-selected="true"]'); if (on && el.scrollWidth > el.clientWidth + 4){ const l = on.offsetLeft - el.offsetLeft, r = l + on.offsetWidth; if (l < el.scrollLeft || r > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, l - 24); } });
+}
+let _desenhando = false, _deNovo = false;
 function render(){
+  /* se um campo perde o foco no meio de um redesenho (digitou e tocou noutro menu), redesenha depois, uma vez só */
+  if (_desenhando){ _deNovo = true; return; }
+  _desenhando = true;
   const root = $('#root');
-  const y = scrollY;
+  const y = scrollY, lados = guardarLados();
+  let _r;
+  try { _r = render2(root, y); devolverLados(lados); }
+  finally { _desenhando = false; }
+  if (_deNovo){ _deNovo = false; setTimeout(() => { const yy = scrollY; render(); scrollTo({top:yy}); }, 0); }
+  return _r;
+}
+function render2(root, y){
   /* painel do instrutor só com o código pessoal (vale também para link direto e "Ver como") */
   if (UI.role === 'instrutor' && PESSOA[UI.who.instrutor]?.ativo === false){ UI.role = null; history.replaceState(null, '', location.pathname); }
   if (UI.role === 'instrutor' && !instrutorLiberado(UI.who.instrutor)){ const pid = UI.who.instrutor; UI.role = null; history.replaceState(null, '', location.pathname); root.innerHTML = vPorta(); depois(); setTimeout(() => folhaCodigo(pid), 60); return; }
@@ -171,6 +192,17 @@ const ACT = {
   pontosLigar:() => { S.config.pontos = true; salvar(); reRender(); avisar('Pontos ligados: os alunos já veem os pontos e os presentes', 'gift'); },
   verPinAdm:(d) => { UI.verPinAdm = UI.verPinAdm === d.v ? null : d.v; reRender(); },
   trocarPinAdm:(d) => folhaTrocarPinAdm(d.v),
+  editarLanc:(d) => folhaLancar('saida', d.v),
+  lancDel:(d) => { const L = S.lanc.find(l => l.id === d.v); if ((S.fechados || {})[mesDe(L.d)]){ avisar(`${nomeMes(mesDe(L.d))} já foi fechado: não dá para apagar`, 'circle-alert'); return; } S.lanc = S.lanc.filter(l => l.id !== d.v); salvar(); fecharFolha(); reRender(); avisar(`Lançamento apagado: ${L.desc} · ${brl(L.valor)}`); },
+  editarCats:() => folhaCategorias(),
+  catRen:(d) => folhaCatRen(d.v),
+  catTirar:(d) => { const C = S.cats; if (!C.fora.includes(d.v)) C.fora.push(d.v); ligarCats(); salvar(); folhaCategorias(); reRender(); avisar(`${d.v} saiu das listas. Os lançamentos antigos continuam no balanço.`); },
+  catVoltar:() => { S.cats.fora = []; ligarCats(); salvar(); folhaCategorias(); reRender(); avisar('Categorias tiradas voltaram'); },
+  pacote:(d) => folhaPacote(d.v),
+  pacoteDel:(d) => { S.pacotes = (S.pacotes || []).filter(p => p.id !== d.v); salvar(); fecharFolha(); reRender(); avisar('Pacote tirado. Quem já pagou continua coberto.'); },
+  ajusteMat:(d) => folhaAjuste(d.v),
+  ajusteTirar:(d) => { const m = S.alunos.flatMap(a => a.mats).find(x => x.id === d.v); delete m.ajuste; salvar(); fecharFolha(); reRender(); avisar(`Voltou ao valor do plano: ${brl(valorMat(S, m))}`); },
+  avulsaReceber:(d) => { const [sid, ...nm] = d.v.split('|'), nome = nm.join('|'), pr = S.presencas.find(p => p.s === sid && !p.a && p.nome === nome); if (!pr) return; pr.pago = d.x || 'pix'; S.pagamentos.push({id:'pg' + (S.seq++), avulsa:true, nome, s:sid, mes:mesDe(sid.slice(0, 10)), valor:S.regras.planos.avulsa, d:HOJE_ISO, metodo:pr.pago}); salvar(); reRender(); avisar(`Aula avulsa de ${nome.split(' ')[0]} recebida: ${brl(S.regras.planos.avulsa)}`); },
   celDemo:(d) => { const el = $('#loginCel'); if (el){ el.value = d.v; el.focus(); } },
   adminGoogle:() => { const g = lerLembrar().google; if (g && ADMINS.some(a => a.id === g)) folhaPinAdmin(g); else folhaGoogle(); },
   adminConta:(d) => folhaPinAdmin(d.v),
@@ -180,7 +212,7 @@ const ACT = {
     <div class="stack"><p class="tiny muted" style="margin-top:-4px">Atalho da demonstração: pula o login.</p>${[['admin','Administração',ADMINS.map(a=>[a.id,a.nome])],['instrutor','Instrutores',EQUIPE.filter(p=>p.id!=='stefy').map(p=>[p.id,p.nome])],['aluno','Alunos',[['a01','Luana'],['a04','Camila'],['a12','Débora'],['a30','Alice'],['a09','Gabriel']]]].map(([r,l,ps]) => `<div><div class="eyebrow" style="margin-bottom:8px">${l}</div><div class="chips" style="flex-wrap:wrap">${ps.map(([id,n]) => `<button class="chip ${UI.role===r&&UI.who[r]===id?'on':''}" data-act="entrar" data-v="${r}" data-who="${id}">${n}</button>`).join('')}</div></div>`).join('')}
     <button class="btn sec" data-act="sair">${ic('log-out')}Voltar para a entrada</button>
     <button class="btn ghost" data-act="reset">${ic('rotate-ccw')}Recomeçar a demonstração</button></div>`),
-  sair:() => { fecharFolha(); UI.role = null; history.replaceState(null,'',location.pathname); render(); scrollTo({top:0}); },
+  sair:() => { fecharFolha(); UI.pilha = []; UI.role = null; history.replaceState(null,'',location.pathname); render(); scrollTo({top:0}); },
   reset:() => { restaurarBases(); S = semear(); ligarFornecedores(); ligarAtividades(); ligarEquipe(); salvar(); UI.cart = {}; fecharFolha(); render(); avisar('Demonstração recomeçada'); },
   fechar:() => fecharFolha(),
   ir:(d) => { const [r,t] = d.v.split('-'); if (t === 'confirmar'){ UI.mensVis = 'alunos'; UI.mensSt = 'analise'; UI.mensAtv = 'todas'; ir(null,'mensalidades'); return; } if (t === 'alunos'){ UI.escolaVis = 'alunos'; ir(null,'escola'); return; } if (t === 'mais'){ UI.escolaVis = 'subs'; ir(null,'escola'); return; } if (d.sub) UI.lojaVis = d.sub; if (t === 'mensalidades'){ UI.mensVis = 'alunos'; UI.mensSt = 'atrasado'; } ir(null, t); },
@@ -191,6 +223,7 @@ const ACT = {
     if (d.grp === 'lCat'){ const dica = CAT_SAIDA[d.v]?.dica || CAT_ENTRADA[d.v]?.dica; const el2 = $('#lDica'); if (el2) el2.textContent = dica || ''; }
     if (d.grp === 'vForma'){ const f = $('#vClienteF'); if (f) f.hidden = !['fiado','descontado'].includes(d.v); }
     if (d.grp === 'iAtv'){ inscSalvar(); UI.insc.d.atv = d.v; UI.insc.d.instr = ''; UI.insc.d.turmas = ''; const y = $('#sheet').scrollTop; folhaInscricao(); $('#sheet').scrollTop = y; return; }
+    if (d.grp === 'rPac'){ const v = +el.dataset.valor; $('#rValor').value = v.toFixed(2).replace('.', ','); $('#rMeses').value = el.dataset.meses; }
     if (d.grp === 'fnModelo'){ const f = $('#fnPctF'); if (f) f.hidden = d.v !== 'consig'; }
     if (d.grp === 'nAtv'){ $('#nPlanoF').hidden = d.v !== 'yoga'; const fi = $('#nInstrF'); if (fi){ const q = EQUIPE.filter(p => p.atvs.includes(d.v)); fi.hidden = ATIV[d.v].vis !== 'escolhido'; fi.querySelector('.optgrid').innerHTML = q.map(p => `<button type="button" class="opt" data-act="opt" data-grp="nInstr" data-v="${p.id}">${p.nome}</button>`).join(''); $('#nInstr').value = ''; } $('#nTurmas').innerHTML = TURMAS.filter(t => t.atv === d.v && !t.aluno).map(t => `<button type="button" class="opt" data-act="optMulti" data-grp="nTur" data-v="${t.id}">${DIAS[t.dia]} ${t.h}<br><span class="tiny muted">${PESSOA[t.instr].nome}</span></button>`).join('') || '<p class="small muted">Com hora marcada: a terapeuta combina o horário.</p>'; $('#nTur').value = ''; }
   },
@@ -274,7 +307,7 @@ const ACT = {
   chamada:(d) => folhaChamada(d.v),
   marcar:(d, el) => { const s = CHAMADA.presentes; s.has(d.v) ? s.delete(d.v) : s.add(d.v); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   addExtra:(d) => { CHAMADA.extras.push(d.v); CHAMADA.presentes.add(d.v); desenharChamada(); },
-  visitAdd:() => { const nome = ($('#visNome')?.value || '').trim(), t = $('#visTipo')?.value || 'avulsa'; if (!nome){ $('#visNome')?.focus(); avisar('Escreva o nome de quem veio', 'circle-alert'); return; } CHAMADA.visitantes.push({nome, t}); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
+  visitAdd:() => { const nome = ($('#visNome')?.value || '').trim(), t = $('#visTipo')?.value || 'avulsa', tel = ($('#visTel')?.value || '').trim(), pago = t === 'avulsa' ? ($('#visPago')?.value || 'pix') : null; if (!nome){ $('#visNome')?.focus(); avisar('Escreva o nome de quem veio', 'circle-alert'); return; } CHAMADA.visitantes.push({nome, t, ...(tel ? {tel} : {}), ...(pago ? {pago} : {})}); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   visitDel:(d) => { CHAMADA.visitantes.splice(+d.v, 1); const y = $('#sheet').scrollTop; desenharChamada(); $('#sheet').scrollTop = y; },
   salvarChamada:(d) => {
     const {sid} = CHAMADA, [dia, tid] = sid.split('_'), t = TURMA[tid];
@@ -282,7 +315,10 @@ const ACT = {
     S.presencas = S.presencas.filter(p => p.s !== sid);
     CHAMADA.presentes.forEach(aid => { const a = alunoPor(S,aid); const m = a.mats.find(x => x.atv === t.atv) || a.mats[0]; S.presencas.push({s:sid, a:aid, t: m.plano || 'mensal'}); });
     if (d.v === 'vazia'){ CHAMADA.presentes.clear(); CHAMADA.visitantes = []; S.presencas = S.presencas.filter(p => p.s !== sid); }
-    CHAMADA.visitantes.forEach(v => S.presencas.push({s:sid, a:null, nome:v.nome || 'Visitante', t:v.t || 'avulsa'}));
+    CHAMADA.visitantes.forEach(v => S.presencas.push({s:sid, a:null, nome:v.nome || 'Visitante', t:v.t || 'avulsa', ...(v.tel ? {tel:v.tel} : {}), ...(v.pago ? {pago:v.pago} : {})}));
+    /* aula avulsa paga na hora vira pagamento (entra no caixa e no fechamento da yoga) */
+    S.pagamentos = S.pagamentos.filter(p => !(p.avulsa && p.s === sid));
+    CHAMADA.visitantes.filter(v => v.t === 'avulsa' && v.pago && v.pago !== 'depois').forEach(v => S.pagamentos.push({id:'pg' + (S.seq++), avulsa:true, nome:v.nome, s:sid, mes:mesDe(dia), valor:S.regras.planos.avulsa, d:dia, metodo:v.pago}));
     const au = S.aulas[sid] || (S.aulas[sid] = {id:sid, d:dia, turma:tid, instr:UI.who.instrutor, sub:false});
     const n = CHAMADA.presentes.size + CHAMADA.visitantes.length;
     au.feita = true; au.vazia = d.v === 'vazia' || n === 0;
@@ -297,6 +333,7 @@ const ACT = {
 
   /* logo e avisos */
   logo:() => ACT.sair(),
+  voltar:() => { if (history.state && history.state.anv) history.back(); else voltarTela(); },
   conferirCodigo:(d) => { if (conferirCodigo(d.v)){ fecharFolha(); avisar(`Bem-vinda, ${PESSOA[d.v].nome}`, 'check'); ACT.entrar({v:'instrutor', who:d.v}); } },
   novaAtividade:() => folhaAtividade(null),
   editarAtividade:(d) => folhaAtividade(d.v),
@@ -436,10 +473,29 @@ const ACT = {
 };
 
 /* cliques */
+/* ---------- voltar para a tela anterior (setinha no topo e o "voltar" do celular) ---------- */
+UI.pilha = [];
+const ACTS_TELA = ['tab','ir','role','mensVis','mensSt','mensAtv','escolaVis','balVis','balMes','lojaVis','divVis','alunoAtv','meuMes','instrFiltro','catFoco'];
+const fotoTela = () => JSON.stringify({role:UI.role, tab:UI.role ? UI.tab[UI.role] : null, mensVis:UI.mensVis, mensSt:UI.mensSt, mensAtv:UI.mensAtv, escolaVis:UI.escolaVis, balVis:UI.balVis, balMes:UI.balMes, lojaVis:UI.lojaVis, div:UI.div && UI.div.vis, alunoAtv:UI.alunoAtv, meuMes:UI.meuMes, instrFiltro:UI.instrFiltro, catFoco:UI.catFoco});
+function voltarTela(){
+  const f = UI.pilha.pop(); if (!f) return false;
+  const o = JSON.parse(f);
+  if (!o.role){ UI.role = null; } else { UI.role = o.role; UI.tab[o.role] = o.tab; }
+  Object.assign(UI, {mensVis:o.mensVis, mensSt:o.mensSt, mensAtv:o.mensAtv, escolaVis:o.escolaVis, balVis:o.balVis, balMes:o.balMes, lojaVis:o.lojaVis, alunoAtv:o.alunoAtv, meuMes:o.meuMes, instrFiltro:o.instrFiltro, catFoco:o.catFoco});
+  if (UI.div) UI.div.vis = o.div;
+  const h = UI.role ? `${UI.role}-${UI.tab[UI.role]}` : '';
+  history.replaceState({anv:UI.pilha.length}, '', h ? '#' + h : location.pathname);
+  fecharFolha(); render(); scrollTo({top:0});
+  return true;
+}
+window.addEventListener('popstate', () => { if ($('#sheet').classList.contains('on')){ fecharFolha(); return; } if (!voltarTela() && UI.role){ UI.role = null; render(); } });
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const fn = ACT[el.dataset.act]; if (!fn) return;
-  e.preventDefault(); fn({...el.dataset}, el);
+  e.preventDefault();
+  const tela = ACTS_TELA.includes(el.dataset.act) || (el.dataset.act === 'entrar') ? fotoTela() : null;
+  fn({...el.dataset}, el);
+  if (tela && tela !== fotoTela()){ UI.pilha.push(tela); if (UI.pilha.length > 40) UI.pilha.shift(); history.pushState({anv:UI.pilha.length}, '', location.href); render(); }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('#sheet').classList.contains('on')) fecharFolha();
@@ -467,6 +523,12 @@ document.addEventListener('change', e => {
     importarArquivo(arq, atv).then(rel => { salvar(); reRender(); if (!rel.n && !rel.repetidos.length){ fecharFolha(); avisar('Não achei respostas nesse arquivo', 'circle-alert'); return; } folhaRelatorioImport(rel, atv); })
       .catch(err => avisar('Não consegui ler essa planilha: ' + err.message, 'circle-alert')); return; }
   const el = e.target, k = el.dataset.actIn; if (!k) return;
+  if (k === 'precoAtv'){ const v = num(el.value), atv = el.dataset.atv, pk = el.dataset.k;
+    if (pk){ const R = S.regras.planosAtv = S.regras.planosAtv || {}; (R[atv] = R[atv] || {})[pk] = v > 0 ? v : null; salvar(); reRender(); avisar(v > 0 ? `${ATIV[atv].curto} ${pk}: ${brl(v)} por mês` : `${ATIV[atv].curto} ${pk}: valor a definir`); }
+    else if (v > 0){ const antigo = +ATIV[atv].valor || null; S.atividades[atv] = {...(S.atividades[atv] || {}), valor:v}; let n = 0;
+      S.alunos.forEach(a => a.mats.forEach(m => { if (m.atv === atv && !m.plano && !m.planoPart && !m.planoAtv && !m.ajuste && antigo && m.valor === antigo){ m.valor = v; n++; } }));
+      ligarAtividades(); salvar(); reRender(); avisar(`${ATIV[atv].nome}: ${brl(v)} por mês${n ? ` · ${n} alunos com o valor antigo passaram para o novo` : ''}`); }
+  }
   if (k === 'precoPart'){ const v = num(el.value); if (v > 0){ S.regras.planosPart = S.regras.planosPart || {}; S.regras.planosPart[el.dataset.v] = v; salvar(); reRender(); avisar(`Particular · ${PLANOS_PART[el.dataset.v].nome}: ${brl(v)}`); } }
   if (k === 'cfgPag'){ const c = S.config = S.config || {}; if (el.dataset.v === 'taxaCartao'){ const v = num(el.value); if (v >= 0){ S.regras.taxaCartao = v; salvar(); reRender(); avisar(`Cartão: acréscimo de ${brl(v)}`); } } else { c[el.dataset.v] = el.value.trim(); salvar(); avisar(el.dataset.v === 'chavePix' ? 'Chave Pix salva: o copia e cola já sai com ela' : 'Link do cartão salvo', 'check'); } }
   if (k === 'preco'){ const v = num(el.value); if (v > 0){ S.regras.planos[el.dataset.v] = v; salvar(); reRender(); avisar(`${PLANOS_YOGA[el.dataset.v].nome}: ${brl(v)} · presença agora vale ${brl(taxasYoga(S.regras.planos, S.regras.pct.yoga)[el.dataset.v])}`); } }
@@ -484,14 +546,17 @@ document.addEventListener('submit', e => {
     const valor = num($('#lValor').value), desc = $('#lDesc').value.trim(), tipo = $('#lTipo').value, cat = $('#lCat').value, d = $('#lData').value || HOJE_ISO;
     if (!valor){ $('#lValor').focus(); avisar('Digite o valor','circle-alert'); return; }
     if (!desc){ $('#lDesc').focus(); avisar('Diga o que foi','circle-alert'); return; }
+    const L = f.dataset.id && S.lanc.find(l => l.id === f.dataset.id);
+    if (L){ if ((S.fechados || {})[mesDe(L.d)] || (S.fechados || {})[mesDe(d)]){ avisar('Mês fechado: peça para reabrir antes de corrigir', 'circle-alert'); return; } Object.assign(L, {d, valor, desc, cat}); salvar(); fecharFolha(); UI.balMes = mesDe(d); reRender(); avisar(`Lançamento corrigido: ${brl(valor)} · ${cat}`); return; }
     S.lanc.push({id:'l'+(S.seq++), tipo, d, valor, desc, cat}); salvar(); fecharFolha(); UI.balMes = mesDe(d); reRender();
     avisar(`${tipo==='saida'?'Saída':'Entrada'} lançada: ${brl(valor)} · ${cat}`);
   }
   if (f.id === 'fReceber'){
     const m = S.alunos.flatMap(a => a.mats.map(x => ({a,x}))).find(o => o.x.id === f.dataset.mat);
     const valor = num($('#rValor').value) || valorMat(S, m.x);
-    S.pagamentos.push({id:'pg'+(S.seq++), a:m.a.id, mat:m.x.id, mes:MES_ATUAL, valor, d:$('#rData').value || HOJE_ISO, metodo:$('#rMet').value});
-    salvar(); fecharFolha(); reRender(); avisar(`Pagamento registrado: ${m.a.nome.split(' ')[0]} · ${brl(valor)}`);
+    const meses = +($('#rMeses')?.value || 1), st = statusPagamento(S, m.a, m.x), mes = st.st === 'pago' ? mesDe(proximaCobranca(S, m.x)) : MES_ATUAL;
+    S.pagamentos.push({id:'pg'+(S.seq++), a:m.a.id, mat:m.x.id, mes, valor, d:$('#rData').value || HOJE_ISO, metodo:$('#rMet').value, ...(meses > 1 ? {meses} : {})});
+    salvar(); fecharFolha(); reRender(); avisar(`Pagamento registrado: ${m.a.nome.split(' ')[0]} · ${brl(valor)}${meses > 1 ? ` · pacote de ${meses} meses (até ${nomeMes(somaMes(mes, meses - 1)).toLowerCase()})` : ''}`);
   }
   if (f.id === 'fNovo'){
     const nome = $('#nNome').value.trim(); if (!nome) return;
@@ -522,6 +587,34 @@ document.addEventListener('submit', e => {
     S.eventos.push({id, nome, data, h, valor, vagas, desc:$('#eDesc').value.trim(), icon:$('#eIcon').value, alvo:'todos', canais:['push','whatsapp'], criado:HOJE_ISO, divulgado:null, inscritos:[], externos:0});
     salvar(); reRender(); UI.div.alvo = 'todos'; UI.div.canais = ['push','whatsapp']; UI.div.msg = null; folhaDivulgar(id);
     return;
+  }
+  if (f.id === 'fCat'){
+    const nome = $('#catNome').value.trim().replace(/\s+/g, ' '), tipo = $('#catTipo').value;
+    if (!nome) return; if (CAT_ENTRADA[nome] || CAT_SAIDA[nome]){ avisar('Já existe uma categoria com esse nome', 'circle-alert'); return; }
+    S.cats.fora = S.cats.fora.filter(x => x !== nome); S.cats.novas.push({nome, tipo, icon:'tag'}); ligarCats(); salvar(); folhaCategorias(); reRender(); avisar(`Categoria ${nome} criada`, 'check'); return;
+  }
+  if (f.id === 'fCatRen'){
+    const de = f.dataset.v, para = $('#crNome').value.trim().replace(/\s+/g, ' '); if (!para || para === de) { folhaCategorias(); return; }
+    if (CAT_ENTRADA[para] || CAT_SAIDA[para]){ avisar('Já existe uma categoria com esse nome', 'circle-alert'); return; }
+    const C = S.cats, era = C.novas.find(n => n.nome === de), tipo = era ? era.tipo : (CAT_ENTRADA[de] && CAT_SAIDA[de] ? 'ambos' : CAT_ENTRADA[de] ? 'entrada' : 'saida'), icon = (CAT_ENTRADA[de] || CAT_SAIDA[de] || {}).icon;
+    if (era) era.nome = para; else { C.fora.push(de); C.novas.push({nome:para, tipo, icon}); }
+    (C.renomes = C.renomes || {})[de] = para;
+    let n = 0; S.lanc.forEach(l => { if (l.cat === de && !(S.fechados || {})[mesDe(l.d)]){ l.cat = para; n++; } });
+    ligarCats(); salvar(); folhaCategorias(); reRender(); avisar(`${de} agora é ${para} · ${n} lançamentos mudaram`, 'check'); return;
+  }
+  if (f.id === 'fPacote'){
+    const nome = $('#pkNome').value.trim(), valor = num($('#pkValor').value), meses = +$('#pkMeses').value;
+    if (!nome || !(valor > 0)){ avisar('Dê um nome e o valor total', 'circle-alert'); return; }
+    const dados = {nome, atv:$('#pkAtv').value, plano:$('#pkPlano').value, meses, valor};
+    S.pacotes = S.pacotes || []; const p = S.pacotes.find(x => x.id === f.dataset.id);
+    if (p) Object.assign(p, dados); else S.pacotes.push({id:'pk' + (S.seq++), ...dados});
+    salvar(); fecharFolha(); reRender(); avisar(`Pacote ${nome}: ${meses} meses por ${brl(valor)}`, 'package'); return;
+  }
+  if (f.id === 'fAjuste'){
+    const m = S.alunos.flatMap(a => a.mats).find(x => x.id === f.dataset.mat), tipo = $('#ajTipo').value, v = num($('#ajV').value);
+    if (!(v >= 0) || (tipo === 'pct' && v > 100)){ avisar(tipo === 'pct' ? 'O desconto vai de 0 a 100%' : 'Digite o valor', 'circle-alert'); return; }
+    m.ajuste = {tipo, v, motivo:$('#ajMot').value.trim(), em:HOJE_ISO, por:quemNome()};
+    salvar(); fecharFolha(); reRender(); avisar(`Mensalidade ajustada: ${brl(valorMat(S, m))} por mês`, 'check'); return;
   }
   if (f.id === 'fAviso'){
     const id = f.dataset.id, r = REGRAS_AVISO.find(x => x.id === id), c = (S.avisos = S.avisos || {})[id] = S.avisos[id] || {};

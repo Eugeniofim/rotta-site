@@ -101,6 +101,10 @@ const PLANOS_PART = {
   '4x':     {nome:'4x por semana', preco:650, sem:4},
   'avulsa': {nome:'Aula avulsa ou experimental', preco:80, sem:0},
 };
+/* outras atividades com planos por frequência (a administração põe os valores em Mensalidades → Regras) */
+const PLANOS_ATV = {
+  gestantes: {'1x':{nome:'1x por semana', sem:1}, '2x':{nome:'2x por semana', sem:2}, '3x':{nome:'3x por semana', sem:3}},
+};
 const TAXA_CARTAO = 12;   /* cartão de crédito ou débito: acréscimo de R$ 12,00 */
 const PLANOS_MENSAIS = ['1x','2x','3x','4x'];
 const ehPlataforma = k => !!(PLANOS_YOGA[k] && PLANOS_YOGA[k].plataforma);
@@ -415,8 +419,9 @@ const nomeTurma = t => t.nome || ATIV[t.atv].curto;
    ============================================================ */
 function semear(){
   const R = rng(20261029);
-  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), planosPart:Object.fromEntries(Object.entries(PLANOS_PART).map(([k,p])=>[k,p.preco])), taxaCartao:TAXA_CARTAO, pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
+  const S = {v:VERSAO, regras:{...REGRAS_PADRAO, planos:Object.fromEntries(Object.entries(PLANOS_YOGA).map(([k,p])=>[k,p.preco])), planosPart:Object.fromEntries(Object.entries(PLANOS_PART).map(([k,p])=>[k,p.preco])), planosAtv:Object.fromEntries(Object.entries(PLANOS_ATV).map(([a,ps]) => [a, Object.fromEntries(Object.keys(ps).map(k => [k, null]))])), taxaCartao:TAXA_CARTAO, pct:Object.fromEntries(Object.entries(ATIV).map(([k,a])=>[k,a.repasse]))},
     config:{pontos:false, linkCartao:'', chavePix:'', drive:null}, feriados:{extra:[], comAula:[]},
+    pacotes:[], cats:{novas:[], fora:[]},
     alunos:[], aulas:{}, presencas:[], pagamentos:[], sessoes:[], vendas:[], repLoja:[], fiado:[], lanc:[], repEquipe:[], subs:[], vou:{}, seq:1000};
 
   /* alunos */
@@ -645,7 +650,24 @@ function semear(){
 }
 
 /* ---------- valores e partes ---------- */
-function valorMat(S, m){ return m.plano ? S.regras.planos[m.plano] : m.planoPart ? (S.regras.planosPart || {})[m.planoPart] ?? m.valor : m.valor; }
+/* valor do plano (sem ajuste) */
+function valorBase(S, m){
+  if (m.plano) return S.regras.planos[m.plano];
+  if (m.planoPart) return (S.regras.planosPart || {})[m.planoPart] ?? m.valor;
+  if (m.planoAtv) return ((S.regras.planosAtv || {})[m.atv] || {})[m.planoAtv] ?? m.valor;
+  return m.valor;
+}
+/* valor que o aluno paga: o do plano, ou com o ajuste da administração (desconto em % ou valor próprio) */
+function valorMat(S, m){
+  const base = valorBase(S, m), aj = m.ajuste;
+  if (!aj || ehPlataforma(m.plano)) return base;
+  return aj.tipo === 'pct' ? r2(base * (1 - aj.v / 100)) : aj.v;
+}
+/* pacote: um pagamento cobre vários meses seguidos (ex.: 3 meses de yoga) */
+const somaMes = (mes, n) => { const d = pd(mes + '-01'); d.setMonth(d.getMonth() + n); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
+const cobre = (p, mes) => p.mes === mes || ((p.meses || 1) > 1 && p.mes < mes && mes <= somaMes(p.mes, p.meses - 1));
+/* pagamentos de cada mês: o pacote é dividido pelos meses que cobre */
+function pagamentosDoMes(S, mes){ return S.pagamentos.flatMap(p => cobre(p, mes) ? [(p.meses || 1) > 1 ? {...p, mes, valor:r2(p.valor / p.meses)} : p] : []); }
 /* Wellhub e GoGood: aulas do mês × valor por aula (quem paga é a plataforma) */
 function presencasPlataforma(S, mes, plano){ return S.presencas.filter(p => p.t === plano && S.aulas[p.s] && mesDe(S.aulas[p.s].d) === mes); }
 function plataformaMes(S, mes){
@@ -678,10 +700,10 @@ function freqStatus(S, a){
   return {st:'ok', dias, txt: dias === 0 ? 'Veio hoje' : dias === 1 ? 'Veio ontem' : `Veio há ${dias} dias`};
 }
 function statusPagamento(S, a, m, mes = MES_ATUAL){
-  const pg = S.pagamentos.find(p => p.mat === m.id && p.mes === mes);
+  const pg = S.pagamentos.find(p => p.mat === m.id && cobre(p, mes));
   const venc = `${mes}-${pad(Math.min(m.venc,28))}`;
   if (ehPlataforma(m.plano)){ const n = S.presencas.filter(p => p.a === (a && a.id) && p.t === m.plano && S.aulas[p.s] && mesDe(S.aulas[p.s].d) === mes).length; return {st:'plataforma', venc, n, txt:`Pelo ${PLANOS_YOGA[m.plano].plataforma}: ${n} ${n === 1 ? 'aula' : 'aulas'} em ${nomeMes(mes).toLowerCase()} × ${brl(S.regras.planos[m.plano])}`}; }
-  if (pg) return {st:'pago', pg, venc, txt:`Pago em ${dataBR(pg.d)}`};
+  if (pg) return {st:'pago', pg, venc, txt: (pg.meses || 1) > 1 ? `Pacote de ${pg.meses} meses pago em ${dataBR(pg.d)} (até ${nomeMes(somaMes(pg.mes, pg.meses - 1)).toLowerCase()})` : `Pago em ${dataBR(pg.d)}`};
   const av_ = (S.avisosPag || []).find(x => x.mat === m.id && x.mes === mes && x.estado === 'aguardando');
   if (av_) return {st:'analise', aviso:av_, venc, txt:`Avisou que pagou em ${dataBR(av_.d)} · ${av_.metodo === 'cartao' ? 'cartão' : 'Pix'} · falta a administração confirmar`};
   if (m.status === 'cancelado') return {st:'cancelado', venc, txt:`Cancelado em ${dataBR(m.fim || HOJE_ISO)}`};
@@ -696,7 +718,7 @@ function proximaCobranca(S, m){
   if (st.st !== 'pago') return st.venc;
   /* o primeiro mês ainda sem pagamento (quem adiantou não paga duas vezes o mesmo mês) */
   let d = pd(st.venc);
-  for (let i = 0; i < 24; i++){ d = new Date(d.getFullYear(), d.getMonth()+1, Math.min(m.venc,28)); const mes = `${d.getFullYear()}-${pad(d.getMonth()+1)}`; if (!S.pagamentos.some(p => p.mat === m.id && p.mes === mes)) break; }
+  for (let i = 0; i < 24; i++){ d = new Date(d.getFullYear(), d.getMonth()+1, Math.min(m.venc,28)); const mes = `${d.getFullYear()}-${pad(d.getMonth()+1)}`; if (!S.pagamentos.some(p => p.mat === m.id && cobre(p, mes))) break; }
   return iso(d);
 }
 function alunosVisiveis(S, instrId){
@@ -723,7 +745,7 @@ function receitaMes(S, mes){
     Object.entries(MENSAL_EXEMPLO[mes]).forEach(([k,v]) => ATIV[k] && add(k, v, 'exemplo'));
   } else {
     const soma = {};
-    S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m) soma[m.atv] = (soma[m.atv]||0) + p.valor; });
+    pagamentosDoMes(S, mes).forEach(p => { if (p.avulsa){ soma.yoga = (soma.yoga || 0) + p.valor; return; } const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m) soma[m.atv] = (soma[m.atv]||0) + p.valor; });
     S.sessoes.filter(s => mesDe(s.d) === mes).forEach(s => soma[s.atv] = (soma[s.atv]||0) + s.valor);
     plataformaMes(S, mes).forEach(x => { if (x.valor) soma.yoga = (soma.yoga || 0) + x.valor; });
     Object.keys(ATIV).forEach(k => soma[k] && add(k, soma[k], 'app'));
@@ -763,7 +785,7 @@ function fechamentoYoga(S, mes){
   } else {
     fonte = 'app'; aulaVazia = S.regras.aulaVazia; taxas = taxasYoga(S.regras.planos, P.yoga);
     bruto = 0;
-    S.pagamentos.filter(p => p.mes === mes).forEach(p => { const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m && m.atv === 'yoga') bruto += p.valor; });
+    pagamentosDoMes(S, mes).forEach(p => { if (p.avulsa){ bruto += p.valor; return; } const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (m && m.atv === 'yoga') bruto += p.valor; });
     bruto += plataformaMes(S, mes).reduce((s, x) => s + x.valor, 0);   /* o que o Wellhub e o GoGood pagam entra na conta da yoga */
     Object.values(S.aulas).filter(au => mesDe(au.d) === mes && au.feita && TURMA[au.turma] && TURMA[au.turma].atv === 'yoga').forEach(au => {
       const I = instrs[au.instr] = instrs[au.instr] || {aulas:0, c:{vazia:0,'4x':0,'3x':0,'2x':0,'1x':0,avulsa:0,wellhub:0,gogood:0}};
@@ -771,7 +793,7 @@ function fechamentoYoga(S, mes){
       if (au.vazia){ I.c.vazia++; return; }
       S.presencas.filter(p => p.s === au.id).forEach(p => { if (I.c[p.t] !== undefined) I.c[p.t]++; });
     });
-    S.pagamentos.filter(p => p.mes === mes).forEach(p => {
+    pagamentosDoMes(S, mes).forEach(p => {
       const a = alunoPor(S,p.a); const m = a && a.mats.find(x => x.id === p.mat); if (!m) return;
       if (!['particular','gestantes','meditacao'].includes(m.atv)) return;
       const who = responsavelMat(m); if (!who) return;            /* sem instrutor definido: fica fora até a administração escolher */
@@ -1224,7 +1246,7 @@ function montarBackup(S, {ate = MES_ATUAL, quem = 'Administração', quando = HO
       const ini = r;
       let itens = [];
       if (rec.fonte === 'app'){
-        itens = S.pagamentos.filter(p => p.mes === mes).map(p => { const a = alunoPor(S, p.a), m = a && a.mats.find(x => x.id === p.mat); return m && m.atv === l.atv ? [{d:p.d}, a.nome, p.valor, `${p.metodo === 'cartao' ? 'cartão' : p.metodo}${m.plano ? ' · ' + PLANOS_YOGA[m.plano].nome : ''}${m.instr ? ' · ' + PESSOA[m.instr].nome : ''}`] : null; }).filter(Boolean)
+        itens = pagamentosDoMes(S, mes).filter(p => !p.avulsa).map(p => { const a = alunoPor(S, p.a), m = a && a.mats.find(x => x.id === p.mat); return m && m.atv === l.atv ? [{d:p.d}, a.nome, p.valor, `${p.metodo === 'cartao' ? 'cartão' : p.metodo}${m.plano ? ' · ' + PLANOS_YOGA[m.plano].nome : ''}${m.instr ? ' · ' + PESSOA[m.instr].nome : ''}`] : null; }).filter(Boolean)
           .concat(S.sessoes.filter(s => mesDe(s.d) === mes && s.atv === l.atv).map(s => [{d:s.d}, s.cliente, s.valor, `sessão com ${PESSOA[s.instr].nome}`]));
         itens.sort((x, y) => x[0].d < y[0].d ? -1 : 1);
       }

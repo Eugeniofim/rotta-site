@@ -353,11 +353,18 @@ const GRUPOS_CAT = [
   {id:'Extra', nome:'Extra', icon:'circle-alert', tipo:'ambos', dica:'o que não se encaixa nas outras'},
 ];
 UI.catFoco = 'lojinha';
+/* os gráficos por categoria seguem as categorias de hoje: as tiradas saem, as criadas entram */
+function gruposCat(){
+  const fora = (S.cats && S.cats.fora) || [], base = GRUPOS_CAT.filter(g => ['mensalidades','lojinha'].includes(g.id) || !fora.includes(g.id));
+  const ja = new Set(base.map(g => g.id));
+  const novas = [...new Set([...Object.keys(CAT_ENTRADA), ...Object.keys(CAT_SAIDA)])].filter(n => !ja.has(n)).map(n => ({id:n, nome:n, icon:(CAT_ENTRADA[n] || CAT_SAIDA[n]).icon || 'tag', tipo: CAT_ENTRADA[n] && CAT_SAIDA[n] ? 'ambos' : CAT_ENTRADA[n] ? 'in' : 'out', dica:'categoria criada por vocês'}));
+  return [...base, ...novas];
+}
 function seriesCategorias(){
   const meses = mesesDoBackup(MES_ATUAL), BS = meses.map(m => balancoMes(S, m));
   const soma = (ls, cat) => r2(ls.filter(l => l.cat === cat).reduce((s, l) => s + l.valor, 0));
   const out = {};
-  GRUPOS_CAT.forEach(g => {
+  gruposCat().forEach(g => {
     out[g.id] = BS.map(b => {
       if (g.id === 'mensalidades') return {mes:b.mes, e:b.rec.ea, s:0, bruto:b.rec.bruto, equipe:b.rec.instr};
       if (g.id === 'lojinha') return {mes:b.mes, e:b.loja.ea, s:0, bruto:b.loja.bruto, forn:b.loja.forn, n:b.loja.n};
@@ -389,7 +396,7 @@ function graficoCat(g, serie, {alto = 96, W = 300, sel = UI.balMes, eixo = false
 }
 function ligarCategorias(){
   $$('.chart-cat').forEach(ch => {
-    const serie = JSON.parse(ch.dataset.serie), g = GRUPOS_CAT.find(x => x.id === ch.dataset.cat), tip = ch.querySelector('.tip');
+    const serie = JSON.parse(ch.dataset.serie), g = gruposCat().find(x => x.id === ch.dataset.cat), tip = ch.querySelector('.tip');
     const mostrar = (i, el) => {
       const x = serie[i]; $$('.hit', ch).forEach(h => h.classList.toggle('on', h === el));
       if (!x){ tip.innerHTML = `<b>${MESES[i]}</b><div>Ainda não chegou</div>`; }
@@ -411,7 +418,7 @@ function vBalancoCategorias(){
   const resumo = g => { const se = out[g.id], x = se[iSel], ant = se[iSel - 1], v = valorCat(g, x), tot = se.reduce((t, y) => t + valorCat(g, y), 0), dif = ant ? v - valorCat(g, ant) : null;
     return {v, tot, media:tot / se.length, dif}; };
   const difTxt = (g, dif) => dif === null || Math.abs(dif) < .5 ? '' : `${dif > 0 ? '▲' : '▼'} ${brl(Math.abs(dif))} ${g.tipo === 'out' ? (dif > 0 ? 'a mais de gasto' : 'a menos de gasto') : dif > 0 ? 'a mais' : 'a menos'} que ${MESES_C[+mesAnt.slice(5) - 1]}`;
-  const foco = GRUPOS_CAT.find(g => g.id === UI.catFoco) || GRUPOS_CAT[0], F = resumo(foco), b = BS[iSel];
+  const GC = gruposCat(), foco = GC.find(g => g.id === UI.catFoco) || GC[0], F = resumo(foco), b = BS[iSel];
   /* o que compõe a categoria em foco no mês escolhido */
   let detalhe = '';
   if (foco.id === 'mensalidades') detalhe = hbarras(b.rec.linhas.filter(l => l.ea > 0).sort((x, y) => y.ea - x.ea).map(l => ({lab:ATIV[l.atv].nome, v:l.ea})), 'var(--chart-in)');
@@ -431,7 +438,7 @@ function vBalancoCategorias(){
     ${(() => { const cel = matchMedia('(max-width:759px)').matches; return graficoCat(foco, out[foco.id], cel ? {alto:210, W:380, eixo:true} : {alto:240, W:720, eixo:true}); })()}
     <div class="eyebrow" style="margin:14px 0 6px">${foco.id === 'lojinha' ? `Parte do Espaço por fornecedor em ${nomeMes(sel).toLowerCase()}` : foco.id === 'mensalidades' ? `Parte do Espaço por atividade em ${nomeMes(sel).toLowerCase()}` : `Lançamentos de ${nomeMes(sel).toLowerCase()}`}</div>${detalhe}
   </div>
-  <div class="cats">${GRUPOS_CAT.map(g => { const R = resumo(g); return `<button class="card cat-card ${g.id === foco.id ? 'on' : ''}" data-act="catFoco" data-v="${escapeH(g.id)}" aria-pressed="${g.id === foco.id}">
+  <div class="cats">${GC.map(g => { const R = resumo(g); return `<button class="card cat-card ${g.id === foco.id ? 'on' : ''}" data-act="catFoco" data-v="${escapeH(g.id)}" aria-pressed="${g.id === foco.id}">
       <div class="cat-h"><span class="ico-b" style="${g.tipo === 'in' ? 'color:var(--chart-in)' : g.tipo === 'out' ? 'color:var(--chart-out)' : ''}">${ic(g.icon)}</span><div style="min-width:0;flex:1"><b>${g.nome}</b><span>${g.tipo === 'in' ? 'entrada' : g.tipo === 'out' ? 'saída' : 'entra e sai'}</span></div></div>
       <div class="cat-v"><b class="num" style="${g.tipo === 'ambos' ? `color:${R.v >= 0 ? 'var(--ok)' : 'var(--bad)'}` : ''}">${brl0(R.v)}</b><span>${mesCurto(sel)} · ano ${brl0(R.tot)}</span></div>
       ${graficoCat(g, out[g.id])}
@@ -549,6 +556,38 @@ function vAtividadesAdmin(){
     </div>`; }).join('')}</div>
   <div class="card" style="border-top:4px solid var(--folha)"><div class="card-h"><div><h3>Terapias com hora marcada</h3><span class="sub">Aparecem na aba Terapias do aluno, com o botão do WhatsApp de quem atende. O valor é lançado à mão no balanço.</span></div><button class="btn sec sm" data-act="terapia">${ic('plus','sm')}Nova terapia</button></div>
     <div class="list">${(S.terapias || []).map(t => `<div class="li tap" data-act="terapia" data-v="${t.id}" role="button" tabindex="0"><span class="ico-b">${ic(t.icon || 'heart')}</span><div class="main-c"><span class="t">${escapeH(t.nome)}</span><span class="s">${t.quem ? 'com ' + escapeH(t.quem) : 'terapeuta a definir'} · WhatsApp ${escapeH(mascCel(t.whats || ESPACO.whats))}</span></div>${ic('pencil','sm')}</div>`).join('') || '<p class="small muted">Nenhuma terapia cadastrada.</p>'}</div></div>`;
+}
+function folhaAjuste(matId){
+  const a = S.alunos.find(x => x.mats.some(m => m.id === matId)), m = a.mats.find(x => x.id === matId), aj = m.ajuste || {}, base = valorBase(S, m);
+  abrirFolha(`${folhaCab('Ajustar a mensalidade', `${escapeH(a.nome)} · ${nomePlano(m)} · valor do plano ${brl(base)}`)}
+  <form class="stack" id="fAjuste" data-mat="${matId}">
+    <div class="optgrid">${[['pct','Desconto em %'],['valor','Valor próprio (R$)']].map(([k, l]) => `<button type="button" class="opt ${(aj.tipo || 'pct') === k ? 'on' : ''}" data-act="opt" data-grp="ajTipo" data-v="${k}">${l}</button>`).join('')}</div><input type="hidden" id="ajTipo" value="${aj.tipo || 'pct'}">
+    <div class="field"><label for="ajV">Desconto (%) ou valor por mês (R$)</label><input class="inp num" id="ajV" inputmode="decimal" value="${aj.v !== undefined ? String(aj.v).replace('.', ',') : ''}" placeholder="Ex.: 10 (%) ou 120,00 (R$)" required></div>
+    <div class="field"><label for="ajMot">Motivo</label><input class="inp" id="ajMot" maxlength="80" value="${escapeH(aj.motivo || '')}" placeholder="Ex.: bolsa, irmãos, combinado com a Dessa"></div>
+    <p class="small muted">Vale da próxima cobrança em diante. Os pagamentos que já entraram não mudam.</p>
+    <div class="sheet-foot">${m.ajuste ? `<button type="button" class="btn ghost" data-act="ajusteTirar" data-v="${matId}">${ic('x','sm')}Voltar ao valor do plano</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+function folhaPacote(id){
+  const p = (S.pacotes || []).find(x => x.id === id) || {nome:'', atv:'yoga', plano:'', meses:3, valor:''};
+  const planos = atv => atv === 'yoga' ? PLANOS_MENSAIS : atv === 'particular' ? PLANOS_MENSAIS : PLANOS_ATV[atv] ? Object.keys(PLANOS_ATV[atv]) : [];
+  abrirFolha(`${folhaCab(id ? 'Editar pacote' : 'Novo pacote', 'Vários meses pagos de uma vez. Aparece na hora de receber e para o aluno pagar.')}
+  <form class="stack" id="fPacote" data-id="${id || ''}">
+    <div class="field"><label for="pkNome">Nome</label><input class="inp" id="pkNome" maxlength="40" required value="${escapeH(p.nome)}" placeholder="Ex.: Trimestral yoga 2x"></div>
+    <div class="field"><label>Atividade</label><div class="optgrid">${Object.entries(ATIV).map(([k, a]) => `<button type="button" class="opt ${p.atv === k ? 'on' : ''}" data-act="opt" data-grp="pkAtv" data-v="${k}">${ic(a.icon)}${escapeH(a.curto)}</button>`).join('')}</div><input type="hidden" id="pkAtv" value="${p.atv}"></div>
+    <div class="field"><label for="pkPlano">Só para o plano (opcional)</label><select class="inp" id="pkPlano"><option value="">Qualquer plano</option>${['1x','2x','3x','4x'].map(k => `<option value="${k}" ${p.plano === k ? 'selected' : ''}>${k} por semana</option>`).join('')}</select></div>
+    <div class="grid g2"><div class="field"><label for="pkMeses">Meses</label><select class="inp" id="pkMeses">${[2,3,4,6,12].map(n => `<option value="${n}" ${+p.meses === n ? 'selected' : ''}>${n} meses</option>`).join('')}</select></div>
+      <div class="field"><label for="pkValor">Valor total</label><input class="inp money num" id="pkValor" inputmode="decimal" required value="${p.valor ? (+p.valor).toFixed(2).replace('.', ',') : ''}" placeholder="Ex.: 450,00"></div></div>
+    <div class="sheet-foot">${id ? `<button type="button" class="btn ghost" data-act="pacoteDel" data-v="${id}">${ic('x','sm')}Tirar pacote</button>` : `<button type="button" class="btn sec" data-act="fechar">Cancelar</button>`}<button class="btn pri" type="submit">${ic('check')}Salvar</button></div>
+  </form>`);
+}
+function folhaCatRen(nome){
+  abrirFolha(`${folhaCab('Renomear categoria', escapeH(nome))}
+  <form class="stack" id="fCatRen" data-v="${escapeH(nome)}">
+    <div class="field"><label for="crNome">Novo nome</label><input class="inp" id="crNome" maxlength="32" required value="${escapeH(nome)}"></div>
+    <p class="small muted">${S.lanc.filter(l => l.cat === nome).length} lançamentos passam para o nome novo.</p>
+    <div class="sheet-foot"><button type="button" class="btn sec" data-act="editarCats">Voltar</button><button class="btn pri" type="submit">${ic('check')}Renomear</button></div>
+  </form>`);
 }
 function folhaTerapia(id){
   const t = (S.terapias || []).find(x => x.id === id) || {nome:'', quem:'', desc:'', whats:ESPACO.whats, icon:'heart'};

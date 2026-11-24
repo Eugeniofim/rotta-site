@@ -198,7 +198,7 @@ function montarBackup(S, {ate = MES_ATUAL, quem = 'Administração', quando = HO
       const ini = r;
       let itens = [];
       if (rec.fonte === 'app'){
-        itens = S.pagamentos.filter(p => p.mes === mes).map(p => { const a = alunoPor(S, p.a), m = a && a.mats.find(x => x.id === p.mat); return m && m.atv === l.atv ? [{d:p.d}, a.nome, p.valor, `${p.metodo === 'cartao' ? 'cartão' : p.metodo}${m.plano ? ' · ' + PLANOS_YOGA[m.plano].nome : ''}${m.instr ? ' · ' + PESSOA[m.instr].nome : ''}`] : null; }).filter(Boolean)
+        itens = pagamentosDoMes(S, mes).filter(p => !p.avulsa).map(p => { const a = alunoPor(S, p.a), m = a && a.mats.find(x => x.id === p.mat); return m && m.atv === l.atv ? [{d:p.d}, a.nome, p.valor, `${p.metodo === 'cartao' ? 'cartão' : p.metodo}${m.plano ? ' · ' + PLANOS_YOGA[m.plano].nome : ''}${m.instr ? ' · ' + PESSOA[m.instr].nome : ''}`] : null; }).filter(Boolean)
           .concat(S.sessoes.filter(s => mesDe(s.d) === mes && s.atv === l.atv).map(s => [{d:s.d}, s.cliente, s.valor, `sessão com ${PESSOA[s.instr].nome}`]));
         itens.sort((x, y) => x[0].d < y[0].d ? -1 : 1);
       }

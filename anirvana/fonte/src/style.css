@@ -558,3 +558,12 @@ button.brand:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
 .drive .end{display:flex;gap:6px;flex-wrap:wrap}
 .drive .main-c{display:flex;flex-direction:column;gap:2px}
 .tag.warn{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn)}
+.topbar .voltar{flex:none;margin-right:2px;background:var(--surface);border:1px solid var(--line)}
+/* pente fino: nada vaza para o lado no celular */
+.opt, .opt span{min-width:0;overflow-wrap:anywhere}
+.main, #sheet{overflow-x:clip}
+.chart, .cat-chart, .graf{overflow:hidden}
+/* contatos do Espaço: a linha inteira é o link */
+.li.contato{gap:6px}
+.contato-a{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:inherit;text-decoration:none;border-radius:12px}
+.contato-a:hover .t{text-decoration:underline}

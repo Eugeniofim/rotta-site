@@ -68,3 +68,13 @@ Antes de publicar: subir `CACHE = 'anirvana-vN'` no `build.py` (senão o celular
 - Respostas de perguntas antigas do formulário ficam guardadas na ficha. Ao confirmar, a administração escolhe o plano (1x a 4x, Wellhub ou GoGood).
 - Banco: `importar_inscricao` (só a administração; repetido não entra). 138 testes.
 - **Dados reais não entram nesta demonstração pública.** `fonte/alunos-ficticios.xlsx` é uma planilha FALSA com os mesmos títulos e defeitos da real, para o teste (`fonte/teste-planilha-alunos.js`).
+
+## v10 (dúvidas da Dessa, 24/11)
+- **Todos os valores em Mensalidades → Regras:** yoga, particular, gestante (1x, 2x, 3x) e as outras atividades. Mudou o valor, quem pagava o valor antigo passa para o novo (quem tem desconto fica como está).
+- **Pacotes** (ex.: 3 meses de yoga): criar em Regras; na hora de receber, escolher o pacote. Cobre os meses seguintes e cada mês conta a sua parte no fechamento.
+- **Desconto ou valor próprio por aluno:** na ficha do aluno, "Ajustar valor" (% ou R$, com o motivo).
+- **Balanço:** corrigir ou apagar lançamento (toque nele) e criar, renomear ou tirar categorias (botão Categorias).
+- **Chamada:** caixinha "Aula avulsa ou visitante" com nome, WhatsApp e se pagou. Paga na hora vira pagamento; "paga depois" aparece em Mensalidades para receber.
+- **Setinha de voltar** no topo (e o voltar do celular). Submenus que rolam de lado não voltam mais para o começo.
+- Contatos do Espaço viram links: WhatsApp, e-mail, Google Maps e Instagram.
+- Pente fino: 153 telas em 3 tamanhos, sem erro e sem nada vazando para o lado (`fonte/teste-varredura-telas.js`).
