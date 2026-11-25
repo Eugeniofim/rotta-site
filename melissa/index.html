@@ -28,7 +28,7 @@
 <link rel="icon" href="img/icone-mh.png">
 <link rel="apple-touch-icon" href="img/icone-mh.png">
 <meta name="theme-color" content="#0B0B0B">
-<link rel="preload" as="image" href="img/her-colmar-canal.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="img/hero-estrasburgo.jpg" fetchpriority="high">
 <link rel="preload" as="font" type="font/woff" href="fonts/HoneyScript-Light.woff" crossorigin>
 <link rel="preload" as="font" type="font/woff" href="fonts/GlacialIndifference-Regular.woff" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,9 +137,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ============ HERO ============ */
 .hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;color:#fff;overflow:hidden;background:#111}
 .hero-media{position:absolute;inset:0}
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 46%;will-change:transform}
-.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.50) 0%,rgba(0,0,0,.18) 46%,rgba(0,0,0,0) 72%),linear-gradient(180deg,rgba(0,0,0,.50) 0%,rgba(0,0,0,.06) 26%,rgba(0,0,0,.16) 50%,rgba(0,0,0,.82) 100%)}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 34%;will-change:transform}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(270deg,rgba(0,0,0,.58) 0%,rgba(0,0,0,.30) 38%,rgba(0,0,0,0) 66%),linear-gradient(180deg,rgba(0,0,0,.46) 0%,rgba(0,0,0,.04) 24%,rgba(0,0,0,.14) 52%,rgba(0,0,0,.80) 100%)}
 .hero-in{position:relative;z-index:2;padding:150px 0 clamp(40px,6vw,72px)}
+.hero-box{margin-left:auto;width:min(100%,680px)}
+@media(max-width:860px){.hero-box{margin-left:0;width:100%}.hero-media img{object-position:30% 40%}.hero-shade{background:linear-gradient(180deg,rgba(0,0,0,.46) 0%,rgba(0,0,0,.04) 22%,rgba(0,0,0,.30) 48%,rgba(0,0,0,.86) 100%)}}
 .hero h1{margin-top:18px;text-shadow:0 2px 24px rgba(0,0,0,.35)}
 .hero h1 .imp{display:block;font-family:var(--f-impact);font-weight:700;text-transform:uppercase;font-size:clamp(1.85rem,4.5vw,4rem);line-height:1;letter-spacing:-.005em}
 .hero h1 .script{display:block;color:var(--sol);font-size:clamp(3.5rem,9.4vw,8.2rem);line-height:.8;margin-top:.12em}
@@ -353,9 +355,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 <main>
 <!-- ============ HERO ============ -->
 <section class="hero" id="top">
-  <div class="hero-media"><img src="img/her-colmar-canal.jpg" alt="Casas de enxaimel coloridas à beira do canal na Alsácia" data-hero fetchpriority="high" width="1600" height="1066"></div>
+  <div class="hero-media"><img src="img/hero-estrasburgo.jpg" alt="Vista aérea de Estrasburgo com a catedral ao pôr do sol" data-hero fetchpriority="high" width="1800" height="1350"></div>
   <div class="hero-shade"></div>
-  <div class="hero-in wrap">
+  <div class="hero-in wrap"><div class="hero-box">
     <span class="eyebrow a" data-i18n="h_eye">Bem-vindo à Alsácia</span>
     <h1 class="a a2"><span class="imp" data-i18n="h_t1">Alsácia e Floresta Negra,</span><span class="script" data-i18n="h_t2">além dos seus clichês.</span></h1>
     <p class="hero-lead a a3" data-i18n="h_lead">Guia e fotógrafa brasileira na Alsácia, França — tours privados em português.</p>
@@ -364,7 +366,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       <a class="btn" href="https://app.melissahallais.com" data-i18n="h_c1">Solicitar experiência</a>
       <a class="btn ghost" href="#roteiros" data-i18n="h_c2">Os roteiros</a>
     </div>
-  </div>
+  </div></div>
 </section>
 
 <!-- ============ TÚNEL 3D ============ -->
