@@ -285,7 +285,7 @@ function wzItem(c, aberto) {
     ${av(wzNome(c) || '?')}
     <span class="wz-meio"><span class="wz-l1"><b>${esc(wzNome(c))}</b><span class="sm">${esc(wzQuando(c.ultimaEm))}</span></span>
       <span class="wz-l2"><span class="wz-ult">${esc(quem + (c.ultima || ''))}</span>${c.naoLidas ? `<span class="wz-n" aria-label="${c.naoLidas} não lidas">${c.naoLidas}</span>` : ''}</span>
-      <span class="wz-l3">${wzPausado(c) ? tag('gold', 'equipe atendendo') : tag('ok', 'Milla atendendo')}${temLead ? ' ' + tag('warn', 'lead') : ''}</span></span>
+      <span class="wz-l3">${wzPausado(c) ? tag('gold', c.com ? c.com + ' atendendo' : 'equipe atendendo') : tag('ok', 'Milla atendendo')}${temLead ? ' ' + tag('warn', 'lead') : ''}</span></span>
   </button>`;
 }
 function wzListaHtml(aberto) {
@@ -314,11 +314,19 @@ function wzMsgsHtml() {
     return `${sep}<div class="wz-bal wz-${esc(m.dir)}">${quem ? `<span class="wz-quem">${esc(quem)}${m.como === 'modelo' ? ' · mensagem modelo' : ''}</span>` : ''}<span>${wzTexto(m.texto)}</span><i>${esc(wzHora(m.quando))}</i></div>`;
   }).join('');
 }
+/* QUIETA ATÉ DEVOLVER (24/11/2026, Ponta d'a Areia; a Poliana: "eu já estou atendendo essa cliente, mas aparece que a
+   Milla está atendendo"). A pausa agora pode durar dias (catalogo.equipe_quieta_dias no cofre) e diz com quem está. */
+function wzQuieta(c) {
+  const ate = new Date(c.pausadoAte), longe = ate - Date.now() > 2 * WZ_DIA;
+  const quando = longe ? ate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ate.toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+  return `<span><b>${c.com ? 'Com ' + esc(c.com) + ', da equipe.' : 'Você assumiu esta conversa.'}</b> A Milla fica quieta até alguém devolver${longe
+    ? ` (só volta sozinha se ninguém conversar até ${esc(quando)})` : ` (ou volta sozinha ${esc(quando)})`}.</span>`;
+}
 function wzCorpoHtml(c) {
   const pausa = wzPausado(c);
   const fora = c.clienteEm && Date.now() - Date.parse(c.clienteEm) > WZ_DIA;
   return `<div class="wz-estado ${pausa ? 'eq' : ''}"><i class="ponto" aria-hidden="true"></i>${pausa
-      ? `<span><b>Você assumiu esta conversa.</b> A Milla fica quieta até você devolver (ou volta sozinha ${esc(new Date(c.pausadoAte).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }))}).</span><button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="ligar" data-n="${esc(c.numero)}">Devolver à Milla</button>`
+      ? `${wzQuieta(c)}<button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="ligar" data-n="${esc(c.numero)}">Devolver à Milla</button>`
       : `<span><b>A Milla está atendendo.</b> Ao responder aqui, você assume e ela fica quieta nesta conversa.</span><button type="button" class="btn btn-line btn-p" data-act="wz-robo" data-v="pausar" data-n="${esc(c.numero)}">Assumir sem responder</button>`}</div>
     <div class="wz-ficha-dentro">${WZ.pedidos.map(wzLeadHtml).join('')}</div>
     <div class="wz-msgs" id="wz-msgs">${wzMsgsHtml()}</div>
@@ -396,7 +404,7 @@ document.addEventListener('click', async e => {
     const r = await wzCofre({ acao: 'robo', ligar, para: n });
     const c = WZ.lista.find(x => x.numero === n);
     if (r.ok) {
-      if (c) Object.assign(c, ligar ? { robo: 'ligado', pausadoAte: '' } : { robo: 'pausado', pausadoAte: r.pausadoAte || new Date(Date.now() + WZ_DIA).toISOString() });
+      if (c) Object.assign(c, ligar ? { robo: 'ligado', pausadoAte: '', com: '' } : { robo: 'pausado', pausadoAte: r.pausadoAte || new Date(Date.now() + WZ_DIA).toISOString() });
       toast(ligar ? 'Devolvido: a Milla volta a responder esta pessoa.' : 'Assumido: a Milla fica quieta nesta conversa.');
     } else toast(r.erro || 'Não consegui agora. Tente de novo.');
     wzPinta(); return;
