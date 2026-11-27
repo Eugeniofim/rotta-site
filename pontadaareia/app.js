@@ -63,6 +63,12 @@ const EQ = { lista: [], carregou: false, buscando: false, erro: '', salvando: fa
 const EQ_PRODUTOS = [['venda', 'Venda'], ['aluguel', 'Locação'], ['temporada', 'Temporada']];
 const eqProds = x => (Array.isArray(x && x.produtos) && x.produtos.length ? x.produtos : EQ_PRODUTOS.map(p => p[0]));
 const EQ_MAX = 5;
+/* OS DIAS DE CADA UMA (27/11/2026, Ponta d'a Areia: a Angela trabalha só sexta e sábado; as outras, de segunda a sexta).
+   dias = os dias da semana em que a pessoa recebe cliente novo, 0 = domingo … 6 = sábado: a mesma conta do cofre
+   (aviso-equipe.js, diasDe/deServico). Sem o campo, todos os dias. Fora dos dias dela, é como a folga. */
+const EQ_DIAS = [[1, 'seg'], [2, 'ter'], [3, 'qua'], [4, 'qui'], [5, 'sex'], [6, 'sáb'], [0, 'dom']];
+const eqDias = x => { const l = Array.isArray(x && x.dias) ? [...new Set(x.dias.map(Number).filter(d => Number.isInteger(d) && d >= 0 && d <= 6))] : []; return l.length ? l : EQ_DIAS.map(d => d[0]); };
+const eqDiasTxt = l => l.length >= 7 ? 'todos os dias' : EQ_DIAS.filter(d => l.includes(d[0])).map(d => d[1]).join(', ');
 
 /* ---------- peças ---------- */
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -353,7 +359,8 @@ function eqDoLead(p) {
    um toque em "Voltou da folga" devolve. Toda gravação da pessoa passa por eqDados, para a folga não sumir quando se
    mexe nos produtos. */
 const eqDados = (x, muda) => { const y = Object.assign({}, x, muda || {});
-  return { nome: y.nome, numero: y.numero, ...(y.produtos ? { produtos: y.produtos } : {}), ...(y.folga ? { ativo: false, folgaDesde: y.folgaDesde || new Date().toISOString() } : {}) }; };
+  return { nome: y.nome, numero: y.numero, ...(y.produtos ? { produtos: y.produtos } : {}), ...(Array.isArray(y.dias) && y.dias.length && y.dias.length < 7 ? { dias: y.dias } : {}),
+    ...(y.folga ? { ativo: false, folgaDesde: y.folgaDesde || new Date().toISOString() } : {}) }; };
 const eqDiaFolga = x => { const d = x.folgaDesde ? new Date(x.folgaDesde) : null; return d && !isNaN(d) ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''; };
 const eqNum = v => { let d = String(v || '').replace(/\D/g, ''); if (d.length === 10 || d.length === 11) d = '55' + d; return d.length >= 12 && d.length <= 15 ? d : ''; };
 async function eqCarregar() {
@@ -366,6 +373,7 @@ async function eqCarregar() {
     if (r.status === 401) { authSave(null); throw new Error('sessao'); }
     if (!r.ok) throw new Error('banco ' + r.status);
     EQ.lista = (await r.json()).map(x => ({ nome: (x.dados && x.dados.nome) || 'Equipe', numero: (x.dados && x.dados.numero) || x.id, ...(x.dados && Array.isArray(x.dados.produtos) ? { produtos: x.dados.produtos } : {}),
+      ...(x.dados && Array.isArray(x.dados.dias) && x.dados.dias.length ? { dias: x.dados.dias } : {}),
       ...(x.dados && x.dados.ativo === false ? { folga: true, folgaDesde: x.dados.folgaDesde || '' } : {}) }));
     try {
       const c = await supaFetch('itens?colecao=eq.equipe_cfg&id=eq.cfg&apagado=eq.false&select=dados');
@@ -433,7 +441,8 @@ function vEquipe() {
   const rz = EQ.cfg.modo === 'rodizio';
   const prods = x => `<span class="eq-prods" role="group" aria-label="O que ${esc(x.nome)} atende">${EQ_PRODUTOS.map(([v, t]) => `<button type="button" class="chip ${eqProds(x).includes(v) ? 'on' : ''}" data-act="eq-prod" data-n="${esc(x.numero)}" data-p="${v}" aria-pressed="${eqProds(x).includes(v)}">${t}</button>`).join('')}</span>`;
   const folga = x => x.folga ? `<span class="sm eq-folga">De folga${eqDiaFolga(x) ? ' desde ' + eqDiaFolga(x) : ''}: não recebe cliente novo</span>` : '';
-  const linha = x => `<div class="lead eq-linha ${x.folga ? 'eq-de-folga' : ''}">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span>${folga(x)}${rz ? prods(x) : ''}</span>
+  const dias = x => `<span class="eq-dias" role="group" aria-label="Dias em que ${esc(x.nome)} recebe cliente novo"><span class="sm">Dias</span>${EQ_DIAS.map(([d, t]) => `<button type="button" class="chip ${eqDias(x).includes(d) ? 'on' : ''}" data-act="eq-dia" data-n="${esc(x.numero)}" data-d="${d}" aria-pressed="${eqDias(x).includes(d)}">${t}</button>`).join('')}</span>`;
+  const linha = x => `<div class="lead eq-linha ${x.folga ? 'eq-de-folga' : ''}">${av(x.nome)}<span class="lt"><b>${esc(x.nome)}</b><span class="sm">${esc(typeof wzNum === 'function' ? wzNum(x.numero) : x.numero)}</span>${folga(x)}${rz ? prods(x) : ''}${dias(x)}</span>
     <span class="lr eq-acoes"><button type="button" class="btn btn-line btn-p eq-folga-btn ${x.folga ? 'on' : ''}" data-act="eq-folga" data-n="${esc(x.numero)}" aria-pressed="${x.folga ? 'true' : 'false'}" aria-label="${x.folga ? esc(x.nome) + ' voltou da folga' : 'Pôr ' + esc(x.nome) + ' de folga'}">${x.folga ? 'Voltou da folga' : 'De folga'}</button><button type="button" class="btn btn-line btn-p" data-act="eq-tirar" data-n="${esc(x.numero)}" aria-label="Tirar ${esc(x.nome)} da lista">Tirar</button></span></div>`;
   const todasFolga = EQ.carregou && EQ.lista.length > 0 && EQ.lista.every(x => x.folga);
   return `${faixaCel()}<div class="topo"><div><h1>Equipe <small>· quem recebe os avisos e quem entra no app</small></h1>${REAL() ? '' : '<div class="sm" style="margin-top:4px">Demonstração: a lista não é gravada.</div>'}</div></div>
@@ -451,6 +460,7 @@ function vEquipe() {
       <div class="eq-botoes"><span><b>Confirmar</b> o cliente recebe a confirmação na hora.</span><span><b>Outro horário</b> a Milla pede outros dias ao cliente.</span><span><b>Eu assumo</b> a Milla fica quieta na conversa e você recebe o link para falar com o cliente.</span></div>
       <div class="sm">Vale o primeiro toque: quem tocar depois fica sabendo quem já respondeu. Até ${EQ_MAX} pessoas.</div>
       <div class="sm">Folga: toque em <b>De folga</b> no nome da pessoa e ela não recebe cliente novo${rz ? ' (a vez passa para a próxima pessoa)' : ''}. Na volta, toque em <b>Voltou da folga</b>.</div>
+      <div class="sm">Dias: marque os dias em que cada pessoa recebe cliente novo. Fora dos dias dela, é como a folga. Num dia sem ninguém marcado, recebe quem trabalha no dia seguinte.</div>
     </div>
     ${EQ.erro ? `<div class="wz-aviso sm">${esc(EQ.erro)}</div>` : ''}
     ${todasFolga ? '<div class="wz-aviso sm">Toda a equipe está de folga: os pedidos ficam só aqui no painel, em Leads, sem aviso no WhatsApp.</div>' : ''}
@@ -521,6 +531,16 @@ document.addEventListener('click', async e => {
     const ok = await eqGrava(x.numero, eqDados(x), false);
     if (!ok) x.produtos = antes;
     toast(ok ? x.nome + ' atende: ' + x.produtos.map(y => (EQ_PRODUTOS.find(z => z[0] === y) || [, y])[1].toLowerCase()).join(', ') + '.' : 'Não gravou. Tente de novo.'); render(); return;
+  }
+  if (a === 'eq-dia') {
+    const x = EQ.lista.find(y => y.numero === el.dataset.n); if (!x) return;
+    const d = Number(el.dataset.d), atual = eqDias(x), novo = atual.includes(d) ? atual.filter(y => y !== d) : [...atual, d];
+    if (!novo.length) { toast('Cada pessoa precisa de pelo menos um dia.'); return; }
+    const antes = x.dias; x.dias = novo.length >= 7 ? undefined : EQ_DIAS.map(y => y[0]).filter(y => novo.includes(y));
+    el.disabled = true;
+    const ok = await eqGrava(x.numero, eqDados(x), false);
+    if (!ok) x.dias = antes;
+    toast(ok ? x.nome + ' recebe cliente novo: ' + eqDiasTxt(eqDias(x)) + '.' : 'Não gravou. Tente de novo.'); render(); return;
   }
   if (a === 'eq-folga') {
     const x = EQ.lista.find(y => y.numero === el.dataset.n); if (!x) return;

@@ -448,10 +448,13 @@ body.entrar .meio { padding: 0; }
 .eq-modo-box .wz-st { display: inline-block; width: auto; min-height: 30px; margin: 0 4px; }
 .eq-prods { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .eq-prods .chip { padding: 6px 11px; font-size: 13px; }
+.eq-dias { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 6px; }
+.eq-dias > .sm { margin-right: 2px; }
+.eq-dias .chip { padding: 5px 9px; font-size: 12.5px; }
 /* folga (18/11/2026): a pessoa fica na lista, apagada, com o aviso em âmbar */
 .lead .lr.eq-acoes { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; }
 .eq-folga { color: var(--ambar); font-weight: 600; }
-.eq-de-folga .av, .eq-de-folga .lt > b, .eq-de-folga .eq-prods { opacity: .55; }
+.eq-de-folga .av, .eq-de-folga .lt > b, .eq-de-folga .eq-prods, .eq-de-folga .eq-dias { opacity: .55; }
 .eq-folga-btn.on { background: var(--ambar); color: var(--noite); box-shadow: none; }
 @media (max-width: 760px) { .lead .lr.eq-acoes { justify-content: flex-start; } }
 
