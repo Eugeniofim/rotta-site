@@ -114,6 +114,9 @@ const LOGADO = () => typeof isLoggedIn === 'function' && isLoggedIn();
    só com o dono e o estúdio (DONO). Na demonstração, a pessoa escolhida na entrada. */
 const GESTOR = () => REAL() ? (WZ.papel === 'admin' || WZ.papel === 'dono' || WZ.gere === true) : demoPessoa().papel === 'dono';
 const DONO = () => REAL() ? (WZ.papel === 'admin' || WZ.papel === 'dono') : demoPessoa().papel === 'dono';
+/* A GERENTE VÊ A CONTA (27/11/2026, Ponta d'a Areia: "habilitar para a Poliana ver"): a assinatura e a IA da Milla
+   aparecem para o dono e para quem tem a gerência. Quem entra no app e os créditos continuam só com o dono. */
+const VE_CONTA = () => DONO() || (REAL() && WZ.gere === true);
 function vEntrar() {
   return `<div class="entrar-fundo"><form class="entrar-caixa" id="entrar-form" aria-label="Entrar no app da Milla">
     <div class="entrar-marca">${SIMBOLO('grande')}<span class="olho">Atendimento da ${esc(MARCA)}</span><h1>Entrar no app da Milla</h1><div class="sm">Cada pessoa da equipe entra com o próprio e-mail e a própria senha.</div></div>
@@ -471,7 +474,7 @@ function vEquipe() {
       <button type="submit" class="btn btn-navy" ${EQ.salvando ? 'disabled' : ''}>Pôr na equipe</button>
     </form>`}
     <h2 class="ac-tit">Quem entra no app</h2>
-    ${DONO() ? vAcessos() : '<div class="box ac-box"><div class="sm">Quem entra no app e a assinatura ficam com o dono. Para dar ou tirar o acesso de alguém ao app, fale com ele.</div></div>'}
+    ${DONO() ? vAcessos() : '<div class="box ac-box"><div class="sm">Quem entra no app fica com o dono. Para dar ou tirar o acesso de alguém ao app, fale com ele.</div></div>'}
     <div class="sm eq-nota">A Meta aprova a mensagem de aviso uma vez só, em minutos até 1 dia. Enquanto isso, o aviso só chega para quem mandou qualquer mensagem ao número da Milla nas últimas 24 h. Quem escreve ao número da Milla é atendido como cliente: é assim que dá para testar sozinho, pedindo uma visita.</div>`;
 }
 async function eqGravaCfg() {
@@ -703,16 +706,16 @@ function render() {
     if (r.tela === 'inicio') inCarregar().then(() => { if (rota().tela === 'inicio') render(); });
     if (r.tela === 'equipe' && GESTOR()) Promise.all([eqCarregar(), DONO() ? acCarregar() : null]).then(() => { if (rota().tela === 'equipe') render(); });
     if (r.tela === 'gestao' && GESTOR()) ldCarregar().then(() => { if (rota().tela === 'gestao') render(); });
-    if (r.tela === 'assinatura' && DONO()) asCarregar(true).then(() => { if (rota().tela === 'assinatura') render(); });
+    if (r.tela === 'assinatura' && VE_CONTA()) asCarregar(true).then(() => { if (rota().tela === 'assinatura') render(); });
     if (r.tela === 'creditos' && DONO()) crCarregar(true).then(() => { if (rota().tela === 'creditos') render(); });
-    if (r.tela === 'ia' && DONO() && typeof iaCarregar === 'function') iaCarregar(true).then(() => { if (rota().tela === 'ia') render(); });
+    if (r.tela === 'ia' && VE_CONTA() && typeof iaCarregar === 'function') iaCarregar(true).then(() => { if (rota().tela === 'ia') render(); });
   }
   /* a linha da assinatura no menu: carrega uma vez para o dono (a gerência não vê a assinatura) */
-  if (DONO() && !AS.carregou && !AS.buscando && !(real && WZ.dona !== true)) asCarregar().then(render);
+  if (VE_CONTA() && !AS.carregou && !AS.buscando && !(real && WZ.dona !== true)) asCarregar().then(render);
   /* 20/11: os créditos do mês (creditos.js), para o botão no menu e o cartão do Início: só o dono (21/11: a gerência não vê) */
   if (DONO() && !CR.carregou && !CR.buscando && !(real && WZ.dona !== true)) crCarregar().then(render);
   /* 23/11: a IA da Milla (ia.js), para a linha no menu e o aviso do Início: só o dono e o estúdio, e só com `ia: true` no config */
-  if (typeof IA !== 'undefined' && DONO() && IA_LIGADO() && !IA.carregou && !IA.buscando && !(real && WZ.dona !== true)) iaCarregar().then(render);
+  if (typeof IA !== 'undefined' && VE_CONTA() && IA_LIGADO() && !IA.carregou && !IA.buscando && !(real && WZ.dona !== true)) iaCarregar().then(render);
   let html;
   if (real && WZ.dona === false) html = vNaoDona();
   else if (r.tela === 'inicio') html = vInicio();
@@ -725,7 +728,7 @@ function render() {
   else if (r.tela === 'ia') html = typeof vIa === 'function' ? vIa() : vSoGestor('IA da Milla');
   else html = vWhats(r.param);
   /* o que entra logo abaixo da faixa do celular: o aviso da mensalidade no Início e a linha da assinatura na Gestão */
-  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() + (typeof iaFaixa === 'function' ? iaFaixa() : '') + crCartao() : r.tela === 'gestao' && DONO() && (asLinhaCel() || (typeof iaLinhaCel === 'function' && iaLinhaCel())) ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + (typeof iaLinhaCel === 'function' ? iaLinhaCel() : '') + '</div>' : '') : '';
+  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() + (typeof iaFaixa === 'function' ? iaFaixa() : '') + crCartao() : r.tela === 'gestao' && VE_CONTA() && (asLinhaCel() || (typeof iaLinhaCel === 'function' && iaLinhaCel())) ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + (typeof iaLinhaCel === 'function' ? iaLinhaCel() : '') + '</div>' : '') : '';
   if (extra) { const fx = faixaCel(); html = html.includes(fx) ? html.replace(fx, fx + extra) : extra + html; }
   $('meio').innerHTML = html;
   if (r.tela === 'assinatura') asPinta();

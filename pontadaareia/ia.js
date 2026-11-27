@@ -16,7 +16,7 @@
 const IA = { dados: null, carregou: false, buscando: false, erro: '', colando: false, salvando: false, testando: false, msg: '', msgCor: '' };
 const IA_LIGADO = () => typeof APP_CONFIG !== 'undefined' && APP_CONFIG.ia === true && REAL();
 /* o dono só vê depois que a chave dele entrou; o estúdio vê sempre */
-const IA_VE = () => IA_LIGADO() && (WZ.papel === 'admin' || (WZ.papel === 'dono' && !!(IA.dados && IA.dados.tem_chave)));
+const IA_VE = () => IA_LIGADO() && (WZ.papel === 'admin' || (VE_CONTA() && !!(IA.dados && IA.dados.tem_chave)));
 const IA_ESTUDIO = () => WZ.papel === 'admin';
 const IA_CAMBIO = 5.80 * 1.035;   /* dólar + IOF do cartão, a mesma conta do acordo */
 const IA_CHAVES = 'https://platform.claude.com/settings/keys';
@@ -34,7 +34,7 @@ async function iaPede(acao, extra) {
   return { ok: r.ok, status: r.status, j: j || {} };
 }
 async function iaCarregar(forcar) {
-  if (!DONO() || !IA_LIGADO()) { IA.dados = null; IA.carregou = true; return; }
+  if (!VE_CONTA() || !IA_LIGADO()) { IA.dados = null; IA.carregou = true; return; }
   if (IA.buscando || (IA.carregou && !forcar)) return;
   IA.buscando = true;
   try {
@@ -72,7 +72,7 @@ function iaFaixa() {
 
 function vIa() {
   const topo = `${faixaCel()}<div class="topo"><div><span class="olho">${esc(MARCA)}</span><h1>IA da Milla</h1></div></div>`;
-  if (!IA_LIGADO() || !DONO()) return topo + `<div class="box"><b>${IA_LIGADO() ? 'Só o dono da ' + esc(MARCA) + ' vê a IA da Milla.' : 'A IA da Milla não aparece neste app.'}</b><div class="sm">As conversas, os leads e os imóveis estão no menu.</div></div>`;
+  if (!IA_LIGADO() || !VE_CONTA()) return topo + `<div class="box"><b>${IA_LIGADO() ? 'Só o dono e a gerência da ' + esc(MARCA) + ' veem a IA da Milla.' : 'A IA da Milla não aparece neste app.'}</b><div class="sm">As conversas, os leads e os imóveis estão no menu.</div></div>`;
   if (!IA.carregou || IA.buscando && !IA.dados) return topo + '<div class="sm vazio">Carregando…</div>';
   if (IA.erro && !IA.dados) return topo + `<div class="box"><b>${esc(IA.erro)}</b><button type="button" class="btn btn-line btn-p" data-act="ia-recarregar">Tentar de novo</button></div>`;
   const d = IA.dados;
