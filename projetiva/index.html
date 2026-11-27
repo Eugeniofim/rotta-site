@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projetiva — Licenciamento ambiental no Paraná</title>
+  <meta name="description" content="Licenciamento ambiental (LP, LI e LO), inventário florestal, estudos, planos e monitoramento para o seu empreendimento. Peça um orçamento pelo WhatsApp.">
+  <meta name="theme-color" content="#0B1250">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="img/icone-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="img/icone-180.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="Projetiva — Licenciamento ambiental">
+  <meta property="og:description" content="O seu projeto, nosso compromisso ambiental. Licenças Prévia, de Instalação e de Operação, do estudo de viabilidade ao monitoramento.">
+  <meta property="og:url" content="https://rottaguide.com/projetiva/">
+  <meta property="og:image" content="https://rottaguide.com/projetiva/img/compartilhar.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilo.css">
+
+  <!-- Decide antes de pintar se a cena 3D entra. Sem WebGL 2 ou com "reduzir movimento", fica a versão parada. -->
+  <script>
+    (function () {
+      var raiz = document.documentElement;
+      raiz.classList.add('js');
+      try {
+        var quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var gl = document.createElement('canvas').getContext('webgl2');
+        if (gl && !quieto) raiz.classList.add('com-3d');
+        var perde = gl && gl.getExtension('WEBGL_lose_context');
+        if (perde) perde.loseContext();
+      } catch (e) {}
+    })();
+  </script>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.170.0/build/three.module.min.js" } }
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Projetiva Licenciamento Ambiental",
+      "slogan": "O seu projeto, nosso compromisso ambiental.",
+      "description": "Licenciamento ambiental, inventário florestal, estudos, planos e monitoramento ambiental.",
+      "areaServed": "Paraná, Brasil"
+    }
+  </script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Símbolo das três camadas, reaproveitado na página -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <path id="camada-1" d="M110 20 Q110 4 125.1 9.4 L284.9 67 Q300 72.4 315.1 67 L474.9 9.4 Q490 4 490 20 L490 128 Q490 144 474.9 149.4 L315.1 207 Q300 212.4 284.9 207 L125.1 149.4 Q110 144 110 128 Z"/>
+      <path id="camada-2" d="M55 158.2 Q55 142.2 70.1 147.6 L284.9 225 Q300 230.4 315.1 225 L529.9 147.6 Q545 142.2 545 158.2 L545 266.2 Q545 282.2 529.9 287.6 L315.1 365 Q300 370.4 284.9 365 L70.1 287.6 Q55 282.2 55 266.2 Z"/>
+      <path id="camada-3" d="M4 297.8 Q4 281.8 19.1 287.3 L284.9 383 Q300 388.4 315.1 383 L580.9 287.3 Q596 281.8 596 297.8 L596 405.8 Q596 421.8 580.9 427.3 L315.1 523 Q300 528.4 284.9 523 L19.1 427.3 Q4 421.8 4 405.8 Z"/>
+      <symbol id="marca" viewBox="0 0 600 533">
+        <use href="#camada-1" style="fill:var(--c1,#12A83A)"/>
+        <use href="#camada-2" style="fill:var(--c2,#0A7A2B)"/>
+        <use href="#camada-3" style="fill:var(--c3,#0B1250)"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="fundo" aria-hidden="true"></div>
+  <canvas class="cena" id="cena" aria-hidden="true"></canvas>
+
+  <header class="topo" id="topo">
+    <div class="topo__dentro">
+      <a class="topo__logo" href="#inicio" aria-label="Projetiva Licenciamento Ambiental, voltar ao início">
+        <img src="img/logo.png" alt="Projetiva Licenciamento Ambiental" width="452" height="266">
+      </a>
+      <button class="topo__menu" type="button" aria-expanded="false" aria-controls="navegacao">
+        <span class="topo__menu-barras" aria-hidden="true"></span>
+        <span class="so-leitor">Abrir menu</span>
+      </button>
+      <nav class="topo__nav" id="navegacao" aria-label="Seções da página">
+        <a href="#licencas">Licenças</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#campo">Em campo</a>
+        <a href="#sobre">A Projetiva</a>
+        <a href="#contato">Contato</a>
+        <a class="btn btn--pequeno" href="#contato" data-zap="Olá! Quero um orçamento de licenciamento ambiental.">Pedir orçamento</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+
+    <!-- ============ TOPO ============ -->
+    <section class="hero" id="inicio" aria-labelledby="titulo-hero">
+      <div class="hero__dentro">
+        <div class="hero__texto">
+          <p class="olho">Engenharia e licenciamento ambiental</p>
+          <h1 id="titulo-hero">O seu projeto, <br>nosso <em>compromisso ambiental.</em></h1>
+          <p class="hero__sub">Conduzimos o licenciamento do seu empreendimento da viabilidade à licença de operação, com inventário florestal, estudos técnicos e monitoramento feitos por quem vai a campo.</p>
+          <div class="hero__acoes">
+            <a class="btn" href="#contato" data-zap="Olá! Quero um orçamento de licenciamento ambiental.">
+              <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              Pedir orçamento no WhatsApp
+            </a>
+            <a class="btn btn--contorno" href="#servicos">Ver os serviços</a>
+          </div>
+          <p class="hero__fases"><span>Licença Prévia</span><span>Licença de Instalação</span><span>Licença de Operação</span></p>
+        </div>
+
+        <div class="hero__arte" id="arte-hero">
+          <!-- Versão parada das três camadas. Aparece primeiro; a cena 3D assume este mesmo lugar assim que carrega. -->
+          <svg class="camadas-paradas" viewBox="0 0 600 533" role="img" aria-label="As três camadas do símbolo da Projetiva, cada uma com uma foto: mata, medição de árvore em campo e costa.">
+            <defs>
+              <clipPath id="recorte-1"><use href="#camada-1"/></clipPath>
+              <clipPath id="recorte-2"><use href="#camada-2"/></clipPath>
+              <clipPath id="recorte-3"><use href="#camada-3"/></clipPath>
+            </defs>
+            <image class="camada-parada" href="img/mata.webp" x="110" y="4" width="380" height="209" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-1)"/>
+            <image class="camada-parada" href="img/campo-114.webp" x="55" y="142" width="490" height="229" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-2)"/>
+            <image class="camada-parada" href="img/costa-farol.webp" x="4" y="281" width="592" height="248" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-3)"/>
+          </svg>
+          <p class="dica so-3d" aria-hidden="true"><span class="dica__mouse">Passe o mouse pelas camadas</span><span class="dica__toque">Toque nas camadas</span></p>
+        </div>
+      </div>
+      <p class="hero__rolar so-3d" aria-hidden="true">Role para descer pelas três licenças</p>
+    </section>
+
+    <!-- ============ AS TRÊS LICENÇAS (descida em 3D) ============ -->
+    <section class="jornada" id="licencas" aria-labelledby="titulo-licencas">
+      <div class="palco" id="palco">
+        <div class="palco__texto">
+          <p class="olho">Licenciamento ambiental</p>
+          <h2 id="titulo-licencas">Três licenças, uma condução do começo ao fim.</h2>
+
+          <div class="etapas">
+            <article class="etapa etapa--lp" data-etapa="0">
+              <svg class="marca marca--1" aria-hidden="true"><use href="#marca"/></svg>
+              <p class="etapa__sigla" aria-hidden="true">LP</p>
+              <h3>Licença Prévia</h3>
+              <p>Aprova a localização e a concepção do projeto e atesta a viabilidade ambiental. É aqui que se descobre o que pode ser feito no terreno.</p>
+              <p class="etapa__estudos"><span>Estudos comuns nesta fase</span>Estudo de viabilidade ambiental · RAP · EIV · Laudo de restrições ambientais</p>
+            </article>
+
+            <article class="etapa etapa--li" data-etapa="1">
+              <svg class="marca marca--2" aria-hidden="true"><use href="#marca"/></svg>
+              <p class="etapa__sigla" aria-hidden="true">LI</p>
+              <h3>Licença de Instalação</h3>
+              <p>Autoriza o início da obra, de acordo com os planos e programas aprovados. Cada árvore a suprimir é medida, numerada e localizada antes.</p>
+              <p class="etapa__estudos"><span>Estudos comuns nesta fase</span>PCA · PGRS · RDPA · Inventário florestal</p>
+            </article>
+
+            <article class="etapa etapa--lo" data-etapa="2">
+              <svg class="marca marca--3" aria-hidden="true"><use href="#marca"/></svg>
+              <p class="etapa__sigla" aria-hidden="true">LO</p>
+              <h3>Licença de Operação</h3>
+              <p>Autoriza o funcionamento, depois de conferido o cumprimento das etapas anteriores. A partir daqui, o trabalho é manter a operação em dia.</p>
+              <p class="etapa__estudos"><span>Estudos comuns nesta fase</span>Monitoramento de efluentes, emissões e ruídos · PEI · Auditoria ambiental</p>
+            </article>
+          </div>
+
+          <p class="palco__nota">Os estudos exigidos variam conforme o órgão, o porte e a atividade.</p>
+        </div>
+
+        <div class="palco__janela so-3d" id="janela-palco" aria-hidden="true"></div>
+
+        <ol class="palco__passos so-3d" aria-hidden="true">
+          <li class="ativo"><svg class="marca marca--1"><use href="#marca"/></svg><span>LP</span></li>
+          <li><svg class="marca marca--2"><use href="#marca"/></svg><span>LI</span></li>
+          <li><svg class="marca marca--3"><use href="#marca"/></svg><span>LO</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="solido">
+
+      <!-- ============ EMPREENDIMENTOS ============ -->
+      <section class="secao secao--estreita" id="empreendimentos" aria-labelledby="titulo-empreendimentos">
+        <div class="contido duas-colunas">
+          <div data-revela>
+            <p class="olho">Para quem</p>
+            <h2 id="titulo-empreendimentos">Empreendimentos que licenciamos</h2>
+            <p class="apoio">Do loteamento ao pátio de contêineres. Se a sua atividade não está na lista, pergunte: a exigência de licença depende do porte e do lugar.</p>
+          </div>
+          <ul class="setores" data-revela>
+            <li>Empreendimentos imobiliários</li>
+            <li>Empreendimentos náuticos</li>
+            <li>Indústrias</li>
+            <li>Mineração</li>
+            <li>Postos de combustíveis</li>
+            <li>Cemitérios</li>
+            <li>Armazenamento de agrotóxicos</li>
+            <li>Transporte de resíduos sólidos</li>
+            <li>Compostagem</li>
+            <li>Suinocultura</li>
+            <li>Avicultura</li>
+            <li>Bovinocultura</li>
+            <li>Aquicultura e maricultura</li>
+            <li>Fauna nativa e exótica em cativeiro</li>
+            <li>Pátios e estacionamentos de caminhões</li>
+            <li>Pátios de contêineres</li>
+          </ul>
+        </div>
+        <div class="contido">
+          <p class="orgaos" data-revela><span>Órgãos e sistemas dos nossos processos</span> IBAMA · SINAFLOR · DOF+ · CAR · SIGEF (INCRA) · CCIR · ITR</p>
+        </div>
+      </section>
+
+      <!-- ============ SERVIÇOS ============ -->
+      <section class="secao secao--branca" id="servicos" aria-labelledby="titulo-servicos">
+        <div class="contido">
+          <div class="servicos__cabeca" data-revela>
+            <div>
+              <p class="olho">Serviços</p>
+              <h2 id="titulo-servicos">O órgão pediu um estudo? Encontre aqui.</h2>
+              <p class="apoio">Digite a sigla ou o nome. Cada linha abre uma conversa no WhatsApp já com o serviço escrito.</p>
+            </div>
+            <div class="busca">
+              <label for="busca-servico">Buscar serviço ou sigla</label>
+              <div class="busca__campo">
+                <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+                <input id="busca-servico" type="search" placeholder="Ex.: PGRS, CAR, drone" autocomplete="off" spellcheck="false">
+              </div>
+              <p class="busca__conta" id="busca-conta" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="grupos" id="grupos">
+            <section class="grupo" data-revela>
+              <h3>Florestal e fauna</h3>
+              <ul>
+                <li><a class="servico" href="#contato" data-extra="ibama sinaflor dof supressao vegetacao arvore corte"><span class="servico__sigla">DOF+</span><span class="servico__nome">Licenciamento e inventário florestal (IBAMA/SINAFLOR)</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="recuperacao area degradada"><span class="servico__sigla">PRAD</span><span class="servico__nome">Plano de Recuperação de Áreas Degradadas</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="animais levantamento afugentamento resgate"><span class="servico__sigla"></span><span class="servico__nome">Gestão de fauna silvestre: levantamento, afugentamento e resgate</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="drone ortofoto aereo topografia mapa"><span class="servico__sigla"></span><span class="servico__nome">Mapeamento digital ortorretificado com drones</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+
+            <section class="grupo" data-revela>
+              <h3>Estudos e laudos</h3>
+              <ul>
+                <li><a class="servico" href="#contato"><span class="servico__sigla"></span><span class="servico__nome">Estudos de viabilidade ambiental</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato"><span class="servico__sigla">RAP</span><span class="servico__nome">Relatório Ambiental Prévio</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato"><span class="servico__sigla">EIV</span><span class="servico__nome">Estudo de Impacto de Vizinhança</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato"><span class="servico__sigla"></span><span class="servico__nome">Laudo de restrições ambientais</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="contaminacao solo"><span class="servico__sigla"></span><span class="servico__nome">Investigação e laudo de passivo ambiental</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato"><span class="servico__sigla"></span><span class="servico__nome">Memorial de caracterização de empreendimentos</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato"><span class="servico__sigla"></span><span class="servico__nome">Auditoria ambiental</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+
+            <section class="grupo" data-revela>
+              <h3>Planos e programas</h3>
+              <ul>
+                <li><a class="servico" href="#contato"><span class="servico__sigla">PCA</span><span class="servico__nome">Plano de Controle Ambiental</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="lixo residuo"><span class="servico__sigla">PGRS</span><span class="servico__nome">Plano de Gerenciamento de Resíduos Sólidos</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="oleo vazamento"><span class="servico__sigla">PEI</span><span class="servico__nome">Plano de Emergência Individual</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato"><span class="servico__sigla">RDPA</span><span class="servico__nome">Relatório de Detalhamento dos Programas Ambientais</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+
+            <section class="grupo" data-revela>
+              <h3>Monitoramento</h3>
+              <ul>
+                <li><a class="servico" href="#contato" data-extra="esgoto agua analise"><span class="servico__sigla"></span><span class="servico__nome">Monitoramento e análises de efluentes líquidos</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="ar barulho chamine"><span class="servico__sigla"></span><span class="servico__nome">Monitoramento de emissões atmosféricas, ruídos e vibrações</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="agua outorga poco"><span class="servico__sigla"></span><span class="servico__nome">Gestão de recursos hídricos</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+
+            <section class="grupo" data-revela>
+              <h3>Regularização fundiária rural</h3>
+              <ul>
+                <li><a class="servico" href="#contato" data-extra="fazenda sitio imovel rural"><span class="servico__sigla">CAR</span><span class="servico__nome">Cadastro Ambiental Rural</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="incra georreferenciamento"><span class="servico__sigla">SIGEF</span><span class="servico__nome">Sistema de Gestão Fundiária do INCRA</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="incra"><span class="servico__sigla">CCIR</span><span class="servico__nome">Certificado de Cadastro de Imóvel Rural</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="imposto"><span class="servico__sigla">ITR</span><span class="servico__nome">Imposto sobre a Propriedade Territorial Rural</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+
+            <section class="grupo" data-revela>
+              <h3>Defesa, remediação e obra</h3>
+              <ul>
+                <li><a class="servico" href="#contato" data-extra="multa autuacao recurso"><span class="servico__sigla"></span><span class="servico__nome">Defesa de auto de infração ambiental</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="contaminacao descontaminacao"><span class="servico__sigla"></span><span class="servico__nome">Remediação ambiental</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="projeto obra"><span class="servico__sigla"></span><span class="servico__nome">Engenharia civil</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+
+            <section class="grupo" data-revela>
+              <h3>Capacitação</h3>
+              <ul>
+                <li><a class="servico" href="#contato" data-extra="curso brigada vazamento"><span class="servico__sigla"></span><span class="servico__nome">Cursos e treinamento de resposta a emergência ambiental terrestre e aquática</span><span class="servico__ir">Orçar</span></a></li>
+                <li><a class="servico" href="#contato" data-extra="palestra escola comunidade"><span class="servico__sigla"></span><span class="servico__nome">Educação ambiental</span><span class="servico__ir">Orçar</span></a></li>
+              </ul>
+            </section>
+          </div>
+
+          <p class="busca__vazio" id="busca-vazio" hidden>Nenhum serviço com esse nome na lista. <a href="#contato" data-zap="Olá! Preciso de ajuda com um serviço ambiental que não achei na lista do site.">Descreva o que o órgão pediu pelo WhatsApp</a> e indicamos o caminho.</p>
+        </div>
+      </section>
+
+      <!-- ============ EM CAMPO ============ -->
+      <section class="secao" id="campo" aria-labelledby="titulo-campo">
+        <div class="contido">
+          <div class="campo__cabeca" data-revela>
+            <p class="olho">Em campo</p>
+            <h2 id="titulo-campo">Cada árvore medida, numerada e localizada.</h2>
+            <p class="apoio">No inventário florestal, cada indivíduo recebe plaqueta, medida e coordenada. As legendas abaixo trazem a data e a posição registradas na própria foto.</p>
+          </div>
+
+          <div class="galeria">
+            <figure class="foto foto--retrato" data-revela data-inclina>
+              <div class="foto__quadro"><img src="img/campo-109.webp" alt="Tronco com plaqueta laranja número 109 da Projetiva ao lado de um GPS de mão" width="1000" height="1333" loading="lazy" decoding="async"></div>
+              <figcaption><strong>Árvore nº 109, plaqueta e GPS</strong><span>Paranaguá, PR · 20 abr 2026 · UTM 22J 742179 7168179</span></figcaption>
+            </figure>
+            <figure class="foto foto--retrato" data-revela data-inclina>
+              <div class="foto__quadro"><img src="img/campo-114.webp" alt="Técnico de colete laranja mede com fita a circunferência do tronco número 114" width="1000" height="1333" loading="lazy" decoding="async"></div>
+              <figcaption><strong>Medição da árvore nº 114</strong><span>Paranaguá, PR · 20 abr 2026 · UTM 22J 742149 7168169</span></figcaption>
+            </figure>
+            <figure class="foto foto--retrato" data-revela data-inclina>
+              <div class="foto__quadro"><img src="img/campo-morretes.webp" alt="Técnico de capacete mede com fita o tronco de uma árvore coberta de musgo" width="1000" height="1333" loading="lazy" decoding="async"></div>
+              <figcaption><strong>Inventário florestal</strong><span>Morretes, PR · 26 fev 2026 · UTM 22J 726426 7174751</span></figcaption>
+            </figure>
+            <figure class="foto foto--paisagem" data-revela data-inclina>
+              <div class="foto__quadro"><img src="img/costa-trapiche.webp" alt="Vista aérea de uma ilha com mata, trapiche, barcos e praia" width="1400" height="776" loading="lazy" decoding="async"></div>
+              <figcaption><strong>Imagem aérea</strong><span>Ilha do Mel, PR</span></figcaption>
+            </figure>
+            <figure class="foto foto--paisagem" data-revela data-inclina>
+              <div class="foto__quadro"><img src="img/fortaleza.webp" alt="Vista aérea de uma fortaleza branca na praia, ao pé de um morro coberto de mata" width="1300" height="728" loading="lazy" decoding="async"></div>
+              <figcaption><strong>Imagem aérea</strong><span>Ilha do Mel, PR</span></figcaption>
+            </figure>
+            <figure class="foto foto--paisagem" data-revela data-inclina>
+              <div class="foto__quadro"><img src="img/farol.webp" alt="Farol branco no alto de um morro, com praia e baía ao fundo" width="1300" height="715" loading="lazy" decoding="async"></div>
+              <figcaption><strong>Imagem aérea</strong><span>Ilha do Mel, PR</span></figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ A PROJETIVA ============ -->
+      <section class="secao secao--folha" id="sobre" aria-labelledby="titulo-sobre">
+        <div class="contido">
+          <div class="sobre__topo">
+            <div data-revela>
+              <p class="olho">A Projetiva</p>
+              <h2 id="titulo-sobre">Licenciamos o progresso que respeita a natureza.</h2>
+            </div>
+            <div class="sobre__missao" data-revela>
+              <h3>Missão</h3>
+              <p>Simplificar o licenciamento ambiental para impulsionar o desenvolvimento sustentável, transformando desafios legais em oportunidades de crescimento.</p>
+            </div>
+          </div>
+
+          <div class="valores" data-revela>
+            <div class="valores__coluna">
+              <h3>Conhecimento técnico</h3>
+              <dl>
+                <dt>Expertise profunda</dt>
+                <dd>Entender e aplicar a legislação ambiental a cada tipo de empreendimento.</dd>
+                <dt>Soluções criativas</dt>
+                <dd>Projetos e estudos que vão além da conformidade e reduzem impactos.</dd>
+                <dt>Atualização constante</dt>
+                <dd>Acompanhar as normas e as melhores práticas do mercado.</dd>
+              </dl>
+            </div>
+            <div class="valores__coluna">
+              <h3>Transparência e comunicação</h3>
+              <dl>
+                <dt>Clareza no processo</dt>
+                <dd>Informações sobre o licenciamento de forma clara e acessível.</dd>
+                <dt>Abertura e diálogo</dt>
+                <dd>Confiança com o cliente e com a comunidade, inclusive em audiências públicas.</dd>
+                <dt>Responsabilidade</dt>
+                <dd>Responsabilidade técnica e ética em todas as etapas.</dd>
+              </dl>
+            </div>
+            <div class="valores__coluna">
+              <h3>Parceria e sustentabilidade</h3>
+              <dl>
+                <dt>Visão de longo prazo</dt>
+                <dd>Ir além da licença e apoiar a gestão ambiental da empresa.</dd>
+                <dt>Geração de valor</dt>
+                <dd>Conformidade legal que evita multas e fortalece a imagem do negócio.</dd>
+                <dt>Impacto positivo</dt>
+                <dd>O licenciamento como investimento no ambiente e na comunidade.</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTATO ============ -->
+      <section class="secao secao--marinho" id="contato" aria-labelledby="titulo-contato">
+        <div class="contido contato">
+          <div class="contato__texto" data-revela>
+            <p class="olho">Contato</p>
+            <h2 id="titulo-contato">Conte o que você precisa licenciar.</h2>
+            <p class="apoio">Preencha em um minuto. A mensagem abre no seu WhatsApp, pronta para enviar. Nada fica guardado neste site.</p>
+            <p class="contato__lema">Conformidade ambiental com a velocidade dos seus negócios.</p>
+          </div>
+
+          <form class="formulario" id="formulario" novalidate data-revela>
+            <div class="campo">
+              <label for="f-nome">Seu nome</label>
+              <input id="f-nome" name="nome" type="text" autocomplete="name" required aria-describedby="erro-nome">
+              <p class="campo__erro" id="erro-nome" hidden>Escreva o seu nome para a mensagem sair assinada.</p>
+            </div>
+            <div class="campo">
+              <label for="f-tipo">O que você precisa</label>
+              <select id="f-tipo" name="tipo">
+                <option>Licenciamento ambiental (LP, LI ou LO)</option>
+                <option>Inventário ou licenciamento florestal</option>
+                <option>Estudo, laudo ou plano ambiental</option>
+                <option>Monitoramento ambiental</option>
+                <option>Regularização de imóvel rural</option>
+                <option>Defesa de auto de infração</option>
+                <option>Outro assunto</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="f-cidade">Município do empreendimento <span class="campo__opcional">opcional</span></label>
+              <input id="f-cidade" name="cidade" type="text" autocomplete="address-level2">
+            </div>
+            <div class="campo">
+              <label for="f-detalhes">Detalhes <span class="campo__opcional">opcional</span></label>
+              <textarea id="f-detalhes" name="detalhes" rows="3" placeholder="Ex.: loteamento de 2 hectares, o órgão pediu RAP."></textarea>
+            </div>
+            <button class="btn btn--cheio" type="submit">
+              <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              Enviar pelo WhatsApp
+            </button>
+            <p class="formulario__retorno" id="retorno" role="status" aria-live="polite" hidden>O WhatsApp abriu com a sua mensagem. Não abriu? <a id="retorno-link" href="#" target="_blank" rel="noopener">Abrir de novo</a>.</p>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="rodape">
+    <div class="contido rodape__dentro">
+      <div class="rodape__marca">
+        <span class="rodape__logo"><img src="img/logo.png" alt="Projetiva Licenciamento Ambiental" width="452" height="266" loading="lazy"></span>
+        <p>O seu projeto, nosso compromisso ambiental.</p>
+      </div>
+      <nav class="rodape__nav" aria-label="Rodapé">
+        <a href="#licencas">Licenças</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#campo">Em campo</a>
+        <a href="#sobre">A Projetiva</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <p class="rodape__fim">© 2026 Projetiva Licenciamento Ambiental</p>
+    </div>
+  </footer>
+
+  <a class="zap-fixo" id="zap-fixo" href="#contato" data-zap="Olá! Quero um orçamento de licenciamento ambiental.">
+    <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+    Pedir orçamento
+  </a>
+
+  <script src="js/site.js" defer></script>
+  <script type="module" src="js/cena.js" onerror="document.documentElement.classList.remove('com-3d')"></script>
+</body>
+</html>
