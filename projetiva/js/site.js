@@ -191,13 +191,12 @@ const PROJETIVA = {
   }, { passive: true });
   atualizarZap();
 
-  /* ---------- rede de segurança da cena 3D ----------
-     Se a cena não ficar pronta em 8 s (sem internet para a biblioteca, por exemplo),
+  /* ---------- rede de segurança da cena ----------
+     Se a cena não ficar pronta em 12 s (internet muito lenta para as fotos, por exemplo),
      a página volta para a versão parada. */
   if (raiz.classList.contains('com-3d')) {
-    window.addEventListener('projetiva:cena-falhou', function () { raiz.classList.remove('com-3d'); });
     setTimeout(function () {
       if (!raiz.classList.contains('cena-pronta')) raiz.classList.remove('com-3d');
-    }, 8000);
+    }, 12000);
   }
 })();

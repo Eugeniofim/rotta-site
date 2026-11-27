@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Projetiva — Licenciamento ambiental no Paraná</title>
   <meta name="description" content="Licenciamento ambiental (LP, LI e LO), inventário florestal, estudos, planos e monitoramento para o seu empreendimento. Peça um orçamento pelo WhatsApp.">
-  <meta name="theme-color" content="#0B1250">
+  <meta name="theme-color" content="#08160D">
   <meta name="robots" content="noindex,nofollow">
   <link rel="icon" href="img/icone-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="img/icone-180.png">
@@ -19,10 +19,13 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=erode@400,401,500,501,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/estilo.css">
 
-  <!-- Decide antes de pintar se a cena 3D entra. Sem WebGL 2 ou com "reduzir movimento", fica a versão parada. -->
+  <!-- Decide antes de pintar se a cena entra. Sem WebGL 2 ou com "reduzir movimento", fica a versão parada. -->
   <script>
     (function () {
       var raiz = document.documentElement;
@@ -35,9 +38,6 @@
         if (perde) perde.loseContext();
       } catch (e) {}
     })();
-  </script>
-  <script type="importmap">
-    { "imports": { "three": "https://unpkg.com/three@0.170.0/build/three.module.min.js" } }
   </script>
 
   <script type="application/ld+json">
@@ -101,11 +101,11 @@
           <h1 id="titulo-hero">O seu projeto, <br>nosso <em>compromisso ambiental.</em></h1>
           <p class="hero__sub">Conduzimos o licenciamento do seu empreendimento da viabilidade à licença de operação, com inventário florestal, estudos técnicos e monitoramento feitos por quem vai a campo.</p>
           <div class="hero__acoes">
-            <a class="btn" href="#contato" data-zap="Olá! Quero um orçamento de licenciamento ambiental.">
+            <a class="btn btn--areia" href="#contato" data-zap="Olá! Quero um orçamento de licenciamento ambiental.">
               <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
               Pedir orçamento no WhatsApp
             </a>
-            <a class="btn btn--contorno" href="#servicos">Ver os serviços</a>
+            <a class="btn btn--fantasma" href="#servicos">Ver os serviços</a>
           </div>
           <p class="hero__fases"><span>Licença Prévia</span><span>Licença de Instalação</span><span>Licença de Operação</span></p>
         </div>
@@ -118,14 +118,14 @@
               <clipPath id="recorte-2"><use href="#camada-2"/></clipPath>
               <clipPath id="recorte-3"><use href="#camada-3"/></clipPath>
             </defs>
-            <image class="camada-parada" href="img/mata.webp" x="110" y="4" width="380" height="209" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-1)"/>
+            <image class="camada-parada" href="img/mata-g.webp" x="110" y="4" width="380" height="209" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-1)"/>
             <image class="camada-parada" href="img/campo-114.webp" x="55" y="142" width="490" height="229" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-2)"/>
-            <image class="camada-parada" href="img/costa-farol.webp" x="4" y="281" width="592" height="248" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-3)"/>
+            <image class="camada-parada" href="img/costa-g.webp" x="4" y="281" width="592" height="248" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-3)"/>
           </svg>
           <p class="dica so-3d" aria-hidden="true"><span class="dica__mouse">Passe o mouse pelas camadas</span><span class="dica__toque">Toque nas camadas</span></p>
         </div>
       </div>
-      <p class="hero__rolar so-3d" aria-hidden="true">Role para descer pelas três licenças</p>
+      <p class="hero__rolar so-3d" aria-hidden="true">Role para entrar na mata</p>
     </section>
 
     <!-- ============ AS TRÊS LICENÇAS (descida em 3D) ============ -->
@@ -137,7 +137,6 @@
 
           <div class="etapas">
             <article class="etapa etapa--lp" data-etapa="0">
-              <svg class="marca marca--1" aria-hidden="true"><use href="#marca"/></svg>
               <p class="etapa__sigla" aria-hidden="true">LP</p>
               <h3>Licença Prévia</h3>
               <p>Aprova a localização e a concepção do projeto e atesta a viabilidade ambiental. É aqui que se descobre o que pode ser feito no terreno.</p>
@@ -145,7 +144,6 @@
             </article>
 
             <article class="etapa etapa--li" data-etapa="1">
-              <svg class="marca marca--2" aria-hidden="true"><use href="#marca"/></svg>
               <p class="etapa__sigla" aria-hidden="true">LI</p>
               <h3>Licença de Instalação</h3>
               <p>Autoriza o início da obra, de acordo com os planos e programas aprovados. Cada árvore a suprimir é medida, numerada e localizada antes.</p>
@@ -153,7 +151,6 @@
             </article>
 
             <article class="etapa etapa--lo" data-etapa="2">
-              <svg class="marca marca--3" aria-hidden="true"><use href="#marca"/></svg>
               <p class="etapa__sigla" aria-hidden="true">LO</p>
               <h3>Licença de Operação</h3>
               <p>Autoriza o funcionamento, depois de conferido o cumprimento das etapas anteriores. A partir daqui, o trabalho é manter a operação em dia.</p>
@@ -163,8 +160,6 @@
 
           <p class="palco__nota">Os estudos exigidos variam conforme o órgão, o porte e a atividade.</p>
         </div>
-
-        <div class="palco__janela so-3d" id="janela-palco" aria-hidden="true"></div>
 
         <ol class="palco__passos so-3d" aria-hidden="true">
           <li class="ativo"><svg class="marca marca--1"><use href="#marca"/></svg><span>LP</span></li>
@@ -177,7 +172,7 @@
     <div class="solido">
 
       <!-- ============ EMPREENDIMENTOS ============ -->
-      <section class="secao secao--estreita" id="empreendimentos" aria-labelledby="titulo-empreendimentos">
+      <section class="secao corte" id="empreendimentos" aria-labelledby="titulo-empreendimentos">
         <div class="contido duas-colunas">
           <div data-revela>
             <p class="olho">Para quem</p>
@@ -209,7 +204,7 @@
       </section>
 
       <!-- ============ SERVIÇOS ============ -->
-      <section class="secao secao--branca" id="servicos" aria-labelledby="titulo-servicos">
+      <section class="secao secao--branca corte" id="servicos" aria-labelledby="titulo-servicos">
         <div class="contido">
           <div class="servicos__cabeca" data-revela>
             <div>
@@ -303,7 +298,7 @@
       </section>
 
       <!-- ============ EM CAMPO ============ -->
-      <section class="secao" id="campo" aria-labelledby="titulo-campo">
+      <section class="secao secao--mata corte" id="campo" aria-labelledby="titulo-campo">
         <div class="contido">
           <div class="campo__cabeca" data-revela>
             <p class="olho">Em campo</p>
@@ -341,19 +336,21 @@
       </section>
 
       <!-- ============ A PROJETIVA ============ -->
-      <section class="secao secao--folha" id="sobre" aria-labelledby="titulo-sobre">
+      <section class="faixa corte" id="sobre" aria-labelledby="titulo-sobre">
         <div class="contido">
-          <div class="sobre__topo">
-            <div data-revela>
-              <p class="olho">A Projetiva</p>
-              <h2 id="titulo-sobre">Licenciamos o progresso que respeita a natureza.</h2>
-            </div>
-            <div class="sobre__missao" data-revela>
-              <h3>Missão</h3>
-              <p>Simplificar o licenciamento ambiental para impulsionar o desenvolvimento sustentável, transformando desafios legais em oportunidades de crescimento.</p>
-            </div>
+          <div data-revela>
+            <p class="olho">A Projetiva</p>
+            <h2 id="titulo-sobre">Licenciamos o progresso que respeita a natureza.</h2>
           </div>
+          <div class="faixa__missao" data-revela>
+            <h3>Missão</h3>
+            <p>Simplificar o licenciamento ambiental para impulsionar o desenvolvimento sustentável, transformando desafios legais em oportunidades de crescimento.</p>
+          </div>
+        </div>
+      </section>
 
+      <section class="secao corte" aria-label="Valores da Projetiva">
+        <div class="contido">
           <div class="valores" data-revela>
             <div class="valores__coluna">
               <h3>Conhecimento técnico</h3>
@@ -393,7 +390,7 @@
       </section>
 
       <!-- ============ CONTATO ============ -->
-      <section class="secao secao--marinho" id="contato" aria-labelledby="titulo-contato">
+      <section class="secao secao--marinho corte" id="contato" aria-labelledby="titulo-contato">
         <div class="contido contato">
           <div class="contato__texto" data-revela>
             <p class="olho">Contato</p>
@@ -461,7 +458,10 @@
     Pedir orçamento
   </a>
 
+  <canvas class="sombra" id="sombra" aria-hidden="true"></canvas>
+
   <script src="js/site.js" defer></script>
-  <script type="module" src="js/cena.js" onerror="document.documentElement.classList.remove('com-3d')"></script>
+  <script src="js/cena.js" defer></script>
+  <script src="js/sombra.js" defer></script>
 </body>
 </html>
