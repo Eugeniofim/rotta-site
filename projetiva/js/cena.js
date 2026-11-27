@@ -25,7 +25,7 @@
   const ESP = 140, CANTO = 16, INCL = 0.36;
   const CAMADAS = [
     { w: 380, y: 4, d: 68.4, par: 22, a: 'img/mata-g.webp', b: 'img/campo-morretes.webp', foco: [0.5, 0.56], nevoa: 1.0, tinta: [0.012, 0.055, 0.022] },
-    { w: 490, y: 142.2, d: 88.2, par: 12, a: 'img/vila-g.webp', b: 'img/campo-114.webp', foco: [0.5, 0.48], inverte: 1, nevoa: 0.45, tinta: [0.010, 0.045, 0.018] },
+    { w: 490, y: 142.2, d: 88.2, par: 12, a: 'img/vila-g.webp', b: 'img/campo-114-janela.webp', foco: [0.5, 0.48], inverte: 1, nevoa: 0.45, tinta: [0.010, 0.045, 0.018] },
     { w: 592, y: 281.8, d: 106.6, par: 5, a: 'img/costa-g.webp', b: 'img/fortaleza.webp', foco: [0.47, 0.42], nevoa: 0.6, tinta: [0.006, 0.012, 0.075] },
   ];
 
