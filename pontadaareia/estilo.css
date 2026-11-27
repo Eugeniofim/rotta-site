@@ -1045,3 +1045,21 @@ button.as-mes { cursor: pointer; }
 #ia-msg[data-cor="verm"] { color: var(--vermelho); }
 #ia-msg[data-cor="ambar"] { color: var(--ambar); }
 @media (max-width: 760px) { .ia-tela .as-valor.ia-mono { font-size: 21px; } }
+
+/* ---------- PLANO E PAGAMENTO (pagamento.js, 27/11/2026): a mensalidade no cartão e o medidor da IA ---------- */
+.pg-msg { font-size: 15px; font-weight: 600; margin-top: -8px; }
+#pg-msg:empty { display: none; }
+#pg-msg[data-cor="verde"] { color: var(--verde); }
+#pg-msg[data-cor="verm"] { color: var(--vermelho); }
+#pg-msg[data-cor="ambar"] { color: var(--ambar); }
+.pg-teste { padding: 12px 16px; border: 1.5px dashed var(--ambar-borda); border-radius: 14px; color: var(--ambar); font-size: 14px; font-weight: 600; line-height: 1.5; }
+.pg-alerta { color: var(--vermelho); font-size: 14px; font-weight: 600; line-height: 1.45; }
+.pg-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.pg-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--ambar); }
+.pg-lnk { appearance: none; background: none; border: 0; min-height: 36px; padding: 0 6px; font-size: 13px; color: var(--dim); text-decoration: underline; text-underline-offset: 3px; }
+.pg-lnk:hover { color: var(--texto); }
+.pg-lnk:disabled { opacity: .55; cursor: default; }
+.pg-auto { gap: 8px; }
+.pg-auto select.inp { width: 100%; }
+.pg-lado .cr-trilho { height: 5px; margin: 5px 0 3px; }
+.as-cel-wrap { gap: 8px; }

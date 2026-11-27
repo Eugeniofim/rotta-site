@@ -18,6 +18,7 @@
      #/creditos   só o dono e o estúdio: os créditos da Milla (1 crédito = 1 pessoa atendida no mês), o saldo e as pessoas atendidas, sem custo nem margem (creditos.js, 24/11)
      #/assinatura só quem gere: a mensalidade da imobiliária com o estúdio, o Pix e o "Já paguei" (assinatura.js)
      #/ia         só o dono e o estúdio: a IA na conta da imobiliária, a chave, o uso do mês e a reserva (ia.js)
+     #/pagamento  o estúdio, o dono e a gerência: a mensalidade no cartão e o medidor da IA com recarga (pagamento.js, 27/11)
 
    Sem banco (config.js do fonte) abre a demonstração com conversas de exemplo.
    Com banco, só a conta dona da sala entra (a RLS confere de novo no banco).
@@ -46,7 +47,7 @@ const SO_GESTOR = ['equipe', 'gestao'];
 /* 16/11/2026: a Sua assinatura (assinatura.js) é uma tela sem item no menu: abre pela linha embaixo do nome da
    imobiliária (computador) ou pelo topo da Gestão (celular). O ADM do estúdio NÃO mora aqui: tem endereço próprio (adm.html). */
 /* 23/11/2026: a IA da Milla (ia.js) também é tela sem item no menu: abre pela linha embaixo da assinatura */
-const TELAS = [...MENU.map(([id]) => id), 'assinatura', 'creditos', 'ia'];
+const TELAS = [...MENU.map(([id]) => id), 'assinatura', 'creditos', 'ia', 'pagamento'];
 const menuVisivel = () => MENU.filter(([id]) => !SO_GESTOR.includes(id) || GESTOR());
 const menuOn = (id, tela) => tela === id;
 const LEAD_ABERTO = s => !['atendido', 'perdido'].includes(s);
@@ -230,6 +231,7 @@ function renderLado() {
     ${typeof asLinhaLado === 'function' ? asLinhaLado() : ''}
     ${typeof crLinhaLado === 'function' ? crLinhaLado() : ''}
     ${typeof iaLinhaLado === 'function' ? iaLinhaLado() : ''}
+    ${typeof pgLinhaLado === 'function' ? pgLinhaLado() : ''}
     <nav class="menu" aria-label="Menu">${menuVisivel().map(([id, l]) => `<a class="mi ${menuOn(id, r.tela) ? 'on' : ''} ${id === SO_GESTOR[0] ? 'mi-gestao' : ''}" href="#/${id}" ${menuOn(id, r.tela) ? 'aria-current="page"' : ''}>${svg(ICO[id])}<span>${l}</span>${n[id] ? `<span class="n">${n[id]}</span>` : ''}</a>`).join('')}</nav>
     <div class="rodape">A Milla responde 24 h pelo número da ${esc(MARCA)}. Quem responde aqui assume a conversa; a Milla volta quando você devolver.</div>
     ${SITE ? `<a class="mi site" href="${esc(SITE)}" target="_blank" rel="noopener">${svg(ICO.site)}<span>Ver o site</span></a>` : ''}
@@ -593,7 +595,7 @@ document.addEventListener('click', async e => {
   }
   if (a === 'demo-entrar') { const id = DEMO_PESSOAS.some(x => x.id === v) ? v : 'carla'; demoPessoa.mem = id; try { localStorage.setItem(DEMO_QUEM, id); localStorage.setItem(DEMO_CHAVE, '1'); } catch (x) {} S.rotaAnterior = ''; location.hash = '#/inicio'; render(); return; }
   if (a === 'demo-sair') { demoPessoa.mem = ''; try { localStorage.removeItem(DEMO_QUEM); localStorage.removeItem(DEMO_CHAVE); } catch (x) {} render(); return; }
-  if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.papel = ''; WZ.gere = false; if (typeof AS !== 'undefined') Object.assign(AS, { dados: null, carregou: false, semFuncao: false, erro: '' }); if (typeof CR !== 'undefined') Object.assign(CR, { dados: null, carregou: false, semFuncao: false, erro: '' }); if (typeof IA !== 'undefined') Object.assign(IA, { dados: null, carregou: false, erro: '', colando: false, msg: '', msgCor: '' }); AC.carregou = false; AC.lista = []; EQ.carregou = false; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
+  if (a === 'sair') { await authSignOut(); WZ.dona = null; WZ.papel = ''; WZ.gere = false; if (typeof AS !== 'undefined') Object.assign(AS, { dados: null, carregou: false, semFuncao: false, erro: '' }); if (typeof CR !== 'undefined') Object.assign(CR, { dados: null, carregou: false, semFuncao: false, erro: '' }); if (typeof IA !== 'undefined') Object.assign(IA, { dados: null, carregou: false, erro: '', colando: false, msg: '', msgCor: '' }); if (typeof PG !== 'undefined') Object.assign(PG, { dados: null, carregou: false, buscando: false, erro: '', proibido: false, confirmando: false, indo: false, salvando: false, msg: '', msgCor: '', msgFica: false }); AC.carregou = false; AC.lista = []; EQ.carregou = false; WZ.lista = []; WZ.carregou = false; LD.lista = []; LD.carregou = false; S.entrarMsg = ''; render(); return; }
   if (a === 'esqueci') {
     const email = ($('e-mail') && $('e-mail').value.trim()) || '';
     if (!email) { $('entrar-msg').textContent = 'Escreva o seu e-mail acima e toque de novo em "Esqueci a senha".'; return; }
@@ -709,6 +711,8 @@ function render() {
     if (r.tela === 'assinatura' && VE_CONTA()) asCarregar(true).then(() => { if (rota().tela === 'assinatura') render(); });
     if (r.tela === 'creditos' && DONO()) crCarregar(true).then(() => { if (rota().tela === 'creditos') render(); });
     if (r.tela === 'ia' && VE_CONTA() && typeof iaCarregar === 'function') iaCarregar(true).then(() => { if (rota().tela === 'ia') render(); });
+    /* 27/11: plano e pagamento (pagamento.js): lê de novo ao entrar; na volta do Stripe (#/pagamento/s-…) confirma uma vez */
+    if (r.tela === 'pagamento' && typeof pgEntrou === 'function') pgEntrou(r.param).then(() => { if (rota().tela === 'pagamento') render(); });
   }
   /* a linha da assinatura no menu: carrega uma vez para o dono (a gerência não vê a assinatura) */
   if (VE_CONTA() && !AS.carregou && !AS.buscando && !(real && WZ.dona !== true)) asCarregar().then(render);
@@ -716,6 +720,8 @@ function render() {
   if (DONO() && !CR.carregou && !CR.buscando && !(real && WZ.dona !== true)) crCarregar().then(render);
   /* 23/11: a IA da Milla (ia.js), para a linha no menu e o aviso do Início: só o dono e o estúdio, e só com `ia: true` no config */
   if (typeof IA !== 'undefined' && VE_CONTA() && IA_LIGADO() && !IA.carregou && !IA.buscando && !(real && WZ.dona !== true)) iaCarregar().then(render);
+  /* 27/11: plano e pagamento (pagamento.js), para a linha no menu e o medidor do Início: o estúdio, o dono e a gerência, com `pagamento: true` */
+  if (typeof PG !== 'undefined' && PG_PODE() && !PG.carregou && !PG.buscando && !PG.confirmando && !(real && WZ.dona !== true)) pgCarregar().then(render);
   let html;
   if (real && WZ.dona === false) html = vNaoDona();
   else if (r.tela === 'inicio') html = vInicio();
@@ -726,9 +732,11 @@ function render() {
   else if (r.tela === 'assinatura') html = vAssinatura();
   else if (r.tela === 'creditos') html = vCreditos();
   else if (r.tela === 'ia') html = typeof vIa === 'function' ? vIa() : vSoGestor('IA da Milla');
+  else if (r.tela === 'pagamento') html = typeof vPagamento === 'function' ? vPagamento() : vSoGestor('Plano e pagamento');
   else html = vWhats(r.param);
   /* o que entra logo abaixo da faixa do celular: o aviso da mensalidade no Início e a linha da assinatura na Gestão */
-  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() + (typeof iaFaixa === 'function' ? iaFaixa() : '') + crCartao() : r.tela === 'gestao' && VE_CONTA() && (asLinhaCel() || (typeof iaLinhaCel === 'function' && iaLinhaCel())) ? '<div class="so-cel as-cel-wrap">' + asLinhaCel() + (typeof iaLinhaCel === 'function' ? iaLinhaCel() : '') + '</div>' : '') : '';
+  const cel = r.tela === 'gestao' && VE_CONTA() ? asLinhaCel() + (typeof iaLinhaCel === 'function' ? iaLinhaCel() : '') + (typeof pgLinhaCel === 'function' ? pgLinhaCel() : '') : '';
+  const extra = !(real && WZ.dona === false) ? (r.tela === 'inicio' ? asFaixa() + (typeof iaFaixa === 'function' ? iaFaixa() : '') + crCartao() + (typeof pgCartao === 'function' ? pgCartao() : '') : cel ? '<div class="so-cel as-cel-wrap">' + cel + '</div>' : '') : '';
   if (extra) { const fx = faixaCel(); html = html.includes(fx) ? html.replace(fx, fx + extra) : extra + html; }
   $('meio').innerHTML = html;
   if (r.tela === 'assinatura') asPinta();
@@ -738,7 +746,7 @@ function render() {
   document.body.classList.toggle('tela-whats', r.tela === 'whats');
   document.body.classList.toggle('tela-inicio', r.tela === 'inicio');
   if (r.tela === 'whats' && !(real && WZ.dona === false)) wzLiga();
-  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe', assinatura: 'Sua assinatura', creditos: 'Créditos', ia: 'IA da Milla' }[r.tela]);
+  document.title = 'Milla · ' + MARCA + ' · ' + ({ inicio: 'Início', whats: 'WhatsApp', leads: 'Leads', imoveis: 'Imóveis', gestao: 'Gestão', equipe: 'Equipe', assinatura: 'Sua assinatura', creditos: 'Créditos', ia: 'IA da Milla', pagamento: 'Plano e pagamento' }[r.tela]);
 }
 window.addEventListener('hashchange', render);
 

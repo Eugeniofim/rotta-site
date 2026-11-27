@@ -16,6 +16,7 @@ var APP_CONFIG = {
   instagram: 'https://www.instagram.com/pontadareiaimoveis',
   fixo: '(41) 3455-1277',
   creditos: true,   /* 24/11/2026: os créditos da Milla (creditos.js); o modo (teste/ligado) quem decide é a sala */
+  pagamento: true,   /* 27/11/2026: Plano e pagamento (pagamento.js): mensalidade no cartão e o medidor da IA. Em teste, só o estúdio vê */
   ia: true,   /* 23/11/2026: a tela IA da Milla (ia.js): a IA na conta da Ponta d'a Areia. Antes da chave, só o estúdio vê */
 
   supabaseUrl: 'https://uopfqlogjzuqpabptxkb.supabase.co',   /* vazio = demonstração sem banco. Com sala: o projeto Pro do estúdio */
