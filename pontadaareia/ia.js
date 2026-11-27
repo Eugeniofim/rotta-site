@@ -15,8 +15,9 @@
 
 const IA = { dados: null, carregou: false, buscando: false, erro: '', colando: false, salvando: false, testando: false, msg: '', msgCor: '' };
 const IA_LIGADO = () => typeof APP_CONFIG !== 'undefined' && APP_CONFIG.ia === true && REAL();
-/* o dono só vê depois que a chave dele entrou; o estúdio vê sempre */
-const IA_VE = () => IA_LIGADO() && (WZ.papel === 'admin' || (VE_CONTA() && !!(IA.dados && IA.dados.tem_chave)));
+/* o estúdio, o dono e a gerência veem sempre, antes e depois da chave, e colam a chave (27/11/2026, Ponta d'a Areia:
+   "dar acesso à Poliana e ao Jaime a tudo… para ela preencher lá e colocar a chave"; quem pode colar vem do cofre, pode_trocar) */
+const IA_VE = () => IA_LIGADO() && (WZ.papel === 'admin' || VE_CONTA());
 const IA_ESTUDIO = () => WZ.papel === 'admin';
 const IA_CAMBIO = 5.80 * 1.035;   /* dólar + IOF do cartão, a mesma conta do acordo */
 const IA_CHAVES = 'https://platform.claude.com/settings/keys';
@@ -77,11 +78,11 @@ function vIa() {
   if (IA.erro && !IA.dados) return topo + `<div class="box"><b>${esc(IA.erro)}</b><button type="button" class="btn btn-line btn-p" data-act="ia-recarregar">Tentar de novo</button></div>`;
   const d = IA.dados;
   if (!IA_VE()) return topo + `<div class="box"><b>A IA da Milla ainda roda na conta do studio Ti Artes.</b><div class="sm">Quando a conta da IA da ${esc(MARCA)} estiver pronta, esta tela mostra o uso do mês e o caminho para o saldo e os recibos.</div></div>`;
-  const x = iaSituacao(d), m = d.mes || {}, est = IA_ESTUDIO(), nomeMes = (typeof AS_MES_LONGO !== 'undefined' ? AS_MES_LONGO[Number(String(m.mes || '').slice(5)) - 1] : '') || 'este mês';
+  const x = iaSituacao(d), m = d.mes || {}, est = IA_ESTUDIO(), pode = !!d.pode_trocar, nomeMes = (typeof AS_MES_LONGO !== 'undefined' ? AS_MES_LONGO[Number(String(m.mes || '').slice(5)) - 1] : '') || 'este mês';
   const abrir = `<a class="btn btn-navy btn-p" href="${esc(d.link_conta)}" target="_blank" rel="noopener">Abrir a conta da IA</a>`;
   const alerta = d.falha ? `<div class="ia-alerta" role="alert"><b>Desde ${esc(iaQuando(d.falha.desde))}, a conta da IA recusou os pedidos da Milla: ${esc(d.falha.texto)}.</b>
-    <span>A Milla continua respondendo normalmente, com a IA da Ti Artes. ${d.falha.motivo === 'chave' ? 'É preciso colar uma chave nova: fale com a Ti Artes.' : 'Abra a conta da IA e confira o saldo, a recarga automática e o cartão.'} O que a reserva usar entra na próxima mensalidade, pelo custo exato.</span></div>` : '';
-  const form = est && IA.colando ? `<form class="ia-form" id="ia-form" autocomplete="off">
+    <span>A Milla continua respondendo normalmente, com a IA da Ti Artes. ${d.falha.motivo === 'chave' ? 'É preciso colar uma chave nova, aqui embaixo, em Colar uma chave nova.' : 'Abra a conta da IA e confira o saldo, a recarga automática e o cartão.'} O que a reserva usar entra na próxima mensalidade, pelo custo exato.</span></div>` : '';
+  const form = pode && IA.colando ? `<form class="ia-form" id="ia-form" autocomplete="off">
       <label for="ia-chave" class="sm b">Chave de API da ${esc(MARCA)} (começa com sk-ant-api)</label>
       <input id="ia-chave" class="inp ia-mono" type="password" autocomplete="off" spellcheck="false" autocapitalize="off" required placeholder="sk-ant-api03-…">
       <div class="ia-acoes"><button type="submit" class="btn btn-navy btn-p" ${IA.salvando ? 'disabled' : ''}>${IA.salvando ? 'Testando…' : 'Testar e salvar'}</button><button type="button" class="btn btn-line btn-p" data-act="ia-cancelar">Cancelar</button></div>
@@ -89,8 +90,8 @@ function vIa() {
     </form>` : '';
   const botoes = `<div class="ia-acoes">${abrir}
       ${d.tem_chave ? `<button type="button" class="btn btn-line btn-p" data-act="ia-testar" ${IA.testando ? 'disabled' : ''}>${IA.testando ? 'Testando…' : 'Testar agora'}</button>` : ''}
-      ${est && !IA.colando ? `<button type="button" class="btn btn-line btn-p" data-act="ia-colar">${d.tem_chave ? 'Colar uma chave nova' : 'Colar a chave'}</button>` : ''}
-      ${est && d.tem_chave ? '<button type="button" class="btn btn-line btn-p ia-tirar" data-act="ia-tirar">Tirar a chave</button>' : ''}</div>`;
+      ${pode && !IA.colando ? `<button type="button" class="btn btn-line btn-p" data-act="ia-colar">${d.tem_chave ? 'Colar uma chave nova' : 'Colar a chave'}</button>` : ''}
+      ${pode && d.tem_chave ? '<button type="button" class="btn btn-line btn-p ia-tirar" data-act="ia-tirar">Tirar a chave</button>' : ''}</div>`;
   const linhas = d.tem_chave ? `<dl class="as-linhas">
       <div><dt>Chave colada em</dt><dd>${esc(iaQuando(d.salva_em) || '—')}</dd></div>
       <div><dt>Último teste</dt><dd>${d.testada_em ? esc(iaQuando(d.testada_em)) + ' · ' + esc(IA_TESTE[d.ultimo_teste] || d.ultimo_teste || '') : '—'}</dd></div>
